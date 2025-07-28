@@ -1,3 +1,5 @@
+import { SearchTracker } from './search-tracker';
+
 interface OpenRouterMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -10,6 +12,23 @@ interface OpenRouterRequest {
   stream?: boolean;
   temperature?: number;
   max_tokens?: number;
+}
+
+export interface WebSearchMetadata {
+  status: 'queued' | 'active' | 'processing' | 'completed' | 'failed';
+  visitedSources: {
+    url: string;
+    domain: string;
+    title?: string;
+    snippet?: string;
+  }[];
+  stats: {
+    totalVisited: number;
+    uniqueDomains: number;
+    startedAt: Date;
+    completedAt?: Date;
+    durationMs?: number;
+  };
 }
 
 interface OpenRouterResponse {
@@ -30,6 +49,7 @@ interface OpenRouterResponse {
     completion_tokens: number;
     total_tokens: number;
   };
+  searchMetadata?: WebSearchMetadata;
 }
 
 export class OpenRouterClient {
@@ -64,13 +84,34 @@ export class OpenRouterClient {
     messages: OpenRouterMessage[],
     model: string = 'perplexity/llama-3.1-sonar-small-128k-online'
   ): Promise<OpenRouterResponse> {
-    return this.chat({
+    // Create a search tracker for this request
+    const searchId = `search-${Date.now()}`;
+    const searchTracker = new SearchTracker(searchId);
+    
+    // Start tracking
+    searchTracker.start();
+    
+    // Make the API call
+    const response = await this.chat({
       model,
       messages,
       web_search: true,
       temperature: 0.7,
       max_tokens: 2000
     });
+    
+    // In a real implementation, we would extract search metadata from the response
+    // For now, we'll simulate some metadata
+    // TODO: Extract actual search metadata from OpenRouter API response
+    
+    // Complete tracking
+    searchTracker.complete();
+    
+    // Attach search metadata to response
+    return {
+      ...response,
+      searchMetadata: searchTracker.getSearchMetadata()
+    };
   }
 
   async validateApiKey(): Promise<boolean> {

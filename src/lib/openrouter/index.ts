@@ -4,5 +4,9 @@ export {
   getFreeModels, 
   getAvailableModels,
   getModelById,
-  type ModelInfo 
+  type ModelInfo,
+  type WebSearchMetadata
 } from './client';
+
+export { SearchTracker } from './search-tracker';
+export { extractDomain, getDomain } from './utils';

@@ -1,5 +1,7 @@
 import { debugLogger } from '@/lib/debug/logger';
 import { analyzeApiError, shouldRetry, getRetryDelay } from './error-handler';
+import { SearchTracker } from './search-tracker';
+import { getDomain } from './utils';
 
 interface OpenRouterMessage {
   role: 'system' | 'user' | 'assistant';
@@ -13,6 +15,23 @@ interface OpenRouterRequest {
   stream?: boolean;
   temperature?: number;
   max_tokens?: number;
+}
+
+interface WebSearchMetadata {
+  status: 'queued' | 'active' | 'processing' | 'completed' | 'failed';
+  visitedSources: {
+    url: string;
+    domain: string;
+    title?: string;
+    snippet?: string;
+  }[];
+  stats: {
+    totalVisited: number;
+    uniqueDomains: number;
+    startedAt: Date;
+    completedAt?: Date;
+    durationMs?: number;
+  };
 }
 
 interface OpenRouterResponse {
@@ -33,6 +52,7 @@ interface OpenRouterResponse {
     completion_tokens: number;
     total_tokens: number;
   };
+  searchMetadata?: WebSearchMetadata;
 }
 
 export class DebugOpenRouterClient {
@@ -142,13 +162,49 @@ export class DebugOpenRouterClient {
       messagesCount: messages.length
     });
 
-    return this.chat({
+    // Create a search tracker for this request
+    const searchId = `search-${Date.now()}`;
+    const searchTracker = new SearchTracker(searchId);
+    
+    // Start tracking
+    searchTracker.start();
+    
+    debugLogger.info('api', 'Web search tracking started', {
+      searchId
+    });
+
+    // Make the API call
+    const response = await this.chat({
       model,
       messages,
       web_search: true,
       temperature: 0.7,
       max_tokens: 2000
     });
+    
+    // In a real implementation, we would extract search metadata from the response
+    // For now, we'll simulate some metadata
+    // TODO: Extract actual search metadata from OpenRouter API response
+    
+    // Complete tracking
+    searchTracker.complete();
+    
+    const metadata = searchTracker.getSearchMetadata();
+    debugLogger.info('api', 'Web search completed', {
+      sourceCount: metadata.stats.totalVisited,
+      uniqueDomains: metadata.stats.uniqueDomains,
+      status: metadata.status,
+      sources: metadata.visitedSources.map(source => ({
+        url: source.url,
+        domain: source.domain
+      }))
+    });
+    
+    // Attach search metadata to response
+    return {
+      ...response,
+      searchMetadata: metadata
+    };
   }
 
   async validateApiKey(): Promise<boolean> {
