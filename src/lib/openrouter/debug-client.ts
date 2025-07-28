@@ -1,4 +1,5 @@
 import { debugLogger } from '@/lib/debug/logger';
+import { analyzeApiError, shouldRetry, getRetryDelay } from './error-handler';
 
 interface OpenRouterMessage {
   role: 'system' | 'user' | 'assistant';
@@ -153,24 +154,105 @@ export class DebugOpenRouterClient {
   async validateApiKey(): Promise<boolean> {
     debugLogger.info('api', 'Starting API key validation');
     
-    try {
-      const response = await this.chat({
-        model: 'meta-llama/llama-3.2-3b-instruct:free',
-        messages: [{ role: 'user', content: 'Hello' }],
-        max_tokens: 10
-      });
-      
-      const isValid = !!response.choices?.[0]?.message?.content;
-      debugLogger.info('api', 'API key validation completed', {
-        isValid,
-        responseId: response.id,
-        hasContent: !!response.choices?.[0]?.message?.content
-      });
-      
-      return isValid;
-    } catch (error) {
-      debugLogger.error('api', 'API key validation failed', { error });
-      return false;
+    // List of models to try for validation (in order of preference)
+    const validationModels = [
+      'microsoft/phi-3-mini-128k-instruct:free',
+      'google/gemma-2-9b-it:free', 
+      'qwen/qwen-2.5-coder-32b-instruct:free',
+      'huggingface/zephyr-7b-beta:free',
+      'openchat/openchat-7b:free',
+      'meta-llama/llama-3.2-3b-instruct:free'
+    ];
+    
+    for (const model of validationModels) {
+      try {
+        debugLogger.info('api', `Trying API key validation with model: ${model}`);
+        
+        const response = await this.chat({
+          model,
+          messages: [{ role: 'user', content: 'Hi' }],
+          max_tokens: 5
+        });
+        
+        const isValid = !!response.choices?.[0]?.message?.content;
+        if (isValid) {
+          debugLogger.success('api', 'API key validation successful', {
+            model,
+            responseId: response.id,
+            hasContent: true
+          });
+          return true;
+        }
+        
+      } catch (error: any) {
+        const errorMessage = error?.message || '';
+        const is429Error = errorMessage.includes('429') || errorMessage.includes('rate-limited');
+        const is401Error = errorMessage.includes('401') || errorMessage.includes('Unauthorized');
+        
+        debugLogger.warn('api', `Validation failed for model ${model}`, {
+          model,
+          error: errorMessage,
+          is429: is429Error,
+          is401: is401Error
+        });
+        
+        // If it's a 401 error, the API key is definitely invalid
+        if (is401Error) {
+          debugLogger.error('api', 'API key is invalid (401 Unauthorized)');
+          return false;
+        }
+        
+        // If it's a 429 error, try next model
+        if (is429Error) {
+          debugLogger.info('api', `Model ${model} is rate-limited, trying next model`);
+          continue;
+        }
+        
+        // For other errors, try next model
+        debugLogger.info('api', `Model ${model} failed with other error, trying next model`);
+        continue;
+      }
     }
+    
+    // If all models failed, check if we can make a simple request to validate the key format
+    try {
+      debugLogger.info('api', 'All models failed, attempting basic API key format validation');
+      
+      // Try a simple request that should fail gracefully if the key is valid but models are unavailable
+      const response = await fetch(`${this.baseUrl}/models`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'HTTP-Referer': window.location.origin,
+          'X-Title': 'AI Career Risk Assessment'
+        }
+      });
+      
+      debugLogger.info('api', 'Models endpoint response', {
+        status: response.status,
+        ok: response.ok
+      });
+      
+      // If we get a 401, the key is invalid
+      if (response.status === 401) {
+        debugLogger.error('api', 'API key is invalid (401 from models endpoint)');
+        return false;
+      }
+      
+      // If we get 200 or other non-401 status, the key is likely valid
+      if (response.status !== 401) {
+        debugLogger.success('api', 'API key appears valid based on models endpoint response');
+        return true;
+      }
+      
+    } catch (error) {
+      debugLogger.warn('api', 'Models endpoint validation failed', { error });
+    }
+    
+    // As a last resort, assume the key might be valid but all models are temporarily unavailable
+    debugLogger.warn('api', 'Could not definitively validate API key - all models may be temporarily unavailable');
+    debugLogger.info('api', 'Proceeding with analysis - if key is invalid, the main request will fail with clearer error');
+    
+    return true; // Allow the main analysis to proceed and fail with a clearer error if needed
   }
 }

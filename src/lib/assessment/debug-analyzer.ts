@@ -58,7 +58,7 @@ export class DebugJobRiskAnalyzer {
           success: false,
           error: {
             type: 'api',
-            message: 'Invalid API key or API connection failed'
+            message: 'API key validation failed. This could be due to an invalid key or temporary rate limiting on free models. Please check your API key and try again.'
           }
         };
       }
@@ -106,17 +106,41 @@ export class DebugJobRiskAnalyzer {
       const apiCallTimer = 'api-call';
       debugLogger.startTimer(apiCallTimer);
 
-      const response = await this.client.chatWithWebSearch([
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ], request.selectedModel);
+      let response;
+      try {
+        response = await this.client.chatWithWebSearch([
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ], request.selectedModel);
 
-      debugLogger.endTimer(apiCallTimer, 'api', 'OpenRouter API call completed', {
-        responseId: response.id,
-        model: response.model,
-        usage: response.usage,
-        finishReason: response.choices[0]?.finish_reason
-      });
+        debugLogger.endTimer(apiCallTimer, 'api', 'OpenRouter API call completed', {
+          responseId: response.id,
+          model: response.model,
+          usage: response.usage,
+          finishReason: response.choices[0]?.finish_reason
+        });
+      } catch (apiError: any) {
+        const errorMessage = apiError?.message || '';
+        const is429Error = errorMessage.includes('429') || errorMessage.includes('rate-limited');
+        
+        debugLogger.error('api', 'Main API call failed', {
+          error: apiError,
+          is429: is429Error,
+          model: request.selectedModel
+        });
+
+        if (is429Error) {
+          return {
+            success: false,
+            error: {
+              type: 'rate_limit',
+              message: `The selected model (${modelInfo.name}) is temporarily rate-limited. Please try again in a few minutes or select a different model.`
+            }
+          };
+        }
+
+        throw apiError; // Re-throw non-rate-limit errors
+      }
 
       // Log response details
       const responseContent = response.choices[0]?.message?.content || '';

@@ -15,7 +15,7 @@ export interface AssessmentResult {
 }
 
 export interface AssessmentError {
-  type: 'validation' | 'api' | 'parsing' | 'network';
+  type: 'validation' | 'api' | 'parsing' | 'network' | 'rate_limit';
   message: string;
   details?: any;
 }
