@@ -34,6 +34,7 @@ export interface AssessmentRequest {
   salaryRange: string;
   skillSet: string[];
   apiKey: string;
+  selectedModel: string;
 }
 
 export interface ProcessedResponse {

@@ -9,7 +9,8 @@ const initialFormData: QuizData = {
   location: '',
   salaryRange: '',
   skillSet: [],
-  apiKey: ''
+  apiKey: '',
+  selectedModel: 'perplexity/llama-3.1-sonar-small-128k-online'
 };
 
 const initialState: FormState = {
@@ -113,7 +114,8 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
         location: '',
         salaryRange: '',
         skillSet: [],
-        apiKey: ''
+        apiKey: '',
+        selectedModel: 'perplexity/llama-3.1-sonar-small-128k-online'
       };
       
       // Clear errors for dependent fields
@@ -124,6 +126,7 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
       delete resetErrors.salaryRange;
       delete resetErrors.skillSet;
       delete resetErrors.apiKey;
+      delete resetErrors.selectedModel;
 
       return {
         ...state,

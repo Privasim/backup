@@ -31,6 +31,10 @@ export const validationSchema: ValidationSchema = {
     minLength: 10,
     pattern: /^sk-or-v1-[a-f0-9]{32,}$/,
     message: 'Please enter a valid OpenRouter API key (sk-or-v1-...)'
+  },
+  selectedModel: {
+    required: true,
+    message: 'Please select an AI model'
   }
 };
 
@@ -102,7 +106,7 @@ export const getFieldsForStep = (step: number): (keyof QuizData)[] => {
     case 2:
       return ['experience', 'industry', 'location', 'salaryRange', 'skillSet'];
     case 3:
-      return ['apiKey'];
+      return ['apiKey', 'selectedModel'];
     default:
       return [];
   }

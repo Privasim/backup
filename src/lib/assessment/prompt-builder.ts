@@ -1,12 +1,13 @@
 import { QuizData } from '@/lib/quiz/types';
 import { formatJobTitle } from '@/lib/quiz/data';
+import { type ModelInfo } from '@/lib/openrouter';
 
 export interface AssessmentPrompt {
   systemPrompt: string;
   userPrompt: string;
 }
 
-export const buildJobRiskAssessmentPrompt = (data: QuizData): AssessmentPrompt => {
+export const buildJobRiskAssessmentPrompt = (data: QuizData, modelInfo?: ModelInfo): AssessmentPrompt => {
   const jobTitle = formatJobTitle(data.jobDescription);
   const skillsList = data.skillSet.join(', ');
   

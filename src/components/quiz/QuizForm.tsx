@@ -17,6 +17,7 @@ import Dropdown from './Dropdown';
 import SkillSelector from './SkillSelector';
 import SummaryPanel from './SummaryPanel';
 import ApiKeyInput from './ApiKeyInput';
+import ModelSelector from './ModelSelector';
 import AnalysisProgress from '../assessment/AnalysisProgress';
 
 export default function QuizForm() {
@@ -88,7 +89,8 @@ export default function QuizForm() {
         location: state.data.location,
         salaryRange: state.data.salaryRange,
         skillSet: state.data.skillSet,
-        apiKey: state.data.apiKey!
+        apiKey: state.data.apiKey!,
+        selectedModel: state.data.selectedModel!
       });
 
       if (result.success && result.data) {
@@ -292,6 +294,13 @@ export default function QuizForm() {
                   <SummaryPanel 
                     data={state.data} 
                     onEdit={handleEditStep}
+                  />
+
+                  <ModelSelector
+                    value={state.data.selectedModel || 'perplexity/llama-3.1-sonar-small-128k-online'}
+                    onChange={(value: string) => handleFieldChange('selectedModel', value)}
+                    error={state.errors.selectedModel}
+                    touched={state.touched.selectedModel}
                   />
 
                   <ApiKeyInput

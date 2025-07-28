@@ -1,1 +1,8 @@
-export { OpenRouterClient, getWebSearchEnabledModels, getFreeModels } from './client';
+export { 
+  OpenRouterClient, 
+  getWebSearchEnabledModels, 
+  getFreeModels, 
+  getAvailableModels,
+  getModelById,
+  type ModelInfo 
+} from './client';

@@ -1,4 +1,4 @@
-import { OpenRouterClient } from '@/lib/openrouter/client';
+import { OpenRouterClient, getModelById } from '@/lib/openrouter';
 import { buildJobRiskAssessmentPrompt, validatePromptData } from './prompt-builder';
 import { ResultProcessor } from './result-processor';
 import { AssessmentRequest, AssessmentResult, AssessmentError, AssessmentProgress, ProcessedResponse } from './types';
@@ -41,16 +41,28 @@ export class JobRiskAnalyzer {
         };
       }
 
+      // Get model information
+      const modelInfo = getModelById(request.selectedModel);
+      if (!modelInfo) {
+        return {
+          success: false,
+          error: {
+            type: 'validation',
+            message: 'Invalid model selection'
+          }
+        };
+      }
+
       // Build prompts
       this.updateProgress('searching', 'Preparing analysis prompts...', 30);
-      const { systemPrompt, userPrompt } = buildJobRiskAssessmentPrompt(request);
+      const { systemPrompt, userPrompt } = buildJobRiskAssessmentPrompt(request, modelInfo);
 
-      // Execute web search analysis
+      // Execute analysis with web search (all models support it)
       this.updateProgress('analyzing', 'Searching web for latest job market data...', 50);
       const response = await this.client.chatWithWebSearch([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
-      ]);
+      ], request.selectedModel);
 
       // Process response
       this.updateProgress('processing', 'Processing analysis results...', 80);
