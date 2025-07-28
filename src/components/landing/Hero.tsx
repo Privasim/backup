@@ -10,22 +10,105 @@ export default function Hero() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-950">
-      <div className="text-center max-w-4xl mx-auto px-6">
-        <h1 className="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white mb-6">
-          Will AI Take Your Job?
-        </h1>
-        
-        <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 mb-8">
-          AI is replacing jobs faster - data driven insights
-        </p>
-        
-        <button 
-          onClick={handleQuizClick}
-          className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-lg transition-colors shadow-lg hover:shadow-xl"
-        >
-          Find out now!
-        </button>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
+      {/* Navigation */}
+      <nav className="px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">AI</span>
+            </div>
+            <span className="text-xl font-bold text-gray-900">CareerGuard</span>
+          </div>
+          <button className="text-blue-600 hover:text-blue-700 font-medium">
+            About
+          </button>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <div className="flex items-center justify-center px-6 py-20">
+        <div className="text-center max-w-4xl mx-auto">
+          {/* Badge */}
+          <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-8">
+            <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+            AI Impact Assessment Platform
+          </div>
+
+          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+            Will AI Replace
+            <span className="text-blue-600 block">Your Career?</span>
+          </h1>
+          
+          <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
+            Get personalized insights about AI's impact on your job role with our comprehensive assessment tool. Make informed career decisions today.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <button 
+              onClick={handleQuizClick}
+              className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 min-w-[200px]"
+            >
+              Start Assessment
+            </button>
+            <button className="px-8 py-4 text-blue-600 hover:text-blue-700 text-lg font-semibold transition-colors min-w-[200px]">
+              Learn More
+            </button>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-8 mt-20 max-w-2xl mx-auto">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600 mb-2">50K+</div>
+              <div className="text-gray-600">Assessments Completed</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600 mb-2">95%</div>
+              <div className="text-gray-600">Accuracy Rate</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600 mb-2">24/7</div>
+              <div className="text-gray-600">Available</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Features Preview */}
+      <div className="px-6 pb-20">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Detailed Analysis</h3>
+              <p className="text-gray-600">Comprehensive evaluation of your role's AI vulnerability across multiple factors.</p>
+            </div>
+
+            <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Instant Results</h3>
+              <p className="text-gray-600">Get immediate insights and personalized recommendations for your career path.</p>
+            </div>
+
+            <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Action Plan</h3>
+              <p className="text-gray-600">Receive tailored strategies to future-proof your career against AI disruption.</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
