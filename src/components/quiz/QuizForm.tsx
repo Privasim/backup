@@ -3,6 +3,7 @@
 import { useEffect, useCallback, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuizForm } from '@/hooks/useQuizForm';
+import { useDebugPanel } from '@/hooks/useDebugPanel';
 import { 
   getJobDescriptions, 
   getContextForJob, 
@@ -19,14 +20,27 @@ import SummaryPanel from './SummaryPanel';
 import ApiKeyInput from './ApiKeyInput';
 import ModelSelector from './ModelSelector';
 import AnalysisProgress from '../assessment/AnalysisProgress';
+import DebugPanel from '../debug/DebugPanel';
+import DebugTestButton from '../debug/DebugTestButton';
+import { debugLogger } from '@/lib/debug/logger';
 
 export default function QuizForm() {
   const router = useRouter();
   const { state, actions } = useQuizForm();
+  const debugPanel = useDebugPanel();
   const prevJobDescriptionRef = useRef<string>('');
   const [analysisProgress, setAnalysisProgress] = useState<any>(null);
   
   const jobDescriptions = getJobDescriptions();
+
+  // Initialize debug logging
+  useEffect(() => {
+    debugLogger.info('system', 'QuizForm component initialized', {
+      currentStep: state.currentStep,
+      hasJobDescription: !!state.data.jobDescription,
+      isAnalyzing: state.isAnalyzing
+    });
+  }, []);
 
   // Declare variables before useEffect hooks
   const canProceedToStep2 = state.data.jobDescription && !state.errors.jobDescription;
@@ -60,24 +74,38 @@ export default function QuizForm() {
   }, [canProceedToStep3, state.currentStep, actions]);
 
   const handleFieldChange = useCallback((field: keyof typeof state.data, value: string | string[]) => {
+    debugLogger.info('validation', `Field changed: ${field}`, {
+      field,
+      valueType: typeof value,
+      valueLength: Array.isArray(value) ? value.length : value.length,
+      currentStep: state.currentStep
+    });
+    
     actions.setField(field, value);
     actions.setTouched(field);
-  }, [actions]);
+  }, [actions, state.currentStep]);
 
   const handleStartAnalysis = async () => {
+    debugLogger.info('system', 'User initiated job risk analysis');
     actions.setSubmitAttempted(true);
     
     if (!actions.validateForm()) {
+      debugLogger.warn('validation', 'Form validation failed, analysis aborted');
       return;
     }
 
     actions.setAnalyzing(true);
+    debugLogger.info('analysis', 'Analysis started', {
+      jobDescription: state.data.jobDescription,
+      selectedModel: state.data.selectedModel,
+      hasApiKey: !!state.data.apiKey
+    });
     
     try {
-      const { createJobRiskAnalyzer } = await import('@/lib/assessment/analyzer');
+      const { createDebugJobRiskAnalyzer } = await import('@/lib/assessment/debug-analyzer');
       
-      // Create analyzer with progress callback
-      const analyzer = createJobRiskAnalyzer(state.data.apiKey!, (progress) => {
+      // Create debug analyzer with progress callback
+      const analyzer = createDebugJobRiskAnalyzer(state.data.apiKey!, (progress) => {
         setAnalysisProgress(progress);
       });
 
@@ -94,6 +122,8 @@ export default function QuizForm() {
       });
 
       if (result.success && result.data) {
+        debugLogger.success('system', 'Analysis completed successfully, storing results');
+        
         // Store both quiz data and analysis results
         localStorage.setItem('quizResults', JSON.stringify(state.data));
         localStorage.setItem('assessmentResults', JSON.stringify(result.data));
@@ -101,18 +131,22 @@ export default function QuizForm() {
         actions.setAnalysisComplete(true);
         
         // Navigate to assessment page
+        debugLogger.info('system', 'Navigating to assessment page');
         router.push('/assessment');
       } else {
         const errorMessage = result.error?.message || 'Analysis failed. Please try again.';
+        debugLogger.error('analysis', 'Analysis failed', { error: result.error });
         actions.setError('submit', errorMessage);
       }
       
     } catch (error) {
+      debugLogger.error('system', 'Analysis threw exception', { error });
       console.error('Analysis error:', error);
       actions.setError('submit', 'Failed to start analysis. Please check your API key and try again.');
     } finally {
       actions.setAnalyzing(false);
       setAnalysisProgress(null);
+      debugLogger.info('system', 'Analysis workflow completed');
     }
   };
 
@@ -327,29 +361,36 @@ export default function QuizForm() {
                   </div>
                 )}
 
-                <button
-                  type="button"
-                  onClick={handleStartAnalysis}
-                  disabled={!isFormComplete || state.isAnalyzing}
-                  className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:shadow-none flex items-center justify-center text-sm"
-                >
-                  {state.isAnalyzing ? (
-                    <>
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Analyzing with AI...
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                      </svg>
-                      Start Job Risk Assessment
-                    </>
-                  )}
-                </button>
+                <div className="space-y-3">
+                  <button
+                    type="button"
+                    onClick={handleStartAnalysis}
+                    disabled={!isFormComplete || state.isAnalyzing}
+                    className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:shadow-none flex items-center justify-center text-sm"
+                  >
+                    {state.isAnalyzing ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Analyzing with AI...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                        Start Job Risk Assessment
+                      </>
+                    )}
+                  </button>
+                  
+                  {/* Debug Test Button - Temporary */}
+                  <div className="flex justify-center">
+                    <DebugTestButton />
+                  </div>
+                </div>
                 
                 <p className="text-center text-xs text-gray-500 mt-2">
                   {state.isAnalyzing ? 'AI is researching your job market...' : 'Uses AI to analyze current job market trends'}
@@ -387,6 +428,12 @@ export default function QuizForm() {
         <AnalysisProgress 
           progress={analysisProgress}
           isVisible={!!analysisProgress}
+        />
+
+        {/* Debug Panel */}
+        <DebugPanel 
+          isVisible={debugPanel.isVisible}
+          onToggle={debugPanel.togglePanel}
         />
       </div>
     </div>
