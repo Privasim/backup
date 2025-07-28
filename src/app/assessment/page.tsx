@@ -3,6 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { QuizData } from '@/lib/quiz/types';
+import RiskGauge from '@/components/assessment/RiskGauge';
+import FactorsChart from '@/components/assessment/FactorsChart';
+import SkillsImpactChart from '@/components/assessment/SkillsImpactChart';
+import TimelineChart from '@/components/assessment/TimelineChart';
+import { exportToPDF, exportToJSON, shareResults, ExportData } from '@/lib/assessment/export';
 
 interface AssessmentResult {
   riskLevel: 'Low' | 'Medium' | 'High';
@@ -116,7 +121,36 @@ export default function AssessmentPage() {
 
   const handleRetakeQuiz = () => {
     localStorage.removeItem('quizResults');
+    localStorage.removeItem('assessmentResults');
     router.push('/quiz');
+  };
+
+  const handleExport = async (format: 'pdf' | 'json') => {
+    if (!result || !quizData) return;
+    
+    const exportData: ExportData = {
+      profile: quizData,
+      assessment: result,
+      exportDate: new Date().toISOString()
+    };
+
+    if (format === 'pdf') {
+      await exportToPDF(exportData);
+    } else {
+      exportToJSON(exportData);
+    }
+  };
+
+  const handleShare = async () => {
+    if (!result || !quizData) return;
+    
+    const exportData: ExportData = {
+      profile: quizData,
+      assessment: result,
+      exportDate: new Date().toISOString()
+    };
+
+    await shareResults(exportData);
   };
 
   if (isLoading) {
@@ -176,27 +210,17 @@ export default function AssessmentPage() {
 
           {/* Risk Score Card */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8">
-            <div className="text-center">
-              <div className={`inline-flex items-center px-6 py-3 rounded-full text-lg font-semibold mb-6 ${getRiskColor(result.riskLevel)}`}>
-                {result.riskLevel} Risk Level
-              </div>
-              
-              <div className="mb-6">
-                <div className="text-6xl font-bold text-gray-900 mb-2">{result.riskScore}%</div>
-                <div className="text-gray-600">AI Displacement Risk</div>
-              </div>
-
-              <div className="w-full bg-gray-200 rounded-full h-3 mb-6">
-                <div 
-                  className={`h-3 rounded-full transition-all duration-1000 ${
-                    result.riskLevel === 'Low' ? 'bg-green-500' :
-                    result.riskLevel === 'Medium' ? 'bg-yellow-500' : 'bg-red-500'
-                  }`}
-                  style={{ width: `${result.riskScore}%` }}
-                ></div>
-              </div>
-
-              <p className="text-gray-700 text-lg leading-relaxed max-w-2xl mx-auto">
+            <div className="text-center mb-8">
+              <RiskGauge 
+                score={result.riskScore} 
+                level={result.riskLevel}
+                size="lg"
+                animated={true}
+              />
+            </div>
+            
+            <div className="max-w-2xl mx-auto text-center">
+              <p className="text-gray-700 text-lg leading-relaxed">
                 {result.summary}
               </p>
             </div>
@@ -205,26 +229,8 @@ export default function AssessmentPage() {
           {/* Detailed Analysis */}
           <div className="grid md:grid-cols-2 gap-8 mb-8">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">Risk Factors</h3>
-              
-              <div className="space-y-4">
-                {Object.entries(result.factors).map(([factor, score]) => (
-                  <div key={factor}>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-gray-700 capitalize">
-                        {factor.replace(/([A-Z])/g, ' $1').trim()}
-                      </span>
-                      <span className="font-semibold text-gray-900">{score}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-1000"
-                        style={{ width: `${score}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">Risk Factors Analysis</h3>
+              <FactorsChart factors={result.factors} animated={true} />
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
@@ -265,6 +271,22 @@ export default function AssessmentPage() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Skills Impact Analysis */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8">
+            <h3 className="text-2xl font-semibold text-gray-900 mb-6">Skills Impact Analysis</h3>
+            <SkillsImpactChart skills={quizData.skillSet} animated={true} />
+          </div>
+
+          {/* Timeline Prediction */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8">
+            <h3 className="text-2xl font-semibold text-gray-900 mb-6">AI Impact Timeline</h3>
+            <TimelineChart 
+              jobRole={quizData.jobDescription.replace('-', ' ')} 
+              industry={quizData.industry}
+              animated={true}
+            />
           </div>
 
           {/* Key Findings */}
@@ -308,9 +330,28 @@ export default function AssessmentPage() {
                 >
                   Take Assessment Again
                 </button>
-                <button className="px-6 py-3 border border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold rounded-xl transition-colors">
-                  Download Report
-                </button>
+                
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => handleExport('pdf')}
+                    className="px-4 py-3 border border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold rounded-xl transition-colors flex items-center space-x-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>Export Report</span>
+                  </button>
+                  
+                  <button 
+                    onClick={handleShare}
+                    className="px-4 py-3 border border-green-600 text-green-600 hover:bg-green-50 font-semibold rounded-xl transition-colors flex items-center space-x-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                    </svg>
+                    <span>Share</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>

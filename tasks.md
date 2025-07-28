@@ -48,6 +48,9 @@
 
 
 
+
+
+
 - [ ] 6. Implement job risk analysis prompt generation
   - Dynamic prompts based on user's job profile
   - Web search queries for AI impact on specific roles
