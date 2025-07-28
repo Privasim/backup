@@ -1,82 +1,131 @@
 import { QuizContextData, DropdownOption } from './types';
 
 export const quizContextData: QuizContextData = {
-  'marketer': {
-    jobDescription: 'Marketer',
-    experiences: ['Entry Level (0-1 years)', '1-3 years', '3-5 years', '5-10 years', '10+ years'],
-    industries: ['Banking', 'Technology', 'Healthcare', 'E-commerce', 'FMCG', 'Real Estate', 'Education'],
-    locations: ['Philippines', 'Singapore', 'Malaysia', 'Thailand', 'Indonesia', 'Vietnam'],
-    salaryRanges: ['₱15,000-25,000', '₱25,000-40,000', '₱40,000-60,000', '₱60,000-100,000', '₱100,000+'],
-    skillSets: [
-      'Digital Marketing', 'Content Marketing', 'Social Media Marketing', 'Email Marketing', 
-      'SEO/SEM', 'PPC Advertising', 'Marketing Analytics', 'Brand Management',
-      'Copy Writing', 'Graphic Design', 'Video Marketing', 'Influencer Marketing',
-      'Marketing Automation', 'CRM Management', 'A/B Testing', 'Conversion Optimization',
-      'Market Research', 'Customer Segmentation', 'Lead Generation', 'Event Marketing'
-    ]
-  },
   'software-developer': {
     jobDescription: 'Software Developer',
     experiences: ['Entry Level (0-1 years)', '1-3 years', '3-5 years', '5-10 years', '10+ years'],
-    industries: ['Technology', 'Fintech', 'Healthcare Tech', 'E-commerce', 'Gaming', 'Startup', 'Enterprise'],
-    locations: ['Philippines', 'Singapore', 'Malaysia', 'Thailand', 'Indonesia', 'Vietnam', 'Remote'],
+    industries: ['Technology', 'Fintech', 'Healthcare Tech', 'E-commerce', 'Gaming', 'Startup', 'Enterprise', 'SaaS', 'Mobile Apps'],
+    locations: ['Philippines', 'Singapore', 'Malaysia', 'Thailand', 'Indonesia', 'Vietnam', 'India', 'Remote', 'Hong Kong', 'Taiwan', 'South Korea', 'Japan'],
     salaryRanges: ['₱25,000-40,000', '₱40,000-70,000', '₱70,000-120,000', '₱120,000-200,000', '₱200,000+'],
     skillSets: [
-      'JavaScript', 'Python', 'Java', 'C#', 'PHP', 'Ruby', 'Go', 'Rust',
-      'React', 'Vue.js', 'Angular', 'Node.js', 'Express.js', 'Django', 'Laravel',
-      'Database Management', 'SQL', 'MongoDB', 'PostgreSQL', 'Redis',
-      'API Development', 'REST APIs', 'GraphQL', 'Microservices',
-      'Cloud Services', 'AWS', 'Azure', 'Google Cloud', 'Docker', 'Kubernetes',
-      'DevOps', 'CI/CD', 'Git', 'Testing', 'Agile Development'
+      'JavaScript', 'TypeScript', 'Python', 'Java', 'C#', 'PHP', 'Ruby', 'Go', 'Rust', 'Swift', 'Kotlin',
+      'React', 'Vue.js', 'Angular', 'Svelte', 'Next.js', 'Nuxt.js', 'Node.js', 'Express.js', 'Django', 'Flask', 'Laravel', 'Spring Boot',
+      'Database Management', 'SQL', 'MongoDB', 'PostgreSQL', 'MySQL', 'Redis', 'Elasticsearch',
+      'API Development', 'REST APIs', 'GraphQL', 'Microservices', 'WebSockets',
+      'Cloud Services', 'AWS', 'Azure', 'Google Cloud', 'Docker', 'Kubernetes', 'Terraform',
+      'DevOps', 'CI/CD', 'Git', 'Testing', 'Jest', 'Cypress', 'Agile Development', 'Scrum'
     ]
   },
-  'data-analyst': {
-    jobDescription: 'Data Analyst',
+  'data-scientist': {
+    jobDescription: 'Data Scientist',
     experiences: ['Entry Level (0-1 years)', '1-3 years', '3-5 years', '5-10 years', '10+ years'],
-    industries: ['Banking', 'Technology', 'Healthcare', 'E-commerce', 'Consulting', 'Government', 'Research'],
-    locations: ['Philippines', 'Singapore', 'Malaysia', 'Thailand', 'Indonesia', 'Remote'],
+    industries: ['Technology', 'Banking', 'Healthcare', 'E-commerce', 'Consulting', 'Government', 'Research', 'Insurance', 'Retail'],
+    locations: ['Philippines', 'Singapore', 'Malaysia', 'Thailand', 'Indonesia', 'Vietnam', 'India', 'Remote', 'Hong Kong', 'Australia'],
+    salaryRanges: ['₱30,000-50,000', '₱50,000-80,000', '₱80,000-130,000', '₱130,000-220,000', '₱220,000+'],
+    skillSets: [
+      'Python', 'R', 'SQL', 'Scala', 'Julia', 'MATLAB',
+      'Machine Learning', 'Deep Learning', 'Neural Networks', 'NLP', 'Computer Vision',
+      'TensorFlow', 'PyTorch', 'Scikit-learn', 'Keras', 'Pandas', 'NumPy',
+      'Statistics', 'Statistical Modeling', 'Hypothesis Testing', 'A/B Testing',
+      'Data Visualization', 'Tableau', 'Power BI', 'Matplotlib', 'Seaborn', 'Plotly',
+      'Big Data', 'Spark', 'Hadoop', 'Kafka', 'Airflow',
+      'Cloud Platforms', 'AWS', 'Azure', 'Google Cloud', 'Databricks'
+    ]
+  },
+  'marketer': {
+    jobDescription: 'Digital Marketer',
+    experiences: ['Entry Level (0-1 years)', '1-3 years', '3-5 years', '5-10 years', '10+ years'],
+    industries: ['Technology', 'E-commerce', 'FMCG', 'Healthcare', 'Education', 'Real Estate', 'Fashion', 'Food & Beverage', 'Travel'],
+    locations: ['Philippines', 'Singapore', 'Malaysia', 'Thailand', 'Indonesia', 'Vietnam', 'India', 'Remote', 'Hong Kong', 'Australia'],
     salaryRanges: ['₱20,000-35,000', '₱35,000-55,000', '₱55,000-85,000', '₱85,000-150,000', '₱150,000+'],
     skillSets: [
-      'SQL', 'Python', 'R', 'Excel', 'Google Sheets',
-      'Tableau', 'Power BI', 'Looker', 'QlikView', 'Data Studio',
-      'Statistics', 'Statistical Analysis', 'Hypothesis Testing',
-      'Machine Learning', 'Predictive Analytics', 'Data Mining',
-      'Data Visualization', 'Dashboard Creation', 'Reporting',
-      'Data Cleaning', 'ETL Processes', 'Database Management',
-      'Business Intelligence', 'KPI Development', 'A/B Testing'
+      'Digital Marketing', 'Content Marketing', 'Social Media Marketing', 'Email Marketing', 'Influencer Marketing',
+      'SEO/SEM', 'Google Ads', 'Facebook Ads', 'LinkedIn Ads', 'TikTok Ads', 'PPC Advertising',
+      'Marketing Analytics', 'Google Analytics', 'Brand Management', 'Growth Hacking',
+      'Copy Writing', 'Content Creation', 'Video Marketing', 'Podcast Marketing',
+      'Marketing Automation', 'HubSpot', 'Mailchimp', 'CRM Management', 'Salesforce',
+      'Conversion Optimization', 'Landing Page Design', 'A/B Testing', 'User Experience',
+      'Market Research', 'Customer Segmentation', 'Lead Generation', 'Event Marketing'
     ]
   },
-  'graphic-designer': {
-    jobDescription: 'Graphic Designer',
+  'ui-ux-designer': {
+    jobDescription: 'UI/UX Designer',
     experiences: ['Entry Level (0-1 years)', '1-3 years', '3-5 years', '5-10 years', '10+ years'],
-    industries: ['Advertising', 'Technology', 'E-commerce', 'Media', 'Fashion', 'Gaming', 'Startup'],
-    locations: ['Philippines', 'Singapore', 'Malaysia', 'Thailand', 'Indonesia', 'Remote'],
-    salaryRanges: ['₱18,000-30,000', '₱30,000-45,000', '₱45,000-70,000', '₱70,000-120,000', '₱120,000+'],
+    industries: ['Technology', 'Fintech', 'E-commerce', 'Gaming', 'Healthcare Tech', 'Education Tech', 'Startup', 'Agency'],
+    locations: ['Philippines', 'Singapore', 'Malaysia', 'Thailand', 'Indonesia', 'Vietnam', 'Remote', 'Hong Kong', 'Australia'],
+    salaryRanges: ['₱25,000-40,000', '₱40,000-65,000', '₱65,000-100,000', '₱100,000-180,000', '₱180,000+'],
     skillSets: [
-      'Adobe Creative Suite', 'Photoshop', 'Illustrator', 'InDesign', 'After Effects',
-      'Figma', 'Sketch', 'Adobe XD', 'Canva', 'Procreate',
-      'UI/UX Design', 'Web Design', 'Mobile Design', 'Responsive Design',
-      'Branding', 'Logo Design', 'Brand Identity', 'Style Guides',
-      'Print Design', 'Layout Design', 'Typography', 'Color Theory',
-      'Illustration', 'Digital Art', 'Icon Design', 'Infographic Design',
-      'Motion Graphics', 'Animation', 'Video Editing', '3D Design'
+      'UI Design', 'UX Design', 'User Research', 'Wireframing', 'Prototyping', 'Usability Testing',
+      'Figma', 'Sketch', 'Adobe XD', 'InVision', 'Principle', 'Framer',
+      'Design Systems', 'Component Libraries', 'Style Guides', 'Brand Guidelines',
+      'Mobile Design', 'Web Design', 'Responsive Design', 'Accessibility Design',
+      'User Journey Mapping', 'Information Architecture', 'Interaction Design',
+      'Visual Design', 'Typography', 'Color Theory', 'Layout Design',
+      'HTML/CSS', 'JavaScript Basics', 'React Basics', 'Design Tokens'
+    ]
+  },
+  'product-manager': {
+    jobDescription: 'Product Manager',
+    experiences: ['Entry Level (0-1 years)', '1-3 years', '3-5 years', '5-10 years', '10+ years'],
+    industries: ['Technology', 'Fintech', 'E-commerce', 'SaaS', 'Healthcare Tech', 'Education Tech', 'Startup', 'Enterprise'],
+    locations: ['Philippines', 'Singapore', 'Malaysia', 'Thailand', 'Indonesia', 'Vietnam', 'Remote', 'Hong Kong', 'Australia'],
+    salaryRanges: ['₱40,000-60,000', '₱60,000-90,000', '₱90,000-140,000', '₱140,000-250,000', '₱250,000+'],
+    skillSets: [
+      'Product Strategy', 'Product Roadmapping', 'Feature Prioritization', 'User Story Writing',
+      'Market Research', 'Competitive Analysis', 'User Research', 'Customer Interviews',
+      'Data Analysis', 'SQL', 'Analytics Tools', 'A/B Testing', 'KPI Tracking',
+      'Agile/Scrum', 'Jira', 'Confluence', 'Trello', 'Asana', 'Notion',
+      'Wireframing', 'Prototyping', 'Figma', 'User Experience', 'Design Thinking',
+      'Stakeholder Management', 'Cross-functional Leadership', 'Communication',
+      'Go-to-Market Strategy', 'Product Launch', 'Growth Metrics'
     ]
   },
   'accountant': {
     jobDescription: 'Accountant',
     experiences: ['Entry Level (0-1 years)', '1-3 years', '3-5 years', '5-10 years', '10+ years'],
-    industries: ['Banking', 'Accounting Firms', 'Manufacturing', 'Real Estate', 'Government', 'Non-profit', 'Consulting'],
-    locations: ['Philippines', 'Singapore', 'Malaysia', 'Thailand', 'Indonesia'],
+    industries: ['Banking', 'Accounting Firms', 'Manufacturing', 'Real Estate', 'Government', 'Non-profit', 'Consulting', 'Insurance', 'Retail'],
+    locations: ['Philippines', 'Singapore', 'Malaysia', 'Thailand', 'Indonesia', 'Vietnam', 'Hong Kong'],
     salaryRanges: ['₱20,000-30,000', '₱30,000-50,000', '₱50,000-80,000', '₱80,000-150,000', '₱150,000+'],
     skillSets: [
-      'Financial Reporting', 'Financial Analysis', 'Financial Planning',
-      'Tax Preparation', 'Tax Planning', 'Tax Compliance',
-      'Auditing', 'Internal Audit', 'External Audit', 'Risk Assessment',
-      'QuickBooks', 'Xero', 'SAP', 'Oracle', 'Peachtree',
-      'Excel', 'Advanced Excel', 'Pivot Tables', 'Financial Modeling',
-      'Budgeting', 'Forecasting', 'Cost Accounting', 'Management Accounting',
-      'Compliance', 'Regulatory Reporting', 'GAAP', 'IFRS',
-      'Payroll Processing', 'Accounts Payable', 'Accounts Receivable'
+      'Financial Reporting', 'Financial Analysis', 'Financial Planning', 'Budgeting', 'Forecasting',
+      'Tax Preparation', 'Tax Planning', 'Tax Compliance', 'VAT', 'Income Tax',
+      'Auditing', 'Internal Audit', 'External Audit', 'Risk Assessment', 'Compliance',
+      'QuickBooks', 'Xero', 'SAP', 'Oracle', 'Peachtree', 'Sage',
+      'Excel', 'Advanced Excel', 'Pivot Tables', 'Financial Modeling', 'VBA',
+      'Cost Accounting', 'Management Accounting', 'GAAP', 'IFRS', 'PAS',
+      'Payroll Processing', 'Accounts Payable', 'Accounts Receivable', 'Cash Flow Management'
+    ]
+  },
+  'sales-representative': {
+    jobDescription: 'Sales Representative',
+    experiences: ['Entry Level (0-1 years)', '1-3 years', '3-5 years', '5-10 years', '10+ years'],
+    industries: ['Technology', 'Real Estate', 'Insurance', 'Automotive', 'Pharmaceutical', 'FMCG', 'B2B Services', 'Retail'],
+    locations: ['Philippines', 'Singapore', 'Malaysia', 'Thailand', 'Indonesia', 'Vietnam', 'Remote'],
+    salaryRanges: ['₱18,000-30,000', '₱30,000-50,000', '₱50,000-80,000', '₱80,000-150,000', '₱150,000+'],
+    skillSets: [
+      'Sales Prospecting', 'Lead Generation', 'Cold Calling', 'Email Outreach',
+      'CRM Management', 'Salesforce', 'HubSpot', 'Pipedrive', 'Zoho CRM',
+      'Negotiation', 'Closing Techniques', 'Objection Handling', 'Relationship Building',
+      'Product Knowledge', 'Solution Selling', 'Consultative Selling', 'B2B Sales', 'B2C Sales',
+      'Sales Presentations', 'Demo Skills', 'Proposal Writing', 'Contract Management',
+      'Social Selling', 'LinkedIn Sales', 'Networking', 'Referral Generation',
+      'Sales Analytics', 'Pipeline Management', 'Forecasting', 'Territory Management'
+    ]
+  },
+  'hr-specialist': {
+    jobDescription: 'HR Specialist',
+    experiences: ['Entry Level (0-1 years)', '1-3 years', '3-5 years', '5-10 years', '10+ years'],
+    industries: ['Technology', 'Banking', 'Manufacturing', 'Healthcare', 'Education', 'Government', 'Consulting', 'BPO'],
+    locations: ['Philippines', 'Singapore', 'Malaysia', 'Thailand', 'Indonesia', 'Vietnam'],
+    salaryRanges: ['₱20,000-35,000', '₱35,000-55,000', '₱55,000-85,000', '₱85,000-140,000', '₱140,000+'],
+    skillSets: [
+      'Recruitment', 'Talent Acquisition', 'Interviewing', 'Candidate Screening',
+      'Employee Relations', 'Performance Management', 'Disciplinary Actions',
+      'HR Policies', 'Employee Handbook', 'Compliance', 'Labor Law',
+      'Payroll Management', 'Benefits Administration', 'Compensation Planning',
+      'Training & Development', 'Onboarding', 'Learning Management Systems',
+      'HRIS', 'Workday', 'BambooHR', 'ADP', 'Excel', 'Data Analysis',
+      'Organizational Development', 'Change Management', 'Employee Engagement'
     ]
   }
 };

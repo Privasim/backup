@@ -127,7 +127,7 @@ export default function Dropdown({
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <label className="block text-sm font-semibold text-gray-900 mb-3">
+      <label className="block text-xs font-semibold text-gray-900 mb-2">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
@@ -141,24 +141,24 @@ export default function Dropdown({
           aria-expanded={isOpen}
           aria-haspopup="listbox"
           aria-labelledby={`${label}-label`}
-          className={`w-full px-4 py-4 text-left bg-white border-2 rounded-xl transition-all duration-200 ${
+          className={`w-full px-3 py-2.5 text-left bg-white border-2 rounded-lg transition-all duration-200 text-sm ${
             disabled 
               ? 'bg-gray-50 border-gray-200 cursor-not-allowed text-gray-400'
               : hasError
-                ? 'border-red-500 ring-4 ring-red-100'
+                ? 'border-red-500 ring-2 ring-red-100'
                 : isOpen 
-                  ? 'border-blue-500 ring-4 ring-blue-100' 
+                  ? 'border-blue-500 ring-2 ring-blue-100' 
                   : value 
                     ? 'border-blue-200 hover:border-blue-300' 
                     : 'border-gray-200 hover:border-gray-300'
-          } focus:outline-none ${!disabled && 'focus:border-blue-500 focus:ring-4 focus:ring-blue-100'}`}
+          } focus:outline-none ${!disabled && 'focus:border-blue-500 focus:ring-2 focus:ring-blue-100'}`}
         >
           <span className={`block ${selectedOption ? 'text-gray-900' : 'text-gray-500'}`}>
             {selectedOption ? selectedOption.label : placeholder}
           </span>
-          <span className="absolute right-4 top-1/2 transform -translate-y-1/2">
+          <span className="absolute right-3 top-1/2 transform -translate-y-1/2">
             <svg 
-              className={`w-5 h-5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''} ${
+              className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''} ${
                 disabled ? 'text-gray-300' : isOpen ? 'text-blue-600' : 'text-gray-400'
               }`} 
               fill="none" 
@@ -171,25 +171,25 @@ export default function Dropdown({
         </button>
 
         {isOpen && (
-          <div className="absolute z-20 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-64 overflow-hidden">
+          <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-hidden">
             {searchable && (
-              <div className="p-3 border-b border-gray-100">
+              <div className="p-2 border-b border-gray-100">
                 <input
                   ref={searchInputRef}
                   type="text"
-                  placeholder="Search options..."
+                  placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-2 py-1.5 text-xs border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             )}
             
-            <div ref={listRef} className="py-2 overflow-y-auto max-h-48" role="listbox">
+            <div ref={listRef} className="py-1 overflow-y-auto max-h-40" role="listbox">
               {processedOptions.map((group, groupIndex) => (
                 <div key={groupIndex}>
                   {group.groupName && (
-                    <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50">
+                    <div className="px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50">
                       {group.groupName}
                     </div>
                   )}
@@ -205,7 +205,7 @@ export default function Dropdown({
                         onClick={() => handleSelect(option.value)}
                         role="option"
                         aria-selected={value === option.value}
-                        className={`w-full px-4 py-3 text-left transition-colors ${
+                        className={`w-full px-3 py-2 text-left transition-colors text-sm ${
                           value === option.value 
                             ? 'bg-blue-50 text-blue-700 font-medium' 
                             : focusedIndex === flatIndex
@@ -214,16 +214,16 @@ export default function Dropdown({
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <div>
-                            <span>{option.label}</span>
+                          <div className="min-w-0 flex-1">
+                            <span className="truncate">{option.label}</span>
                             {option.description && (
-                              <div className="text-sm text-gray-500 mt-1">
+                              <div className="text-xs text-gray-500 mt-0.5 truncate">
                                 {option.description}
                               </div>
                             )}
                           </div>
                           {value === option.value && (
-                            <svg className="w-4 h-4 text-blue-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <svg className="w-3 h-3 text-blue-600 flex-shrink-0 ml-2" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                             </svg>
                           )}
@@ -235,7 +235,7 @@ export default function Dropdown({
               ))}
               
               {flatOptions.length === 0 && (
-                <div className="px-4 py-3 text-gray-500 text-center">
+                <div className="px-3 py-2 text-gray-500 text-center text-sm">
                   No options found
                 </div>
               )}
@@ -245,8 +245,8 @@ export default function Dropdown({
       </div>
 
       {hasError && (
-        <div className="mt-2 flex items-center text-red-600 text-sm">
-          <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <div className="mt-1 flex items-center text-red-600 text-xs">
+          <svg className="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
           </svg>
           {error}
