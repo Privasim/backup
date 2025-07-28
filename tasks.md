@@ -26,18 +26,27 @@
   - Local storage for session persistence (with security warnings)
   - _Requirements: User-provided API authentication_
 
+
+
 - [ ] 4. Implement "Start Job Risk Assessment" button with loading states
   - Disabled state when API key missing or invalid
   - Loading spinner and progress feedback during analysis
+
+
   - Error handling for API failures
   - _Requirements: Assessment trigger with feedback_
 
 ## Phase 2: OpenRouter Web Search Integration
+
+
 - [ ] 5. Create OpenRouter client with web search capabilities
   - HTTP client for OpenRouter API with web_search parameter
   - Support for streaming responses and real-time updates
   - Model selection for web search enabled models
   - _Requirements: LLM web search integration_
+
+
+
 
 - [ ] 6. Implement job risk analysis prompt generation
   - Dynamic prompts based on user's job profile

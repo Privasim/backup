@@ -1,0 +1,101 @@
+interface OpenRouterMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+
+interface OpenRouterRequest {
+  model: string;
+  messages: OpenRouterMessage[];
+  web_search?: boolean;
+  stream?: boolean;
+  temperature?: number;
+  max_tokens?: number;
+}
+
+interface OpenRouterResponse {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: {
+    index: number;
+    message: {
+      role: string;
+      content: string;
+    };
+    finish_reason: string;
+  }[];
+  usage: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
+}
+
+export class OpenRouterClient {
+  private apiKey: string;
+  private baseUrl = 'https://openrouter.ai/api/v1';
+
+  constructor(apiKey: string) {
+    this.apiKey = apiKey;
+  }
+
+  async chat(request: OpenRouterRequest): Promise<OpenRouterResponse> {
+    const response = await fetch(`${this.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': window.location.origin,
+        'X-Title': 'AI Career Risk Assessment'
+      },
+      body: JSON.stringify(request)
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`OpenRouter API error: ${response.status} - ${error}`);
+    }
+
+    return response.json();
+  }
+
+  async chatWithWebSearch(
+    messages: OpenRouterMessage[],
+    model: string = 'perplexity/llama-3.1-sonar-small-128k-online'
+  ): Promise<OpenRouterResponse> {
+    return this.chat({
+      model,
+      messages,
+      web_search: true,
+      temperature: 0.7,
+      max_tokens: 2000
+    });
+  }
+
+  async validateApiKey(): Promise<boolean> {
+    try {
+      const response = await this.chat({
+        model: 'meta-llama/llama-3.2-3b-instruct:free',
+        messages: [{ role: 'user', content: 'Hello' }],
+        max_tokens: 10
+      });
+      return !!response.choices?.[0]?.message?.content;
+    } catch (error) {
+      console.error('API key validation failed:', error);
+      return false;
+    }
+  }
+}
+
+export const getWebSearchEnabledModels = () => [
+  'perplexity/llama-3.1-sonar-small-128k-online',
+  'perplexity/llama-3.1-sonar-large-128k-online',
+  'perplexity/llama-3.1-sonar-huge-128k-online'
+];
+
+export const getFreeModels = () => [
+  'meta-llama/llama-3.2-3b-instruct:free',
+  'google/gemma-2-9b-it:free',
+  'microsoft/phi-3-mini-128k-instruct:free'
+];

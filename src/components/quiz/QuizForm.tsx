@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuizForm } from '@/hooks/useQuizForm';
 import { 
@@ -17,11 +17,13 @@ import Dropdown from './Dropdown';
 import SkillSelector from './SkillSelector';
 import SummaryPanel from './SummaryPanel';
 import ApiKeyInput from './ApiKeyInput';
+import AnalysisProgress from '../assessment/AnalysisProgress';
 
 export default function QuizForm() {
   const router = useRouter();
   const { state, actions } = useQuizForm();
   const prevJobDescriptionRef = useRef<string>('');
+  const [analysisProgress, setAnalysisProgress] = useState<any>(null);
   
   const jobDescriptions = getJobDescriptions();
 
@@ -71,21 +73,44 @@ export default function QuizForm() {
     actions.setAnalyzing(true);
     
     try {
-      // Store data in localStorage for analysis
-      localStorage.setItem('quizResults', JSON.stringify(state.data));
+      const { createJobRiskAnalyzer } = await import('@/lib/assessment/analyzer');
       
-      // TODO: Implement LLM analysis in Phase 2
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Create analyzer with progress callback
+      const analyzer = createJobRiskAnalyzer(state.data.apiKey!, (progress) => {
+        setAnalysisProgress(progress);
+      });
+
+      // Run the analysis
+      const result = await analyzer.analyzeJobRisk({
+        jobDescription: state.data.jobDescription,
+        experience: state.data.experience,
+        industry: state.data.industry,
+        location: state.data.location,
+        salaryRange: state.data.salaryRange,
+        skillSet: state.data.skillSet,
+        apiKey: state.data.apiKey!
+      });
+
+      if (result.success && result.data) {
+        // Store both quiz data and analysis results
+        localStorage.setItem('quizResults', JSON.stringify(state.data));
+        localStorage.setItem('assessmentResults', JSON.stringify(result.data));
+        
+        actions.setAnalysisComplete(true);
+        
+        // Navigate to assessment page
+        router.push('/assessment');
+      } else {
+        const errorMessage = result.error?.message || 'Analysis failed. Please try again.';
+        actions.setError('submit', errorMessage);
+      }
       
-      actions.setAnalysisComplete(true);
-      
-      // Navigate to assessment page
-      router.push('/assessment');
     } catch (error) {
       console.error('Analysis error:', error);
-      actions.setError('submit', 'Failed to start analysis. Please try again.');
+      actions.setError('submit', 'Failed to start analysis. Please check your API key and try again.');
     } finally {
       actions.setAnalyzing(false);
+      setAnalysisProgress(null);
     }
   };
 
@@ -348,6 +373,12 @@ export default function QuizForm() {
             </div>
           </div>
         </div>
+
+        {/* Analysis Progress Modal */}
+        <AnalysisProgress 
+          progress={analysisProgress}
+          isVisible={!!analysisProgress}
+        />
       </div>
     </div>
   );

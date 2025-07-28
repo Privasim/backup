@@ -15,6 +15,7 @@ interface AssessmentResult {
     industryGrowth: number;
   };
   recommendations: string[];
+  keyFindings?: string[];
 }
 
 export default function AssessmentPage() {
@@ -26,6 +27,8 @@ export default function AssessmentPage() {
   useEffect(() => {
     // Get quiz data from localStorage
     const storedData = localStorage.getItem('quizResults');
+    const storedResults = localStorage.getItem('assessmentResults');
+    
     if (!storedData) {
       router.push('/quiz');
       return;
@@ -34,13 +37,49 @@ export default function AssessmentPage() {
     const data: QuizData = JSON.parse(storedData);
     setQuizData(data);
 
-    // Simulate AI analysis
-    setTimeout(() => {
+    if (storedResults) {
+      // Use real analysis results
+      try {
+        const analysisResult = JSON.parse(storedResults);
+        const formattedResult = formatAnalysisResult(analysisResult, data);
+        setResult(formattedResult);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Failed to parse analysis results:', error);
+        // Fallback to mock result
+        const mockResult = generateMockResult(data);
+        setResult(mockResult);
+        setIsLoading(false);
+      }
+    } else {
+      // Fallback to mock result if no analysis results
       const mockResult = generateMockResult(data);
       setResult(mockResult);
       setIsLoading(false);
-    }, 3000);
+    }
   }, [router]);
+
+  const formatAnalysisResult = (analysisResult: any, data: QuizData): AssessmentResult => {
+    return {
+      riskLevel: analysisResult.riskLevel,
+      riskScore: analysisResult.riskScore,
+      summary: analysisResult.summary || `Based on your profile as a ${data.jobDescription.replace('-', ' ')} with ${data.experience} in ${data.industry}, your role has a ${analysisResult.riskLevel?.toLowerCase() || 'medium'} risk of AI displacement.`,
+      factors: {
+        automation: analysisResult.factors?.automation || 50,
+        aiReplacement: analysisResult.factors?.aiReplacement || analysisResult.riskScore || 50,
+        skillDemand: analysisResult.factors?.skillDemand || (100 - (analysisResult.riskScore || 50)),
+        industryGrowth: analysisResult.factors?.industryGrowth || 50
+      },
+      recommendations: analysisResult.recommendations || [
+        'Develop AI collaboration skills',
+        'Focus on creative and strategic thinking',
+        'Learn emerging technologies in your field',
+        'Build strong interpersonal relationships',
+        'Consider upskilling in complementary areas'
+      ],
+      keyFindings: analysisResult.keyFindings
+    };
+  };
 
   const generateMockResult = (data: QuizData): AssessmentResult => {
     // Mock algorithm based on job type
@@ -227,6 +266,24 @@ export default function AssessmentPage() {
               </div>
             </div>
           </div>
+
+          {/* Key Findings */}
+          {result.keyFindings && result.keyFindings.length > 0 && (
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8">
+              <h3 className="text-2xl font-semibold text-gray-900 mb-6">Key Findings</h3>
+              
+              <div className="space-y-4">
+                {result.keyFindings.map((finding, index) => (
+                  <div key={index} className="flex items-start">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-4 mt-1 flex-shrink-0">
+                      <span className="text-blue-600 font-semibold text-sm">📊</span>
+                    </div>
+                    <p className="text-gray-700">{finding}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Recommendations */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
