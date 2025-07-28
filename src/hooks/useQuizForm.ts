@@ -8,7 +8,8 @@ const initialFormData: QuizData = {
   industry: '',
   location: '',
   salaryRange: '',
-  skillSet: []
+  skillSet: [],
+  apiKey: ''
 };
 
 const initialState: FormState = {
@@ -18,7 +19,9 @@ const initialState: FormState = {
   isValid: false,
   currentStep: 1,
   isSubmitting: false,
-  submitAttempted: false
+  submitAttempted: false,
+  isAnalyzing: false,
+  analysisComplete: false
 };
 
 const formReducer = (state: FormState, action: FormAction): FormState => {
@@ -79,6 +82,18 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
         submitAttempted: action.attempted
       };
 
+    case 'SET_ANALYZING':
+      return {
+        ...state,
+        isAnalyzing: action.isAnalyzing
+      };
+
+    case 'SET_ANALYSIS_COMPLETE':
+      return {
+        ...state,
+        analysisComplete: action.complete
+      };
+
     case 'VALIDATE_FORM':
       const formErrors = validateForm(state.data);
       return {
@@ -97,7 +112,8 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
         industry: '',
         location: '',
         salaryRange: '',
-        skillSet: []
+        skillSet: [],
+        apiKey: ''
       };
       
       // Clear errors for dependent fields
@@ -107,6 +123,7 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
       delete resetErrors.location;
       delete resetErrors.salaryRange;
       delete resetErrors.skillSet;
+      delete resetErrors.apiKey;
 
       return {
         ...state,
@@ -146,6 +163,14 @@ export const useQuizForm = () => {
 
   const setSubmitAttempted = useCallback((attempted: boolean) => {
     dispatch({ type: 'SET_SUBMIT_ATTEMPTED', attempted });
+  }, []);
+
+  const setAnalyzing = useCallback((isAnalyzing: boolean) => {
+    dispatch({ type: 'SET_ANALYZING', isAnalyzing });
+  }, []);
+
+  const setAnalysisComplete = useCallback((complete: boolean) => {
+    dispatch({ type: 'SET_ANALYSIS_COMPLETE', complete });
   }, []);
 
   const validateCurrentStep = useCallback(() => {
@@ -202,6 +227,8 @@ export const useQuizForm = () => {
       setStep,
       setSubmitting,
       setSubmitAttempted,
+      setAnalyzing,
+      setAnalysisComplete,
       validateCurrentStep,
       validateForm,
       resetForm,

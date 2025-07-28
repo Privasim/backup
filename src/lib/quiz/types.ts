@@ -5,6 +5,7 @@ export interface QuizData {
   location: string;
   salaryRange: string;
   skillSet: string[];
+  apiKey?: string;
 }
 
 export interface Skill {
@@ -60,6 +61,8 @@ export interface FormState {
   currentStep: number;
   isSubmitting: boolean;
   submitAttempted: boolean;
+  isAnalyzing: boolean;
+  analysisComplete: boolean;
 }
 
 export type FormAction = 
@@ -69,6 +72,8 @@ export type FormAction =
   | { type: 'SET_STEP'; step: number }
   | { type: 'SET_SUBMITTING'; isSubmitting: boolean }
   | { type: 'SET_SUBMIT_ATTEMPTED'; attempted: boolean }
+  | { type: 'SET_ANALYZING'; isAnalyzing: boolean }
+  | { type: 'SET_ANALYSIS_COMPLETE'; complete: boolean }
   | { type: 'RESET_FORM' }
   | { type: 'RESET_DEPENDENT_FIELDS' }
   | { type: 'VALIDATE_FORM' };

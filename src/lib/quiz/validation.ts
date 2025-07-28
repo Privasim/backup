@@ -25,6 +25,12 @@ export const validationSchema: ValidationSchema = {
     required: true,
     minLength: 1,
     message: 'Please select at least one skill'
+  },
+  apiKey: {
+    required: true,
+    minLength: 10,
+    pattern: /^sk-or-v1-[a-f0-9]{32,}$/,
+    message: 'Please enter a valid OpenRouter API key (sk-or-v1-...)'
   }
 };
 
@@ -95,6 +101,8 @@ export const getFieldsForStep = (step: number): (keyof QuizData)[] => {
       return ['jobDescription'];
     case 2:
       return ['experience', 'industry', 'location', 'salaryRange', 'skillSet'];
+    case 3:
+      return ['apiKey'];
     default:
       return [];
   }
