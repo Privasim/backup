@@ -1,69 +1,81 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { QuizData } from '@/lib/quiz/types';
-import { getJobDescriptions, getContextForJob } from '@/lib/quiz/data';
+import { useQuizForm } from '@/hooks/useQuizForm';
+import { 
+  getJobDescriptions, 
+  getContextForJob, 
+  getExperienceOptions,
+  getIndustryOptions,
+  getLocationOptions,
+  getSalaryOptions,
+  validateJobKey
+} from '@/lib/quiz/data';
+import { JobContext } from '@/lib/quiz/types';
 import Dropdown from './Dropdown';
 import SkillSelector from './SkillSelector';
 
 export default function QuizForm() {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { state, actions } = useQuizForm();
+  const prevJobDescriptionRef = useRef<string>('');
   
-  const [formData, setFormData] = useState<QuizData>({
-    jobDescription: '',
-    experience: '',
-    industry: '',
-    location: '',
-    salaryRange: '',
-    skillSet: []
-  });
-
-  const [contextData, setContextData] = useState<any>(null);
   const jobDescriptions = getJobDescriptions();
 
+  // Load context data when job description changes
   useEffect(() => {
-    if (formData.jobDescription) {
-      const context = getContextForJob(formData.jobDescription);
-      setContextData(context);
+    if (state.data.jobDescription && 
+        state.data.jobDescription !== prevJobDescriptionRef.current &&
+        validateJobKey(state.data.jobDescription)) {
       
-      // Reset dependent fields when job description changes
-      setFormData(prev => ({
-        ...prev,
-        experience: '',
-        industry: '',
-        location: '',
-        salaryRange: '',
-        skillSet: []
-      }));
-      setCurrentStep(2);
+      const context = getContextForJob(state.data.jobDescription);
+      if (context) {
+        // Reset dependent fields when job description changes
+        actions.resetDependentFields();
+        prevJobDescriptionRef.current = state.data.jobDescription;
+      }
     }
-  }, [formData.jobDescription]);
+  }, [state.data.jobDescription]); // Only depend on jobDescription
 
-  const handleFieldChange = (field: keyof QuizData, value: string | string[]) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
+  const contextData: JobContext | null = state.data.jobDescription 
+    ? getContextForJob(state.data.jobDescription) 
+    : null;
+
+  const handleFieldChange = useCallback((field: keyof typeof state.data, value: string | string[]) => {
+    actions.setField(field, value);
+    actions.setTouched(field);
+  }, [actions]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    actions.setSubmitAttempted(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    if (!actions.validateForm()) {
+      return;
+    }
+
+    actions.setSubmitting(true);
     
-    // Store data in localStorage for results page
-    localStorage.setItem('quizResults', JSON.stringify(formData));
-    
-    // Navigate to assessment page
-    router.push('/assessment');
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Store data in localStorage for results page
+      localStorage.setItem('quizResults', JSON.stringify(state.data));
+      
+      // Navigate to assessment page
+      router.push('/assessment');
+    } catch (error) {
+      console.error('Submission error:', error);
+      actions.setError('submit', 'Failed to submit assessment. Please try again.');
+    } finally {
+      actions.setSubmitting(false);
+    }
   };
 
-  const isFormComplete = formData.jobDescription && formData.experience && formData.industry && formData.location && formData.salaryRange && formData.skillSet.length > 0;
+  const canProceedToStep2 = state.data.jobDescription && !state.errors.jobDescription;
+  const isFormComplete = actions.isStepComplete(1) && actions.isStepComplete(2);
 
   return (
     <div className="py-12 px-6">
@@ -80,13 +92,13 @@ export default function QuizForm() {
           {/* Progress Bar */}
           <div className="mt-8 max-w-md mx-auto">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-blue-600">Step {currentStep} of 2</span>
-              <span className="text-sm text-gray-500">{Math.round((currentStep / 2) * 100)}% Complete</span>
+              <span className="text-sm font-medium text-blue-600">Step {state.currentStep} of 2</span>
+              <span className="text-sm text-gray-500">{Math.round((state.currentStep / 2) * 100)}% Complete</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
                 className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${(currentStep / 2) * 100}%` }}
+                style={{ width: `${(state.currentStep / 2) * 100}%` }}
               ></div>
             </div>
           </div>
@@ -94,34 +106,55 @@ export default function QuizForm() {
 
         {/* Form Card */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={handleSubmit} className="space-y-8" noValidate>
             {/* Step 1: Job Selection */}
-            <div className={`transition-all duration-300 ${currentStep >= 1 ? 'opacity-100' : 'opacity-50'}`}>
+            <div className={`transition-all duration-300 ${state.currentStep >= 1 ? 'opacity-100' : 'opacity-50'}`}>
               <div className="flex items-center mb-6">
-                <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold mr-3">
-                  1
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold mr-3 ${
+                  actions.isStepComplete(1) 
+                    ? 'bg-green-600 text-white' 
+                    : 'bg-blue-600 text-white'
+                }`}>
+                  {actions.isStepComplete(1) ? (
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    '1'
+                  )}
                 </div>
                 <h2 className="text-xl font-semibold text-gray-900">Tell us about your role</h2>
               </div>
               
               <Dropdown
                 label="What's your job title?"
-                value={formData.jobDescription}
-                options={jobDescriptions.map(job => ({ 
-                  value: job, 
-                  label: job.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) 
-                }))}
-                onChange={(value) => handleFieldChange('jobDescription', value)}
+                value={state.data.jobDescription}
+                options={jobDescriptions}
+                onChange={(value: string) => handleFieldChange('jobDescription', value)}
                 placeholder="Select your primary job role"
+                searchable={true}
+                error={state.errors.jobDescription}
+                touched={state.touched.jobDescription}
+                required={true}
               />
             </div>
 
             {/* Step 2: Detailed Information */}
-            {contextData && (
-              <div className={`transition-all duration-300 ${currentStep >= 2 ? 'opacity-100' : 'opacity-50'}`}>
+            {canProceedToStep2 && contextData && (
+              <div className={`transition-all duration-300 ${state.currentStep >= 2 ? 'opacity-100' : 'opacity-50'}`}>
                 <div className="flex items-center mb-6">
-                  <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold mr-3">
-                    2
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold mr-3 ${
+                    actions.isStepComplete(2) 
+                      ? 'bg-green-600 text-white' 
+                      : 'bg-blue-600 text-white'
+                  }`}>
+                    {actions.isStepComplete(2) ? (
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    ) : (
+                      '2'
+                    )}
                   </div>
                   <h2 className="text-xl font-semibold text-gray-900">Professional details</h2>
                 </div>
@@ -129,57 +162,90 @@ export default function QuizForm() {
                 <div className="grid md:grid-cols-2 gap-6">
                   <Dropdown
                     label="Experience Level"
-                    value={formData.experience}
-                    options={contextData.experiences.map((exp: string) => ({ value: exp, label: exp }))}
-                    onChange={(value) => handleFieldChange('experience', value)}
+                    value={state.data.experience}
+                    options={getExperienceOptions(contextData.experiences)}
+                    onChange={(value: string) => handleFieldChange('experience', value)}
                     placeholder="Years of experience"
+                    groupBy={(option: any) => option.group || 'Other'}
+                    error={state.errors.experience}
+                    touched={state.touched.experience}
+                    required={true}
                   />
 
                   <Dropdown
                     label="Industry"
-                    value={formData.industry}
-                    options={contextData.industries.map((ind: string) => ({ value: ind, label: ind }))}
-                    onChange={(value) => handleFieldChange('industry', value)}
+                    value={state.data.industry}
+                    options={getIndustryOptions(contextData.industries)}
+                    onChange={(value: string) => handleFieldChange('industry', value)}
                     placeholder="Your industry sector"
+                    searchable={true}
+                    groupBy={(option: any) => option.group || 'Other'}
+                    error={state.errors.industry}
+                    touched={state.touched.industry}
+                    required={true}
                   />
 
                   <Dropdown
                     label="Location"
-                    value={formData.location}
-                    options={contextData.locations.map((loc: string) => ({ value: loc, label: loc }))}
-                    onChange={(value) => handleFieldChange('location', value)}
+                    value={state.data.location}
+                    options={getLocationOptions(contextData.locations)}
+                    onChange={(value: string) => handleFieldChange('location', value)}
                     placeholder="Work location"
+                    groupBy={(option: any) => option.group || 'Other'}
+                    error={state.errors.location}
+                    touched={state.touched.location}
+                    required={true}
                   />
 
                   <Dropdown
                     label="Salary Range"
-                    value={formData.salaryRange}
-                    options={contextData.salaryRanges.map((range: string) => ({ value: range, label: range }))}
-                    onChange={(value) => handleFieldChange('salaryRange', value)}
+                    value={state.data.salaryRange}
+                    options={getSalaryOptions(contextData.salaryRanges)}
+                    onChange={(value: string) => handleFieldChange('salaryRange', value)}
                     placeholder="Current salary range"
+                    groupBy={(option: any) => option.group || 'Other'}
+                    error={state.errors.salaryRange}
+                    touched={state.touched.salaryRange}
+                    required={true}
                   />
                 </div>
 
                 <div className="mt-6">
                   <SkillSelector
                     label="Key Skills & Technologies"
-                    selectedSkills={formData.skillSet}
+                    selectedSkills={state.data.skillSet}
                     availableSkills={contextData.skillSets}
-                    onChange={(skills) => handleFieldChange('skillSet', skills)}
+                    onChange={(skills: string[]) => handleFieldChange('skillSet', skills)}
+                    error={state.errors.skillSet}
+                    touched={state.touched.skillSet}
+                    required={true}
+                    maxSelections={10}
+                    searchable={true}
                   />
                 </div>
               </div>
             )}
 
             {/* Submit Button */}
-            {contextData && (
+            {canProceedToStep2 && contextData && (
               <div className="pt-6 border-t border-gray-100">
+                {state.errors.submit && (
+                  <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+                    <div className="flex items-center text-red-800">
+                      <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      {state.errors.submit}
+                    </div>
+                  </div>
+                )}
+
                 <button
                   type="submit"
-                  disabled={!isFormComplete || isSubmitting}
+                  disabled={!isFormComplete || state.isSubmitting}
                   className="w-full px-8 py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none flex items-center justify-center"
                 >
-                  {isSubmitting ? (
+                  {state.isSubmitting ? (
                     <>
                       <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

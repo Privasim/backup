@@ -1,4 +1,5 @@
 import QuizForm from '@/components/quiz/QuizForm';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 
 export default function QuizPage() {
   return (
@@ -13,12 +14,14 @@ export default function QuizPage() {
             <span className="text-xl font-bold text-gray-900">CareerGuard</span>
           </div>
           <div className="text-sm text-gray-600">
-            Step 1 of 2: Assessment
+            Assessment Form
           </div>
         </div>
       </header>
 
-      <QuizForm />
+      <ErrorBoundary>
+        <QuizForm />
+      </ErrorBoundary>
     </div>
   );
 }
