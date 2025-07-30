@@ -3,11 +3,27 @@ import { SearchTracker } from './search-tracker';
 interface OpenRouterMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
+  function_call?: {
+    name: string;
+    arguments: string;
+  };
+}
+
+export interface FunctionDefinition {
+  name: string;
+  description: string;
+  parameters: {
+    type: 'object';
+    properties: Record<string, unknown>;
+    required: string[];
+  };
 }
 
 interface OpenRouterRequest {
   model: string;
   messages: OpenRouterMessage[];
+  functions?: FunctionDefinition[];
+  function_call?: 'auto' | 'none' | { name: string };
   web_search?: boolean;
   stream?: boolean;
   temperature?: number;
@@ -41,6 +57,10 @@ interface OpenRouterResponse {
     message: {
       role: string;
       content: string;
+      function_call?: {
+        name: string;
+        arguments: string;
+      };
     };
     finish_reason: string;
   }[];
@@ -82,7 +102,8 @@ export class OpenRouterClient {
 
   async chatWithWebSearch(
     messages: OpenRouterMessage[],
-    model: string = 'perplexity/llama-3.1-sonar-small-128k-online'
+    model: string = 'perplexity/llama-3.1-sonar-small-128k-online',
+    functions?: FunctionDefinition[]
   ): Promise<OpenRouterResponse> {
     // Create a search tracker for this request
     const searchId = `search-${Date.now()}`;
@@ -92,13 +113,21 @@ export class OpenRouterClient {
     searchTracker.start();
     
     // Make the API call
-    const response = await this.chat({
+    const requestPayload: OpenRouterRequest = {
       model,
       messages,
       web_search: true,
       temperature: 0.7,
       max_tokens: 2000
-    });
+    };
+
+    // Add function calling if functions are provided
+    if (functions && functions.length > 0) {
+      requestPayload.functions = functions;
+      requestPayload.function_call = 'auto';
+    }
+
+    const response = await this.chat(requestPayload);
     
     // In a real implementation, we would extract search metadata from the response
     // For now, we'll simulate some metadata

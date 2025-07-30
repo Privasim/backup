@@ -46,7 +46,7 @@ export interface ValidationRule {
   minLength?: number;
   maxLength?: number;
   pattern?: RegExp;
-  custom?: (value: any) => string | undefined;
+  custom?: (value: unknown) => string | undefined;
   message: string;
 }
 

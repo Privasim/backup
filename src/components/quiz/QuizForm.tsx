@@ -22,14 +22,17 @@ import ModelSelector from './ModelSelector';
 import AnalysisProgress from '../assessment/AnalysisProgress';
 import DebugPanel from '../debug/DebugPanel';
 import DebugTestButton from '../debug/DebugTestButton';
+import ErrorBoundary from '../common/ErrorBoundary';
 import { debugLogger } from '@/lib/debug/logger';
+import { AssessmentProgress } from '@/lib/assessment/types';
+import { DropdownOption } from '@/lib/quiz/types';
 
 export default function QuizForm() {
   const router = useRouter();
   const { state, actions } = useQuizForm();
   const debugPanel = useDebugPanel();
   const prevJobDescriptionRef = useRef<string>('');
-  const [analysisProgress, setAnalysisProgress] = useState<any>(null);
+  const [analysisProgress, setAnalysisProgress] = useState<AssessmentProgress | null>(null);
   
   const jobDescriptions = getJobDescriptions();
 
@@ -102,10 +105,10 @@ export default function QuizForm() {
     });
     
     try {
-      const { createDebugJobRiskAnalyzer } = await import('@/lib/assessment/debug-analyzer');
+      const { createJobRiskAnalyzer } = await import('@/lib/assessment/analyzer');
       
-      // Create debug analyzer with progress callback
-      const analyzer = createDebugJobRiskAnalyzer(state.data.apiKey!, (progress) => {
+      // Create analyzer with progress callback
+      const analyzer = createJobRiskAnalyzer(state.data.apiKey!, (progress) => {
         setAnalysisProgress(progress);
       });
 
@@ -246,7 +249,7 @@ export default function QuizForm() {
                     options={getExperienceOptions(contextData.experiences)}
                     onChange={(value: string) => handleFieldChange('experience', value)}
                     placeholder="Years of experience"
-                    groupBy={(option: any) => option.group || 'Other'}
+                    groupBy={(option: DropdownOption) => option.group || 'Other'}
                     error={state.errors.experience}
                     touched={state.touched.experience}
                     required={true}
@@ -259,7 +262,7 @@ export default function QuizForm() {
                     onChange={(value: string) => handleFieldChange('industry', value)}
                     placeholder="Your industry sector"
                     searchable={true}
-                    groupBy={(option: any) => option.group || 'Other'}
+                    groupBy={(option: DropdownOption) => option.group || 'Other'}
                     error={state.errors.industry}
                     touched={state.touched.industry}
                     required={true}
@@ -271,7 +274,7 @@ export default function QuizForm() {
                     options={getLocationOptions(contextData.locations)}
                     onChange={(value: string) => handleFieldChange('location', value)}
                     placeholder="Work location"
-                    groupBy={(option: any) => option.group || 'Other'}
+                    groupBy={(option: DropdownOption) => option.group || 'Other'}
                     error={state.errors.location}
                     touched={state.touched.location}
                     required={true}
@@ -283,7 +286,7 @@ export default function QuizForm() {
                     options={getSalaryOptions(contextData.salaryRanges)}
                     onChange={(value: string) => handleFieldChange('salaryRange', value)}
                     placeholder="Current salary range"
-                    groupBy={(option: any) => option.group || 'Other'}
+                    groupBy={(option: DropdownOption) => option.group || 'Other'}
                     error={state.errors.salaryRange}
                     touched={state.touched.salaryRange}
                     required={true}
@@ -349,53 +352,67 @@ export default function QuizForm() {
 
             {/* Analysis Button */}
             {canProceedToStep3 && state.currentStep === 3 && (
-              <div className="pt-4 border-t border-gray-100">
-                {state.errors.submit && (
-                  <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <div className="flex items-center text-red-800 text-sm">
-                      <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                      </svg>
-                      {state.errors.submit}
-                    </div>
-                  </div>
-                )}
-
-                <div className="space-y-3">
-                  <button
-                    type="button"
-                    onClick={handleStartAnalysis}
-                    disabled={!isFormComplete || state.isAnalyzing}
-                    className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:shadow-none flex items-center justify-center text-sm"
-                  >
-                    {state.isAnalyzing ? (
-                      <>
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Analyzing with AI...
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                        </svg>
-                        Start Job Risk Assessment
-                      </>
-                    )}
-                  </button>
-                  
-                  {/* Debug Test Button - Temporary */}
-                  <div className="flex justify-center">
-                    <DebugTestButton />
+              <ErrorBoundary fallback={
+                <div className="pt-4 border-t border-gray-100">
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-center">
+                    <p className="text-red-800 text-sm mb-2">Analysis section encountered an error</p>
+                    <button 
+                      onClick={() => window.location.reload()} 
+                      className="text-red-600 hover:text-red-700 text-sm underline"
+                    >
+                      Refresh to try again
+                    </button>
                   </div>
                 </div>
-                
-                <p className="text-center text-xs text-gray-500 mt-2">
-                  {state.isAnalyzing ? 'AI is researching your job market...' : 'Uses AI to analyze current job market trends'}
-                </p>
-              </div>
+              }>
+                <div className="pt-4 border-t border-gray-100">
+                  {state.errors.submit && (
+                    <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex items-center text-red-800 text-sm">
+                        <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        {state.errors.submit}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-3">
+                    <button
+                      type="button"
+                      onClick={handleStartAnalysis}
+                      disabled={!isFormComplete || state.isAnalyzing}
+                      className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:shadow-none flex items-center justify-center text-sm"
+                    >
+                      {state.isAnalyzing ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Analyzing with AI...
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                          </svg>
+                          Start Job Risk Assessment
+                        </>
+                      )}
+                    </button>
+                    
+                    {/* Debug Test Button - Temporary */}
+                    <div className="flex justify-center">
+                      <DebugTestButton />
+                    </div>
+                  </div>
+                  
+                  <p className="text-center text-xs text-gray-500 mt-2">
+                    {state.isAnalyzing ? 'AI is researching your job market...' : 'Uses AI to analyze current job market trends'}
+                  </p>
+                </div>
+              </ErrorBoundary>
             )}
           </div>
         </div>

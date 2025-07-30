@@ -53,22 +53,20 @@ export class JobRiskAnalyzer {
         };
       }
 
-      // Build prompts
+      // Build prompts with function calling
       this.updateProgress('searching', 'Preparing analysis prompts...', 30);
-      const { systemPrompt, userPrompt } = buildJobRiskAssessmentPrompt(request, modelInfo);
+      const { systemPrompt, userPrompt, functions } = buildJobRiskAssessmentPrompt(request, modelInfo);
 
-      // Execute analysis with web search (all models support it)
+      // Execute analysis with web search and function calling
       this.updateProgress('analyzing', 'Searching web for latest job market data...', 50);
       const response = await this.client.chatWithWebSearch([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
-      ], request.selectedModel);
+      ], request.selectedModel, functions);
 
-      // Process response
+      // Process response (handle both function calls and regular content)
       this.updateProgress('processing', 'Processing analysis results...', 80);
-      const processedResult = ResultProcessor.processLLMResponse(
-        response.choices[0]?.message?.content || ''
-      );
+      const processedResult = ResultProcessor.processResponse(response);
 
       if (processedResult.success) {
         this.updateProgress('complete', 'Analysis complete!', 100);

@@ -8,20 +8,7 @@ import FactorsChart from '@/components/assessment/FactorsChart';
 import SkillsImpactChart from '@/components/assessment/SkillsImpactChart';
 import TimelineChart from '@/components/assessment/TimelineChart';
 import { exportToPDF, exportToJSON, shareResults, ExportData } from '@/lib/assessment/export';
-
-interface AssessmentResult {
-  riskLevel: 'Low' | 'Medium' | 'High';
-  riskScore: number;
-  summary: string;
-  factors: {
-    automation: number;
-    aiReplacement: number;
-    skillDemand: number;
-    industryGrowth: number;
-  };
-  recommendations: string[];
-  keyFindings?: string[];
-}
+import { AssessmentResult } from '@/lib/assessment/types';
 
 export default function AssessmentPage() {
   const router = useRouter();
@@ -51,73 +38,44 @@ export default function AssessmentPage() {
         setIsLoading(false);
       } catch (error) {
         console.error('Failed to parse analysis results:', error);
-        // Fallback to mock result
-        const mockResult = generateMockResult(data);
-        setResult(mockResult);
-        setIsLoading(false);
+        // Redirect back to quiz if analysis results are invalid
+        router.push('/quiz');
+        return;
       }
     } else {
-      // Fallback to mock result if no analysis results
-      const mockResult = generateMockResult(data);
-      setResult(mockResult);
-      setIsLoading(false);
+      // Redirect back to quiz if no analysis results exist
+      router.push('/quiz');
+      return;
     }
   }, [router]);
 
-  const formatAnalysisResult = (analysisResult: any, data: QuizData): AssessmentResult => {
+  const formatAnalysisResult = (analysisResult: unknown, data: QuizData): AssessmentResult => {
+    const result = analysisResult as Record<string, unknown>;
+    
     return {
-      riskLevel: analysisResult.riskLevel,
-      riskScore: analysisResult.riskScore,
-      summary: analysisResult.summary || `Based on your profile as a ${data.jobDescription.replace('-', ' ')} with ${data.experience} in ${data.industry}, your role has a ${analysisResult.riskLevel?.toLowerCase() || 'medium'} risk of AI displacement.`,
+      riskLevel: (result.riskLevel as 'Low' | 'Medium' | 'High') || 'Medium',
+      riskScore: (result.riskScore as number) || 50,
+      summary: (result.summary as string) || `Based on your profile as a ${data.jobDescription.replace('-', ' ')} with ${data.experience} in ${data.industry}, your role has a ${(result.riskLevel as string)?.toLowerCase() || 'medium'} risk of AI displacement.`,
       factors: {
-        automation: analysisResult.factors?.automation || 50,
-        aiReplacement: analysisResult.factors?.aiReplacement || analysisResult.riskScore || 50,
-        skillDemand: analysisResult.factors?.skillDemand || (100 - (analysisResult.riskScore || 50)),
-        industryGrowth: analysisResult.factors?.industryGrowth || 50
+        automation: (result.factors as Record<string, number>)?.automation || 50,
+        aiReplacement: (result.factors as Record<string, number>)?.aiReplacement || (result.riskScore as number) || 50,
+        skillDemand: (result.factors as Record<string, number>)?.skillDemand || (100 - ((result.riskScore as number) || 50)),
+        industryGrowth: (result.factors as Record<string, number>)?.industryGrowth || 50
       },
-      recommendations: analysisResult.recommendations || [
+      recommendations: (result.recommendations as string[]) || [
         'Develop AI collaboration skills',
         'Focus on creative and strategic thinking',
         'Learn emerging technologies in your field',
         'Build strong interpersonal relationships',
         'Consider upskilling in complementary areas'
       ],
-      keyFindings: analysisResult.keyFindings
+      keyFindings: (result.keyFindings as string[]) || [],
+      sources: (result.sources as string[]) || [],
+      lastUpdated: (result.lastUpdated as string) || new Date().toISOString()
     };
   };
 
-  const generateMockResult = (data: QuizData): AssessmentResult => {
-    // Mock algorithm based on job type
-    const riskScores = {
-      'marketer': 65,
-      'software-developer': 35,
-      'data-analyst': 45,
-      'graphic-designer': 75,
-      'accountant': 80
-    };
 
-    const score = riskScores[data.jobDescription as keyof typeof riskScores] || 50;
-    const riskLevel = score >= 70 ? 'High' : score >= 50 ? 'Medium' : 'Low';
-
-    return {
-      riskLevel,
-      riskScore: score,
-      summary: `Based on your profile as a ${data.jobDescription.replace('-', ' ')} with ${data.experience} in ${data.industry}, your role has a ${riskLevel.toLowerCase()} risk of AI displacement.`,
-      factors: {
-        automation: Math.min(score + 10, 100),
-        aiReplacement: score,
-        skillDemand: Math.max(100 - score, 20),
-        industryGrowth: Math.random() * 40 + 40
-      },
-      recommendations: [
-        'Develop AI collaboration skills',
-        'Focus on creative and strategic thinking',
-        'Learn emerging technologies in your field',
-        'Build strong interpersonal relationships',
-        'Consider upskilling in complementary areas'
-      ]
-    };
-  };
 
   const handleRetakeQuiz = () => {
     localStorage.removeItem('quizResults');
@@ -167,14 +125,7 @@ export default function AssessmentPage() {
 
   if (!result || !quizData) return null;
 
-  const getRiskColor = (level: string) => {
-    switch (level) {
-      case 'Low': return 'text-green-600 bg-green-100';
-      case 'Medium': return 'text-yellow-600 bg-yellow-100';
-      case 'High': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
-    }
-  };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">

@@ -11,10 +11,11 @@ interface SkillImpact {
 
 interface SkillsImpactChartProps {
   skills: string[];
+  skillsAnalysis?: SkillImpact[];
   animated?: boolean;
 }
 
-export default function SkillsImpactChart({ skills, animated = true }: SkillsImpactChartProps) {
+export default function SkillsImpactChart({ skills, skillsAnalysis, animated = true }: SkillsImpactChartProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -26,40 +27,13 @@ export default function SkillsImpactChart({ skills, animated = true }: SkillsImp
     }
   }, [animated]);
 
-  // Mock skill impact analysis - in real implementation, this would come from LLM analysis
-  const generateSkillImpact = (skill: string): SkillImpact => {
-    const techSkills = ['JavaScript', 'Python', 'React', 'Node.js', 'TypeScript', 'API Development'];
-    const softSkills = ['Communication', 'Leadership', 'Problem Solving', 'Critical Thinking'];
-    const designSkills = ['UI Design', 'UX Design', 'Figma', 'Adobe XD'];
-    
-    let riskLevel: 'Low' | 'Medium' | 'High';
-    let futureRelevance: number;
-    let description: string;
-
-    if (techSkills.some(tech => skill.toLowerCase().includes(tech.toLowerCase()))) {
-      riskLevel = 'Low';
-      futureRelevance = 85 + Math.random() * 10;
-      description = 'High demand, evolving with AI integration';
-    } else if (softSkills.some(soft => skill.toLowerCase().includes(soft.toLowerCase()))) {
-      riskLevel = 'Low';
-      futureRelevance = 90 + Math.random() * 8;
-      description = 'Essential human skills, AI-resistant';
-    } else if (designSkills.some(design => skill.toLowerCase().includes(design.toLowerCase()))) {
-      riskLevel = 'Medium';
-      futureRelevance = 70 + Math.random() * 15;
-      description = 'Creative aspects safe, tools evolving';
-    } else {
-      riskLevel = Math.random() > 0.6 ? 'Low' : Math.random() > 0.3 ? 'Medium' : 'High';
-      futureRelevance = riskLevel === 'Low' ? 80 + Math.random() * 15 : 
-                      riskLevel === 'Medium' ? 50 + Math.random() * 25 : 
-                      30 + Math.random() * 20;
-      description = 'Skill assessment based on current market trends';
-    }
-
-    return { skill, riskLevel, futureRelevance, description };
-  };
-
-  const skillsData = skills.map(generateSkillImpact);
+  // Use provided skills analysis or create basic placeholders
+  const skillsData = skillsAnalysis || skills.map(skill => ({
+    skill,
+    riskLevel: 'Medium' as const,
+    futureRelevance: 50,
+    description: 'Analysis not available - requires AI assessment'
+  }));
 
   const getRiskColor = (riskLevel: 'Low' | 'Medium' | 'High') => {
     switch (riskLevel) {

@@ -5,7 +5,8 @@ export {
   getAvailableModels,
   getModelById,
   type ModelInfo,
-  type WebSearchMetadata
+  type WebSearchMetadata,
+  type FunctionDefinition
 } from './client';
 
 export { SearchTracker } from './search-tracker';

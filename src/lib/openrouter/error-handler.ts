@@ -9,7 +9,7 @@ export interface ApiErrorInfo {
   suggestedAction: string;
 }
 
-export function analyzeApiError(error: any): ApiErrorInfo {
+export function analyzeApiError(error: unknown): ApiErrorInfo {
   const errorMessage = error?.message || error?.toString() || '';
   const statusCode = extractStatusCode(errorMessage);
   

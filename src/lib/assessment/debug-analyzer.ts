@@ -84,22 +84,24 @@ export class DebugJobRiskAnalyzer {
         contextLength: modelInfo.contextLength
       });
 
-      // Build prompts
+      // Build prompts with function calling
       this.updateProgress('searching', 'Preparing analysis prompts...', 30);
       debugLogger.info('analysis', 'Building assessment prompts');
       
-      const { systemPrompt, userPrompt } = buildJobRiskAssessmentPrompt(request, modelInfo);
+      const { systemPrompt, userPrompt, functions } = buildJobRiskAssessmentPrompt(request, modelInfo);
       debugLogger.info('analysis', 'Prompts generated', {
         systemPromptLength: systemPrompt.length,
         userPromptLength: userPrompt.length,
+        functionsCount: functions?.length || 0,
         totalTokensEstimate: Math.ceil((systemPrompt.length + userPrompt.length) / 4)
       });
 
-      // Execute analysis with web search
+      // Execute analysis with web search and function calling
       this.updateProgress('analyzing', 'Searching web for latest job market data...', 50);
       debugLogger.info('api', 'Starting OpenRouter API call', {
         model: request.selectedModel,
         webSearchEnabled: true,
+        functionCallingEnabled: !!functions?.length,
         messagesCount: 2
       });
 
@@ -111,7 +113,7 @@ export class DebugJobRiskAnalyzer {
         response = await this.client.chatWithWebSearch([
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
-        ], request.selectedModel);
+        ], request.selectedModel, functions);
 
         debugLogger.endTimer(apiCallTimer, 'api', 'OpenRouter API call completed', {
           responseId: response.id,
@@ -119,12 +121,12 @@ export class DebugJobRiskAnalyzer {
           usage: response.usage,
           finishReason: response.choices[0]?.finish_reason
         });
-      } catch (apiError: any) {
-        const errorMessage = apiError?.message || '';
+      } catch (apiError: unknown) {
+        const errorMessage = (apiError as Error)?.message || String(apiError) || '';
         const is429Error = errorMessage.includes('429') || errorMessage.includes('rate-limited');
         
         debugLogger.error('api', 'Main API call failed', {
-          error: apiError,
+          error: apiError instanceof Error ? apiError.message : String(apiError),
           is429: is429Error,
           model: request.selectedModel
         });
@@ -151,19 +153,20 @@ export class DebugJobRiskAnalyzer {
         finishReason: response.choices[0]?.finish_reason
       });
 
-      // Process response
+      // Process response (handle both function calls and regular content)
       this.updateProgress('processing', 'Processing analysis results...', 80);
       debugLogger.info('analysis', 'Processing LLM response');
       
       const processingTimer = 'response-processing';
       debugLogger.startTimer(processingTimer);
 
-      const processedResult = ResultProcessor.processLLMResponse(responseContent);
+      const processedResult = ResultProcessor.processResponse(response);
 
       debugLogger.endTimer(processingTimer, 'analysis', 'Response processing completed', {
         success: processedResult.success,
         hasData: !!processedResult.data,
-        hasError: !!processedResult.error
+        hasError: !!processedResult.error,
+        hasFunctionCall: !!response.choices[0]?.message?.function_call
       });
 
       if (processedResult.success) {
