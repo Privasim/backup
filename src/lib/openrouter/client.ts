@@ -6,7 +6,6 @@ interface OpenRouterMessage {
 interface OpenRouterRequest {
   model: string;
   messages: OpenRouterMessage[];
-  web_search?: boolean;
   stream?: boolean;
   temperature?: number;
   max_tokens?: number;
@@ -40,7 +39,16 @@ export class OpenRouterClient {
     this.apiKey = apiKey;
   }
 
-  async chat(request: OpenRouterRequest): Promise<OpenRouterResponse> {
+  async chat(
+    request: OpenRouterRequest,
+    options?: { stream?: boolean; onChunk?: (chunk: string) => void }
+  ): Promise<OpenRouterResponse | void> {
+    const isStreaming = options?.stream === true;
+    const body = {
+      ...request,
+      stream: isStreaming
+    };
+
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
@@ -49,7 +57,7 @@ export class OpenRouterClient {
         'HTTP-Referer': window.location.origin,
         'X-Title': 'AI Career Risk Assessment'
       },
-      body: JSON.stringify(request)
+      body: JSON.stringify(body)
     });
 
     if (!response.ok) {
@@ -57,20 +65,45 @@ export class OpenRouterClient {
       throw new Error(`OpenRouter API error: ${response.status} - ${error}`);
     }
 
-    return response.json();
-  }
+    if (isStreaming && options?.onChunk) {
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('Streaming not supported');
 
-  async chatWithWebSearch(
-    messages: OpenRouterMessage[],
-    model: string = 'perplexity/llama-3.1-sonar-small-128k-online'
-  ): Promise<OpenRouterResponse> {
-    return this.chat({
-      model,
-      messages,
-      web_search: true,
-      temperature: 0.7,
-      max_tokens: 2000
-    });
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              if (data === '[DONE]') continue;
+              
+              try {
+                const parsed = JSON.parse(data);
+                const content = parsed.choices?.[0]?.delta?.content;
+                if (content) {
+                  options.onChunk(content);
+                }
+              } catch (e) {
+                console.error('Error parsing streaming response:', e);
+              }
+            }
+          }
+        }
+      } finally {
+        reader.releaseLock();
+      }
+    } else {
+      return response.json();
+    }
   }
 
   async validateApiKey(): Promise<boolean> {
@@ -79,8 +112,8 @@ export class OpenRouterClient {
         model: 'meta-llama/llama-3.2-3b-instruct:free',
         messages: [{ role: 'user', content: 'Hello' }],
         max_tokens: 10
-      });
-      return !!response.choices?.[0]?.message?.content;
+      }, { stream: false });
+      return !!response && 'choices' in response && !!response.choices?.[0]?.message?.content;
     } catch (error) {
       console.error('API key validation failed:', error);
       return false;
@@ -88,14 +121,8 @@ export class OpenRouterClient {
   }
 }
 
-export const getWebSearchEnabledModels = () => [
-  'perplexity/llama-3.1-sonar-small-128k-online',
-  'perplexity/llama-3.1-sonar-large-128k-online',
-  'perplexity/llama-3.1-sonar-huge-128k-online'
-];
-
-export const getFreeModels = () => [
-  'meta-llama/llama-3.2-3b-instruct:free',
-  'google/gemma-2-9b-it:free',
-  'microsoft/phi-3-mini-128k-instruct:free'
+export const getAvailableModels = () => [
+  'qwen/qwen3-coder:free',
+  'z-ai/glm-4.5-air:free',
+  'moonshotai/kimi-k2:free'
 ];

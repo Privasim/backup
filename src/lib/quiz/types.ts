@@ -6,6 +6,7 @@ export interface QuizData {
   salaryRange: string;
   skillSet: string[];
   apiKey?: string;
+  model?: string;
 }
 
 export interface Skill {

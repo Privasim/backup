@@ -1,1 +1,1 @@
-export { OpenRouterClient, getWebSearchEnabledModels, getFreeModels } from './client';
+export { OpenRouterClient, getAvailableModels } from './client';

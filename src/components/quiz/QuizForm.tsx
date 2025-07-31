@@ -88,7 +88,8 @@ export default function QuizForm() {
         location: state.data.location,
         salaryRange: state.data.salaryRange,
         skillSet: state.data.skillSet,
-        apiKey: state.data.apiKey!
+        apiKey: state.data.apiKey!,
+        model: state.data.model
       });
 
       if (result.success && result.data) {
@@ -299,6 +300,14 @@ export default function QuizForm() {
                     onChange={(value: string) => handleFieldChange('apiKey', value)}
                     error={state.errors.apiKey}
                     touched={state.touched.apiKey}
+                    model={state.data.model}
+                    onModelChange={(model) => handleFieldChange('model', model)}
+                    modelError={state.errors.model}
+                    onValidate={(isValid) => {
+                      if (!isValid && state.touched.apiKey) {
+                        actions.setError('apiKey', 'Please enter a valid OpenRouter API key');
+                      }
+                    }}
                   />
                 </div>
               </div>

@@ -42,21 +42,38 @@ export class JobRiskAnalyzer {
       }
 
       // Build prompts
-      this.updateProgress('searching', 'Preparing analysis prompts...', 30);
+      this.updateProgress('analyzing', 'Preparing AI analysis...', 30);
       const { systemPrompt, userPrompt } = buildJobRiskAssessmentPrompt(request);
 
-      // Execute web search analysis
-      this.updateProgress('analyzing', 'Searching web for latest job market data...', 50);
-      const response = await this.client.chatWithWebSearch([
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ]);
+      // Use streaming for real-time progress updates
+      this.updateProgress('analyzing', 'Analyzing job market risks with AI...', 50);
+      
+      let fullResponse = '';
+      const model = request.model || 'qwen/qwen3-coder:free';
+      
+      await this.client.chat(
+        {
+          model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt }
+          ],
+          temperature: 0.7,
+          max_tokens: 2000
+        },
+        {
+          stream: true,
+          onChunk: (chunk: string) => {
+            fullResponse += chunk;
+            const progress = Math.min(50 + (fullResponse.length / 1000) * 30, 80);
+            this.updateProgress('analyzing', 'Processing AI insights...', Math.round(progress));
+          }
+        }
+      );
 
       // Process response
-      this.updateProgress('processing', 'Processing analysis results...', 80);
-      const processedResult = ResultProcessor.processLLMResponse(
-        response.choices[0]?.message?.content || ''
-      );
+      this.updateProgress('processing', 'Finalizing analysis results...', 90);
+      const processedResult = ResultProcessor.processLLMResponse(fullResponse);
 
       if (processedResult.success) {
         this.updateProgress('complete', 'Analysis complete!', 100);

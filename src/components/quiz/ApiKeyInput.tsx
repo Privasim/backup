@@ -8,6 +8,9 @@ interface ApiKeyInputProps {
   error?: string;
   touched?: boolean;
   onValidate?: (isValid: boolean) => void;
+  model?: string;
+  onModelChange?: (model: string) => void;
+  modelError?: string;
 }
 
 export default function ApiKeyInput({ 
@@ -15,11 +18,20 @@ export default function ApiKeyInput({
   onChange, 
   error, 
   touched,
-  onValidate 
+  onValidate,
+  model,
+  onModelChange,
+  modelError
 }: ApiKeyInputProps) {
   const [showKey, setShowKey] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [validationStatus, setValidationStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
+
+  const availableModels = [
+    { value: 'qwen/qwen3-coder:free', label: 'Qwen3 Coder (Free)', description: 'Optimized for coding tasks' },
+    { value: 'z-ai/glm-4.5-air:free', label: 'GLM 4.5 Air (Free)', description: 'Lightweight for agentic tasks' },
+    { value: 'moonshotai/kimi-k2:free', label: 'Kimi K2 (Free)', description: 'Advanced reasoning & code synthesis' }
+  ];
 
   // Basic format validation
   const isValidFormat = (key: string) => {
@@ -69,31 +81,48 @@ export default function ApiKeyInput({
   const hasError = touched && error;
 
   return (
-    <div>
-      <label className="block text-xs font-semibold text-gray-900 mb-2">
-        OpenRouter API Key
-        <span className="text-red-500 ml-1">*</span>
-      </label>
-      
-      <div className="relative">
-        <input
-          type={showKey ? 'text' : 'password'}
-          value={value}
-          onChange={handleChange}
-          onPaste={handlePaste}
-          placeholder="sk-or-v1-..."
-          className={`w-full px-3 py-2.5 pr-20 border-2 rounded-lg transition-all duration-200 text-sm font-mono ${
-            hasError
+    <div className="space-y-4">
+      <div>
+        <label className="block text-xs font-semibold text-gray-900 mb-2">
+          AI Model Selection
+          <span className="text-red-500 ml-1">*</span>
+        </label>
+        <select
+          value={model || ''}
+          onChange={(e) => onModelChange?.(e.target.value)}
+          className={`w-full px-3 py-2.5 border-2 rounded-lg transition-all duration-200 text-sm ${
+            modelError && touched
               ? 'border-red-500 ring-2 ring-red-100'
-              : validationStatus === 'valid'
-                ? 'border-green-500 ring-2 ring-green-100'
-                : validationStatus === 'invalid'
-                  ? 'border-red-500 ring-2 ring-red-100'
-                  : 'border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
+              : 'border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
           } focus:outline-none`}
-        />
+        >
+          <option value="" disabled>Select a model</option>
+          {availableModels.map((modelOption) => (
+            <option key={modelOption.value} value={modelOption.value}>
+              {modelOption.label}
+            </option>
+          ))}
+        </select>
         
-        <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+        {modelError && touched && (
+          <div className="mt-1 flex items-center text-red-600 text-xs">
+            <svg className="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            {modelError}
+          </div>
+        )}
+        
+        <div className="mt-1 text-xs text-gray-600">
+          {availableModels.find(m => m.value === model)?.description || 'Choose a model for AI analysis'}
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold text-gray-900 mb-2">
+          OpenRouter API Key
+          <span className="text-red-500 ml-1">*</span>
+        </label>
           {getValidationIcon()}
           <button
             type="button"
