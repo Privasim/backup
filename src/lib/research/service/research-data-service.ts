@@ -163,7 +163,7 @@ export class ResearchDataService {
   }
 
   async getAllTables(): Promise<TableData[]> {
-    this.ensureInitialized();
+    assertInitialized(this.isInitialized);
     return this.knowledgeBase?.tables || [];
   }
 
@@ -234,7 +234,7 @@ export class ResearchDataService {
   }
 
   async getOccupationsByRiskLevel(riskLevel: 'low' | 'medium' | 'high' | 'very_high'): Promise<OccupationData[]> {
-    this.ensureInitialized();
+    assertInitialized(this.isInitialized);
 
     if (!this.knowledgeBase) return [];
 
@@ -244,7 +244,7 @@ export class ResearchDataService {
   }
 
   async getTopRiskOccupations(limit: number = 10): Promise<OccupationData[]> {
-    this.ensureInitialized();
+    assertInitialized(this.isInitialized);
 
     if (!this.knowledgeBase) return [];
 
@@ -254,7 +254,7 @@ export class ResearchDataService {
   }
 
   async getIndustryData(): Promise<any[]> {
-    this.ensureInitialized();
+    assertInitialized(this.isInitialized);
 
     const industryTable = this.knowledgeBase?.tables.find(t => 
       t.title.toLowerCase().includes('industry')
@@ -272,7 +272,7 @@ export class ResearchDataService {
   }
 
   async getTaskAutomationData(): Promise<any[]> {
-    this.ensureInitialized();
+    assertInitialized(this.isInitialized);
 
     const taskTable = this.knowledgeBase?.tables.find(t => 
       t.title.toLowerCase().includes('task')
@@ -289,13 +289,59 @@ export class ResearchDataService {
     }));
   }
 
+  async getRiskMatrixData(): Promise<any[]> {
+    assertInitialized(this.isInitialized);
+    if (!this.knowledgeBase) return [];
+
+    const industryData = await this.getIndustryData();
+    const occupations = this.knowledgeBase.occupations.slice(0, 20); // Limit for performance
+
+    return occupations.flatMap(occupation => 
+      industryData.slice(0, 10).map(industry => ({
+        occupation: occupation.name,
+        industry: industry.industry,
+        riskScore: occupation.riskScore * industry.exposureScore,
+        employment: parseFloat(industry.employment) || 0,
+        confidence: occupation.confidence
+      }))
+    );
+  }
+
+  async getIndustryBubbleData(): Promise<any[]> {
+    assertInitialized(this.isInitialized);
+    const industryData = await this.getIndustryData();
+
+    return industryData.map(industry => ({
+      industry: industry.industry,
+      exposureScore: industry.exposureScore,
+      employment: parseFloat(industry.employment) || 0,
+      growthRate: Math.random() * 0.1 - 0.05, // Mock growth rate
+      naicsCode: industry.naicsCode
+    }));
+  }
+
+  async getSkillGapData(occupation: string): Promise<any[]> {
+    assertInitialized(this.isInitialized);
+    const occ = this.findOccupation(occupation);
+    if (!occ) return [];
+
+    const skillCategories = ['Technical Skills', 'Communication', 'Problem Solving', 'Leadership', 'Creativity', 'Data Analysis'];
+    
+    return skillCategories.map(skill => ({
+      skillCategory: skill,
+      currentLevel: Math.random() * 8 + 2, // Mock current level 2-10
+      requiredLevel: Math.random() * 3 + 7, // Mock required level 7-10
+      importance: Math.random() * 3 + 7 // Mock importance 7-10
+    }));
+  }
+
   async getMetadata() {
-    this.ensureInitialized();
+    assertInitialized(this.isInitialized);
     return this.knowledgeBase?.metadata || null;
   }
 
   async getMethodology() {
-    this.ensureInitialized();
+    assertInitialized(this.isInitialized);
     return this.knowledgeBase?.methodology || null;
   }
 

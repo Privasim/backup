@@ -3,6 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { QuizData } from '@/lib/quiz/types';
 import { debugLog } from '@/components/debug/DebugConsole';
+import RiskHeatmap from '@/components/visualization/RiskHeatmap';
+import IndustryBubbleChart from '@/components/visualization/IndustryBubbleChart';
+import SkillRadarChart from '@/components/visualization/SkillRadarChart';
+import { getResearchService, initializeResearchService } from '@/lib/research/service';
+import knowledgeBase from '@/lib/research/data/ai_employment_risks.json';
+import '@/styles/visualization.css';
 
 interface AssessmentResult {
   riskLevel: 'Low' | 'Medium' | 'High';
@@ -36,6 +42,11 @@ export default function ResultsPanel({
   className = '',
 }: ResultsPanelProps) {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [visualizationData, setVisualizationData] = useState<{
+    riskMatrix: any[];
+    industryBubble: any[];
+    skillRadar: any[];
+  }>({ riskMatrix: [], industryBubble: [], skillRadar: [] });
 
   // Initialize logging
   useEffect(() => {
@@ -79,6 +90,44 @@ export default function ResultsPanel({
       debugLog.info('ResultsPanel', 'Results panel loading completed');
     }
   }, [isLoading]);
+
+  // Load visualization data when results are available
+  useEffect(() => {
+    const loadVisualizationData = async () => {
+      if (!results || !quizData) return;
+
+      try {
+        // Ensure service is initialized first
+        await initializeResearchService(knowledgeBase as any);
+        const service = getResearchService();
+        
+        const [riskMatrix, industryBubble, skillRadar] = await Promise.all([
+          service.getRiskMatrixData(),
+          service.getIndustryBubbleData(),
+          service.getSkillGapData(quizData.jobDescription)
+        ]);
+
+        setVisualizationData({
+          riskMatrix: riskMatrix.slice(0, 50), // Limit for performance
+          industryBubble: industryBubble.slice(0, 20),
+          skillRadar
+        });
+
+        debugLog.success('ResultsPanel', 'Visualization data loaded', {
+          riskMatrixCount: riskMatrix.length,
+          industryBubbleCount: industryBubble.length,
+          skillRadarCount: skillRadar.length
+        });
+      } catch (error) {
+        debugLog.error('ResultsPanel', 'Failed to load visualization data', { 
+          error: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined
+        });
+      }
+    };
+
+    loadVisualizationData();
+  }, [results, quizData]);
 
   const getRiskColor = (level: string) => {
     switch (level) {
@@ -272,6 +321,153 @@ export default function ResultsPanel({
                         +{results.keyFindings.length - 3} more findings
                       </button>
                     )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Professional Visualizations - Full Width */}
+          <div className="lg:col-span-4">
+            <div className="bg-white rounded-lg border border-gray-200 p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-gray-900">Professional Analytics Dashboard</h3>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => toggleSection('visualizations')}
+                    className="text-xs text-blue-600 hover:text-blue-700"
+                  >
+                    {expandedSection === 'visualizations' ? 'Collapse' : 'Expand'}
+                  </button>
+                  <button 
+                    onClick={() => {
+                      debugLog.info('ResultsPanel', 'Export SVG clicked');
+                      // Export functionality would be implemented here
+                      alert('SVG export functionality - ready for implementation');
+                    }}
+                    className="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded transition-colors"
+                  >
+                    Export SVG
+                  </button>
+                </div>
+              </div>
+              
+              <div className={`${expandedSection === 'visualizations' ? 'h-96' : 'h-32'} transition-all duration-300`}>
+                {expandedSection === 'visualizations' ? (
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-full">
+                    {/* Risk Heatmap */}
+                    <div className="bg-white rounded-lg border border-gray-200 p-2">
+                      <div className="text-center mb-2">
+                        <h4 className="text-xs font-semibold text-gray-700">Risk Heatmap</h4>
+                        <p className="text-xs text-gray-500">Industry vs Occupation Risk</p>
+                      </div>
+                      {visualizationData.riskMatrix.length > 0 ? (
+                        <RiskHeatmap 
+                          data={visualizationData.riskMatrix}
+                          config={{ 
+                            dimensions: { width: 280, height: 200, margin: { top: 20, right: 20, bottom: 40, left: 60 } }
+                          }}
+                          className="w-full h-full"
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-32 bg-gray-50 rounded">
+                          <div className="text-center">
+                            <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-2"></div>
+                            <p className="text-xs text-gray-500">Loading...</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Industry Bubble Chart */}
+                    <div className="bg-white rounded-lg border border-gray-200 p-2">
+                      <div className="text-center mb-2">
+                        <h4 className="text-xs font-semibold text-gray-700">Industry Analysis</h4>
+                        <p className="text-xs text-gray-500">Multi-dimensional Bubbles</p>
+                      </div>
+                      {visualizationData.industryBubble.length > 0 ? (
+                        <IndustryBubbleChart 
+                          data={visualizationData.industryBubble}
+                          config={{ 
+                            dimensions: { width: 280, height: 200, margin: { top: 20, right: 20, bottom: 40, left: 40 } }
+                          }}
+                          className="w-full h-full"
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-32 bg-gray-50 rounded">
+                          <div className="text-center">
+                            <div className="w-8 h-8 border-2 border-green-200 border-t-green-600 rounded-full animate-spin mx-auto mb-2"></div>
+                            <p className="text-xs text-gray-500">Loading...</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Skill Radar Chart */}
+                    <div className="bg-white rounded-lg border border-gray-200 p-2">
+                      <div className="text-center mb-2">
+                        <h4 className="text-xs font-semibold text-gray-700">Skill Analysis</h4>
+                        <p className="text-xs text-gray-500">Competency Radar</p>
+                      </div>
+                      {visualizationData.skillRadar.length > 0 ? (
+                        <SkillRadarChart 
+                          data={visualizationData.skillRadar}
+                          config={{ 
+                            dimensions: { width: 280, height: 200, margin: { top: 20, right: 20, bottom: 20, left: 20 } }
+                          }}
+                          className="w-full h-full"
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-32 bg-gray-50 rounded">
+                          <div className="text-center">
+                            <div className="w-8 h-8 border-2 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-2"></div>
+                            <p className="text-xs text-gray-500">Loading...</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-full">
+                    <div className="bg-gray-50 rounded-lg p-3 flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors"
+                         onClick={() => toggleSection('visualizations')}>
+                      <div className="text-center">
+                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                          <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                          </svg>
+                        </div>
+                        <p className="text-xs font-medium text-gray-700">Risk Heatmap</p>
+                        <p className="text-xs text-gray-500">Industry vs Occupation</p>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gray-50 rounded-lg p-3 flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors"
+                         onClick={() => toggleSection('visualizations')}>
+                      <div className="text-center">
+                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                          <svg className="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"/>
+                            <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"/>
+                          </svg>
+                        </div>
+                        <p className="text-xs font-medium text-gray-700">Industry Bubbles</p>
+                        <p className="text-xs text-gray-500">Multi-dimensional Analysis</p>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gray-50 rounded-lg p-3 flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors"
+                         onClick={() => toggleSection('visualizations')}>
+                      <div className="text-center">
+                        <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                          <svg className="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                          </svg>
+                        </div>
+                        <p className="text-xs font-medium text-gray-700">Skill Radar</p>
+                        <p className="text-xs text-gray-500">Competency Gaps</p>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
