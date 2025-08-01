@@ -59,7 +59,7 @@ interface UnifiedState {
 
 type UnifiedAction =
   | { type: 'SET_QUIZ_DATA'; payload: QuizData }
-  | { type: 'SET_ASSESSMENT_RESULTS'; payload: AssessmentResult }
+  | { type: 'SET_ASSESSMENT_RESULTS'; payload: AssessmentResult | null }
   | { type: 'ADD_DEBUG_LOG'; payload: LogEntry }
   | { type: 'CLEAR_DEBUG_LOGS' }
   | { type: 'SET_ANALYZING'; payload: boolean }
@@ -171,6 +171,11 @@ export default function UnifiedDebugInterface({
   persistState = true,
 }: UnifiedDebugInterfaceProps) {
   const [state, dispatch] = useReducer(unifiedReducer, initialState);
+  // Toggle to hide/show right sidebar panels
+  const [isRightPanelHidden, setIsRightPanelHidden] = useState(false);
+  const toggleRightPanel = useCallback(() => {
+    setIsRightPanelHidden(prev => !prev);
+  }, []);
 
   // Initialize logging and research service
   useEffect(() => {
@@ -271,8 +276,14 @@ export default function UnifiedDebugInterface({
       
       debugLog.info('UnifiedInterface', 'Creating analyzer instance with progress tracking...');
       const analyzer = createJobRiskAnalyzer(data.apiKey!, (progress) => {
-        debugLog.debug('UnifiedInterface', `Analysis progress: ${progress.stage} - ${progress.message} (${progress.progress}%)`);
-        dispatch({ type: 'SET_ANALYSIS_PROGRESS', payload: progress });
+        // Coerce external AssessmentProgress type to local type
+        const coerced = {
+          stage: progress.stage as AssessmentProgress['stage'],
+          message: progress.message,
+          progress: progress.progress,
+        } as AssessmentProgress;
+        debugLog.debug('UnifiedInterface', `Analysis progress: ${coerced.stage} - ${coerced.message} (${coerced.progress}%)`);
+        dispatch({ type: 'SET_ANALYSIS_PROGRESS', payload: coerced });
       });
 
       debugLog.info('UnifiedInterface', 'Starting AI risk analysis with provided data...');
@@ -429,6 +440,19 @@ export default function UnifiedDebugInterface({
               <span>Analyzing...</span>
             </div>
           )}
+          {/* Focus Mode Toggle */}
+          <button
+            onClick={toggleRightPanel}
+            aria-pressed={isRightPanelHidden}
+            title="Hide insights sidebar"
+            className={`px-3 py-1 text-xs rounded transition-colors ${
+              isRightPanelHidden
+                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            {isRightPanelHidden ? 'Exit Focus' : 'Focus Mode'}
+          </button>
           <button
             onClick={handleResetSession}
             className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition-colors"
@@ -439,7 +463,11 @@ export default function UnifiedDebugInterface({
       </header>
 
       {/* Main Layout */}
-      <div className="unified-layout flex-1 grid grid-cols-[70%_30%] gap-4 p-4 min-h-[calc(100vh-4rem)]">
+      <div
+        className={`unified-layout flex-1 grid gap-4 p-4 min-h-[calc(100vh-4rem)] ${
+          isRightPanelHidden ? 'grid-cols-1' : 'grid-cols-[70%_30%]'
+        }`}
+      >
         {/* Left Column - Quiz Form and Results */}
         <div className="quiz-section flex flex-col gap-4 min-h-0">
           {/* Quiz Form */}
@@ -455,7 +483,7 @@ export default function UnifiedDebugInterface({
 
           {/* Results Panel - appears below quiz when available */}
           {(state.assessmentResults || state.isAnalyzing) && (
-            <div className="results-panel bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden h-72">
+            <div className="results-panel bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
               <ResultsPanel
                 results={state.assessmentResults}
                 researchData={state.researchData}
@@ -468,23 +496,25 @@ export default function UnifiedDebugInterface({
         </div>
 
         {/* Right Column - Debug Panels */}
-        <div className="space-y-4 sticky top-4">
-          {/* Research Transparency Panel */}
-          <ResearchTransparencyPanel />
-          
-          {/* Debug Console Panel */}
-          <div className="debug-console-panel bg-gray-900 rounded-lg shadow-sm overflow-hidden h-fit max-h-[calc(70vh-2rem)]">
-            <DebugConsolePanel
-              logs={state.debugLogs}
-              onClear={handleClearLogs}
-              onExport={handleExportLogs}
-              filters={state.debugConsoleState.filters}
-              onFiltersChange={handleFiltersChange}
-              selectedLog={state.debugConsoleState.selectedLog}
-              onLogSelect={handleLogSelect}
-            />
+        {!isRightPanelHidden && (
+          <div className="space-y-4 sticky top-4">
+            {/* Research Transparency Panel */}
+            <ResearchTransparencyPanel />
+            
+            {/* Debug Console Panel */}
+            <div className="debug-console-panel bg-gray-900 rounded-lg shadow-sm overflow-hidden h-fit max-h-[calc(70vh-2rem)]">
+              <DebugConsolePanel
+                logs={state.debugLogs}
+                onClear={handleClearLogs}
+                onExport={handleExportLogs}
+                filters={state.debugConsoleState.filters}
+                onFiltersChange={handleFiltersChange}
+                selectedLog={state.debugConsoleState.selectedLog}
+                onLogSelect={handleLogSelect}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

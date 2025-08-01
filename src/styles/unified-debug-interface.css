@@ -6,7 +6,7 @@
 
 .unified-layout {
   display: grid;
-  grid-template-columns: 70% 30%;
+  /* Let Tailwind utilities control columns; remove fixed grid-template-columns to avoid conflicts */
   gap: 1rem;
   min-height: calc(100vh - 4rem);
   padding: 1rem;
@@ -32,14 +32,16 @@
 }
 
 .results-panel {
-  height: 18rem; /* Reduced height when visible */
+  /* Allow results panel to grow when sidebar is hidden; keep a reasonable minimum */
+  height: auto;
+  min-height: 18rem;
   flex-shrink: 0;
 }
 
 /* Responsive Design */
 @media (max-width: 1200px) {
   .unified-layout {
-    grid-template-columns: 1fr;
+    /* Tailwind responsive classes will handle columns; no fixed template here */
     grid-template-rows: auto auto;
   }
   
@@ -53,7 +55,7 @@
   }
   
   .results-panel {
-    height: 200px;
+    min-height: 200px;
   }
 }
 
