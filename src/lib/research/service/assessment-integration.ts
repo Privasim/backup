@@ -140,23 +140,93 @@ export class ResearchAssessmentIntegration implements AssessmentIntegration {
   }
 
   async generateRiskReport(userResponses: any): Promise<RiskReport> {
-    const occupationRisk = await this.getUserOccupationRisk(userResponses);
-    if (!occupationRisk) {
-      throw new Error('Unable to generate risk report: occupation not found');
-    }
+    try {
+      const occupationRisk = await this.getUserOccupationRisk(userResponses);
+      if (!occupationRisk) {
+        // Create a fallback report if occupation not found
+        return this.createFallbackReport(userResponses);
+      }
 
+      const userRisk = this.calculateUserRiskFromResponses(userResponses);
+      const comparison = await this.compareWithBenchmark(userRisk, occupationRisk.occupation.name);
+      const recommendations = await this.getRecommendations(occupationRisk);
+      const actionItems = this.generateActionItems(occupationRisk, comparison);
+
+      return {
+        occupation: occupationRisk.occupation,
+        riskAssessment: occupationRisk,
+        comparison,
+        recommendations,
+        similarOccupations: occupationRisk.similarOccupations,
+        actionItems,
+      };
+    } catch (error) {
+      console.error('Failed to generate risk report:', error);
+      // Return fallback report on error
+      return this.createFallbackReport(userResponses);
+    }
+  }
+
+  private createFallbackReport(userResponses: any): RiskReport {
     const userRisk = this.calculateUserRiskFromResponses(userResponses);
-    const comparison = await this.compareWithBenchmark(userRisk, occupationRisk.occupation.name);
-    const recommendations = await this.getRecommendations(occupationRisk);
-    const actionItems = this.generateActionItems(occupationRisk, comparison);
+    const occupation = this.extractOccupationFromResponses(userResponses) || 'Unknown';
+    
+    // Create a basic occupation data structure
+    const fallbackOccupation: OccupationData = {
+      name: occupation,
+      socCode: '00-0000',
+      riskScore: userRisk,
+      keyTasks: ['General professional tasks'],
+      skillsRequired: userResponses.skillSet || [],
+      industryContext: userResponses.industry || 'General',
+      employmentData: {
+        totalEmployment: 0,
+        medianWage: 0,
+        projectedGrowth: 0,
+      },
+      aiExposureFactors: {
+        automationPotential: userRisk * 0.8,
+        humanInteractionRequired: 1 - userRisk,
+        creativityRequired: 0.5,
+        problemSolvingComplexity: 0.5,
+      },
+    };
+
+    const fallbackRisk: OccupationRisk = {
+      occupation: fallbackOccupation,
+      riskLevel: userRisk > 0.7 ? 'very_high' : userRisk > 0.5 ? 'high' : userRisk > 0.3 ? 'medium' : 'low',
+      percentile: userRisk * 100,
+      similarOccupations: [],
+    };
+
+    const fallbackComparison: ComparisonResult = {
+      userRisk,
+      benchmarkRisk: userRisk,
+      percentileDifference: 0,
+      riskCategory: 'similar',
+      message: `Risk assessment based on your profile as ${occupation}`,
+    };
 
     return {
-      occupation: occupationRisk.occupation,
-      riskAssessment: occupationRisk,
-      comparison,
-      recommendations,
-      similarOccupations: occupationRisk.similarOccupations,
-      actionItems,
+      occupation: fallbackOccupation,
+      riskAssessment: fallbackRisk,
+      comparison: fallbackComparison,
+      recommendations: [
+        'Stay informed about AI developments in your field',
+        'Develop skills that complement AI technologies',
+        'Focus on uniquely human capabilities',
+        'Consider continuous learning and adaptation',
+      ],
+      similarOccupations: [],
+      actionItems: [
+        {
+          priority: 'medium',
+          category: 'skill_development',
+          title: 'Monitor Industry Trends',
+          description: 'Stay updated on AI developments affecting your profession',
+          timeframe: 'Ongoing',
+        },
+      ],
     };
   }
 
@@ -171,7 +241,16 @@ export class ResearchAssessmentIntegration implements AssessmentIntegration {
       return userResponses.jobTitle;
     }
 
+    // Check for jobDescription field (from quiz data)
+    if (userResponses.jobDescription) {
+      return userResponses.jobDescription.replace('-', ' ');
+    }
+
     // Try to infer from skills or industry
+    if (userResponses.skillSet && Array.isArray(userResponses.skillSet)) {
+      return this.inferOccupationFromSkills(userResponses.skillSet);
+    }
+
     if (userResponses.skills && Array.isArray(userResponses.skills)) {
       return this.inferOccupationFromSkills(userResponses.skills);
     }
@@ -234,6 +313,39 @@ export class ResearchAssessmentIntegration implements AssessmentIntegration {
       riskScore -= 0.15;
     } else if (userResponses.adaptability === 'low') {
       riskScore += 0.15;
+    }
+
+    // Handle quiz data structure - adjust based on job type
+    if (userResponses.jobDescription) {
+      const jobRiskAdjustments: Record<string, number> = {
+        'marketer': 0.15,
+        'graphic-designer': 0.25,
+        'accountant': 0.30,
+        'data-analyst': -0.05,
+        'software-developer': -0.15
+      };
+      
+      const adjustment = jobRiskAdjustments[userResponses.jobDescription] || 0;
+      riskScore += adjustment;
+    }
+
+    // Adjust based on experience level
+    if (userResponses.experience) {
+      if (userResponses.experience.includes('0-2') || userResponses.experience.includes('Entry')) {
+        riskScore += 0.1; // Less experience = higher risk
+      } else if (userResponses.experience.includes('10+') || userResponses.experience.includes('Senior')) {
+        riskScore -= 0.1; // More experience = lower risk
+      }
+    }
+
+    // Adjust based on skill set diversity
+    if (userResponses.skillSet && Array.isArray(userResponses.skillSet)) {
+      const skillCount = userResponses.skillSet.length;
+      if (skillCount >= 5) {
+        riskScore -= 0.1; // More diverse skills = lower risk
+      } else if (skillCount <= 2) {
+        riskScore += 0.1; // Limited skills = higher risk
+      }
     }
 
     return Math.max(0, Math.min(1, riskScore));

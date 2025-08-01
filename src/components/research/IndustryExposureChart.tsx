@@ -1,11 +1,30 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { Bar } from 'react-chartjs-2';
 import { useIndustryData } from '@/hooks/useResearchData';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+// Simple fallback chart component to replace Chart.js dependency
+const Bar = ({ data, options }: { data: any; options: any }) => (
+  <div className="bg-gray-100 rounded-lg p-4 h-full">
+    <div className="text-center mb-4">
+      <h3 className="text-lg font-semibold">{options?.plugins?.title?.text || 'Industry Exposure Chart'}</h3>
+    </div>
+    <div className="grid grid-cols-1 gap-2 max-h-80 overflow-y-auto">
+      {data?.datasets?.[0]?.data?.map((value: number, index: number) => (
+        <div key={index} className="flex items-center justify-between p-2 bg-white rounded">
+          <span className="text-sm truncate flex-1">{data.labels?.[index]}</span>
+          <div className="flex items-center ml-2">
+            <div 
+              className="h-4 bg-blue-500 rounded mr-2"
+              style={{ width: `${Math.max(value * 2, 10)}px` }}
+            ></div>
+            <span className="text-sm font-medium w-12 text-right">{value.toFixed(1)}%</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
 
 export interface IndustryExposureChartProps {
   className?: string;

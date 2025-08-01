@@ -2,7 +2,18 @@
 
 import React, { useState } from 'react';
 import { OccupationRisk } from '@/lib/research/service';
-import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
+// Inline SVG icons to replace @heroicons/react dependency
+const ChevronDownIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+  </svg>
+);
+
+const ChevronUpIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+  </svg>
+);
 
 export interface OccupationInsightsProps {
   occupationRisk: OccupationRisk;

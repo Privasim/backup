@@ -1,11 +1,31 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ChartOptions } from 'chart.js';
-import { Bar } from 'react-chartjs-2';
 import { OccupationRisk } from '@/lib/research/service';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+// Simple fallback chart component to replace Chart.js dependency
+const Bar = ({ data, options }: { data: any; options: any }) => (
+  <div className="bg-gray-100 rounded-lg p-4 h-full flex items-center justify-center">
+    <div className="text-center">
+      <div className="text-gray-600 mb-2">Chart Visualization</div>
+      <div className="text-sm text-gray-500">
+        {options?.plugins?.title?.text || 'Risk Comparison Chart'}
+      </div>
+      <div className="mt-4 flex justify-center space-x-4">
+        {data?.datasets?.[0]?.data?.map((value: number, index: number) => (
+          <div key={index} className="text-center">
+            <div 
+              className="w-8 bg-blue-500 rounded-t"
+              style={{ height: `${value * 2}px`, minHeight: '20px' }}
+            ></div>
+            <div className="text-xs mt-1">{data.labels?.[index]}</div>
+            <div className="text-xs text-gray-600">{value.toFixed(1)}%</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
 
 export interface RiskComparisonData {
   userRisk: number;

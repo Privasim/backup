@@ -15,12 +15,9 @@ export async function initializeResearchService(knowledgeBase?: KnowledgeBase): 
   if (knowledgeBase) {
     await globalServiceInstance.initialize(knowledgeBase);
   } else {
-    // Load from default location
-    try {
-      await globalServiceInstance.loadFromFile('/src/lib/research/data/ai_employment_risks.json');
-    } catch (error) {
-      console.warn('Failed to load default knowledge base, service will need manual initialization');
-    }
+    // In browser environment, we can't load from file system
+    // The service should be initialized with the imported knowledge base
+    console.warn('No knowledge base provided to initializeResearchService. Service requires manual initialization.');
   }
 
   return globalServiceInstance;

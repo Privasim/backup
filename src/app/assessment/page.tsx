@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { QuizData } from '@/lib/quiz/types';
 import RiskComparisonChart from '@/components/research/RiskComparisonChart';
@@ -34,6 +34,17 @@ export default function AssessmentPage() {
   // Get occupation risk data from research service
   const occupationIdentifier = quizData?.jobDescription?.replace('-', ' ') || '';
   const { occupationRisk, isLoading: isLoadingOccupation } = useOccupationRisk(occupationIdentifier);
+
+  const loadResearchData = useCallback(async (data: QuizData) => {
+    try {
+      const report = await assessmentIntegration.generateRiskReport(data);
+      setResearchData(report);
+    } catch (error) {
+      console.error('Failed to load research data:', error);
+      // Set empty research data to prevent further errors
+      setResearchData(null);
+    }
+  }, []);
 
   useEffect(() => {
     // Get quiz data from localStorage
@@ -71,16 +82,7 @@ export default function AssessmentPage() {
 
     // Load research data integration
     loadResearchData(data);
-  }, [router]);
-
-  const loadResearchData = async (data: QuizData) => {
-    try {
-      const report = await assessmentIntegration.generateRiskReport(data);
-      setResearchData(report);
-    } catch (error) {
-      console.error('Failed to load research data:', error);
-    }
-  }, [router]);
+  }, [router, loadResearchData]);
 
   const formatAnalysisResult = (analysisResult: any, data: QuizData): AssessmentResult => {
     return {
