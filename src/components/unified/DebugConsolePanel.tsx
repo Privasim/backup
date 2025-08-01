@@ -94,8 +94,8 @@ export default function DebugConsolePanel({
 
   return (
     <div className={`debug-console-panel flex flex-col h-full text-white ${className}`}>
-      {/* Panel Header */}
-      <div className="panel-header bg-gray-800 border-b border-gray-700 p-3">
+      {/* Sticky Panel Header */}
+      <div className="panel-header bg-gray-800 border-b border-gray-700 p-3 sticky top-0 z-10">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold">Debug Console</h2>
           <div className="text-xs text-gray-400">
@@ -178,7 +178,7 @@ export default function DebugConsolePanel({
       {/* Logs */}
       <div 
         ref={consoleRef}
-        className="flex-1 overflow-y-auto p-2 space-y-1 font-mono text-xs"
+        className="flex-1 overflow-y-auto p-2 space-y-1 font-mono text-xs max-h-96"
       >
         {filteredLogs.length === 0 ? (
           <div className="text-gray-500 text-center py-8">

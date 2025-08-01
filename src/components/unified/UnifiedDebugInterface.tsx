@@ -232,19 +232,29 @@ export default function UnifiedDebugInterface({
 
   // Handle analysis start
   const handleAnalysisStart = useCallback(async (data: QuizData) => {
-    debugLog.info('UnifiedInterface', 'Starting analysis process');
+    debugLog.info('UnifiedInterface', '🚀 Starting comprehensive analysis process', {
+      jobDescription: data.jobDescription,
+      experience: data.experience,
+      industry: data.industry,
+      model: data.model || 'default'
+    });
+    
     dispatch({ type: 'SET_ANALYZING', payload: true });
     dispatch({ type: 'SET_ASSESSMENT_RESULTS', payload: null });
 
     try {
+      debugLog.info('UnifiedInterface', 'Loading assessment analyzer module...');
       const { createJobRiskAnalyzer } = await import('@/lib/assessment/analyzer');
+      debugLog.success('UnifiedInterface', 'Assessment analyzer module loaded successfully');
       
+      debugLog.info('UnifiedInterface', 'Creating analyzer instance with progress tracking...');
       const analyzer = createJobRiskAnalyzer(data.apiKey!, (progress) => {
-        debugLog.debug('UnifiedInterface', `Analysis progress: ${progress.stage} - ${progress.message}`);
+        debugLog.debug('UnifiedInterface', `📊 Analysis progress: ${progress.stage} - ${progress.message} (${progress.progress}%)`);
         dispatch({ type: 'SET_ANALYSIS_PROGRESS', payload: progress });
       });
 
-      const result = await analyzer.analyzeJobRisk({
+      debugLog.info('UnifiedInterface', 'Starting AI risk analysis with provided data...');
+      const analysisRequest = {
         jobDescription: data.jobDescription,
         experience: data.experience,
         industry: data.industry,
@@ -253,27 +263,54 @@ export default function UnifiedDebugInterface({
         skillSet: data.skillSet,
         apiKey: data.apiKey!,
         model: data.model
+      };
+      
+      debugLog.debug('UnifiedInterface', 'Analysis request prepared', analysisRequest);
+      
+      const result = await analyzer.analyzeJobRisk(analysisRequest);
+      
+      debugLog.info('UnifiedInterface', 'Analysis completed, processing results...', {
+        success: result.success,
+        hasData: !!result.data,
+        hasError: !!result.error
       });
 
       if (result.success && result.data) {
-        debugLog.success('UnifiedInterface', 'Analysis completed successfully');
+        debugLog.success('UnifiedInterface', '✅ Analysis completed successfully!', {
+          riskLevel: result.data.riskLevel,
+          riskScore: result.data.riskScore,
+          recommendationCount: result.data.recommendations?.length || 0
+        });
+        
         dispatch({ type: 'SET_ASSESSMENT_RESULTS', payload: result.data });
         
         // Load research data
+        debugLog.info('UnifiedInterface', 'Loading research data integration...');
         try {
           const { assessmentIntegration } = await import('@/lib/research/service/assessment-integration');
+          debugLog.debug('UnifiedInterface', 'Assessment integration module loaded');
+          
           const researchReport = await assessmentIntegration.generateRiskReport(data);
           dispatch({ type: 'SET_RESEARCH_DATA', payload: researchReport });
-          debugLog.success('UnifiedInterface', 'Research data loaded');
+          
+          debugLog.success('UnifiedInterface', '📊 Research data integrated successfully', {
+            hasRecommendations: !!researchReport.recommendations,
+            recommendationCount: researchReport.recommendations?.length || 0
+          });
         } catch (error) {
-          debugLog.warn('UnifiedInterface', 'Research data loading failed', error);
+          debugLog.warn('UnifiedInterface', '⚠️ Research data loading failed', error);
         }
       } else {
-        debugLog.error('UnifiedInterface', 'Analysis failed', result.error);
+        debugLog.error('UnifiedInterface', '❌ Analysis failed', {
+          error: result.error,
+          errorType: result.error?.type,
+          errorMessage: result.error?.message
+        });
       }
     } catch (error) {
-      debugLog.error('UnifiedInterface', 'Analysis error', error);
+      debugLog.error('UnifiedInterface', '💥 Critical analysis error', error, error instanceof Error ? error.stack : undefined);
     } finally {
+      debugLog.info('UnifiedInterface', 'Analysis process completed, cleaning up...');
       dispatch({ type: 'SET_ANALYZING', payload: false });
       dispatch({ type: 'SET_ANALYSIS_PROGRESS', payload: null });
     }
@@ -342,7 +379,7 @@ export default function UnifiedDebugInterface({
   }, []);
 
   return (
-    <div className="unified-debug-interface h-screen bg-gray-50 overflow-hidden">
+    <div className="unified-debug-interface min-h-screen bg-gray-50">
       {/* Header Bar */}
       <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-3">
@@ -375,11 +412,11 @@ export default function UnifiedDebugInterface({
       </header>
 
       {/* Main Layout */}
-      <div className="unified-layout flex-1 grid grid-cols-[70%_30%] gap-4 p-4 h-[calc(100vh-4rem)]">
+      <div className="unified-layout flex-1 grid grid-cols-[70%_30%] gap-4 p-4 min-h-[calc(100vh-4rem)]">
         {/* Quiz Form Panel with Results */}
-        <div className="quiz-section flex flex-col gap-4">
+        <div className="quiz-section flex flex-col gap-4 min-h-0">
           {/* Quiz Form */}
-          <div className="quiz-form-panel bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex-1">
+          <div className="quiz-form-panel bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex-1 min-h-0">
             <QuizFormPanel
               onDataChange={handleQuizDataChange}
               onAnalysisStart={handleAnalysisStart}
@@ -404,7 +441,7 @@ export default function UnifiedDebugInterface({
         </div>
 
         {/* Debug Console Panel */}
-        <div className="debug-console-panel bg-gray-900 rounded-lg shadow-sm overflow-hidden">
+        <div className="debug-console-panel bg-gray-900 rounded-lg shadow-sm overflow-hidden h-fit max-h-screen sticky top-4">
           <DebugConsolePanel
             logs={state.debugLogs}
             onClear={handleClearLogs}

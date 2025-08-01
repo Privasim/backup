@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { QuizData } from '@/lib/quiz/types';
+import { debugLog } from '@/components/debug/DebugConsole';
 
 interface AssessmentResult {
   riskLevel: 'Low' | 'Medium' | 'High';
@@ -36,6 +37,49 @@ export default function ResultsPanel({
 }: ResultsPanelProps) {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
+  // Initialize logging
+  useEffect(() => {
+    debugLog.info('ResultsPanel', 'Results panel initialized', {
+      hasResults: !!results,
+      hasResearchData: !!researchData,
+      hasQuizData: !!quizData,
+      isLoading
+    });
+  }, []);
+
+  // Log when results change
+  useEffect(() => {
+    if (results) {
+      debugLog.success('ResultsPanel', 'Assessment results received', {
+        riskLevel: results.riskLevel,
+        riskScore: results.riskScore,
+        factorCount: Object.keys(results.factors).length,
+        recommendationCount: results.recommendations.length,
+        hasKeyFindings: !!results.keyFindings
+      });
+    }
+  }, [results]);
+
+  // Log when research data changes
+  useEffect(() => {
+    if (researchData) {
+      debugLog.success('ResultsPanel', 'Research data integrated', {
+        hasRecommendations: !!researchData.recommendations,
+        recommendationCount: researchData.recommendations?.length || 0,
+        dataKeys: Object.keys(researchData)
+      });
+    }
+  }, [researchData]);
+
+  // Log loading state changes
+  useEffect(() => {
+    if (isLoading) {
+      debugLog.info('ResultsPanel', 'Results panel showing loading state');
+    } else {
+      debugLog.info('ResultsPanel', 'Results panel loading completed');
+    }
+  }, [isLoading]);
+
   const getRiskColor = (level: string) => {
     switch (level) {
       case 'Low': return 'text-green-700 bg-green-100 border-green-200';
@@ -46,7 +90,9 @@ export default function ResultsPanel({
   };
 
   const toggleSection = (section: string) => {
-    setExpandedSection(expandedSection === section ? null : section);
+    const newState = expandedSection === section ? null : section;
+    debugLog.debug('ResultsPanel', `Section ${newState ? 'expanded' : 'collapsed'}: ${section}`);
+    setExpandedSection(newState);
   };
 
   if (isLoading) {
@@ -109,7 +155,13 @@ export default function ResultsPanel({
               {results.riskLevel} Risk
             </div>
             <button
-              onClick={onExport}
+              onClick={() => {
+                debugLog.info('ResultsPanel', 'Export button clicked', {
+                  hasResults: !!results,
+                  hasResearchData: !!researchData
+                });
+                onExport();
+              }}
               className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
             >
               Export
