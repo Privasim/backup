@@ -6,44 +6,31 @@ import { Box, Container, Typography, CircularProgress } from '@mui/material';
 import { JobLossSearch } from '@/components/jobloss/JobLossSearch';
 import { JobLossResults } from '@/components/jobloss/JobLossResults';
 import { JobLossAnalysis } from '@/components/jobloss/JobLossAnalysis';
-import { NewsItem } from '@/types/jobloss';
+import { useJobLossTracker } from '@/hooks/useJobLossTracker';
+import { AnalysisResult } from '@/types/jobloss';
 
 export default function JobLossTrackerPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
-  const [analysisResults, setAnalysisResults] = useState<Record<string, any>>({});
+  const {
+    searchQuery,
+    searchResults: newsItems,
+    isLoading,
+    error,
+    selectedItems,
+    analysisResults,
+    setSearchQuery,
+    searchNews,
+    toggleSelectItem,
+    toggleSelectAll,
+    analyzeSelected,
+  } = useJobLossTracker();
 
-  const handleSearch = async (query: string) => {
-    setIsLoading(true);
+  const handleSearch = async (query: string, filters?: any) => {
     setSearchQuery(query);
-    
-    try {
-      // TODO: Implement search functionality
-      // const results = await searchNews(query);
-      // setNewsItems(results);
-    } catch (error) {
-      console.error('Error searching news:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    await searchNews();
   };
 
   const handleAnalyze = async () => {
-    if (selectedItems.length === 0) return;
-    
-    setIsLoading(true);
-    
-    try {
-      // TODO: Implement analysis functionality
-      // const results = await analyzeNews(selectedItems);
-      // setAnalysisResults(prev => ({ ...prev, ...results }));
-    } catch (error) {
-      console.error('Error analyzing news:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    await analyzeSelected();
   };
 
   return (
@@ -60,7 +47,9 @@ export default function JobLossTrackerPage() {
         
         <JobLossSearch 
           onSearch={handleSearch} 
-          isLoading={isLoading} 
+          isLoading={isLoading}
+          error={error}
+          lastSearchedQuery={searchQuery}
         />
         
         {isLoading && !newsItems.length ? (
@@ -72,13 +61,20 @@ export default function JobLossTrackerPage() {
             <JobLossResults 
               items={newsItems}
               selectedItems={selectedItems}
-              onSelectItems={setSelectedItems}
+              onToggleSelect={toggleSelectItem}
+              onSelectAll={toggleSelectAll}
               onAnalyze={handleAnalyze}
               isLoading={isLoading}
+              isAnalyzing={false}
+              analysisError={null}
+              hasAnalysisResults={analysisResults.length > 0}
             />
             
-            {Object.keys(analysisResults).length > 0 && (
-              <JobLossAnalysis results={analysisResults} />
+            {analysisResults.length > 0 && (
+              <JobLossAnalysis results={(analysisResults as AnalysisResult[]).reduce((acc, result) => {
+                acc[result.articleId] = result;
+                return acc;
+              }, {} as Record<string, AnalysisResult>)} />
             )}
           </>
         )}
