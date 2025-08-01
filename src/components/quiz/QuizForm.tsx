@@ -18,6 +18,7 @@ import SkillSelector from './SkillSelector';
 import SummaryPanel from './SummaryPanel';
 import ApiKeyInput from './ApiKeyInput';
 import AnalysisProgress from '../assessment/AnalysisProgress';
+import { debugLog } from '@/components/debug/DebugConsole';
 
 export default function QuizForm() {
   const router = useRouter();
@@ -25,7 +26,14 @@ export default function QuizForm() {
   const prevJobDescriptionRef = useRef<string>('');
   const [analysisProgress, setAnalysisProgress] = useState<any>(null);
   
+  // Initialize logging
+  useEffect(() => {
+    debugLog.info('QuizForm', 'Quiz form component initialized');
+    debugLog.debug('QuizForm', 'Initial form state', state);
+  }, []);
+
   const jobDescriptions = getJobDescriptions();
+  debugLog.debug('QuizForm', `Loaded ${jobDescriptions.length} job descriptions`);
 
   // Declare variables before useEffect hooks
   const canProceedToStep2 = state.data.jobDescription && !state.errors.jobDescription;
@@ -42,11 +50,24 @@ export default function QuizForm() {
         state.data.jobDescription !== prevJobDescriptionRef.current &&
         validateJobKey(state.data.jobDescription)) {
       
+      debugLog.info('QuizForm', `Job description changed to: ${state.data.jobDescription}`);
+      
       const context = getContextForJob(state.data.jobDescription);
       if (context) {
+        debugLog.success('QuizForm', 'Context data loaded successfully', {
+          experiences: context.experiences.length,
+          industries: context.industries.length,
+          locations: context.locations.length,
+          skillSets: context.skillSets.length
+        });
+        
         // Reset dependent fields when job description changes
         actions.resetDependentFields();
         prevJobDescriptionRef.current = state.data.jobDescription;
+        
+        debugLog.debug('QuizForm', 'Dependent fields reset due to job change');
+      } else {
+        debugLog.warn('QuizForm', 'No context data found for job description', state.data.jobDescription);
       }
     }
   }, [state.data.jobDescription]); // Only depend on jobDescription
@@ -54,34 +75,51 @@ export default function QuizForm() {
   // Auto-advance to Step 3 when Step 2 is complete
   useEffect(() => {
     if (canProceedToStep3 && state.currentStep === 2) {
+      debugLog.info('QuizForm', 'Auto-advancing to step 3 - all required fields completed');
       actions.setStep(3);
     }
   }, [canProceedToStep3, state.currentStep, actions]);
 
   const handleFieldChange = useCallback((field: keyof typeof state.data, value: string | string[]) => {
+    debugLog.debug('QuizForm', `Field changed: ${field}`, { value });
     actions.setField(field, value);
     actions.setTouched(field);
   }, [actions]);
 
   const handleStartAnalysis = async () => {
+    debugLog.info('Analysis', '🚀 Starting job risk assessment analysis');
+    debugLog.debug('Analysis', 'Form data being analyzed', state.data);
+    
     actions.setSubmitAttempted(true);
     
+    // Validate form
+    debugLog.info('Analysis', 'Validating form data...');
     if (!actions.validateForm()) {
+      debugLog.error('Analysis', 'Form validation failed', state.errors);
       return;
     }
+    debugLog.success('Analysis', 'Form validation passed');
 
     actions.setAnalyzing(true);
     
     try {
+      debugLog.info('Analysis', 'Loading assessment analyzer module...');
       const { createJobRiskAnalyzer } = await import('@/lib/assessment/analyzer');
+      debugLog.success('Analysis', 'Assessment analyzer module loaded');
       
       // Create analyzer with progress callback
+      debugLog.info('Analysis', 'Creating job risk analyzer instance...');
       const analyzer = createJobRiskAnalyzer(state.data.apiKey!, (progress) => {
+        debugLog.debug('Analysis', `Progress update: ${progress.stage} - ${progress.message}`, {
+          progress: progress.progress,
+          stage: progress.stage
+        });
         setAnalysisProgress(progress);
       });
+      debugLog.success('Analysis', 'Job risk analyzer created successfully');
 
-      // Run the analysis
-      const result = await analyzer.analyzeJobRisk({
+      // Prepare analysis request
+      const analysisRequest = {
         jobDescription: state.data.jobDescription,
         experience: state.data.experience,
         industry: state.data.industry,
@@ -90,26 +128,48 @@ export default function QuizForm() {
         skillSet: state.data.skillSet,
         apiKey: state.data.apiKey!,
         model: state.data.model
+      };
+      
+      debugLog.info('Analysis', 'Starting AI analysis with request data', analysisRequest);
+
+      // Run the analysis
+      const result = await analyzer.analyzeJobRisk(analysisRequest);
+      
+      debugLog.info('Analysis', 'Analysis completed', { 
+        success: result.success,
+        hasData: !!result.data,
+        hasError: !!result.error
       });
 
       if (result.success && result.data) {
+        debugLog.success('Analysis', 'Analysis successful! Processing results...', result.data);
+        
         // Store both quiz data and analysis results
+        debugLog.info('Analysis', 'Storing results in localStorage...');
         localStorage.setItem('quizResults', JSON.stringify(state.data));
         localStorage.setItem('assessmentResults', JSON.stringify(result.data));
+        debugLog.success('Analysis', 'Results stored successfully');
         
         actions.setAnalysisComplete(true);
         
         // Navigate to assessment page
+        debugLog.info('Analysis', 'Navigating to assessment page...');
         router.push('/assessment');
       } else {
         const errorMessage = result.error?.message || 'Analysis failed. Please try again.';
+        debugLog.error('Analysis', 'Analysis failed', {
+          error: result.error,
+          message: errorMessage
+        });
         actions.setError('submit', errorMessage);
       }
       
     } catch (error) {
+      debugLog.error('Analysis', 'Critical error during analysis', error, error instanceof Error ? error.stack : undefined);
       console.error('Analysis error:', error);
       actions.setError('submit', 'Failed to start analysis. Please check your API key and try again.');
     } finally {
+      debugLog.info('Analysis', 'Analysis process completed, cleaning up...');
       actions.setAnalyzing(false);
       setAnalysisProgress(null);
     }

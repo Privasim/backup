@@ -1,17 +1,33 @@
 import { AssessmentResult, AssessmentError, ProcessedResponse } from './types';
+import { debugLog } from '@/components/debug/DebugConsole';
 
 export class ResultProcessor {
   static processLLMResponse(rawResponse: string): ProcessedResponse {
+    debugLog.info('ResultProcessor', 'Processing LLM response', {
+      responseLength: rawResponse.length,
+      preview: rawResponse.substring(0, 200) + (rawResponse.length > 200 ? '...' : '')
+    });
     try {
       // Clean the response - remove markdown code blocks if present
+      debugLog.info('ResultProcessor', 'Cleaning response...');
       const cleanedResponse = this.cleanResponse(rawResponse);
+      debugLog.debug('ResultProcessor', 'Response cleaned', {
+        originalLength: rawResponse.length,
+        cleanedLength: cleanedResponse.length,
+        cleanedPreview: cleanedResponse.substring(0, 200)
+      });
       
       // Try to parse as JSON
+      debugLog.info('ResultProcessor', 'Attempting JSON parse...');
       const parsedData = JSON.parse(cleanedResponse);
+      debugLog.success('ResultProcessor', 'JSON parsing successful', parsedData);
       
       // Validate the structure
+      debugLog.info('ResultProcessor', 'Validating response structure...');
       const validationResult = this.validateAssessmentResult(parsedData);
+      
       if (!validationResult.isValid) {
+        debugLog.error('ResultProcessor', 'Response validation failed', validationResult.errors);
         return {
           success: false,
           error: {
@@ -22,9 +38,12 @@ export class ResultProcessor {
           rawResponse
         };
       }
+      debugLog.success('ResultProcessor', 'Response validation passed');
       
       // Normalize and sanitize the data
+      debugLog.info('ResultProcessor', 'Normalizing assessment result...');
       const normalizedData = this.normalizeAssessmentResult(parsedData);
+      debugLog.success('ResultProcessor', 'Assessment result normalized successfully', normalizedData);
       
       return {
         success: true,
@@ -33,10 +52,13 @@ export class ResultProcessor {
       };
       
     } catch (error) {
+      debugLog.warn('ResultProcessor', 'JSON parsing failed, attempting text extraction...', error);
+      
       // If JSON parsing fails, try to extract data from text
       const extractedData = this.extractDataFromText(rawResponse);
       
       if (extractedData) {
+        debugLog.success('ResultProcessor', 'Data extracted from text successfully', extractedData);
         return {
           success: true,
           data: extractedData,
@@ -44,6 +66,7 @@ export class ResultProcessor {
         };
       }
       
+      debugLog.error('ResultProcessor', 'All parsing methods failed', error, error instanceof Error ? error.stack : undefined);
       return {
         success: false,
         error: {

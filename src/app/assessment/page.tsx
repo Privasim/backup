@@ -8,6 +8,9 @@ import OccupationInsights from '@/components/research/OccupationInsights';
 import IndustryExposureChart from '@/components/research/IndustryExposureChart';
 import { useOccupationRisk } from '@/hooks/useResearchData';
 import { assessmentIntegration } from '@/lib/research/service/assessment-integration';
+import { debugLog } from '@/components/debug/DebugConsole';
+import { debugLog } from '@/components/debug/DebugConsole';
+import { debugLog } from '@/components/debug/DebugConsole';
 
 interface AssessmentResult {
   riskLevel: 'Low' | 'Medium' | 'High';
@@ -36,10 +39,13 @@ export default function AssessmentPage() {
   const { occupationRisk, isLoading: isLoadingOccupation } = useOccupationRisk(occupationIdentifier);
 
   const loadResearchData = useCallback(async (data: QuizData) => {
+    debugLog.info('Assessment', 'Loading research data integration...');
     try {
       const report = await assessmentIntegration.generateRiskReport(data);
+      debugLog.success('Assessment', 'Research data loaded successfully', report);
       setResearchData(report);
     } catch (error) {
+      debugLog.error('Assessment', 'Failed to load research data', error, error instanceof Error ? error.stack : undefined);
       console.error('Failed to load research data:', error);
       // Set empty research data to prevent further errors
       setResearchData(null);
