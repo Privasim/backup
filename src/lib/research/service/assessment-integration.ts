@@ -1,5 +1,7 @@
-import { getResearchService, OccupationRisk } from './index';
+import { getResearchService, OccupationRisk, initializeResearchService } from './index';
 import { OccupationData } from '../types';
+import knowledgeBase from '../data/ai_employment_risks.json';
+import { debugLog } from '../../../components/debug/DebugConsole';
 
 export interface AssessmentIntegration {
   getUserOccupationRisk(userResponses: any): Promise<OccupationRisk | null>;
@@ -34,25 +36,55 @@ export interface ActionItem {
 }
 
 export class ResearchAssessmentIntegration implements AssessmentIntegration {
+  private async ensureServiceInitialized() {
+    try {
+      // Try to get the service first
+      debugLog.debug('AssessmentIntegration', 'Checking if research service is initialized...');
+      const service = getResearchService();
+      debugLog.success('AssessmentIntegration', 'Research service is already initialized');
+      return service;
+    } catch (error) {
+      // If service is not initialized, initialize it
+      debugLog.info('AssessmentIntegration', 'Research service not initialized, initializing now...');
+      await initializeResearchService(knowledgeBase as any);
+      const service = getResearchService();
+      debugLog.success('AssessmentIntegration', 'Research service initialized successfully');
+      return service;
+    }
+  }
   async getUserOccupationRisk(userResponses: any): Promise<OccupationRisk | null> {
     try {
+      debugLog.info('AssessmentIntegration', 'Getting user occupation risk...');
+      
       // Extract occupation from user responses
       const occupation = this.extractOccupationFromResponses(userResponses);
       if (!occupation) {
+        debugLog.warn('AssessmentIntegration', 'No occupation found in user responses');
         return null;
       }
 
-      const service = getResearchService();
-      return await service.getOccupationRiskWithFallback(occupation);
+      debugLog.debug('AssessmentIntegration', `Extracted occupation: ${occupation}`);
+
+      // Ensure research service is initialized
+      const service = await this.ensureServiceInitialized();
+      const result = await service.getOccupationRiskWithFallback(occupation);
+      
+      debugLog.success('AssessmentIntegration', 'User occupation risk retrieved successfully', {
+        occupation,
+        hasResult: !!result
+      });
+      
+      return result;
     } catch (error) {
-      console.error('Failed to get user occupation risk:', error);
+      debugLog.error('AssessmentIntegration', 'Failed to get user occupation risk', error);
       return null;
     }
   }
 
   async compareWithBenchmark(userRisk: number, occupation: string): Promise<ComparisonResult> {
     try {
-      const service = getResearchService();
+      // Ensure research service is initialized
+      const service = await this.ensureServiceInitialized();
       const occupationRisk = await service.getOccupationRiskWithFallback(occupation);
 
       if (!occupationRisk) {
@@ -140,19 +172,28 @@ export class ResearchAssessmentIntegration implements AssessmentIntegration {
   }
 
   async generateRiskReport(userResponses: any): Promise<RiskReport> {
+    debugLog.info('AssessmentIntegration', 'Generating comprehensive risk report...');
+    
     try {
       const occupationRisk = await this.getUserOccupationRisk(userResponses);
       if (!occupationRisk) {
-        // Create a fallback report if occupation not found
+        debugLog.warn('AssessmentIntegration', 'No occupation risk found, creating fallback report');
         return this.createFallbackReport(userResponses);
       }
 
+      debugLog.debug('AssessmentIntegration', 'Calculating user risk from responses...');
       const userRisk = this.calculateUserRiskFromResponses(userResponses);
+      
+      debugLog.debug('AssessmentIntegration', 'Comparing with benchmark...');
       const comparison = await this.compareWithBenchmark(userRisk, occupationRisk.occupation.name);
+      
+      debugLog.debug('AssessmentIntegration', 'Getting recommendations...');
       const recommendations = await this.getRecommendations(occupationRisk);
+      
+      debugLog.debug('AssessmentIntegration', 'Generating action items...');
       const actionItems = this.generateActionItems(occupationRisk, comparison);
 
-      return {
+      const report = {
         occupation: occupationRisk.occupation,
         riskAssessment: occupationRisk,
         comparison,
@@ -160,8 +201,17 @@ export class ResearchAssessmentIntegration implements AssessmentIntegration {
         similarOccupations: occupationRisk.similarOccupations,
         actionItems,
       };
+
+      debugLog.success('AssessmentIntegration', 'Risk report generated successfully', {
+        occupation: occupationRisk.occupation.name,
+        riskLevel: occupationRisk.riskLevel,
+        recommendationCount: recommendations.length,
+        actionItemCount: actionItems.length
+      });
+
+      return report;
     } catch (error) {
-      console.error('Failed to generate risk report:', error);
+      debugLog.error('AssessmentIntegration', 'Failed to generate risk report', error);
       // Return fallback report on error
       return this.createFallbackReport(userResponses);
     }

@@ -3,6 +3,8 @@
 import React, { useState, useCallback, useReducer, useEffect } from 'react';
 import { QuizData } from '@/lib/quiz/types';
 import { debugLog, LogEntry } from '@/components/debug/DebugConsole';
+import { initializeResearchService } from '@/lib/research/service';
+import knowledgeBase from '@/lib/research/data/ai_employment_risks.json';
 import QuizFormPanel from './QuizFormPanel';
 import DebugConsolePanel from './DebugConsolePanel';
 import ResultsPanel from './ResultsPanel';
@@ -166,13 +168,29 @@ export default function UnifiedDebugInterface({
 }: UnifiedDebugInterfaceProps) {
   const [state, dispatch] = useReducer(unifiedReducer, initialState);
 
-  // Initialize logging
+  // Initialize logging and research service
   useEffect(() => {
     debugLog.info('UnifiedInterface', 'Unified Debug Interface initialized', {
       mode: initialMode,
       debugConsoleEnabled: enableDebugConsole,
       persistState,
     });
+
+    // Initialize research service
+    const initResearchService = async () => {
+      try {
+        debugLog.info('UnifiedInterface', 'Initializing research service...');
+        await initializeResearchService(knowledgeBase as any);
+        debugLog.success('UnifiedInterface', 'Research service initialized successfully', {
+          occupations: knowledgeBase.occupations?.length || 0,
+          tables: knowledgeBase.tables?.length || 0
+        });
+      } catch (error) {
+        debugLog.error('UnifiedInterface', 'Failed to initialize research service', error);
+      }
+    };
+
+    initResearchService();
   }, [initialMode, enableDebugConsole, persistState]);
 
   // Subscribe to debug logs from the global debug logger
@@ -287,6 +305,10 @@ export default function UnifiedDebugInterface({
         // Load research data
         debugLog.info('UnifiedInterface', 'Loading research data integration...');
         try {
+          // Ensure research service is initialized before using it
+          debugLog.debug('UnifiedInterface', 'Ensuring research service is initialized...');
+          await initializeResearchService(knowledgeBase as any);
+          
           const { assessmentIntegration } = await import('@/lib/research/service/assessment-integration');
           debugLog.debug('UnifiedInterface', 'Assessment integration module loaded');
           
@@ -299,6 +321,7 @@ export default function UnifiedDebugInterface({
           });
         } catch (error) {
           debugLog.warn('UnifiedInterface', '⚠️ Research data loading failed', error);
+          // Continue without research data - the main analysis still works
         }
       } else {
         debugLog.error('UnifiedInterface', '❌ Analysis failed', {
