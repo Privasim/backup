@@ -8,6 +8,7 @@ import knowledgeBase from '@/lib/research/data/ai_employment_risks.json';
 import QuizFormPanel from './QuizFormPanel';
 import DebugConsolePanel from './DebugConsolePanel';
 import ResultsPanel from './ResultsPanel';
+import ResearchTransparencyPanel from './ResearchTransparencyPanel';
 
 interface AssessmentResult {
   riskLevel: 'Low' | 'Medium' | 'High';
@@ -436,7 +437,7 @@ export default function UnifiedDebugInterface({
 
       {/* Main Layout */}
       <div className="unified-layout flex-1 grid grid-cols-[70%_30%] gap-4 p-4 min-h-[calc(100vh-4rem)]">
-        {/* Quiz Form Panel with Results */}
+        {/* Left Column - Quiz Form and Results */}
         <div className="quiz-section flex flex-col gap-4 min-h-0">
           {/* Quiz Form */}
           <div className="quiz-form-panel bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex-1 min-h-0">
@@ -463,17 +464,23 @@ export default function UnifiedDebugInterface({
           )}
         </div>
 
-        {/* Debug Console Panel */}
-        <div className="debug-console-panel bg-gray-900 rounded-lg shadow-sm overflow-hidden h-fit max-h-screen sticky top-4">
-          <DebugConsolePanel
-            logs={state.debugLogs}
-            onClear={handleClearLogs}
-            onExport={handleExportLogs}
-            filters={state.debugConsoleState.filters}
-            onFiltersChange={handleFiltersChange}
-            selectedLog={state.debugConsoleState.selectedLog}
-            onLogSelect={handleLogSelect}
-          />
+        {/* Right Column - Debug Panels */}
+        <div className="space-y-4 sticky top-4">
+          {/* Research Transparency Panel */}
+          <ResearchTransparencyPanel />
+          
+          {/* Debug Console Panel */}
+          <div className="debug-console-panel bg-gray-900 rounded-lg shadow-sm overflow-hidden h-fit max-h-[calc(100vh-2rem)]">
+            <DebugConsolePanel
+              logs={state.debugLogs}
+              onClear={handleClearLogs}
+              onExport={handleExportLogs}
+              filters={state.debugConsoleState.filters}
+              onFiltersChange={handleFiltersChange}
+              selectedLog={state.debugConsoleState.selectedLog}
+              onLogSelect={handleLogSelect}
+            />
+          </div>
         </div>
       </div>
     </div>
