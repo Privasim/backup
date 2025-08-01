@@ -54,6 +54,7 @@ interface UnifiedState {
     selectedLog: LogEntry | null;
   };
   researchData: any;
+  isDebugMinimized: boolean;
 }
 
 type UnifiedAction =
@@ -67,6 +68,7 @@ type UnifiedAction =
   | { type: 'SET_DEBUG_FILTERS'; payload: LogFilters }
   | { type: 'SET_SELECTED_LOG'; payload: LogEntry | null }
   | { type: 'SET_RESEARCH_DATA'; payload: any }
+  | { type: 'TOGGLE_DEBUG_MINIMIZE' }
   | { type: 'RESET_SESSION' };
 
 const initialState: UnifiedState = {
@@ -76,8 +78,8 @@ const initialState: UnifiedState = {
   isAnalyzing: false,
   analysisProgress: null,
   panelSizes: {
-    leftWidth: 70,
-    rightWidth: 30,
+    leftWidth: 79,
+    rightWidth: 21,
     bottomHeight: 0, // Results now appear inline
   },
   debugConsoleState: {
@@ -89,6 +91,7 @@ const initialState: UnifiedState = {
     selectedLog: null,
   },
   researchData: null,
+  isDebugMinimized: false,
 };
 
 function unifiedReducer(state: UnifiedState, action: UnifiedAction): UnifiedState {
@@ -251,7 +254,7 @@ export default function UnifiedDebugInterface({
 
   // Handle analysis start
   const handleAnalysisStart = useCallback(async (data: QuizData) => {
-    debugLog.info('UnifiedInterface', '🚀 Starting comprehensive analysis process', {
+    debugLog.info('UnifiedInterface', 'Starting comprehensive analysis process', {
       jobDescription: data.jobDescription,
       experience: data.experience,
       industry: data.industry,
@@ -268,7 +271,7 @@ export default function UnifiedDebugInterface({
       
       debugLog.info('UnifiedInterface', 'Creating analyzer instance with progress tracking...');
       const analyzer = createJobRiskAnalyzer(data.apiKey!, (progress) => {
-        debugLog.debug('UnifiedInterface', `📊 Analysis progress: ${progress.stage} - ${progress.message} (${progress.progress}%)`);
+        debugLog.debug('UnifiedInterface', `Analysis progress: ${progress.stage} - ${progress.message} (${progress.progress}%)`);
         dispatch({ type: 'SET_ANALYSIS_PROGRESS', payload: progress });
       });
 
@@ -295,7 +298,7 @@ export default function UnifiedDebugInterface({
       });
 
       if (result.success && result.data) {
-        debugLog.success('UnifiedInterface', '✅ Analysis completed successfully!', {
+        debugLog.success('UnifiedInterface', 'Analysis completed successfully!', {
           riskLevel: result.data.riskLevel,
           riskScore: result.data.riskScore,
           recommendationCount: result.data.recommendations?.length || 0
@@ -316,23 +319,23 @@ export default function UnifiedDebugInterface({
           const researchReport = await assessmentIntegration.generateRiskReport(data);
           dispatch({ type: 'SET_RESEARCH_DATA', payload: researchReport });
           
-          debugLog.success('UnifiedInterface', '📊 Research data integrated successfully', {
+          debugLog.success('UnifiedInterface', 'Research data integrated successfully', {
             hasRecommendations: !!researchReport.recommendations,
             recommendationCount: researchReport.recommendations?.length || 0
           });
         } catch (error) {
-          debugLog.warn('UnifiedInterface', '⚠️ Research data loading failed', error);
+          debugLog.warn('UnifiedInterface', 'Research data loading failed', error);
           // Continue without research data - the main analysis still works
         }
       } else {
-        debugLog.error('UnifiedInterface', '❌ Analysis failed', {
+        debugLog.error('UnifiedInterface', 'Analysis failed', {
           error: result.error,
           errorType: result.error?.type,
           errorMessage: result.error?.message
         });
       }
     } catch (error) {
-      debugLog.error('UnifiedInterface', '💥 Critical analysis error', error, error instanceof Error ? error.stack : undefined);
+      debugLog.error('UnifiedInterface', 'Critical analysis error', error, error instanceof Error ? error.stack : undefined);
     } finally {
       debugLog.info('UnifiedInterface', 'Analysis process completed, cleaning up...');
       dispatch({ type: 'SET_ANALYZING', payload: false });
@@ -452,7 +455,7 @@ export default function UnifiedDebugInterface({
 
           {/* Results Panel - appears below quiz when available */}
           {(state.assessmentResults || state.isAnalyzing) && (
-            <div className="results-panel bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden h-80">
+            <div className="results-panel bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden h-72">
               <ResultsPanel
                 results={state.assessmentResults}
                 researchData={state.researchData}
@@ -470,7 +473,7 @@ export default function UnifiedDebugInterface({
           <ResearchTransparencyPanel />
           
           {/* Debug Console Panel */}
-          <div className="debug-console-panel bg-gray-900 rounded-lg shadow-sm overflow-hidden h-fit max-h-[calc(100vh-2rem)]">
+          <div className="debug-console-panel bg-gray-900 rounded-lg shadow-sm overflow-hidden h-fit max-h-[calc(70vh-2rem)]">
             <DebugConsolePanel
               logs={state.debugLogs}
               onClear={handleClearLogs}

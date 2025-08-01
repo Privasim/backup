@@ -82,7 +82,7 @@ export const debugLog = {
     globalLogStore.addLog({ level: 'debug', category, message, data });
   },
   success: (category: string, message: string, data?: any) => {
-    console.log(`[${category}] ✅ ${message}`, data);
+    console.log(`[${category}] ${message}`, data);
     globalLogStore.addLog({ level: 'success', category, message, data });
   },
 };
@@ -164,21 +164,21 @@ export default function DebugConsole({ isVisible, onToggle, className = '' }: De
 
   const getLevelColor = (level: string) => {
     switch (level) {
-      case 'error': return 'text-red-600 bg-red-50';
-      case 'warn': return 'text-yellow-600 bg-yellow-50';
-      case 'success': return 'text-green-600 bg-green-50';
-      case 'debug': return 'text-purple-600 bg-purple-50';
-      default: return 'text-blue-600 bg-blue-50';
+      case 'error': return 'text-red-500 bg-red-900/10';
+      case 'warn': return 'text-yellow-500 bg-yellow-900/10';
+      case 'success': return 'text-green-500 bg-green-900/10';
+      case 'debug': return 'text-purple-500 bg-purple-900/10';
+      default: return 'text-blue-500 bg-blue-900/10';
     }
   };
 
   const getLevelIcon = (level: string) => {
     switch (level) {
-      case 'error': return '❌';
-      case 'warn': return '⚠️';
-      case 'success': return '✅';
-      case 'debug': return '🔍';
-      default: return 'ℹ️';
+      case 'error': return '•';
+      case 'warn': return '•';
+      case 'success': return '•';
+      case 'debug': return '•';
+      default: return '•';
     }
   };
 
@@ -197,49 +197,49 @@ export default function DebugConsole({ isVisible, onToggle, className = '' }: De
   }
 
   return (
-    <div className={`fixed left-0 top-0 h-full w-96 bg-gray-900 text-white shadow-2xl z-40 flex flex-col ${className}`}>
+    <div className={`fixed left-0 top-0 h-full w-72 bg-gray-900 text-white shadow-2xl z-40 flex flex-col ${className}`}>
       {/* Header */}
-      <div className="bg-gray-800 p-4 border-b border-gray-700">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold">Debug Console</h3>
+      <div className="bg-gray-800 p-2 border-b border-gray-700">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-medium">Debug Console</h3>
           <button
             onClick={onToggle}
             className="text-gray-400 hover:text-white transition-colors"
             title="Close Console"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
         
         {/* Controls */}
-        <div className="space-y-2">
-          <div className="flex gap-2">
+        <div className="space-y-1.5">
+          <div className="flex gap-1">
             <button
               onClick={clearLogs}
-              className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm transition-colors"
+              className="px-2 py-0.5 bg-red-600 hover:bg-red-700 rounded text-xs transition-colors"
               title="Clear all logs"
             >
               Clear
             </button>
             <button
               onClick={copyAllLogs}
-              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm transition-colors"
+              className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 rounded text-xs transition-colors"
               title="Copy logs to clipboard"
             >
               Copy
             </button>
             <button
               onClick={exportLogs}
-              className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-sm transition-colors"
+              className="px-2 py-0.5 bg-green-600 hover:bg-green-700 rounded text-xs transition-colors"
               title="Export logs to file"
             >
               Export
             </button>
             <button
               onClick={() => setAutoScroll(!autoScroll)}
-              className={`px-3 py-1 rounded text-sm transition-colors ${
+              className={`px-2 py-0.5 rounded text-xs transition-colors ${
                 autoScroll ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-gray-600 hover:bg-gray-700'
               }`}
               title="Toggle auto-scroll"
@@ -249,11 +249,11 @@ export default function DebugConsole({ isVisible, onToggle, className = '' }: De
           </div>
           
           {/* Filters */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-1">
             <select
               value={levelFilter}
               onChange={(e) => setLevelFilter(e.target.value)}
-              className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm"
+              className="bg-gray-700 border border-gray-600 rounded px-1.5 py-0.5 text-xs"
             >
               <option value="all">All Levels</option>
               <option value="error">Errors</option>
@@ -266,7 +266,7 @@ export default function DebugConsole({ isVisible, onToggle, className = '' }: De
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm"
+              className="bg-gray-700 border border-gray-600 rounded px-1.5 py-0.5 text-xs"
             >
               <option value="all">All Categories</option>
               {categories.map(category => (
@@ -280,11 +280,11 @@ export default function DebugConsole({ isVisible, onToggle, className = '' }: De
             placeholder="Filter logs..."
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm placeholder-gray-400"
+            className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-0.5 text-xs placeholder-gray-400"
           />
         </div>
         
-        <div className="mt-2 text-xs text-gray-400">
+        <div className="mt-1.5 text-xs text-gray-400">
           {filteredLogs.length} of {logs.length} logs
         </div>
       </div>
@@ -292,54 +292,53 @@ export default function DebugConsole({ isVisible, onToggle, className = '' }: De
       {/* Logs */}
       <div 
         ref={consoleRef}
-        className="flex-1 overflow-y-auto p-2 space-y-1 font-mono text-xs"
+        className="flex-1 overflow-y-auto p-1 space-y-0.5 font-mono text-xs"
       >
         {filteredLogs.length === 0 ? (
-          <div className="text-gray-500 text-center py-8">
+          <div className="text-gray-500 text-center py-4 text-xs">
             No logs to display
           </div>
         ) : (
           filteredLogs.map((log) => (
             <div
               key={log.id}
-              className={`p-2 rounded cursor-pointer hover:bg-gray-800 transition-colors ${
+              className={`p-1.5 rounded cursor-pointer hover:bg-gray-800 transition-colors ${
                 selectedLog?.id === log.id ? 'bg-gray-700' : ''
               }`}
               onClick={() => setSelectedLog(selectedLog?.id === log.id ? null : log)}
             >
-              <div className="flex items-start gap-2">
-                <span className="flex-shrink-0 mt-0.5">
-                  {getLevelIcon(log.level)}
+              <div className="flex items-start gap-1.5">
+                <span className={`flex-shrink-0 mt-0.5 w-1.5 h-1.5 rounded-full ${getLevelColor(log.level).split(' ')[0]} ${getLevelColor(log.level).split(' ')[1]}`}>
                 </span>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${getLevelColor(log.level)}`}>
-                      {log.level.toUpperCase()}
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <span className={`px-1 py-0.5 rounded text-xs font-medium ${getLevelColor(log.level)}`}>
+                      {log.level.charAt(0).toUpperCase()}
                     </span>
                     <span className="text-gray-400 text-xs">
-                      {log.timestamp.toLocaleTimeString()}
+                      {log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                     </span>
-                    <span className="text-blue-400 text-xs font-medium">
-                      [{log.category}]
+                    <span className="text-blue-400 text-xs font-medium truncate">
+                      {log.category}
                     </span>
                   </div>
-                  <div className="text-gray-200 break-words">
+                  <div className="text-gray-200 break-words text-xs leading-tight">
                     {log.message}
                   </div>
                   {selectedLog?.id === log.id && (
-                    <div className="mt-2 space-y-2">
+                    <div className="mt-1.5 space-y-1.5">
                       {log.data && (
                         <div>
-                          <div className="text-gray-400 text-xs mb-1">Data:</div>
-                          <pre className="bg-gray-800 p-2 rounded text-xs overflow-x-auto">
+                          <div className="text-gray-400 text-xs mb-0.5">Data:</div>
+                          <pre className="bg-gray-800 p-1.5 rounded text-xs overflow-x-auto max-h-20">
                             {JSON.stringify(log.data, null, 2)}
                           </pre>
                         </div>
                       )}
                       {log.stack && (
                         <div>
-                          <div className="text-gray-400 text-xs mb-1">Stack Trace:</div>
-                          <pre className="bg-gray-800 p-2 rounded text-xs overflow-x-auto text-red-300">
+                          <div className="text-gray-400 text-xs mb-0.5">Stack:</div>
+                          <pre className="bg-gray-800 p-1.5 rounded text-xs overflow-x-auto text-red-300 max-h-20">
                             {log.stack}
                           </pre>
                         </div>
