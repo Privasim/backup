@@ -3,6 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { QuizData } from '@/lib/quiz/types';
+import RiskComparisonChart from '@/components/research/RiskComparisonChart';
+import OccupationInsights from '@/components/research/OccupationInsights';
+import IndustryExposureChart from '@/components/research/IndustryExposureChart';
+import { useOccupationRisk } from '@/hooks/useResearchData';
+import { assessmentIntegration } from '@/lib/research/service/assessment-integration';
 
 interface AssessmentResult {
   riskLevel: 'Low' | 'Medium' | 'High';
@@ -23,6 +28,12 @@ export default function AssessmentPage() {
   const [quizData, setQuizData] = useState<QuizData | null>(null);
   const [result, setResult] = useState<AssessmentResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [researchData, setResearchData] = useState<any>(null);
+  const [showResearchInsights, setShowResearchInsights] = useState(false);
+
+  // Get occupation risk data from research service
+  const occupationIdentifier = quizData?.jobDescription?.replace('-', ' ') || '';
+  const { occupationRisk, isLoading: isLoadingOccupation } = useOccupationRisk(occupationIdentifier);
 
   useEffect(() => {
     // Get quiz data from localStorage
@@ -56,6 +67,18 @@ export default function AssessmentPage() {
       const mockResult = generateMockResult(data);
       setResult(mockResult);
       setIsLoading(false);
+    }
+
+    // Load research data integration
+    loadResearchData(data);
+  }, [router]);
+
+  const loadResearchData = async (data: QuizData) => {
+    try {
+      const report = await assessmentIntegration.generateRiskReport(data);
+      setResearchData(report);
+    } catch (error) {
+      console.error('Failed to load research data:', error);
     }
   }, [router]);
 
@@ -285,6 +308,54 @@ export default function AssessmentPage() {
             </div>
           )}
 
+          {/* Research-Based Risk Comparison */}
+          {occupationRisk && !isLoadingOccupation && (
+            <div className="mb-8">
+              <RiskComparisonChart
+                data={{
+                  userRisk: result.riskScore / 100,
+                  benchmarkRisk: occupationRisk.occupation.riskScore,
+                  occupation: occupationRisk.occupation.name,
+                  percentile: occupationRisk.percentile,
+                }}
+                className="mb-6"
+              />
+            </div>
+          )}
+
+          {/* Research Insights Toggle */}
+          <div className="mb-8">
+            <button
+              onClick={() => setShowResearchInsights(!showResearchInsights)}
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg"
+            >
+              {showResearchInsights ? 'Hide' : 'Show'} Research-Based Insights
+              <span className="ml-2">
+                {showResearchInsights ? '▲' : '▼'}
+              </span>
+            </button>
+          </div>
+
+          {/* Research Insights Section */}
+          {showResearchInsights && (
+            <div className="space-y-8 mb-8">
+              {/* Occupation Insights */}
+              {occupationRisk && researchData && (
+                <OccupationInsights
+                  occupationRisk={occupationRisk}
+                  recommendations={researchData.recommendations}
+                />
+              )}
+
+              {/* Industry Exposure Chart */}
+              <IndustryExposureChart
+                height={350}
+                limit={12}
+                showEmployment={false}
+              />
+            </div>
+          )}
+
           {/* Recommendations */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
             <h3 className="text-2xl font-semibold text-gray-900 mb-6">Recommendations</h3>
@@ -299,6 +370,25 @@ export default function AssessmentPage() {
                 </div>
               ))}
             </div>
+
+            {/* Research-based recommendations */}
+            {researchData?.recommendations && researchData.recommendations.length > 0 && (
+              <div className="mt-8 pt-6 border-t border-gray-100">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                  Research-Based Recommendations
+                </h4>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {researchData.recommendations.slice(0, 4).map((recommendation: string, index: number) => (
+                    <div key={index} className="flex items-start">
+                      <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-4 mt-1 flex-shrink-0">
+                        <span className="text-purple-600 font-semibold text-sm">📊</span>
+                      </div>
+                      <p className="text-gray-700">{recommendation}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="mt-8 pt-6 border-t border-gray-100">
               <div className="flex flex-col sm:flex-row gap-4">

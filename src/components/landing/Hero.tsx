@@ -20,9 +20,17 @@ export default function Hero() {
             </div>
             <span className="text-xl font-bold text-gray-900">CareerGuard</span>
           </div>
-          <button className="text-blue-600 hover:text-blue-700 font-medium">
-            About
-          </button>
+          <div className="flex items-center space-x-6">
+            <button 
+              onClick={() => router.push('/research')}
+              className="text-gray-600 hover:text-blue-600 font-medium transition-colors"
+            >
+              Research Data
+            </button>
+            <button className="text-blue-600 hover:text-blue-700 font-medium">
+              About
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -51,8 +59,11 @@ export default function Hero() {
             >
               Start Assessment
             </button>
-            <button className="px-8 py-4 text-blue-600 hover:text-blue-700 text-lg font-semibold transition-colors min-w-[200px]">
-              Learn More
+            <button 
+              onClick={() => router.push('/research')}
+              className="px-8 py-4 text-blue-600 hover:text-blue-700 text-lg font-semibold transition-colors min-w-[200px]"
+            >
+              Explore Research
             </button>
           </div>
 

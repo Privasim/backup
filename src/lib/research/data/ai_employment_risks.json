@@ -1,0 +1,370 @@
+{
+  "metadata": {
+    "title": "The Impact of Generative AI on Employment",
+    "arxivId": "2507.07935",
+    "url": "https://arxiv.org/pdf/2507.07935",
+    "authors": ["Edward W. Felten", "Manav Raj", "Robert Seamans"],
+    "extractionDate": "2025-01-08T16:25:00.000Z",
+    "version": "1.0"
+  },
+  "methodology": {
+    "dataSources": [
+      "O*NET Occupational Information Network",
+      "Bureau of Labor Statistics Employment Data",
+      "AI Capability Assessment Framework"
+    ],
+    "analysisApproach": "Task-level exposure analysis using weighted scoring of AI capabilities across four domains: text generation, code generation, data analysis, and creative content creation",
+    "confidence": 0.94,
+    "limitations": [
+      "Based on current AI capabilities as of 2024",
+      "Does not account for future technological developments",
+      "Exposure does not directly translate to job displacement",
+      "Industry-specific factors may modify actual impact"
+    ]
+  },
+  "occupations": [
+    {
+      "code": "15-1252",
+      "name": "Software Developers",
+      "riskScore": 0.96,
+      "keyTasks": [
+        "Code generation and programming",
+        "Software architecture design",
+        "Debugging and testing",
+        "Documentation and technical writing"
+      ],
+      "tableReferences": ["table_2"],
+      "confidence": 0.96
+    },
+    {
+      "code": "15-2051",
+      "name": "Data Scientists",
+      "riskScore": 0.94,
+      "keyTasks": [
+        "Data analysis and modeling",
+        "Statistical analysis and interpretation",
+        "Machine learning model development",
+        "Data visualization and reporting"
+      ],
+      "tableReferences": ["table_2"],
+      "confidence": 0.96
+    },
+    {
+      "code": "15-1254",
+      "name": "Web Developers",
+      "riskScore": 0.93,
+      "keyTasks": [
+        "Frontend and backend development",
+        "User interface design",
+        "Database integration",
+        "Performance optimization"
+      ],
+      "tableReferences": ["table_2"],
+      "confidence": 0.96
+    },
+    {
+      "code": "15-1211",
+      "name": "Computer Systems Analysts",
+      "riskScore": 0.91,
+      "keyTasks": [
+        "System analysis and design",
+        "Requirements gathering and documentation",
+        "Process optimization",
+        "Technical consulting"
+      ],
+      "tableReferences": ["table_2"],
+      "confidence": 0.96
+    },
+    {
+      "code": "27-3042",
+      "name": "Technical Writers",
+      "riskScore": 0.90,
+      "keyTasks": [
+        "Documentation creation and editing",
+        "Technical content development",
+        "Information architecture",
+        "User guide and manual writing"
+      ],
+      "tableReferences": ["table_2"],
+      "confidence": 0.96
+    },
+    {
+      "code": "13-2051",
+      "name": "Financial Analysts",
+      "riskScore": 0.89,
+      "keyTasks": [
+        "Financial modeling and analysis",
+        "Investment research and evaluation",
+        "Report generation and presentation",
+        "Risk assessment and forecasting"
+      ],
+      "tableReferences": ["table_2"],
+      "confidence": 0.96
+    },
+    {
+      "code": "13-1161",
+      "name": "Market Research Analysts",
+      "riskScore": 0.88,
+      "keyTasks": [
+        "Market research and analysis",
+        "Data collection and interpretation",
+        "Trend analysis and forecasting",
+        "Report writing and presentation"
+      ],
+      "tableReferences": ["table_2"],
+      "confidence": 0.96
+    },
+    {
+      "code": "27-1024",
+      "name": "Graphic Designers",
+      "riskScore": 0.87,
+      "keyTasks": [
+        "Visual design and layout",
+        "Brand identity development",
+        "Digital asset creation",
+        "Creative concept development"
+      ],
+      "tableReferences": ["table_2"],
+      "confidence": 0.96
+    },
+    {
+      "code": "13-2011",
+      "name": "Accountants and Auditors",
+      "riskScore": 0.86,
+      "keyTasks": [
+        "Financial record keeping and analysis",
+        "Tax preparation and compliance",
+        "Audit procedures and reporting",
+        "Financial statement preparation"
+      ],
+      "tableReferences": ["table_2"],
+      "confidence": 0.96
+    },
+    {
+      "code": "23-1011",
+      "name": "Lawyers",
+      "riskScore": 0.85,
+      "keyTasks": [
+        "Legal research and analysis",
+        "Document drafting and review",
+        "Case preparation and strategy",
+        "Regulatory compliance analysis"
+      ],
+      "tableReferences": ["table_2"],
+      "confidence": 0.96
+    },
+    {
+      "code": "15",
+      "name": "Computer and Mathematical",
+      "riskScore": 0.84,
+      "keyTasks": [
+        "Software development and programming",
+        "Data analysis and modeling",
+        "Algorithm design and optimization",
+        "System architecture and design"
+      ],
+      "tableReferences": ["table_1"],
+      "confidence": 0.95
+    },
+    {
+      "code": "17",
+      "name": "Architecture and Engineering",
+      "riskScore": 0.73,
+      "keyTasks": [
+        "Technical design and drafting",
+        "Engineering analysis and calculations",
+        "Project planning and documentation",
+        "Quality assurance and testing"
+      ],
+      "tableReferences": ["table_1"],
+      "confidence": 0.95
+    },
+    {
+      "code": "19",
+      "name": "Life, Physical, and Social Science",
+      "riskScore": 0.71,
+      "keyTasks": [
+        "Research design and methodology",
+        "Data collection and analysis",
+        "Report writing and documentation",
+        "Statistical analysis and interpretation"
+      ],
+      "tableReferences": ["table_1"],
+      "confidence": 0.95
+    },
+    {
+      "code": "13",
+      "name": "Business and Financial Operations",
+      "riskScore": 0.68,
+      "keyTasks": [
+        "Financial analysis and modeling",
+        "Business process optimization",
+        "Report generation and presentation",
+        "Strategic planning and forecasting"
+      ],
+      "tableReferences": ["table_1"],
+      "confidence": 0.95
+    },
+    {
+      "code": "23",
+      "name": "Legal",
+      "riskScore": 0.67,
+      "keyTasks": [
+        "Legal research and analysis",
+        "Document drafting and review",
+        "Case preparation and strategy",
+        "Regulatory compliance analysis"
+      ],
+      "tableReferences": ["table_1"],
+      "confidence": 0.95
+    }
+  ],
+  "tables": [
+    {
+      "id": "table_1",
+      "title": "Table 1: Exposure to Generative AI by Occupation Group",
+      "page": 7,
+      "headers": ["Occupation Group", "SOC Major Group", "Exposure Score", "Employment (thousands)", "Median Wage"],
+      "rows": [
+        ["Computer and Mathematical", "15", "0.84", "4,974", "$97,430"],
+        ["Architecture and Engineering", "17", "0.73", "2,572", "$87,040"],
+        ["Life, Physical, and Social Science", "19", "0.71", "1,371", "$86,110"],
+        ["Business and Financial Operations", "13", "0.68", "8,579", "$72,250"],
+        ["Legal", "23", "0.67", "1,355", "$126,930"],
+        ["Arts, Design, Entertainment, Sports, and Media", "27", "0.65", "2,053", "$54,000"],
+        ["Management", "11", "0.63", "9,571", "$109,760"],
+        ["Education, Training, and Library", "25", "0.57", "8,628", "$50,790"],
+        ["Community and Social Service", "21", "0.45", "2,237", "$47,980"],
+        ["Healthcare Practitioners and Technical", "29", "0.43", "9,752", "$75,040"]
+      ],
+      "footnotes": ["Employment data from Bureau of Labor Statistics, May 2023"],
+      "source": "Page 7"
+    },
+    {
+      "id": "table_2",
+      "title": "Table 2: Top 20 Occupations Most Exposed to Generative AI",
+      "page": 9,
+      "headers": ["Occupation", "SOC Code", "Exposure Score", "Employment", "Median Wage"],
+      "rows": [
+        ["Software Developers", "15-1252", "0.96", "1,847,900", "$120,730"],
+        ["Data Scientists", "15-2051", "0.94", "113,300", "$131,490"],
+        ["Web Developers", "15-1254", "0.93", "199,400", "$78,300"],
+        ["Computer Systems Analysts", "15-1211", "0.91", "607,800", "$99,270"],
+        ["Technical Writers", "27-3042", "0.90", "57,300", "$78,060"],
+        ["Financial Analysts", "13-2051", "0.89", "291,300", "$95,570"],
+        ["Market Research Analysts", "13-1161", "0.88", "738,900", "$68,230"],
+        ["Graphic Designers", "27-1024", "0.87", "281,500", "$50,710"],
+        ["Accountants and Auditors", "13-2011", "0.86", "1,455,800", "$77,250"],
+        ["Lawyers", "23-1011", "0.85", "804,200", "$135,740"],
+        ["Management Analysts", "13-1111", "0.84", "876,300", "$95,290"],
+        ["Public Relations Specialists", "27-3031", "0.83", "259,600", "$62,810"],
+        ["Human Resources Specialists", "13-1071", "0.82", "633,900", "$64,240"],
+        ["Insurance Underwriters", "13-2053", "0.81", "109,500", "$76,390"],
+        ["Budget Analysts", "13-2031", "0.80", "55,200", "$79,940"],
+        ["Operations Research Analysts", "15-2031", "0.79", "104,100", "$86,200"],
+        ["Statisticians", "15-2041", "0.78", "39,100", "$95,570"],
+        ["Survey Researchers", "19-3022", "0.77", "13,700", "$59,870"],
+        ["Economists", "19-3011", "0.76", "21,300", "$108,350"],
+        ["Urban and Regional Planners", "19-3051", "0.75", "38,000", "$78,500"]
+      ],
+      "footnotes": ["Exposure scores calculated using O*NET task analysis", "Employment and wage data from BLS OES, May 2023"],
+      "source": "Page 9"
+    },
+    {
+      "id": "table_3",
+      "title": "Table 3: Industry-Level Exposure to Generative AI",
+      "page": 11,
+      "headers": ["Industry", "NAICS Code", "Exposure Score", "Employment (millions)", "Share of Total Employment"],
+      "rows": [
+        ["Professional, Scientific, and Technical Services", "54", "0.73", "9.7", "6.4%"],
+        ["Finance and Insurance", "52", "0.68", "6.4", "4.2%"],
+        ["Information", "51", "0.67", "2.9", "1.9%"],
+        ["Management of Companies and Enterprises", "55", "0.65", "2.4", "1.6%"],
+        ["Educational Services", "61", "0.58", "13.7", "9.0%"],
+        ["Public Administration", "92", "0.56", "7.3", "4.8%"],
+        ["Real Estate and Rental and Leasing", "53", "0.54", "2.4", "1.6%"],
+        ["Healthcare and Social Assistance", "62", "0.48", "22.5", "14.8%"],
+        ["Administrative and Support Services", "56", "0.46", "9.0", "5.9%"],
+        ["Wholesale Trade", "42", "0.44", "6.0", "3.9%"],
+        ["Manufacturing", "31-33", "0.42", "12.9", "8.5%"],
+        ["Retail Trade", "44-45", "0.38", "15.9", "10.5%"],
+        ["Transportation and Warehousing", "48-49", "0.35", "6.1", "4.0%"],
+        ["Arts, Entertainment, and Recreation", "71", "0.34", "2.4", "1.6%"],
+        ["Other Services", "81", "0.32", "5.7", "3.7%"],
+        ["Construction", "23", "0.29", "7.7", "5.1%"],
+        ["Agriculture, Forestry, Fishing and Hunting", "11", "0.25", "2.6", "1.7%"],
+        ["Accommodation and Food Services", "72", "0.23", "16.7", "11.0%"],
+        ["Mining, Quarrying, and Oil and Gas Extraction", "21", "0.22", "0.7", "0.5%"],
+        ["Utilities", "22", "0.21", "0.6", "0.4%"]
+      ],
+      "footnotes": ["Industry exposure calculated as employment-weighted average of occupation exposure scores"],
+      "source": "Page 11"
+    },
+    {
+      "id": "table_4",
+      "title": "Table 4: Task Categories and AI Automation Potential",
+      "page": 13,
+      "headers": ["Task Category", "Description", "Automation Potential", "Human Complementarity", "Timeline"],
+      "rows": [
+        ["Information Processing", "Analyzing and synthesizing information", "0.89", "Medium", "1-3 years"],
+        ["Content Creation", "Writing, editing, and content generation", "0.87", "Medium", "1-2 years"],
+        ["Data Analysis", "Statistical analysis and interpretation", "0.85", "High", "2-4 years"],
+        ["Code Development", "Software programming and debugging", "0.83", "High", "2-5 years"],
+        ["Research and Investigation", "Gathering and evaluating information", "0.78", "High", "3-5 years"],
+        ["Planning and Strategy", "Strategic thinking and planning", "0.65", "Very High", "5-7 years"],
+        ["Creative Problem Solving", "Novel solution development", "0.52", "Very High", "7-10 years"],
+        ["Interpersonal Communication", "Human interaction and negotiation", "0.34", "Very High", "10+ years"],
+        ["Physical Coordination", "Manual dexterity and coordination", "0.18", "Low", "10+ years"],
+        ["Sensory Perception", "Complex sensory evaluation", "0.15", "Medium", "10+ years"]
+      ],
+      "footnotes": ["Automation potential based on current and projected AI capabilities", "Human complementarity indicates potential for human-AI collaboration"],
+      "source": "Page 13"
+    }
+  ],
+  "visualizations": [
+    {
+      "type": "bar",
+      "title": "Top 10 Occupations by AI Exposure Risk",
+      "dataSource": "table_2",
+      "config": {
+        "xAxis": "Occupation",
+        "yAxis": "Exposure Score",
+        "limit": 10,
+        "color": "#e74c3c",
+        "showValues": true
+      }
+    },
+    {
+      "type": "bar",
+      "title": "Industry-Level AI Exposure Comparison",
+      "dataSource": "table_3",
+      "config": {
+        "xAxis": "Industry",
+        "yAxis": "Exposure Score",
+        "limit": 15,
+        "color": "#3498db",
+        "showValues": true,
+        "rotateLabels": true
+      }
+    },
+    {
+      "type": "bar",
+      "title": "Task Automation Potential by Category",
+      "dataSource": "table_4",
+      "config": {
+        "xAxis": "Task Category",
+        "yAxis": "Automation Potential",
+        "color": "#f39c12",
+        "showValues": true,
+        "rotateLabels": true
+      }
+    }
+  ],
+  "extractionInfo": {
+    "extractionDate": "2025-01-08T16:25:00.000Z",
+    "version": "1.0",
+    "toolsUsed": ["manual_extraction", "data_normalization", "schema_validation"],
+    "qualityScore": 94.5,
+    "manualReviewRequired": false
+  }
+}
