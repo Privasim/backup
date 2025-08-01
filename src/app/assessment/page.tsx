@@ -9,8 +9,6 @@ import IndustryExposureChart from '@/components/research/IndustryExposureChart';
 import { useOccupationRisk } from '@/hooks/useResearchData';
 import { assessmentIntegration } from '@/lib/research/service/assessment-integration';
 import { debugLog } from '@/components/debug/DebugConsole';
-import { debugLog } from '@/components/debug/DebugConsole';
-import { debugLog } from '@/components/debug/DebugConsole';
 
 interface AssessmentResult {
   riskLevel: 'Low' | 'Medium' | 'High';

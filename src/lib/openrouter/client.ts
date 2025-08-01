@@ -1,3 +1,5 @@
+import { debugLog } from '@/components/debug/DebugConsole';
+
 interface OpenRouterMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -30,8 +32,6 @@ interface OpenRouterResponse {
     total_tokens: number;
   };
 }
-
-import { debugLog } from '@/components/debug/DebugConsole';
 
 export class OpenRouterClient {
   private apiKey: string;
