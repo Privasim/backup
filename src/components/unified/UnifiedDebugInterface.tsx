@@ -73,9 +73,9 @@ const initialState: UnifiedState = {
   isAnalyzing: false,
   analysisProgress: null,
   panelSizes: {
-    leftWidth: 40,
-    rightWidth: 35,
-    bottomHeight: 25,
+    leftWidth: 70,
+    rightWidth: 30,
+    bottomHeight: 0, // Results now appear inline
   },
   debugConsoleState: {
     filters: {
@@ -175,55 +175,60 @@ export default function UnifiedDebugInterface({
     });
   }, [initialMode, enableDebugConsole, persistState]);
 
-  // Subscribe to debug logs
+  // Subscribe to debug logs from the global debug logger
   useEffect(() => {
-    const handleNewLog = (logs: LogEntry[]) => {
-      const latestLog = logs[0];
-      if (latestLog && !state.debugLogs.find(log => log.id === latestLog.id)) {
-        dispatch({ type: 'ADD_DEBUG_LOG', payload: latestLog });
-      }
+    // Create a custom logger that adds logs to our state
+    const addLogToState = (entry: Omit<LogEntry, 'id' | 'timestamp'>) => {
+      const logEntry: LogEntry = {
+        ...entry,
+        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        timestamp: new Date(),
+      };
+      dispatch({ type: 'ADD_DEBUG_LOG', payload: logEntry });
     };
 
-    // This would need to be implemented in the DebugConsole component
-    // For now, we'll use a simple approach
-    const originalConsoleLog = console.log;
-    const originalConsoleError = console.error;
-    const originalConsoleWarn = console.warn;
-
-    console.log = (...args) => {
-      originalConsoleLog(...args);
-      if (args[0]?.includes?.('[')) {
-        const match = args[0].match(/\[([^\]]+)\]/);
-        if (match) {
-          const category = match[1];
-          const message = args[0].replace(/\[[^\]]+\]\s*/, '');
-          dispatch({
-            type: 'ADD_DEBUG_LOG',
-            payload: {
-              id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-              timestamp: new Date(),
-              level: 'info',
-              category,
-              message,
-              data: args.slice(1),
-            },
-          });
-        }
-      }
+    // Override the debugLog functions to also add to our state
+    const originalDebugLog = { ...debugLog };
+    
+    debugLog.info = (category: string, message: string, data?: any) => {
+      originalDebugLog.info(category, message, data);
+      addLogToState({ level: 'info', category, message, data });
+    };
+    
+    debugLog.warn = (category: string, message: string, data?: any) => {
+      originalDebugLog.warn(category, message, data);
+      addLogToState({ level: 'warn', category, message, data });
+    };
+    
+    debugLog.error = (category: string, message: string, data?: any, stack?: string) => {
+      originalDebugLog.error(category, message, data, stack);
+      addLogToState({ level: 'error', category, message, data, stack });
+    };
+    
+    debugLog.debug = (category: string, message: string, data?: any) => {
+      originalDebugLog.debug(category, message, data);
+      addLogToState({ level: 'debug', category, message, data });
+    };
+    
+    debugLog.success = (category: string, message: string, data?: any) => {
+      originalDebugLog.success(category, message, data);
+      addLogToState({ level: 'success', category, message, data });
     };
 
+    // Cleanup function to restore original debugLog
     return () => {
-      console.log = originalConsoleLog;
-      console.error = originalConsoleError;
-      console.warn = originalConsoleWarn;
+      Object.assign(debugLog, originalDebugLog);
     };
-  }, [state.debugLogs]);
+  }, []); // Empty dependency array to avoid re-running
 
   // Handle quiz data changes
   const handleQuizDataChange = useCallback((data: QuizData) => {
-    debugLog.info('UnifiedInterface', 'Quiz data updated', data);
-    dispatch({ type: 'SET_QUIZ_DATA', payload: data });
-  }, []);
+    // Only update if data actually changed to prevent loops
+    if (JSON.stringify(data) !== JSON.stringify(state.quizData)) {
+      debugLog.info('UnifiedInterface', 'Quiz data updated', data);
+      dispatch({ type: 'SET_QUIZ_DATA', payload: data });
+    }
+  }, [state.quizData]);
 
   // Handle analysis start
   const handleAnalysisStart = useCallback(async (data: QuizData) => {
@@ -370,16 +375,32 @@ export default function UnifiedDebugInterface({
       </header>
 
       {/* Main Layout */}
-      <div className="unified-layout flex-1 grid grid-cols-[40%_35%_25%] grid-rows-[1fr_25%] gap-4 p-4 h-[calc(100vh-4rem)]">
-        {/* Quiz Form Panel */}
-        <div className="quiz-form-panel bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <QuizFormPanel
-            onDataChange={handleQuizDataChange}
-            onAnalysisStart={handleAnalysisStart}
-            isAnalyzing={state.isAnalyzing}
-            analysisProgress={state.analysisProgress}
-            quizData={state.quizData}
-          />
+      <div className="unified-layout flex-1 grid grid-cols-[70%_30%] gap-4 p-4 h-[calc(100vh-4rem)]">
+        {/* Quiz Form Panel with Results */}
+        <div className="quiz-section flex flex-col gap-4">
+          {/* Quiz Form */}
+          <div className="quiz-form-panel bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex-1">
+            <QuizFormPanel
+              onDataChange={handleQuizDataChange}
+              onAnalysisStart={handleAnalysisStart}
+              isAnalyzing={state.isAnalyzing}
+              analysisProgress={state.analysisProgress}
+              quizData={state.quizData}
+            />
+          </div>
+
+          {/* Results Panel - appears below quiz when available */}
+          {(state.assessmentResults || state.isAnalyzing) && (
+            <div className="results-panel bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden h-80">
+              <ResultsPanel
+                results={state.assessmentResults}
+                researchData={state.researchData}
+                quizData={state.quizData}
+                isLoading={state.isAnalyzing}
+                onExport={() => handleExportLogs('json')}
+              />
+            </div>
+          )}
         </div>
 
         {/* Debug Console Panel */}
@@ -392,20 +413,6 @@ export default function UnifiedDebugInterface({
             onFiltersChange={handleFiltersChange}
             selectedLog={state.debugConsoleState.selectedLog}
             onLogSelect={handleLogSelect}
-          />
-        </div>
-
-        {/* Spacer for third column in first row */}
-        <div></div>
-
-        {/* Results Panel - spans all columns */}
-        <div className="results-panel col-span-3 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <ResultsPanel
-            results={state.assessmentResults}
-            researchData={state.researchData}
-            quizData={state.quizData}
-            isLoading={state.isAnalyzing}
-            onExport={() => handleExportLogs('json')}
           />
         </div>
       </div>

@@ -50,22 +50,17 @@ export default function QuizFormPanel({
     debugLog.info('QuizFormPanel', 'Quiz form panel initialized');
   }, []);
 
-  // Sync with external quiz data
-  useEffect(() => {
-    if (quizData && JSON.stringify(quizData) !== JSON.stringify(state.data)) {
-      debugLog.debug('QuizFormPanel', 'Syncing with external quiz data', quizData);
-      // Update internal state to match external data
-      Object.entries(quizData).forEach(([key, value]) => {
-        if (key !== 'apiKey' && key !== 'model') {
-          actions.setField(key as keyof QuizData, value);
-        }
-      });
-    }
-  }, [quizData, state.data, actions]);
+  // No sync needed - just use internal form state and notify parent of changes
 
-  // Notify parent of data changes
+  // Notify parent of data changes (debounced to prevent excessive updates)
+  const prevDataRef = useRef<QuizData | null>(null);
+  
   useEffect(() => {
-    onDataChange(state.data);
+    // Only call onDataChange if the data actually changed
+    if (JSON.stringify(state.data) !== JSON.stringify(prevDataRef.current)) {
+      onDataChange(state.data);
+      prevDataRef.current = state.data;
+    }
   }, [state.data, onDataChange]);
 
   const canProceedToStep2 = state.data.jobDescription && !state.errors.jobDescription;
@@ -170,18 +165,18 @@ export default function QuizFormPanel({
       </div>
 
       {/* Form Content */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-6">
+      <div className="flex-1 overflow-y-auto p-6 space-y-8">
         {/* Step 1: Job Selection */}
         <div className={`transition-all duration-300 ${state.currentStep >= 1 ? 'opacity-100' : 'opacity-50'}`}>
-          <div className="flex items-center mb-4">
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold mr-3 ${
+          <div className="flex items-center mb-6">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold mr-4 ${
               actions.isStepComplete(1) 
                 ? 'bg-green-500 text-white' 
                 : 'bg-blue-600 text-white'
             }`}>
               {actions.isStepComplete(1) ? '✓' : '1'}
             </div>
-            <h3 className="text-md font-semibold text-gray-900">Your Role</h3>
+            <h3 className="text-lg font-semibold text-gray-900">Your Role</h3>
           </div>
           
           <Dropdown
@@ -200,18 +195,18 @@ export default function QuizFormPanel({
         {/* Step 2: Detailed Information */}
         {canProceedToStep2 && contextData && (
           <div className={`transition-all duration-300 ${state.currentStep >= 2 ? 'opacity-100' : 'opacity-50'}`}>
-            <div className="flex items-center mb-4">
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold mr-3 ${
+            <div className="flex items-center mb-6">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold mr-4 ${
                 actions.isStepComplete(2) 
                   ? 'bg-green-500 text-white' 
                   : 'bg-blue-600 text-white'
               }`}>
                 {actions.isStepComplete(2) ? '✓' : '2'}
               </div>
-              <h3 className="text-md font-semibold text-gray-900">Details</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Details</h3>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
               <Dropdown
                 label="Experience Level"
                 value={state.data.experience}
@@ -262,7 +257,7 @@ export default function QuizFormPanel({
               />
             </div>
 
-            <div className="mt-4">
+            <div className="mt-6">
               <SkillSelector
                 label="Skills & Technologies"
                 selectedSkills={state.data.skillSet}
@@ -281,18 +276,18 @@ export default function QuizFormPanel({
         {/* Step 3: Analysis Setup */}
         {canProceedToStep3 && (
           <div className={`transition-all duration-300 ${state.currentStep >= 3 ? 'opacity-100' : 'opacity-50'}`}>
-            <div className="flex items-center mb-4">
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold mr-3 ${
+            <div className="flex items-center mb-6">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold mr-4 ${
                 actions.isStepComplete(3) 
                   ? 'bg-green-500 text-white' 
                   : 'bg-blue-600 text-white'
               }`}>
                 {actions.isStepComplete(3) ? '✓' : '3'}
               </div>
-              <h3 className="text-md font-semibold text-gray-900">Analysis Setup</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Analysis Setup</h3>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
               {/* Profile Summary */}
               <div className="bg-gray-50 rounded-lg p-4">
                 <h4 className="text-sm font-medium text-gray-900 mb-2">Profile Summary</h4>
@@ -325,7 +320,7 @@ export default function QuizFormPanel({
 
       {/* Analysis Button */}
       {canProceedToStep3 && state.currentStep === 3 && (
-        <div className="panel-footer border-t border-gray-200 p-4">
+        <div className="panel-footer border-t border-gray-200 p-6 bg-gray-50">
           {state.errors.submit && (
             <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
               <div className="flex items-center text-red-800 text-sm">
@@ -341,7 +336,7 @@ export default function QuizFormPanel({
             type="button"
             onClick={handleStartAnalysis}
             disabled={!isFormComplete || isAnalyzing}
-            className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:shadow-none flex items-center justify-center text-sm"
+            className="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none flex items-center justify-center text-base"
           >
             {isAnalyzing ? (
               <>
