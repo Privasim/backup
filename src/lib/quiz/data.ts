@@ -1,6 +1,62 @@
 import { QuizContextData, DropdownOption } from './types';
 
 export const quizContextData: QuizContextData = {
+  // --- Modern/Emerging Roles ---
+  'ai-prompt-engineer': {
+    jobDescription: 'AI Prompt Engineer',
+    experiences: [
+      'Intern', 'Entry Level (0-1 years)', '1-3 years', 'Associate', '3-5 years', 'Mid-Level', '5-10 years', 'Senior', 'Lead', 'Director', 'VP', 'C-Level', 'Freelancer/Consultant', 'Career Changer'
+    ],
+    industries: [
+      'AI & Machine Learning', 'Technology', 'Research', 'Education', 'Consulting', 'Green Energy', 'LegalTech', 'FinTech', 'Healthcare Tech', 'Remote Services', 'EdTech', 'Blockchain', 'Cybersecurity', 'Other'
+    ],
+    locations: [
+      'Remote (Global)', 'Hybrid (Onsite & Remote)', 'Philippines', 'Singapore', 'Bangalore', 'Berlin', 'Nairobi', 'Toronto', 'San Francisco', 'New York', 'London', 'Sydney', 'Prefer not to say'
+    ],
+    salaryRanges: [
+      'Below $20k', '$20k–$40k', '$40k–$60k', '$60k–$80k', '$80k–$100k', '$100k–$150k', '$150k–$200k', '$200k+', 'Equity Only', 'Hourly/Contract', 'Prefer not to say', 'Unpaid/Volunteer'
+    ],
+    skillSets: [
+      'Prompt Engineering', 'AI Ethics', 'Large Language Models', 'NLP', 'Deep Learning', 'Python', 'TensorFlow', 'PyTorch', 'Cloud ML', 'No-Code Tools', 'Remote Collaboration', 'Custom Skill...'
+    ]
+  },
+  'remote-customer-support': {
+    jobDescription: 'Remote Customer Support',
+    experiences: [
+      'Intern', 'Entry Level (0-1 years)', '1-3 years', 'Associate', '3-5 years', 'Mid-Level', '5-10 years', 'Senior', 'Lead', 'Freelancer/Consultant', 'Career Changer'
+    ],
+    industries: [
+      'Remote Services', 'Technology', 'E-commerce', 'Travel', 'Healthcare', 'Education', 'Government', 'Other'
+    ],
+    locations: [
+      'Remote (Global)', 'Hybrid (Onsite & Remote)', 'Philippines', 'Singapore', 'India', 'USA', 'UK', 'Australia', 'Prefer not to say'
+    ],
+    salaryRanges: [
+      'Below $10k', '$10k–$20k', '$20k–$30k', '$30k–$40k', '$40k+', 'Hourly/Contract', 'Prefer not to say', 'Unpaid/Volunteer'
+    ],
+    skillSets: [
+      'Customer Service', 'Live Chat', 'CRM Tools', 'Remote Collaboration', 'Problem Solving', 'Empathy', 'Custom Skill...'
+    ]
+  },
+  'cloud-devops-specialist': {
+    jobDescription: 'Cloud DevOps Specialist',
+    experiences: [
+      'Intern', 'Entry Level (0-1 years)', '1-3 years', 'Associate', '3-5 years', 'Mid-Level', '5-10 years', 'Senior', 'Lead', 'Director', 'Freelancer/Consultant', 'Career Changer'
+    ],
+    industries: [
+      'Cloud Computing', 'Technology', 'FinTech', 'AI & Machine Learning', 'E-commerce', 'Gaming', 'Healthcare Tech', 'Green Energy', 'Other'
+    ],
+    locations: [
+      'Remote (Global)', 'Hybrid (Onsite & Remote)', 'Singapore', 'Bangalore', 'San Francisco', 'London', 'Sydney', 'Prefer not to say'
+    ],
+    salaryRanges: [
+      '$20k–$40k', '$40k–$60k', '$60k–$80k', '$80k–$100k', '$100k–$150k', '$150k–$200k', '$200k+', 'Hourly/Contract', 'Prefer not to say'
+    ],
+    skillSets: [
+      'Cloud Security', 'AWS', 'Azure', 'Google Cloud', 'Kubernetes', 'Terraform', 'DevOps', 'CI/CD', 'No-Code Tools', 'Remote Collaboration', 'Custom Skill...'
+    ]
+  },
+  // --- Existing roles below (truncated for brevity, but all existing roles remain and are enriched further down) ---
   'software-developer': {
     jobDescription: 'Software Developer',
     experiences: ['Entry Level (0-1 years)', '1-3 years', '3-5 years', '5-10 years', '10+ years'],
