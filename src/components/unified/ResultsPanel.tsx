@@ -3,12 +3,16 @@
 import React, { useState, useEffect } from 'react';
 import { QuizData } from '@/lib/quiz/types';
 import { debugLog } from '@/components/debug/DebugConsole';
-import RiskHeatmap from '@/components/visualization/RiskHeatmap';
-import IndustryBubbleChart from '@/components/visualization/IndustryBubbleChart';
-import SkillRadarChart from '@/components/visualization/SkillRadarChart';
 import { getResearchService, initializeResearchService } from '@/lib/research/service';
 import knowledgeBase from '@/lib/research/data/ai_employment_risks.json';
 import '@/styles/visualization.css';
+
+// New deterministic D3 components + types (forwardRef handles)
+import RiskGaugeD3, { RiskGaugeHandle } from '@/components/visualization/d3/RiskGaugeD3';
+import FactorBarsD3, { FactorBarsHandle } from '@/components/visualization/d3/FactorBarsD3';
+import TaskExposureRadarD3, { TaskExposureRadarHandle } from '@/components/visualization/d3/TaskExposureRadarD3';
+import IndustryScatterBubblesD3, { IndustryScatterHandle } from '@/components/visualization/d3/IndustryScatterBubblesD3';
+import RiskHeatmapD3, { RiskHeatmapHandle } from '@/components/visualization/d3/RiskHeatmapD3';
 
 interface AssessmentResult {
   riskLevel: 'Low' | 'Medium' | 'High';
@@ -44,9 +48,32 @@ export default function ResultsPanel({
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [visualizationData, setVisualizationData] = useState<{
     riskMatrix: any[];
-    industryBubble: any[];
-    skillRadar: any[];
-  }>({ riskMatrix: [], industryBubble: [], skillRadar: [] });
+    industryBubble: any[]; // exposure vs employment
+    taskExposure: any[];   // from table_4
+  }>({ riskMatrix: [], industryBubble: [], taskExposure: [] });
+
+  // Refs for SVG export using component handles
+  const riskGaugeRef = React.useRef<RiskGaugeHandle>(null);
+  const factorBarsRef = React.useRef<FactorBarsHandle>(null);
+  const taskRadarRef = React.useRef<TaskExposureRadarHandle>(null);
+  const industryBubblesRef = React.useRef<IndustryScatterHandle>(null);
+  const heatmapRef = React.useRef<RiskHeatmapHandle>(null);
+
+  const exportSvg = (handle: { getSvg?: () => SVGSVGElement | null } | null | undefined, filename: string) => {
+    const node = handle?.getSvg ? handle.getSvg() : null;
+    if (!node) return;
+    const serializer = new XMLSerializer();
+    const source = serializer.serializeToString(node);
+    const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename.endsWith('.svg') ? filename : `${filename}.svg`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
 
   // Initialize logging
   useEffect(() => {
@@ -101,22 +128,41 @@ export default function ResultsPanel({
         await initializeResearchService(knowledgeBase as any);
         const service = getResearchService();
         
-        const [riskMatrix, industryBubble, skillRadar] = await Promise.all([
-          service.getRiskMatrixData(),
-          service.getIndustryBubbleData(),
-          service.getSkillGapData(quizData.jobDescription)
+        // Deterministic-only data sources
+        const [riskMatrix, industryData, taskData] = await Promise.all([
+          service.getRiskMatrixData(),      // Deterministic synthesis from KB occupations x industries
+          service.getIndustryData(),        // From table_3
+          service.getTaskAutomationData()   // From table_4
         ]);
 
+        // Build deterministic inputs for D3 charts
+        // Industry bubbles use exposureScore (x), employment (y and/or radius)
+        const industryBubble = (industryData || []).slice(0, 20).map((d: any) => ({
+          industry: d.industry,
+          exposureScore: d.exposureScore,
+          employment: d.employment, // millions numeric
+          naicsCode: d.naicsCode
+        }));
+
+        // Task exposure radar uses table_4 "Automation Potential"
+        const taskExposure = (taskData || []).map((t: any) => ({
+          taskCategory: t.taskCategory,
+          automationPotential: t.automationPotential,
+          humanComplementarity: t.humanComplementarity,
+          timeline: t.timeline,
+          description: t.description
+        }));
+
         setVisualizationData({
-          riskMatrix: riskMatrix.slice(0, 50), // Limit for performance
-          industryBubble: industryBubble.slice(0, 20),
-          skillRadar
+          riskMatrix: (riskMatrix || []).slice(0, 50),
+          industryBubble,
+          taskExposure
         });
 
         debugLog.success('ResultsPanel', 'Visualization data loaded', {
-          riskMatrixCount: riskMatrix.length,
-          industryBubbleCount: industryBubble.length,
-          skillRadarCount: skillRadar.length
+          riskMatrixCount: (riskMatrix || []).length,
+          industryCount: (industryData || []).length,
+          taskCategoryCount: (taskData || []).length
         });
       } catch (error) {
         debugLog.error('ResultsPanel', 'Failed to load visualization data', { 
@@ -225,28 +271,30 @@ export default function ResultsPanel({
           {/* Risk Score - Main Display */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg border border-gray-200 p-4 h-full">
-              <div className="text-center">
-                <div className="text-4xl font-bold text-gray-900 mb-2">{results.riskScore}%</div>
-                <div className="text-sm text-gray-600 mb-4">AI Displacement Risk</div>
-                
-                <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
-                  <div 
-                    className={`h-3 rounded-full transition-all duration-1000 ${
-                      results.riskLevel === 'Low' ? 'bg-green-500' :
-                      results.riskLevel === 'Medium' ? 'bg-yellow-500' : 'bg-red-500'
-                    }`}
-                    style={{ width: `${results.riskScore}%` }}
-                  ></div>
-                </div>
-
-                {quizData && (
-                  <div className="text-xs text-gray-500 space-y-1">
-                    <div><span className="font-medium">Role:</span> {quizData.jobDescription.replace('-', ' ')}</div>
-                    <div><span className="font-medium">Experience:</span> {quizData.experience}</div>
-                    <div><span className="font-medium">Industry:</span> {quizData.industry}</div>
-                  </div>
-                )}
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm font-semibold text-gray-900">AI Displacement Risk</span>
+                <button
+                  onClick={() => exportSvg(riskGaugeRef.current, 'risk-gauge')}
+                  className="text-[10px] px-2 py-1 rounded bg-gray-100 hover:bg-gray-200"
+                >
+                  Export SVG
+                </button>
               </div>
+              <div className="mb-2">
+                <RiskGaugeD3
+                  ref={riskGaugeRef}
+                  score={results.riskScore}
+                  level={results.riskLevel}
+                  className="w-full h-36"
+                />
+              </div>
+              {quizData && (
+                <div className="text-xs text-gray-500 space-y-1 text-center">
+                  <div><span className="font-medium">Role:</span> {quizData.jobDescription.replace('-', ' ')}</div>
+                  <div><span className="font-medium">Experience:</span> {quizData.experience}</div>
+                  <div><span className="font-medium">Industry:</span> {quizData.industry}</div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -254,33 +302,33 @@ export default function ResultsPanel({
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg border border-gray-200 p-4 h-full">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-gray-900">Risk Factors</h3>
-                <button
-                  onClick={() => toggleSection('factors')}
-                  className="text-xs text-blue-600 hover:text-blue-700"
-                >
-                  {expandedSection === 'factors' ? 'Collapse' : 'Expand'}
-                </button>
+                <h3 className="text-sm font-semibold text-gray-900">Risk Drivers</h3>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => toggleSection('factors')}
+                    className="text-xs text-blue-600 hover:text-blue-700"
+                  >
+                    {expandedSection === 'factors' ? 'Collapse' : 'Expand'}
+                  </button>
+                  <button
+                    onClick={() => exportSvg(factorBarsRef.current, 'risk-drivers')}
+                    className="text-[10px] px-2 py-1 rounded bg-gray-100 hover:bg-gray-200"
+                  >
+                    Export SVG
+                  </button>
+                </div>
               </div>
-              
-              <div className="space-y-3">
-                {Object.entries(results.factors).map(([factor, score]) => (
-                  <div key={factor}>
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-xs text-gray-700 capitalize">
-                        {factor.replace(/([A-Z])/g, ' $1').trim()}
-                      </span>
-                      <span className="text-xs font-semibold text-gray-900">{score}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-1.5">
-                      <div 
-                        className="bg-blue-600 h-1.5 rounded-full transition-all duration-1000"
-                        style={{ width: `${score}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+
+              <FactorBarsD3
+                ref={factorBarsRef}
+                factors={[
+                  { label: 'Automation', value: results.factors.automation },
+                  { label: 'AI Replacement', value: results.factors.aiReplacement },
+                  { label: 'Skill Demand', value: results.factors.skillDemand },
+                  { label: 'Industry Growth', value: results.factors.industryGrowth },
+                ]}
+                className="w-full h-40"
+              />
             </div>
           </div>
 
@@ -355,18 +403,24 @@ export default function ResultsPanel({
               <div className={`${expandedSection === 'visualizations' ? 'h-96' : 'h-32'} transition-all duration-300`}>
                 {expandedSection === 'visualizations' ? (
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-full">
-                    {/* Risk Heatmap */}
+                    {/* Risk Heatmap (D3) */}
                     <div className="bg-white rounded-lg border border-gray-200 p-2">
-                      <div className="text-center mb-2">
-                        <h4 className="text-xs font-semibold text-gray-700">Risk Heatmap</h4>
-                        <p className="text-xs text-gray-500">Industry vs Occupation Risk</p>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="text-center flex-1">
+                          <h4 className="text-xs font-semibold text-gray-700">Risk Heatmap</h4>
+                          <p className="text-xs text-gray-500">Industry vs Occupation</p>
+                        </div>
+                        <button
+                          onClick={() => exportSvg(heatmapRef.current, 'risk-heatmap')}
+                          className="text-[10px] px-2 py-1 rounded bg-gray-100 hover:bg-gray-200"
+                        >
+                          Export SVG
+                        </button>
                       </div>
                       {visualizationData.riskMatrix.length > 0 ? (
-                        <RiskHeatmap 
-                          data={visualizationData.riskMatrix}
-                          config={{ 
-                            dimensions: { width: 280, height: 200, margin: { top: 20, right: 20, bottom: 40, left: 60 } }
-                          }}
+                        <RiskHeatmapD3
+                          ref={heatmapRef}
+                          data={visualizationData.riskMatrix as any}
                           className="w-full h-full"
                         />
                       ) : (
@@ -382,15 +436,13 @@ export default function ResultsPanel({
                     {/* Industry Bubble Chart */}
                     <div className="bg-white rounded-lg border border-gray-200 p-2">
                       <div className="text-center mb-2">
-                        <h4 className="text-xs font-semibold text-gray-700">Industry Analysis</h4>
-                        <p className="text-xs text-gray-500">Multi-dimensional Bubbles</p>
+                        <h4 className="text-xs font-semibold text-gray-700">Industry Exposure</h4>
+                        <p className="text-xs text-gray-500">Exposure vs Employment</p>
                       </div>
                       {visualizationData.industryBubble.length > 0 ? (
-                        <IndustryBubbleChart 
-                          data={visualizationData.industryBubble}
-                          config={{ 
-                            dimensions: { width: 280, height: 200, margin: { top: 20, right: 20, bottom: 40, left: 40 } }
-                          }}
+                        <IndustryScatterBubblesD3
+                          ref={industryBubblesRef}
+                          data={visualizationData.industryBubble as any}
                           className="w-full h-full"
                         />
                       ) : (
@@ -406,15 +458,13 @@ export default function ResultsPanel({
                     {/* Skill Radar Chart */}
                     <div className="bg-white rounded-lg border border-gray-200 p-2">
                       <div className="text-center mb-2">
-                        <h4 className="text-xs font-semibold text-gray-700">Skill Analysis</h4>
-                        <p className="text-xs text-gray-500">Competency Radar</p>
+                        <h4 className="text-xs font-semibold text-gray-700">Task Exposure</h4>
+                        <p className="text-xs text-gray-500">Automation Potential by Category</p>
                       </div>
-                      {visualizationData.skillRadar.length > 0 ? (
-                        <SkillRadarChart 
-                          data={visualizationData.skillRadar}
-                          config={{ 
-                            dimensions: { width: 280, height: 200, margin: { top: 20, right: 20, bottom: 20, left: 20 } }
-                          }}
+                      {visualizationData.taskExposure.length > 0 ? (
+                        <TaskExposureRadarD3
+                          ref={taskRadarRef}
+                          data={visualizationData.taskExposure as any}
                           className="w-full h-full"
                         />
                       ) : (
