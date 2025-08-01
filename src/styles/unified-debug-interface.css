@@ -1,0 +1,203 @@
+/* Unified Debug Interface Styles */
+
+.unified-debug-interface {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+}
+
+.unified-layout {
+  display: grid;
+  grid-template-areas: 
+    "quiz-form debug-console spacer"
+    "results results results";
+  grid-template-columns: 40% 35% 25%;
+  grid-template-rows: 1fr 25%;
+  gap: 1rem;
+  height: calc(100vh - 4rem);
+  padding: 1rem;
+}
+
+.quiz-form-panel {
+  grid-area: quiz-form;
+}
+
+.debug-console-panel {
+  grid-area: debug-console;
+}
+
+.results-panel {
+  grid-area: results;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .unified-layout {
+    grid-template-areas: 
+      "quiz-form"
+      "debug-console"
+      "results";
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr;
+  }
+  
+  .quiz-form-panel,
+  .debug-console-panel {
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .unified-layout {
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+  
+  .quiz-form-panel,
+  .debug-console-panel {
+    max-height: 250px;
+  }
+}
+
+/* Panel Styles */
+.panel-header {
+  flex-shrink: 0;
+}
+
+.panel-footer {
+  flex-shrink: 0;
+}
+
+/* Custom Scrollbars */
+.debug-console-panel ::-webkit-scrollbar {
+  width: 6px;
+}
+
+.debug-console-panel ::-webkit-scrollbar-track {
+  background: #374151;
+}
+
+.debug-console-panel ::-webkit-scrollbar-thumb {
+  background: #6B7280;
+  border-radius: 3px;
+}
+
+.debug-console-panel ::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+/* Results Panel Scrollbar */
+.results-panel ::-webkit-scrollbar {
+  width: 6px;
+}
+
+.results-panel ::-webkit-scrollbar-track {
+  background: #F3F4F6;
+}
+
+.results-panel ::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 3px;
+}
+
+.results-panel ::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+/* Animation for new logs */
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.debug-console-panel .log-entry {
+  animation: slideInFromTop 0.2s ease-out;
+}
+
+/* Loading states */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Progress bars */
+.progress-bar {
+  transition: width 0.3s ease-in-out;
+}
+
+/* Hover effects */
+.panel-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.panel-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Focus states for accessibility */
+.unified-debug-interface button:focus,
+.unified-debug-interface select:focus,
+.unified-debug-interface input:focus {
+  outline: 2px solid #3B82F6;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .debug-console-panel {
+    background: #000000;
+    color: #FFFFFF;
+  }
+  
+  .debug-console-panel .bg-gray-800 {
+    background: #000000;
+    border-color: #FFFFFF;
+  }
+  
+  .debug-console-panel .text-gray-400 {
+    color: #CCCCCC;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .unified-debug-interface * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .unified-debug-interface {
+    display: block;
+  }
+  
+  .debug-console-panel {
+    display: none;
+  }
+  
+  .unified-layout {
+    display: block;
+  }
+  
+  .quiz-form-panel,
+  .results-panel {
+    page-break-inside: avoid;
+    margin-bottom: 1rem;
+  }
+}
