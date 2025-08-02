@@ -1,68 +1,50 @@
-# AI Job Risk Assessment - Step 3 Implementation
+# AI Job Risk Assessment - Implementation Tasks
 
-## Phase 1: Step 3 UI Foundation
-- [x] 1. Extend QuizForm to support Step 3 state management
+## Phase 1: Core Assessment Infrastructure ✅
+- [x] QuizFormPanel with 3-step workflow and validation
+- [x] ApiKeyInput component with OpenRouter integration
+- [x] Assessment analysis with LLM integration
+- [x] ResultsPanel with professional D3 visualizations
 
+## Phase 2: Human vs AI Cost Analysis 🚧
+- [ ] **Task 1**: Core Infrastructure Setup (8h)
+  - Create `src/lib/cost-analysis/` module structure
+  - Implement BLS API provider for occupation wage data
+  - Build PayScale API integration for location adjustments
+  - Develop AI cost calculation service with OpenRouter pricing
 
-  - Add step 3 to form state and validation logic
-  - Update progress indicator to show 3 steps
-  - _Requirements: Multi-step form progression_
+- [ ] **Task 2**: LLM Analysis Integration (4h)
+  - Create LLMAnalysisService for cost comparison insights
+  - Integrate with existing OpenRouter client patterns
+  - Build main CostAnalysisService orchestrator
 
+- [ ] **Task 3**: Professional D3 Visualization (6h)
+  - Develop CostComparisonChart with modern D3 design
+  - Implement responsive bar chart with interactive tooltips
+  - Add SVG export functionality for professional reporting
+  - Integrate CostAnalysisSection into ResultsPanel
 
+- [ ] **Task 4**: Integration & Testing (4h)
+  - Connect cost analysis to QuizFormPanel completion flow
+  - Implement error handling and API fallback strategies
+  - Add comprehensive testing suite
+  - Performance optimization and caching
 
-- [ ] 2. Create SummaryPanel component for quiz data review
-  - Display user's job profile summary (role, experience, industry, location, salary, skills)
+- [ ] **Task 5**: Documentation & Polish (2h)
+  - Code documentation and security review
+  - Performance benchmarking and optimization
+  - User experience refinement
 
+## Success Criteria
+- Real-time salary data from BLS/PayScale APIs (no mock data)
+- LLM-powered cost comparison analysis using existing OpenRouter setup
+- Single professional D3 visualization with export capability
+- Modular architecture in dedicated `cost-analysis/` folder
+- Seamless integration with existing QuizFormPanel → ResultsPanel workflow
+- Sub-3 second analysis completion with 95% reliability
 
-  - Show formatted data in clean, reviewable layout
-  - _Requirements: Data review before analysis_
-
-- [x] 3. Add API key input component for OpenRouter authentication
-
-
-
-  - Secure input field for user's OpenRouter API key
-  - Validation for API key format and basic connectivity test
-  - Local storage for session persistence (with security warnings)
-  - _Requirements: User-provided API authentication_
-
-
-
-- [ ] 4. Implement "Start Job Risk Assessment" button with loading states
-  - Disabled state when API key missing or invalid
-  - Loading spinner and progress feedback during analysis
-
-
-  - Error handling for API failures
-  - _Requirements: Assessment trigger with feedback_
-
-## Phase 2: OpenRouter Web Search Integration
-
-
-- [ ] 5. Create OpenRouter client with web search capabilities
-  - HTTP client for OpenRouter API with web_search parameter
-  - Support for streaming responses and real-time updates
-  - Model selection for web search enabled models
-  - _Requirements: LLM web search integration_
-
-
-
-
-- [ ] 6. Implement job risk analysis prompt generation
-  - Dynamic prompts based on user's job profile
-  - Web search queries for AI impact on specific roles
-  - Industry trend analysis and skill demand research
-  - _Requirements: Contextual AI impact analysis_
-
-- [ ] 7. Build response processing and data extraction
-  - Parse LLM responses for risk factors and insights
-  - Extract source citations and credibility scores
-  - Structure data for visualization components
-  - _Requirements: Structured analysis results_
-
-## Phase 3: Results Display and Visualization
-- [ ] 8. Create risk assessment results display component
-  - Risk score visualization with charts and metrics
-  - Source citations and research references
-  - Actionable recommendations based on analysis
-  - _Requirements: Visual risk assessment presentation_
+## Technical Stack
+- **APIs**: BLS.gov, PayScale, OpenRouter (existing)
+- **Visualization**: D3.js (existing)
+- **Architecture**: Modular services with TypeScript
+- **Integration**: Existing QuizFormPanel and ResultsPanel components
