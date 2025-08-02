@@ -127,9 +127,9 @@ export default function Dropdown({
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <label className="block text-xs font-semibold text-gray-900 mb-2">
+      <label className="text-label mb-2 block" style={{ color: 'var(--neutral-900)' }}>
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span style={{ color: 'var(--error-500)' }} className="ml-1">*</span>}
       </label>
       
       <div className="relative">
@@ -141,26 +141,46 @@ export default function Dropdown({
           aria-expanded={isOpen}
           aria-haspopup="listbox"
           aria-labelledby={`${label}-label`}
-          className={`w-full px-3 py-2.5 text-left bg-white border-2 rounded-lg transition-all duration-200 text-sm ${
+          className={`input-base text-left ${
             disabled 
-              ? 'bg-gray-50 border-gray-200 cursor-not-allowed text-gray-400'
+              ? 'cursor-not-allowed'
               : hasError
-                ? 'border-red-500 ring-2 ring-red-100'
-                : isOpen 
-                  ? 'border-blue-500 ring-2 ring-blue-100' 
-                  : value 
-                    ? 'border-blue-200 hover:border-blue-300' 
-                    : 'border-gray-200 hover:border-gray-300'
-          } focus:outline-none ${!disabled && 'focus:border-blue-500 focus:ring-2 focus:ring-blue-100'}`}
+                ? 'input-error'
+                : value 
+                  ? 'input-success' 
+                  : ''
+          } modern-focus`}
+          style={{
+            borderColor: disabled 
+              ? 'var(--neutral-200)'
+              : hasError
+                ? 'var(--error-500)'
+                : isOpen
+                  ? 'var(--primary-500)'
+                  : value
+                    ? 'var(--success-300)'
+                    : 'var(--neutral-200)',
+            background: disabled ? 'var(--neutral-50)' : 'white',
+            color: disabled ? 'var(--neutral-400)' : 'var(--neutral-900)'
+          }}
         >
-          <span className={`block ${selectedOption ? 'text-gray-900' : 'text-gray-500'}`}>
+          <span className="block" style={{ 
+            color: selectedOption 
+              ? 'var(--neutral-900)' 
+              : 'var(--neutral-500)' 
+          }}>
             {selectedOption ? selectedOption.label : placeholder}
           </span>
           <span className="absolute right-3 top-1/2 transform -translate-y-1/2">
             <svg 
-              className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''} ${
-                disabled ? 'text-gray-300' : isOpen ? 'text-blue-600' : 'text-gray-400'
-              }`} 
+              className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+              style={{ 
+                color: disabled 
+                  ? 'var(--neutral-300)' 
+                  : isOpen 
+                    ? 'var(--primary-600)' 
+                    : 'var(--neutral-400)' 
+              }}
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -171,25 +191,31 @@ export default function Dropdown({
         </button>
 
         {isOpen && (
-          <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-hidden">
+          <div className="absolute z-20 w-full mt-2 card-elevated max-h-64 overflow-hidden animate-scale-in">
             {searchable && (
-              <div className="p-2 border-b border-gray-100">
+              <div className="p-3" style={{ borderBottom: '1px solid var(--neutral-200)' }}>
                 <input
                   ref={searchInputRef}
                   type="text"
-                  placeholder="Search..."
+                  placeholder="Search options..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-2 py-1.5 text-xs border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="input-base text-body-sm"
+                  style={{ padding: 'var(--space-2) var(--space-3)' }}
                 />
               </div>
             )}
             
-            <div ref={listRef} className="py-1 overflow-y-auto max-h-40" role="listbox">
+            <div ref={listRef} className="py-2 overflow-y-auto max-h-48" role="listbox">
               {processedOptions.map((group, groupIndex) => (
                 <div key={groupIndex}>
                   {group.groupName && (
-                    <div className="px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50">
+                    <div className="px-4 py-2 text-label-sm" 
+                         style={{ 
+                           color: 'var(--neutral-500)', 
+                           background: 'var(--neutral-50)',
+                           borderBottom: '1px solid var(--neutral-200)'
+                         }}>
                       {group.groupName}
                     </div>
                   )}
@@ -205,25 +231,30 @@ export default function Dropdown({
                         onClick={() => handleSelect(option.value)}
                         role="option"
                         aria-selected={value === option.value}
-                        className={`w-full px-3 py-2 text-left transition-colors text-sm ${
-                          value === option.value 
-                            ? 'bg-blue-50 text-blue-700 font-medium' 
+                        className="w-full px-4 py-3 text-left transition-all text-body hover:transform hover:scale-[1.01]"
+                        style={{
+                          background: value === option.value 
+                            ? 'var(--primary-50)' 
                             : focusedIndex === flatIndex
-                              ? 'bg-gray-50 text-gray-900'
-                              : 'text-gray-900 hover:bg-blue-50'
-                        }`}
+                              ? 'var(--neutral-50)'
+                              : 'transparent',
+                          color: value === option.value 
+                            ? 'var(--primary-700)' 
+                            : 'var(--neutral-900)',
+                          fontWeight: value === option.value ? 'var(--font-medium)' : 'var(--font-normal)'
+                        }}
                       >
                         <div className="flex items-center justify-between">
                           <div className="min-w-0 flex-1">
                             <span className="truncate">{option.label}</span>
                             {option.description && (
-                              <div className="text-xs text-gray-500 mt-0.5 truncate">
+                              <div className="text-body-sm mt-1 truncate" style={{ color: 'var(--neutral-500)' }}>
                                 {option.description}
                               </div>
                             )}
                           </div>
                           {value === option.value && (
-                            <svg className="w-3 h-3 text-blue-600 flex-shrink-0 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                            <svg className="w-4 h-4 flex-shrink-0 ml-3" style={{ color: 'var(--primary-600)' }} fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                             </svg>
                           )}
@@ -235,8 +266,11 @@ export default function Dropdown({
               ))}
               
               {flatOptions.length === 0 && (
-                <div className="px-3 py-2 text-gray-500 text-center text-sm">
-                  No options found
+                <div className="px-4 py-8 text-center">
+                  <svg className="w-8 h-8 mx-auto mb-2" style={{ color: 'var(--neutral-300)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <p className="text-body-sm" style={{ color: 'var(--neutral-500)' }}>No options found</p>
                 </div>
               )}
             </div>
@@ -245,8 +279,8 @@ export default function Dropdown({
       </div>
 
       {hasError && (
-        <div className="mt-1 flex items-center text-red-600 text-xs">
-          <svg className="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <div className="mt-2 flex items-center text-body-sm" style={{ color: 'var(--error-600)' }}>
+          <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
           </svg>
           {error}

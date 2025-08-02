@@ -1,48 +1,56 @@
-/* Unified Debug Interface Styles */
+/* Modern SaaS Interface Styles */
 
 .unified-debug-interface {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  font-family: var(--font-family);
+  background: var(--neutral-50);
 }
 
 .unified-layout {
   display: grid;
-  /* Let Tailwind utilities control columns; remove fixed grid-template-columns to avoid conflicts */
-  gap: 1rem;
-  min-height: calc(100vh - 4rem);
-  padding: 1rem;
+  transition: all var(--transition-slow);
 }
 
 .quiz-section {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
   min-height: 0;
 }
 
 .quiz-form-panel {
   flex: 1;
-  min-height: 600px; /* Minimum height for form */
+  min-height: 600px;
+  background: white;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--neutral-200);
 }
 
 .debug-console-panel {
   height: fit-content;
-  max-height: calc(70vh - 2rem);
   position: sticky;
-  top: 1rem;
+  top: var(--space-6);
+  background: var(--neutral-900);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--neutral-800);
 }
 
 .results-panel {
-  /* Allow results panel to grow when sidebar is hidden; keep a reasonable minimum */
   height: auto;
   min-height: 18rem;
   flex-shrink: 0;
+  background: white;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--neutral-200);
 }
 
 /* Responsive Design */
 @media (max-width: 1200px) {
   .unified-layout {
-    /* Tailwind responsive classes will handle columns; no fixed template here */
-    grid-template-rows: auto auto;
+    grid-template-columns: 1fr !important;
+    gap: var(--space-4);
+    padding: var(--space-4);
   }
   
   .quiz-section {
@@ -51,7 +59,9 @@
   
   .debug-console-panel {
     order: 2;
-    height: 250px;
+    max-height: 300px;
+    position: relative;
+    top: 0;
   }
   
   .results-panel {
@@ -61,78 +71,92 @@
 
 @media (max-width: 768px) {
   .unified-layout {
-    gap: 0.5rem;
-    padding: 0.5rem;
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+  
+  .quiz-form-panel {
+    min-height: 500px;
   }
   
   .debug-console-panel {
-    height: 200px;
+    max-height: 250px;
   }
   
   .results-panel {
-    height: 150px;
+    min-height: 150px;
   }
 }
 
 /* Panel Styles */
 .panel-header {
   flex-shrink: 0;
+  background: var(--gradient-subtle);
+  border-bottom: 1px solid var(--neutral-200);
+  padding: var(--space-4) var(--space-6);
 }
 
 .panel-footer {
   flex-shrink: 0;
+  background: var(--gradient-subtle);
+  border-top: 1px solid var(--neutral-200);
+  padding: var(--space-4) var(--space-6);
 }
 
-/* Custom Scrollbars */
+/* Modern Scrollbars */
 .debug-console-panel ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .debug-console-panel ::-webkit-scrollbar-track {
-  background: #374151;
+  background: var(--neutral-800);
+  border-radius: var(--radius-sm);
 }
 
 .debug-console-panel ::-webkit-scrollbar-thumb {
-  background: #6B7280;
-  border-radius: 3px;
+  background: var(--neutral-600);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-normal);
 }
 
 .debug-console-panel ::-webkit-scrollbar-thumb:hover {
-  background: #9CA3AF;
+  background: var(--neutral-500);
 }
 
 /* Results Panel Scrollbar */
 .results-panel ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .results-panel ::-webkit-scrollbar-track {
-  background: #F3F4F6;
+  background: var(--neutral-100);
+  border-radius: var(--radius-sm);
 }
 
 .results-panel ::-webkit-scrollbar-thumb {
-  background: #D1D5DB;
-  border-radius: 3px;
+  background: var(--neutral-300);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-normal);
 }
 
 .results-panel ::-webkit-scrollbar-thumb:hover {
-  background: #9CA3AF;
+  background: var(--neutral-400);
 }
 
-/* Animation for new logs */
+/* Modern Animations */
+.debug-console-panel .log-entry {
+  animation: slideInFromTop var(--transition-normal) ease-out;
+}
+
 @keyframes slideInFromTop {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-8px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.debug-console-panel .log-entry {
-  animation: slideInFromTop 0.2s ease-out;
 }
 
 /* Loading states */
@@ -141,60 +165,94 @@
 }
 
 @keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-/* Progress bars */
-.progress-bar {
-  transition: width 0.3s ease-in-out;
-}
-
-/* Hover effects */
+/* Modern hover effects */
 .panel-button {
-  transition: all 0.2s ease-in-out;
+  transition: all var(--transition-normal);
+  border-radius: var(--radius-md);
 }
 
 .panel-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
-/* Focus states for accessibility */
-.unified-debug-interface button:focus,
-.unified-debug-interface select:focus,
-.unified-debug-interface input:focus {
-  outline: 2px solid #3B82F6;
+.panel-button:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Card hover effects */
+.card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-xl);
+}
+
+/* Smooth transitions for layout changes */
+.unified-layout {
+  transition: grid-template-columns var(--transition-slow), gap var(--transition-slow);
+}
+
+/* Focus states for modern accessibility */
+.modern-focus:focus-visible {
+  outline: 2px solid var(--primary-500);
   outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
-/* High contrast mode support */
+/* Modern focus states for accessibility */
+.unified-debug-interface button:focus-visible,
+.unified-debug-interface select:focus-visible,
+.unified-debug-interface input:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Enhanced high contrast mode support */
 @media (prefers-contrast: high) {
   .debug-console-panel {
     background: #000000;
     color: #FFFFFF;
+    border: 2px solid #FFFFFF;
   }
   
-  .debug-console-panel .bg-gray-800 {
-    background: #000000;
-    border-color: #FFFFFF;
+  .card-elevated,
+  .card-base {
+    border: 2px solid #000000;
+    box-shadow: none;
   }
   
-  .debug-console-panel .text-gray-400 {
-    color: #CCCCCC;
+  .btn-primary {
+    background: #0000FF;
+    border: 2px solid #FFFFFF;
+  }
+  
+  .btn-secondary {
+    background: #FFFFFF;
+    color: #000000;
+    border: 2px solid #000000;
   }
 }
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  .unified-debug-interface * {
+  .unified-debug-interface *,
+  .unified-debug-interface *::before,
+  .unified-debug-interface *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-scale-in {
+    animation: none;
   }
 }
 
@@ -202,6 +260,7 @@
 @media print {
   .unified-debug-interface {
     display: block;
+    background: white;
   }
   
   .debug-console-panel {
@@ -210,11 +269,19 @@
   
   .unified-layout {
     display: block;
+    gap: var(--space-4);
   }
   
   .quiz-form-panel,
   .results-panel {
     page-break-inside: avoid;
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-4);
+    box-shadow: none;
+    border: 1px solid #000000;
+  }
+  
+  .card-elevated {
+    box-shadow: none;
+    border: 1px solid #000000;
   }
 }

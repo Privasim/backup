@@ -9,6 +9,7 @@ import QuizFormPanel from './QuizFormPanel';
 import DebugConsolePanel from './DebugConsolePanel';
 import ResultsPanel from './ResultsPanel';
 import ResearchTransparencyPanel from './ResearchTransparencyPanel';
+import '@/styles/design-system.css';
 
 interface AssessmentResult {
   riskLevel: 'Low' | 'Medium' | 'High';
@@ -417,61 +418,71 @@ export default function UnifiedDebugInterface({
   }, []);
 
   return (
-    <div className="unified-debug-interface min-h-screen bg-gray-50">
-      {/* Header Bar */}
-      <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">AI</span>
-          </div>
-          <div>
-            <h1 className="text-lg font-bold text-gray-900">CareerGuard Debug Interface</h1>
-            <p className="text-xs text-gray-500">Development & Debugging Environment</p>
-          </div>
-        </div>
-        
-        <div className="flex items-center space-x-3">
-          <div className="text-xs text-gray-500">
-            Logs: {state.debugLogs.length}
-          </div>
-          {state.isAnalyzing && (
-            <div className="flex items-center space-x-2 text-xs text-blue-600">
-              <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-              <span>Analyzing...</span>
+    <div className="unified-debug-interface min-h-screen" style={{ background: 'var(--neutral-50)' }}>
+      {/* Modern Header Bar */}
+      <header className="gradient-subtle border-b" style={{ borderColor: 'var(--neutral-200)' }}>
+        <div className="px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-md">
+              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
             </div>
-          )}
-          {/* Focus Mode Toggle */}
-          <button
-            onClick={toggleRightPanel}
-            aria-pressed={isRightPanelHidden}
-            title="Hide insights sidebar"
-            className={`px-3 py-1 text-xs rounded transition-colors ${
-              isRightPanelHidden
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            {isRightPanelHidden ? 'Exit Focus' : 'Focus Mode'}
-          </button>
-          <button
-            onClick={handleResetSession}
-            className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition-colors"
-          >
-            Reset Session
-          </button>
+            <div>
+              <h1 className="text-title" style={{ color: 'var(--neutral-900)' }}>CareerGuard AI</h1>
+              <p className="text-body-sm" style={{ color: 'var(--neutral-500)' }}>Professional Risk Assessment Platform</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-4">
+            <div className="badge-neutral">
+              {state.debugLogs.length} Events
+            </div>
+            {state.isAnalyzing && (
+              <div className="flex items-center space-x-2 badge-primary">
+                <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                <span>Analyzing...</span>
+              </div>
+            )}
+            {/* Focus Mode Toggle */}
+            <button
+              onClick={toggleRightPanel}
+              aria-pressed={isRightPanelHidden}
+              title="Toggle insights panel"
+              className={`btn-base btn-sm ${
+                isRightPanelHidden ? 'btn-primary' : 'btn-secondary'
+              }`}
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                      d={isRightPanelHidden ? "M15 12a3 3 0 11-6 0 3 3 0 016 0z" : "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029"} />
+              </svg>
+              {isRightPanelHidden ? 'Show Insights' : 'Focus Mode'}
+            </button>
+            <button
+              onClick={handleResetSession}
+              className="btn-base btn-sm btn-ghost"
+              title="Reset session"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Reset
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Main Layout */}
+      {/* Modern Main Layout */}
       <div
-        className={`unified-layout flex-1 grid gap-4 p-4 min-h-[calc(100vh-4rem)] ${
-          isRightPanelHidden ? 'grid-cols-1' : 'grid-cols-[70%_30%]'
+        className={`unified-layout flex-1 grid min-h-[calc(100vh-5rem)] transition-all duration-300 ${
+          isRightPanelHidden ? 'grid-cols-1 gap-6 p-6' : 'grid-cols-[1fr_400px] gap-6 p-6'
         }`}
       >
         {/* Left Column - Quiz Form and Results */}
-        <div className="quiz-section flex flex-col gap-4 min-h-0">
+        <div className="quiz-section flex flex-col gap-6 min-h-0">
           {/* Quiz Form */}
-          <div className="quiz-form-panel bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex-1 min-h-0">
+          <div className="quiz-form-panel card-elevated overflow-hidden flex-1 min-h-0 animate-fade-in">
             <QuizFormPanel
               onDataChange={handleQuizDataChange}
               onAnalysisStart={handleAnalysisStart}
@@ -483,7 +494,7 @@ export default function UnifiedDebugInterface({
 
           {/* Results Panel - appears below quiz when available */}
           {(state.assessmentResults || state.isAnalyzing) && (
-            <div className="results-panel bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="results-panel card-elevated overflow-hidden animate-slide-up">
               <ResultsPanel
                 results={state.assessmentResults}
                 researchData={state.researchData}
@@ -495,14 +506,17 @@ export default function UnifiedDebugInterface({
           )}
         </div>
 
-        {/* Right Column - Debug Panels */}
+        {/* Right Column - Insights Panels */}
         {!isRightPanelHidden && (
-          <div className="space-y-4 sticky top-4">
+          <div className="space-y-6 sticky top-6 h-fit animate-fade-in">
             {/* Research Transparency Panel */}
-            <ResearchTransparencyPanel />
+            <div className="card-elevated overflow-hidden">
+              <ResearchTransparencyPanel />
+            </div>
             
             {/* Debug Console Panel */}
-            <div className="debug-console-panel bg-gray-900 rounded-lg shadow-sm overflow-hidden h-fit max-h-[calc(70vh-2rem)]">
+            <div className="debug-console-panel card-elevated overflow-hidden max-h-[calc(60vh)]" 
+                 style={{ background: 'var(--neutral-900)' }}>
               <DebugConsolePanel
                 logs={state.debugLogs}
                 onClear={handleClearLogs}

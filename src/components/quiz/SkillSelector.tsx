@@ -76,62 +76,71 @@ export default function SkillSelector({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-2">
-        <label className="block text-xs font-semibold text-gray-900">
+      <div className="flex items-center justify-between mb-3">
+        <label className="text-label" style={{ color: 'var(--neutral-900)' }}>
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span style={{ color: 'var(--error-500)' }} className="ml-1">*</span>}
         </label>
         
         {filteredSkills.length > 0 && (
-          <div className="flex items-center space-x-2 text-xs">
+          <div className="flex items-center space-x-3">
             <button
               type="button"
               onClick={selectAll}
               disabled={!canSelectMore}
-              className="text-blue-600 hover:text-blue-700 disabled:text-gray-400 disabled:cursor-not-allowed font-medium"
+              className="btn-base btn-sm btn-ghost"
+              style={{ 
+                color: canSelectMore ? 'var(--primary-600)' : 'var(--neutral-400)',
+                cursor: canSelectMore ? 'pointer' : 'not-allowed'
+              }}
             >
-              All
+              Select All
             </button>
-            <span className="text-gray-300">|</span>
             <button
               type="button"
               onClick={clearAll}
               disabled={selectedSkills.length === 0}
-              className="text-gray-600 hover:text-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed font-medium"
+              className="btn-base btn-sm btn-ghost"
+              style={{ 
+                color: selectedSkills.length > 0 ? 'var(--neutral-600)' : 'var(--neutral-400)',
+                cursor: selectedSkills.length > 0 ? 'pointer' : 'not-allowed'
+              }}
             >
-              Clear
+              Clear All
             </button>
           </div>
         )}
       </div>
       
-      <p className="text-xs text-gray-600 mb-3">
-        Select skills that apply to your role
+      <p className="text-body-sm mb-4" style={{ color: 'var(--neutral-600)' }}>
+        Select the skills and technologies you work with regularly
         {maxSelections && (
-          <span className="text-gray-500 ml-1">
-            (max {maxSelections} • {selectedSkills.length} selected)
+          <span className="badge-neutral ml-2">
+            {selectedSkills.length}/{maxSelections} selected
           </span>
         )}
       </p>
 
       {searchable && (
-        <div className="mb-3">
+        <div className="mb-4">
           <div className="relative">
             <input
               type="text"
-              placeholder="Search skills..."
+              placeholder="Search skills and technologies..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-3 py-2 pl-8 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200 text-sm"
+              className="input-base pl-10 modern-focus"
             />
-            <svg className="w-4 h-4 text-gray-400 absolute left-2.5 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2" 
+                 style={{ color: 'var(--neutral-400)' }} 
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
         </div>
       )}
       
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {filteredSkills.map((skill) => {
           const isSelected = selectedSkills.includes(skill);
           const isDisabled = !isSelected && !canSelectMore;
@@ -142,20 +151,36 @@ export default function SkillSelector({
               type="button"
               onClick={() => toggleSkill(skill)}
               disabled={isDisabled}
-              className={`px-2.5 py-2 text-xs font-medium rounded-lg border-2 transition-all duration-200 text-left ${
-                isSelected
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+              className="card-interactive text-left p-3 transition-all duration-200 hover:scale-105"
+              style={{
+                background: isSelected
+                  ? 'var(--primary-50)'
                   : isDisabled
-                    ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-blue-300 hover:bg-blue-50'
-              }`}
+                    ? 'var(--neutral-50)'
+                    : 'white',
+                borderColor: isSelected
+                  ? 'var(--primary-300)'
+                  : isDisabled
+                    ? 'var(--neutral-200)'
+                    : 'var(--neutral-200)',
+                color: isSelected
+                  ? 'var(--primary-700)'
+                  : isDisabled
+                    ? 'var(--neutral-400)'
+                    : 'var(--neutral-700)',
+                cursor: isDisabled ? 'not-allowed' : 'pointer',
+                transform: isDisabled ? 'none' : undefined
+              }}
             >
               <div className="flex items-center justify-between">
-                <span className="truncate pr-1 leading-tight">{skill}</span>
+                <span className="text-body-sm font-medium truncate pr-2">{skill}</span>
                 {isSelected && (
-                  <svg className="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                       style={{ background: 'var(--primary-600)' }}>
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
                 )}
               </div>
             </button>
@@ -164,52 +189,73 @@ export default function SkillSelector({
       </div>
 
       {!showAll && !searchQuery && availableSkills.length > 12 && (
-        <div className="mt-3 text-center">
+        <div className="mt-4 text-center">
           <button
             type="button"
             onClick={() => setShowAll(true)}
-            className="text-blue-600 hover:text-blue-700 font-medium text-xs"
+            className="btn-base btn-sm btn-secondary"
           >
-            +{availableSkills.length - 12} more
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Show {availableSkills.length - 12} more skills
           </button>
         </div>
       )}
 
       {searchQuery && filteredSkills.length === 0 && (
-        <div className="text-center py-6 text-gray-500">
-          <svg className="w-8 h-8 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="text-center py-8">
+          <svg className="w-12 h-12 mx-auto mb-3" style={{ color: 'var(--neutral-300)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          <p className="text-xs">No skills found for "{searchQuery}"</p>
+          <p className="text-body" style={{ color: 'var(--neutral-500)' }}>No skills found for "{searchQuery}"</p>
+          <p className="text-body-sm mt-1" style={{ color: 'var(--neutral-400)' }}>Try a different search term</p>
         </div>
       )}
       
       {selectedSkills.length > 0 && (
-        <div className={`mt-3 p-3 rounded-lg border ${hasError ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-200'}`}>
+        <div className={`mt-4 card-base p-4 ${hasError ? 'border-error-200' : 'border-success-200'}`}
+             style={{ 
+               background: hasError ? 'var(--error-50)' : 'var(--success-50)' 
+             }}>
           <div className="flex items-start">
-            <svg className={`w-4 h-4 mr-2 mt-0.5 flex-shrink-0 ${hasError ? 'text-red-600' : 'text-blue-600'}`} fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mr-3 mt-0.5`}
+                 style={{ 
+                   background: hasError ? 'var(--error-600)' : 'var(--success-600)' 
+                 }}>
+              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+            </div>
             <div className="flex-1">
-              <p className={`text-xs font-medium mb-2 ${hasError ? 'text-red-900' : 'text-blue-900'}`}>
-                {selectedSkills.length} selected
+              <p className="text-label-sm mb-3" 
+                 style={{ 
+                   color: hasError ? 'var(--error-900)' : 'var(--success-900)' 
+                 }}>
+                {selectedSkills.length} skill{selectedSkills.length !== 1 ? 's' : ''} selected
                 {maxSelections && ` (${selectedSkills.length}/${maxSelections})`}
               </p>
-              <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap gap-2">
                 {selectedSkills.map((skill) => (
                   <span
                     key={skill}
-                    className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                      hasError ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'
-                    }`}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-body-sm font-medium"
+                    style={{
+                      background: hasError ? 'var(--error-100)' : 'var(--success-100)',
+                      color: hasError ? 'var(--error-800)' : 'var(--success-800)',
+                      border: `1px solid ${hasError ? 'var(--error-200)' : 'var(--success-200)'}`
+                    }}
                   >
-                    <span className="truncate max-w-20">{skill}</span>
+                    <span className="truncate max-w-24">{skill}</span>
                     <button
                       type="button"
                       onClick={() => toggleSkill(skill)}
-                      className="ml-1 hover:bg-red-200 rounded-full p-0.5"
+                      className="ml-2 hover:scale-110 transition-transform rounded-full p-0.5"
+                      style={{ 
+                        color: hasError ? 'var(--error-600)' : 'var(--success-600)' 
+                      }}
                     >
-                      <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                       </svg>
                     </button>
@@ -222,8 +268,8 @@ export default function SkillSelector({
       )}
 
       {hasError && (
-        <div className="mt-1 flex items-center text-red-600 text-xs">
-          <svg className="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <div className="mt-2 flex items-center text-body-sm" style={{ color: 'var(--error-600)' }}>
+          <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
           </svg>
           {error}

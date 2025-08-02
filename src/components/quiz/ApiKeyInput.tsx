@@ -81,22 +81,20 @@ export default function ApiKeyInput({
   const hasError = touched && error;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
-        <label className="block text-xs font-semibold text-gray-900 mb-2">
+        <label className="text-label mb-2 block" style={{ color: 'var(--neutral-900)' }}>
           AI Model Selection
-          <span className="text-red-500 ml-1">*</span>
+          <span style={{ color: 'var(--error-500)' }} className="ml-1">*</span>
         </label>
         <select
           value={model || ''}
           onChange={(e) => onModelChange?.(e.target.value)}
-          className={`w-full px-3 py-2.5 border-2 rounded-lg transition-all duration-200 text-sm ${
-            modelError && touched
-              ? 'border-red-500 ring-2 ring-red-100'
-              : 'border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
-          } focus:outline-none`}
+          className={`input-base modern-focus ${
+            modelError && touched ? 'input-error' : ''
+          }`}
         >
-          <option value="" disabled>Select a model</option>
+          <option value="" disabled>Select an AI model</option>
           {availableModels.map((modelOption) => (
             <option key={modelOption.value} value={modelOption.value}>
               {modelOption.label}
@@ -105,23 +103,23 @@ export default function ApiKeyInput({
         </select>
         
         {modelError && touched && (
-          <div className="mt-1 flex items-center text-red-600 text-xs">
-            <svg className="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <div className="mt-2 flex items-center text-body-sm" style={{ color: 'var(--error-600)' }}>
+            <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
             {modelError}
           </div>
         )}
         
-        <div className="mt-1 text-xs text-gray-600">
+        <div className="mt-2 text-body-sm" style={{ color: 'var(--neutral-600)' }}>
           {availableModels.find(m => m.value === model)?.description || 'Choose a model for AI analysis'}
         </div>
       </div>
 
       <div>
-        <label className="block text-xs font-semibold text-gray-900 mb-2">
+        <label className="text-label mb-2 block" style={{ color: 'var(--neutral-900)' }}>
           OpenRouter API Key
-          <span className="text-red-500 ml-1">*</span>
+          <span style={{ color: 'var(--error-500)' }} className="ml-1">*</span>
         </label>
         <div className="relative">
           <input
@@ -130,20 +128,24 @@ export default function ApiKeyInput({
             onChange={handleChange}
             onPaste={handlePaste}
             placeholder="sk-or-v1-..."
-            className={`w-full px-3 py-2.5 pr-20 border-2 rounded-lg transition-all duration-200 text-sm font-mono ${
+            className={`input-base pr-20 font-mono modern-focus ${
               hasError
-                ? 'border-red-500 ring-2 ring-red-100'
+                ? 'input-error'
                 : validationStatus === 'valid'
-                ? 'border-green-500 ring-2 ring-green-100'
-                : 'border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
-            } focus:outline-none`}
+                ? 'input-success'
+                : ''
+            }`}
           />
-          <div className="absolute inset-y-0 right-0 flex items-center pr-3 space-x-1">
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3 space-x-2">
             {getValidationIcon()}
             <button
               type="button"
               onClick={() => setShowKey(!showKey)}
-              className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+              className="p-1 transition-colors rounded"
+              style={{ 
+                color: 'var(--neutral-400)',
+                ':hover': { color: 'var(--neutral-600)' }
+              }}
               tabIndex={-1}
             >
               {showKey ? (
@@ -162,22 +164,36 @@ export default function ApiKeyInput({
       </div>
 
       {hasError && (
-        <div className="mt-1 flex items-center text-red-600 text-xs">
-          <svg className="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <div className="mt-2 flex items-center text-body-sm" style={{ color: 'var(--error-600)' }}>
+          <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
           </svg>
           {error}
         </div>
       )}
 
-      <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+      <div className="mt-4 card-base p-4" style={{ background: 'var(--warning-50)', borderColor: 'var(--warning-200)' }}>
         <div className="flex items-start">
-          <svg className="w-4 h-4 text-amber-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-          </svg>
-          <div className="text-xs text-amber-800">
-            <p className="font-medium mb-1">Your API key is stored locally</p>
-            <p>Get your free API key from <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" className="text-amber-700 underline hover:text-amber-900">OpenRouter</a>. It's only used for this analysis and never sent to our servers.</p>
+          <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mr-3 mt-0.5"
+               style={{ background: 'var(--warning-600)' }}>
+            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="text-body-sm" style={{ color: 'var(--warning-800)' }}>
+            <p className="font-medium mb-2">Secure & Private</p>
+            <p>Your API key is stored locally in your browser and used only for this analysis. Get your free key from{' '}
+              <a 
+                href="https://openrouter.ai/keys" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="font-medium underline hover:no-underline transition-all"
+                style={{ color: 'var(--warning-700)' }}
+              >
+                OpenRouter
+              </a>
+              . We never store or transmit your key to our servers.
+            </p>
           </div>
         </div>
       </div>

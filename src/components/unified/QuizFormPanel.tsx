@@ -128,35 +128,36 @@ export default function QuizFormPanel({
 
   return (
     <div className={`quiz-form-panel flex flex-col h-full ${className}`}>
-      {/* Panel Header */}
-      <div className="panel-header bg-gray-50 border-b border-gray-200 px-4 py-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">Assessment Form</h2>
-          <div className="text-sm text-gray-500">
-            Step {state.currentStep}/3
+      {/* Modern Panel Header */}
+      <div className="panel-header gradient-subtle">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-heading" style={{ color: 'var(--neutral-900)' }}>AI Risk Assessment</h2>
+            <p className="text-body" style={{ color: 'var(--neutral-600)' }}>Professional career analysis in 3 steps</p>
+          </div>
+          <div className="badge-primary">
+            Step {state.currentStep} of 3
           </div>
         </div>
         
-        {/* Progress Bar */}
-        <div className="mt-2">
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(state.currentStep / 3) * 100}%` }}
-            ></div>
-          </div>
+        {/* Modern Progress Bar */}
+        <div className="progress-base">
+          <div 
+            className="progress-bar"
+            style={{ width: `${(state.currentStep / 3) * 100}%` }}
+          ></div>
         </div>
 
         {/* Analysis Progress */}
         {isAnalyzing && analysisProgress && (
-          <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-blue-800 font-medium">{analysisProgress.message}</span>
-              <span className="text-blue-600">{analysisProgress.progress}%</span>
+          <div className="mt-4 card-base p-4 animate-fade-in" style={{ background: 'var(--primary-50)', borderColor: 'var(--primary-200)' }}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-label" style={{ color: 'var(--primary-800)' }}>{analysisProgress.message}</span>
+              <span className="badge-primary">{analysisProgress.progress}%</span>
             </div>
-            <div className="mt-1 w-full bg-blue-200 rounded-full h-1">
+            <div className="progress-base" style={{ background: 'var(--primary-200)' }}>
               <div 
-                className="bg-blue-600 h-1 rounded-full transition-all duration-300"
+                className="progress-bar"
                 style={{ width: `${analysisProgress.progress}%` }}
               ></div>
             </div>
@@ -164,170 +165,221 @@ export default function QuizFormPanel({
         )}
       </div>
 
-      {/* Form Content */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-8">
+      {/* Modern Form Content */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {/* Step 1: Job Selection */}
         <div className={`transition-all duration-300 ${state.currentStep >= 1 ? 'opacity-100' : 'opacity-50'}`}>
-          <div className="flex items-center mb-6">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold mr-4 ${
-              actions.isStepComplete(1) 
-                ? 'bg-green-500 text-white' 
-                : 'bg-blue-600 text-white'
-            }`}>
-              {actions.isStepComplete(1) ? '✓' : '1'}
+          <div className={`card-base p-6 ${actions.isStepComplete(1) ? 'border-success-200 bg-success-50' : state.currentStep === 1 ? 'border-primary-200 bg-primary-50' : ''}`}>
+            <div className="flex items-center mb-6">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-semibold mr-4 shadow-sm ${
+                actions.isStepComplete(1) 
+                  ? 'gradient-success text-white' 
+                  : state.currentStep === 1
+                    ? 'gradient-primary text-white'
+                    : 'bg-neutral-200 text-neutral-500'
+              }`}>
+                {actions.isStepComplete(1) ? (
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                ) : '1'}
+              </div>
+              <div>
+                <h3 className="text-subheading" style={{ color: 'var(--neutral-900)' }}>Your Professional Role</h3>
+                <p className="text-body-sm" style={{ color: 'var(--neutral-600)' }}>Tell us about your current position</p>
+              </div>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">Your Role</h3>
+            
+            <Dropdown
+              label="What's your job title?"
+              value={state.data.jobDescription}
+              options={jobDescriptions}
+              onChange={(value: string) => handleFieldChange('jobDescription', value)}
+              placeholder="Select your primary job role"
+              searchable={true}
+              error={state.errors.jobDescription}
+              touched={state.touched.jobDescription}
+              required={true}
+            />
           </div>
-          
-          <Dropdown
-            label="What's your job title?"
-            value={state.data.jobDescription}
-            options={jobDescriptions}
-            onChange={(value: string) => handleFieldChange('jobDescription', value)}
-            placeholder="Select your primary job role"
-            searchable={true}
-            error={state.errors.jobDescription}
-            touched={state.touched.jobDescription}
-            required={true}
-          />
         </div>
 
         {/* Step 2: Detailed Information */}
         {canProceedToStep2 && contextData && (
-          <div className={`transition-all duration-300 ${state.currentStep >= 2 ? 'opacity-100' : 'opacity-50'}`}>
-            <div className="flex items-center mb-6">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold mr-4 ${
-                actions.isStepComplete(2) 
-                  ? 'bg-green-500 text-white' 
-                  : 'bg-blue-600 text-white'
-              }`}>
-                {actions.isStepComplete(2) ? '✓' : '2'}
+          <div className={`transition-all duration-300 animate-slide-up ${state.currentStep >= 2 ? 'opacity-100' : 'opacity-50'}`}>
+            <div className={`card-base p-6 ${actions.isStepComplete(2) ? 'border-success-200 bg-success-50' : state.currentStep === 2 ? 'border-primary-200 bg-primary-50' : ''}`}>
+              <div className="flex items-center mb-6">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-semibold mr-4 shadow-sm ${
+                  actions.isStepComplete(2) 
+                    ? 'gradient-success text-white' 
+                    : state.currentStep === 2
+                      ? 'gradient-primary text-white'
+                      : 'bg-neutral-200 text-neutral-500'
+                }`}>
+                  {actions.isStepComplete(2) ? (
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  ) : '2'}
+                </div>
+                <div>
+                  <h3 className="text-subheading" style={{ color: 'var(--neutral-900)' }}>Professional Details</h3>
+                  <p className="text-body-sm" style={{ color: 'var(--neutral-600)' }}>Help us understand your background</p>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">Details</h3>
-            </div>
 
-            <div className="space-y-5">
-              <Dropdown
-                label="Experience Level"
-                value={state.data.experience}
-                options={getExperienceOptions(contextData.experiences)}
-                onChange={(value: string) => handleFieldChange('experience', value)}
-                placeholder="Years of experience"
-                groupBy={(option: any) => option.group || 'Other'}
-                error={state.errors.experience}
-                touched={state.touched.experience}
-                required={true}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <Dropdown
+                  label="Experience Level"
+                  value={state.data.experience}
+                  options={getExperienceOptions(contextData.experiences)}
+                  onChange={(value: string) => handleFieldChange('experience', value)}
+                  placeholder="Years of experience"
+                  groupBy={(option: any) => option.group || 'Other'}
+                  error={state.errors.experience}
+                  touched={state.touched.experience}
+                  required={true}
+                />
 
-              <Dropdown
-                label="Industry"
-                value={state.data.industry}
-                options={getIndustryOptions(contextData.industries)}
-                onChange={(value: string) => handleFieldChange('industry', value)}
-                placeholder="Your industry sector"
-                searchable={true}
-                groupBy={(option: any) => option.group || 'Other'}
-                error={state.errors.industry}
-                touched={state.touched.industry}
-                required={true}
-              />
+                <Dropdown
+                  label="Industry"
+                  value={state.data.industry}
+                  options={getIndustryOptions(contextData.industries)}
+                  onChange={(value: string) => handleFieldChange('industry', value)}
+                  placeholder="Your industry sector"
+                  searchable={true}
+                  groupBy={(option: any) => option.group || 'Other'}
+                  error={state.errors.industry}
+                  touched={state.touched.industry}
+                  required={true}
+                />
 
-              <Dropdown
-                label="Location"
-                value={state.data.location}
-                options={getLocationOptions(contextData.locations)}
-                onChange={(value: string) => handleFieldChange('location', value)}
-                placeholder="Work location"
-                groupBy={(option: any) => option.group || 'Other'}
-                error={state.errors.location}
-                touched={state.touched.location}
-                required={true}
-              />
+                <Dropdown
+                  label="Location"
+                  value={state.data.location}
+                  options={getLocationOptions(contextData.locations)}
+                  onChange={(value: string) => handleFieldChange('location', value)}
+                  placeholder="Work location"
+                  groupBy={(option: any) => option.group || 'Other'}
+                  error={state.errors.location}
+                  touched={state.touched.location}
+                  required={true}
+                />
 
-              <Dropdown
-                label="Salary Range"
-                value={state.data.salaryRange}
-                options={getSalaryOptions(contextData.salaryRanges)}
-                onChange={(value: string) => handleFieldChange('salaryRange', value)}
-                placeholder="Current salary range"
-                groupBy={(option: any) => option.group || 'Other'}
-                error={state.errors.salaryRange}
-                touched={state.touched.salaryRange}
-                required={true}
-              />
-            </div>
+                <Dropdown
+                  label="Salary Range"
+                  value={state.data.salaryRange}
+                  options={getSalaryOptions(contextData.salaryRanges)}
+                  onChange={(value: string) => handleFieldChange('salaryRange', value)}
+                  placeholder="Current salary range"
+                  groupBy={(option: any) => option.group || 'Other'}
+                  error={state.errors.salaryRange}
+                  touched={state.touched.salaryRange}
+                  required={true}
+                />
+              </div>
 
-            <div className="mt-6">
-              <SkillSelector
-                label="Skills & Technologies"
-                selectedSkills={state.data.skillSet}
-                availableSkills={contextData.skillSets}
-                onChange={(skills: string[]) => handleFieldChange('skillSet', skills)}
-                error={state.errors.skillSet}
-                touched={state.touched.skillSet}
-                required={true}
-                maxSelections={8}
-                searchable={true}
-              />
+              <div className="mt-6">
+                <SkillSelector
+                  label="Skills & Technologies"
+                  selectedSkills={state.data.skillSet}
+                  availableSkills={contextData.skillSets}
+                  onChange={(skills: string[]) => handleFieldChange('skillSet', skills)}
+                  error={state.errors.skillSet}
+                  touched={state.touched.skillSet}
+                  required={true}
+                  maxSelections={8}
+                  searchable={true}
+                />
+              </div>
             </div>
           </div>
         )}
 
         {/* Step 3: Analysis Setup */}
         {canProceedToStep3 && (
-          <div className={`transition-all duration-300 ${state.currentStep >= 3 ? 'opacity-100' : 'opacity-50'}`}>
-            <div className="flex items-center mb-6">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold mr-4 ${
-                actions.isStepComplete(3) 
-                  ? 'bg-green-500 text-white' 
-                  : 'bg-blue-600 text-white'
-              }`}>
-                {actions.isStepComplete(3) ? '✓' : '3'}
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">Analysis Setup</h3>
-            </div>
-
-            <div className="space-y-5">
-              {/* Profile Summary */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Profile Summary</h4>
-                <div className="text-sm text-gray-600 space-y-1">
-                  <div><span className="font-medium">Role:</span> {state.data.jobDescription.replace('-', ' ')}</div>
-                  <div><span className="font-medium">Experience:</span> {state.data.experience}</div>
-                  <div><span className="font-medium">Industry:</span> {state.data.industry}</div>
-                  <div><span className="font-medium">Skills:</span> {state.data.skillSet.slice(0, 3).join(', ')}{state.data.skillSet.length > 3 ? ` +${state.data.skillSet.length - 3} more` : ''}</div>
+          <div className={`transition-all duration-300 animate-slide-up ${state.currentStep >= 3 ? 'opacity-100' : 'opacity-50'}`}>
+            <div className={`card-base p-6 ${actions.isStepComplete(3) ? 'border-success-200 bg-success-50' : state.currentStep === 3 ? 'border-primary-200 bg-primary-50' : ''}`}>
+              <div className="flex items-center mb-6">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-semibold mr-4 shadow-sm ${
+                  actions.isStepComplete(3) 
+                    ? 'gradient-success text-white' 
+                    : state.currentStep === 3
+                      ? 'gradient-primary text-white'
+                      : 'bg-neutral-200 text-neutral-500'
+                }`}>
+                  {actions.isStepComplete(3) ? (
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  ) : '3'}
+                </div>
+                <div>
+                  <h3 className="text-subheading" style={{ color: 'var(--neutral-900)' }}>Analysis Configuration</h3>
+                  <p className="text-body-sm" style={{ color: 'var(--neutral-600)' }}>Review your profile and configure AI analysis</p>
                 </div>
               </div>
 
-              <ApiKeyInput
-                value={state.data.apiKey || ''}
-                onChange={(value: string) => handleFieldChange('apiKey', value)}
-                error={state.errors.apiKey}
-                touched={state.touched.apiKey}
-                model={state.data.model}
-                onModelChange={(model) => handleFieldChange('model', model)}
-                modelError={state.errors.model}
-                onValidate={(isValid) => {
-                  if (!isValid && state.touched.apiKey) {
-                    actions.setError('apiKey', 'Please enter a valid OpenRouter API key');
-                  }
-                }}
-              />
+              <div className="space-y-6">
+                {/* Modern Profile Summary */}
+                <div className="card-base p-4" style={{ background: 'var(--neutral-50)', borderColor: 'var(--neutral-200)' }}>
+                  <h4 className="text-label mb-3" style={{ color: 'var(--neutral-900)' }}>Profile Summary</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-body-sm">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 rounded-full" style={{ background: 'var(--primary-500)' }}></div>
+                      <span style={{ color: 'var(--neutral-600)' }}>Role:</span>
+                      <span className="font-medium" style={{ color: 'var(--neutral-900)' }}>{state.data.jobDescription.replace('-', ' ')}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 rounded-full" style={{ background: 'var(--success-500)' }}></div>
+                      <span style={{ color: 'var(--neutral-600)' }}>Experience:</span>
+                      <span className="font-medium" style={{ color: 'var(--neutral-900)' }}>{state.data.experience}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 rounded-full" style={{ background: 'var(--accent-500)' }}></div>
+                      <span style={{ color: 'var(--neutral-600)' }}>Industry:</span>
+                      <span className="font-medium" style={{ color: 'var(--neutral-900)' }}>{state.data.industry}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 rounded-full" style={{ background: 'var(--warning-500)' }}></div>
+                      <span style={{ color: 'var(--neutral-600)' }}>Skills:</span>
+                      <span className="font-medium" style={{ color: 'var(--neutral-900)' }}>
+                        {state.data.skillSet.slice(0, 2).join(', ')}{state.data.skillSet.length > 2 ? ` +${state.data.skillSet.length - 2} more` : ''}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <ApiKeyInput
+                  value={state.data.apiKey || ''}
+                  onChange={(value: string) => handleFieldChange('apiKey', value)}
+                  error={state.errors.apiKey}
+                  touched={state.touched.apiKey}
+                  model={state.data.model}
+                  onModelChange={(model) => handleFieldChange('model', model)}
+                  modelError={state.errors.model}
+                  onValidate={(isValid) => {
+                    if (!isValid && state.touched.apiKey) {
+                      actions.setError('apiKey', 'Please enter a valid OpenRouter API key');
+                    }
+                  }}
+                />
+              </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Analysis Button */}
+      {/* Modern Analysis Button */}
       {canProceedToStep3 && state.currentStep === 3 && (
-        <div className="panel-footer border-t border-gray-200 p-6 bg-gray-50">
+        <div className="panel-footer">
           {state.errors.submit && (
-            <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <div className="flex items-center text-red-800 text-sm">
-                <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <div className="mb-4 card-base p-4 animate-fade-in" style={{ background: 'var(--error-50)', borderColor: 'var(--error-200)' }}>
+              <div className="flex items-center text-body">
+                <svg className="w-5 h-5 mr-3 flex-shrink-0" style={{ color: 'var(--error-600)' }} fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
-                {state.errors.submit}
+                <span style={{ color: 'var(--error-800)' }}>{state.errors.submit}</span>
               </div>
             </div>
           )}
@@ -336,28 +388,35 @@ export default function QuizFormPanel({
             type="button"
             onClick={handleStartAnalysis}
             disabled={!isFormComplete || isAnalyzing}
-            className="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none flex items-center justify-center text-base"
+            className={`btn-base btn-lg w-full ${!isFormComplete || isAnalyzing ? 'btn-primary:disabled' : 'btn-primary'}`}
+            style={{ 
+              background: !isFormComplete || isAnalyzing 
+                ? 'var(--neutral-300)' 
+                : 'linear-gradient(135deg, var(--primary-600), var(--accent-600))',
+              color: !isFormComplete || isAnalyzing ? 'var(--neutral-500)' : 'white',
+              cursor: !isFormComplete || isAnalyzing ? 'not-allowed' : 'pointer'
+            }}
           >
             {isAnalyzing ? (
               <>
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Analyzing...
+                Analyzing Your Career Risk...
               </>
             ) : (
               <>
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
-                Start Analysis
+                Start AI Risk Analysis
               </>
             )}
           </button>
           
-          <p className="text-center text-xs text-gray-500 mt-2">
-            {isAnalyzing ? 'Processing with AI...' : 'Results will appear below in real-time'}
+          <p className="text-center text-body-sm mt-3" style={{ color: 'var(--neutral-500)' }}>
+            {isAnalyzing ? 'AI is processing your professional profile...' : 'Comprehensive analysis takes 30-60 seconds'}
           </p>
         </div>
       )}
