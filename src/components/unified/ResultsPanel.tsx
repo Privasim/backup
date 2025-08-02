@@ -6,6 +6,8 @@ import { debugLog } from '@/components/debug/DebugConsole';
 import { getResearchService, initializeResearchService } from '@/lib/research/service';
 import knowledgeBase from '@/lib/research/data/ai_employment_risks.json';
 import { useChartInteractions } from '@/hooks/useChartInteractions';
+import { CostAnalysisService, UserProfile, CostAnalysis } from '@/lib/cost-analysis';
+import { CostAnalysisSection } from '@/components/cost-analysis';
 import '@/styles/visualization.css';
 
 // New deterministic D3 components + types (forwardRef handles)
@@ -62,6 +64,11 @@ export default function ResultsPanel({
   });
   const [chartMode, setChartMode] = useState<'scatter' | 'parallel' | 'treemap'>('scatter');
   const [presentationMode, setPresentationMode] = useState(false);
+  
+  // Cost analysis state
+  const [costAnalysisData, setCostAnalysisData] = useState<CostAnalysis | null>(null);
+  const [costAnalysisLoading, setCostAnalysisLoading] = useState(false);
+  const [costAnalysisError, setCostAnalysisError] = useState<string | null>(null);
   
   // Chart interactions state
   const chartInteractions = useChartInteractions();
@@ -236,7 +243,7 @@ export default function ResultsPanel({
     return { industryAverage, peerAverage };
   };
 
-  // Load visualization data when results are available
+  // Load visualization data and cost analysis when results are available
   useEffect(() => {
     const loadVisualizationData = async () => {
       if (!results || !quizData) return;
@@ -245,6 +252,9 @@ export default function ResultsPanel({
         // Ensure service is initialized first
         await initializeResearchService(knowledgeBase as any);
         const service = getResearchService();
+
+        // Start cost analysis in parallel
+        loadCostAnalysis();
         
         // Calculate industry percentile and benchmarks using existing occupation data
         const percentile = calculateIndustryPercentile(results.riskScore, quizData.industry);
@@ -326,6 +336,65 @@ export default function ResultsPanel({
 
     loadVisualizationData();
   }, [results, quizData]);
+
+  // Load cost analysis data
+  const loadCostAnalysis = async () => {
+    if (!quizData || !results) return;
+
+    setCostAnalysisLoading(true);
+    setCostAnalysisError(null);
+
+    try {
+      debugLog.info('ResultsPanel', 'Starting cost analysis', {
+        occupation: quizData.jobDescription,
+        location: quizData.location,
+        experience: quizData.experience
+      });
+
+      // Create user profile for cost analysis
+      const userProfile: UserProfile = {
+        occupation: quizData.jobDescription,
+        experience: quizData.experience,
+        location: quizData.location,
+        industry: quizData.industry,
+        salaryRange: quizData.salaryRange,
+        skills: quizData.skillSet,
+      };
+
+      // Initialize cost analysis service with API keys
+      const costService = new CostAnalysisService({
+        // PayScale API key would come from environment variables
+        // payScale: process.env.NEXT_PUBLIC_PAYSCALE_API_KEY,
+        openRouter: quizData.apiKey, // Use the user's OpenRouter API key
+      });
+
+      // Perform cost analysis
+      const costAnalysis = await costService.analyze(userProfile, {
+        useCache: true,
+        fallbackToEstimates: true,
+        includeInsights: true,
+        confidenceThreshold: 0.3, // Lower threshold to allow more results
+      });
+
+      if (costAnalysis) {
+        setCostAnalysisData(costAnalysis);
+        debugLog.success('ResultsPanel', 'Cost analysis completed', {
+          humanCost: costAnalysis.comparison.human.total,
+          aiCost: costAnalysis.comparison.ai.total,
+          savings: costAnalysis.comparison.savings.absolute,
+          confidence: costAnalysis.insights.confidence
+        });
+      } else {
+        throw new Error('Cost analysis returned no data');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setCostAnalysisError(errorMessage);
+      debugLog.error('ResultsPanel', 'Cost analysis failed', error);
+    } finally {
+      setCostAnalysisLoading(false);
+    }
+  };
 
   const getRiskColor = (level: string) => {
     switch (level) {
@@ -934,6 +1003,16 @@ export default function ResultsPanel({
               )}
             </div>
           </div>
+        </div>
+
+        {/* Cost Analysis Section */}
+        <div className="mt-6">
+          <CostAnalysisSection
+            costData={costAnalysisData}
+            isLoading={costAnalysisLoading}
+            error={costAnalysisError}
+            className="w-full"
+          />
         </div>
       </div>
     </div>
