@@ -11,13 +11,15 @@ export interface RiskGaugeHandle {
 interface RiskGaugeD3Props {
   score: number; // 0-100
   level: 'Low' | 'Medium' | 'High';
+  industryAverage?: number; // 0-100, optional benchmark
+  peerAverage?: number; // 0-100, optional peer comparison
   className?: string;
   width?: number;
   height?: number;
 }
 
 const RiskGaugeD3 = forwardRef<RiskGaugeHandle, RiskGaugeD3Props>(function RiskGaugeD3(
-  { score, level, className = '', width = 320, height = 140 },
+  { score, level, industryAverage, peerAverage, className = '', width = 320, height = 140 },
   ref
 ) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -114,6 +116,51 @@ const RiskGaugeD3 = forwardRef<RiskGaugeHandle, RiskGaugeD3Props>(function RiskG
 
     needleGroup.append('circle').attr('r', 4).attr('fill', '#111827');
 
+    // Add benchmark indicators
+    if (industryAverage !== undefined) {
+      const industryAngle = scale(Math.max(0, Math.min(100, industryAverage)))!;
+      const benchmarkGroup = g.append('g').attr('class', 'industry-benchmark');
+      
+      benchmarkGroup
+        .append('line')
+        .attr('x1', Math.cos(industryAngle) * (radius * 0.5))
+        .attr('y1', Math.sin(industryAngle) * (radius * 0.5))
+        .attr('x2', Math.cos(industryAngle) * (radius * 0.8))
+        .attr('y2', Math.sin(industryAngle) * (radius * 0.8))
+        .attr('stroke', '#f59e0b')
+        .attr('stroke-width', 3)
+        .attr('stroke-linecap', 'round');
+
+      benchmarkGroup
+        .append('circle')
+        .attr('cx', Math.cos(industryAngle) * (radius * 0.8))
+        .attr('cy', Math.sin(industryAngle) * (radius * 0.8))
+        .attr('r', 3)
+        .attr('fill', '#f59e0b');
+    }
+
+    if (peerAverage !== undefined) {
+      const peerAngle = scale(Math.max(0, Math.min(100, peerAverage)))!;
+      const peerGroup = g.append('g').attr('class', 'peer-benchmark');
+      
+      peerGroup
+        .append('line')
+        .attr('x1', Math.cos(peerAngle) * (radius * 0.5))
+        .attr('y1', Math.sin(peerAngle) * (radius * 0.5))
+        .attr('x2', Math.cos(peerAngle) * (radius * 0.8))
+        .attr('y2', Math.sin(peerAngle) * (radius * 0.8))
+        .attr('stroke', '#8b5cf6')
+        .attr('stroke-width', 3)
+        .attr('stroke-linecap', 'round');
+
+      peerGroup
+        .append('circle')
+        .attr('cx', Math.cos(peerAngle) * (radius * 0.8))
+        .attr('cy', Math.sin(peerAngle) * (radius * 0.8))
+        .attr('r', 3)
+        .attr('fill', '#8b5cf6');
+    }
+
     const labelGroup = svg.append('g').attr('transform', `translate(${width / 2}, ${margin.top + 6})`).attr('text-anchor', 'middle');
 
     labelGroup.append('text').attr('fill', '#111827').attr('font-size', 18).attr('font-weight', 700).text(`${score}%`);
@@ -125,7 +172,36 @@ const RiskGaugeD3 = forwardRef<RiskGaugeHandle, RiskGaugeD3Props>(function RiskG
       .attr('font-size', 12)
       .attr('font-weight', 600)
       .text(`${level} Risk`);
-  }, [score, level, width, height]);
+
+    // Add benchmark legend
+    if (industryAverage !== undefined || peerAverage !== undefined) {
+      const legendGroup = svg.append('g').attr('transform', `translate(10, ${height - 30})`);
+      let legendY = 0;
+
+      if (industryAverage !== undefined) {
+        legendGroup.append('line')
+          .attr('x1', 0).attr('y1', legendY)
+          .attr('x2', 12).attr('y2', legendY)
+          .attr('stroke', '#f59e0b').attr('stroke-width', 2);
+        legendGroup.append('text')
+          .attr('x', 16).attr('y', legendY + 3)
+          .style('font-size', '10px').style('fill', '#6b7280')
+          .text(`Industry Avg: ${industryAverage}%`);
+        legendY += 12;
+      }
+
+      if (peerAverage !== undefined) {
+        legendGroup.append('line')
+          .attr('x1', 0).attr('y1', legendY)
+          .attr('x2', 12).attr('y2', legendY)
+          .attr('stroke', '#8b5cf6').attr('stroke-width', 2);
+        legendGroup.append('text')
+          .attr('x', 16).attr('y', legendY + 3)
+          .style('font-size', '10px').style('fill', '#6b7280')
+          .text(`Peer Avg: ${peerAverage}%`);
+      }
+    }
+  }, [score, level, industryAverage, peerAverage, width, height]);
 
   return <svg ref={svgRef} className={className} />;
 });
