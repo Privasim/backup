@@ -1,166 +1,162 @@
 # Job Loss Feed - Future Enhancements
 
 ## Overview
-This document outlines potential enhancements for the Job Loss Feed after the core DuckDuckGo integration is complete. These features are not part of the current implementation scope but provide a roadmap for future development.
+This document outlines potential enhancements for the RSS-based Job Loss Feed after the core single-feed implementation is complete. These features are not part of the current implementation scope but provide a roadmap for future development.
 
-## Multi-Source Data Integration
+## Multi-Feed Integration
 
-### RSS Feed Providers
+### Multiple RSS Feed Support
+- **Feed Aggregation**: Support for multiple RSS feed URLs simultaneously
+- **Feed Prioritization**: Weighted scoring system for different feed sources
+- **Feed Categories**: Organize feeds by industry, region, or content type
+- **Feed Health Dashboard**: Monitor status and performance of all configured feeds
+
+### Recommended RSS Feeds
 - **TechCrunch**: Technology industry layoffs and automation news
 - **Reuters Business**: Global business and employment news
 - **Bloomberg**: Financial sector job market updates
 - **Wall Street Journal**: Corporate restructuring announcements
 - **Industry Week**: Manufacturing and automation impact
+- **Local News Outlets**: Regional employment impact coverage
 
-### News API Providers
-- **NewsAPI.org**: Aggregated news from 80,000+ sources
-- **Guardian API**: Quality journalism with comprehensive tagging
-- **Associated Press**: Breaking news and employment alerts
-- **Bing News API**: Microsoft's news aggregation service
-
-### Social Media Integration
-- **Twitter/X API**: Real-time social mentions and trending topics
-- **LinkedIn API**: Professional network updates and company announcements
-- **Reddit API**: Community discussions and insider information
-
-### Government Data Sources
-- **Bureau of Labor Statistics**: Official employment statistics
-- **WARN Act Database**: Mass layoff advance notifications
-- **SEC Filings**: Corporate restructuring and workforce changes
-- **State Employment Agencies**: Regional job market data
+### Feed Discovery & Management
+- **Auto-Discovery**: Automatic RSS feed detection from website URLs
+- **Feed Validation**: Real-time health monitoring and validation
+- **Feed Suggestions**: AI-powered recommendations for relevant feeds
+- **Import/Export**: Feed configuration backup and sharing
 
 ## Advanced Features
 
-### Data Enhancement
-- **Article Deduplication**: Intelligent duplicate detection across sources
-- **Source Weighting**: Reliability and authority scoring system
-- **Content Enrichment**: Additional metadata and context extraction
-- **Trend Analysis**: Pattern recognition across multiple articles
+### Enhanced Content Processing
+- **Cross-Feed Deduplication**: Intelligent duplicate detection across multiple RSS feeds
+- **Content Enrichment**: Additional metadata extraction and context analysis
+- **Trend Analysis**: Pattern recognition across articles from different feeds
+- **Historical Data**: Archive and analyze historical job loss trends
 
-### Search & Discovery
-- **Semantic Search**: AI-powered content understanding
-- **Saved Searches**: Persistent search queries and alerts
-- **Recommendation Engine**: Personalized content suggestions
-- **Alert System**: Real-time notifications for relevant news
+### Smart Filtering & Search
+- **Semantic Search**: AI-powered content understanding within RSS articles
+- **Saved Filters**: Persistent filter configurations and preferences
+- **Smart Recommendations**: AI-suggested articles based on user interests
+- **Alert System**: Real-time notifications for high-impact job loss news
 
 ### Analytics & Insights
-- **Industry Impact Tracking**: Sector-specific job loss trends
-- **Geographic Analysis**: Regional employment impact mapping
-- **Company Monitoring**: Specific organization tracking
-- **Predictive Analytics**: Early warning systems for job market changes
+- **Industry Impact Dashboard**: Sector-specific job loss trend visualization
+- **Geographic Analysis**: Regional employment impact mapping from RSS content
+- **Company Tracking**: Monitor specific organizations across multiple feeds
+- **Predictive Insights**: Early warning patterns from RSS feed analysis
 
-### Export & Reporting
-- **CSV Export**: Structured data export for analysis
-- **PDF Reports**: Professional formatted reports
-- **API Access**: Programmatic data access
-- **Dashboard Integration**: Embedding in external systems
+### Export & Integration
+- **Data Export**: CSV, JSON export of analyzed RSS articles
+- **Report Generation**: Professional PDF reports from RSS feed analysis
+- **Webhook Integration**: Real-time notifications to external systems
+- **API Access**: Programmatic access to processed RSS feed data
 
 ## Technical Enhancements
 
 ### Performance Optimizations
-- **Advanced Caching**: Multi-level caching strategy
-- **CDN Integration**: Global content delivery
-- **Database Storage**: Persistent article storage
-- **Search Indexing**: Full-text search capabilities
+- **Advanced RSS Caching**: Multi-level caching strategy for feed data
+- **Feed Polling Optimization**: Smart refresh intervals based on feed update patterns
+- **Database Storage**: Persistent RSS article storage and indexing
+- **Full-Text Search**: Advanced search capabilities within RSS content
 
 ### User Experience
-- **Personalization**: User preference learning
-- **Mobile App**: Native mobile applications
-- **Offline Mode**: Cached content for offline reading
-- **Accessibility**: WCAG 2.1 AA compliance
+- **Feed Personalization**: User preference learning for RSS feed recommendations
+- **Mobile Optimization**: Enhanced mobile experience for RSS feed browsing
+- **Offline Mode**: Cached RSS articles for offline reading
+- **Advanced Accessibility**: WCAG 2.1 AA compliance for RSS feed interface
 
 ### Integration Capabilities
-- **Webhook Support**: Real-time data push notifications
-- **Third-party APIs**: Integration with HR and business systems
-- **Slack/Teams Bots**: Workplace collaboration tools
-- **Email Digests**: Automated summary reports
+- **RSS Webhook Support**: Real-time notifications when new relevant articles appear
+- **OPML Import/Export**: Standard RSS feed list management
+- **Browser Extension**: RSS feed monitoring in browser toolbar
+- **Email Digests**: Automated RSS feed summary reports
 
 ## Implementation Phases
 
-### Phase A: RSS Integration (2-3 weeks)
-- Implement RSS feed parsing and aggregation
-- Add 5-10 high-quality RSS sources
-- Build source management interface
-- Add basic deduplication
+### Phase A: Multi-Feed Support (2-3 weeks)
+- Implement multiple RSS feed URL configuration
+- Add feed aggregation and merging capabilities
+- Build feed management interface
+- Add cross-feed deduplication
 
-### Phase B: News APIs (3-4 weeks)
-- Integrate major news API providers
-- Implement API key management system
-- Add rate limiting and quota management
-- Build source reliability scoring
+### Phase B: Enhanced Analytics (3-4 weeks)
+- Implement trend analysis across multiple feeds
+- Add industry and geographic impact tracking
+- Build predictive analytics capabilities
+- Create advanced visualization dashboards
 
-### Phase C: Social Media (4-5 weeks)
-- Add Twitter/X API integration
-- Implement LinkedIn professional updates
-- Add Reddit community monitoring
-- Build social media content filtering
+### Phase C: Smart Features (4-5 weeks)
+- Add semantic search within RSS content
+- Implement AI-powered article recommendations
+- Build alert system for high-impact news
+- Create personalization engine
 
-### Phase D: Government Data (2-3 weeks)
-- Integrate BLS employment statistics
-- Add WARN Act database access
-- Implement SEC filing monitoring
-- Build official data validation
+### Phase D: Integration & Export (2-3 weeks)
+- Add data export capabilities (CSV, JSON, PDF)
+- Implement webhook notifications
+- Build API access for external systems
+- Create email digest functionality
 
-### Phase E: Advanced Analytics (5-6 weeks)
-- Implement trend analysis algorithms
-- Build predictive modeling capabilities
-- Add geographic impact mapping
-- Create industry-specific dashboards
+### Phase E: Performance & Scale (3-4 weeks)
+- Implement advanced caching strategies
+- Add database storage for historical data
+- Build full-text search indexing
+- Optimize for high-volume RSS feeds
 
 ## Resource Requirements
 
 ### Development Resources
-- **Backend Developer**: API integrations and data processing
-- **Frontend Developer**: UI/UX enhancements and visualizations
-- **Data Scientist**: Analytics and machine learning features
-- **DevOps Engineer**: Infrastructure and scaling
+- **Frontend Developer**: RSS feed UI/UX enhancements and multi-feed management
+- **Backend Developer**: RSS parsing optimization and data processing
+- **Data Scientist**: Analytics and trend analysis features
+- **DevOps Engineer**: Infrastructure scaling for multiple RSS feeds
 
 ### Infrastructure Needs
-- **Database**: PostgreSQL or MongoDB for article storage
-- **Cache Layer**: Redis for performance optimization
-- **Message Queue**: RabbitMQ or Apache Kafka for data processing
-- **Search Engine**: Elasticsearch for full-text search
+- **Database**: PostgreSQL or MongoDB for RSS article storage and indexing
+- **Cache Layer**: Redis for RSS feed caching and performance optimization
+- **Search Engine**: Elasticsearch for full-text search within RSS content
+- **Background Jobs**: Queue system for RSS feed processing
 
 ### Third-party Costs
-- **API Subscriptions**: News APIs and social media access
-- **Cloud Services**: Increased hosting and storage costs
-- **AI Services**: Enhanced analysis capabilities
-- **Monitoring Tools**: Performance and error tracking
+- **Cloud Services**: Increased hosting and storage for RSS data
+- **AI Services**: Enhanced OpenRouter usage for multi-feed analysis
+- **Monitoring Tools**: RSS feed health monitoring and performance tracking
+- **CDN Services**: Global content delivery for RSS feed data
 
 ## Success Metrics
 
-### Data Quality
-- **Source Coverage**: 20+ reliable data sources
-- **Update Frequency**: Real-time to 15-minute intervals
-- **Accuracy Rate**: >95% relevant content
-- **Deduplication**: <5% duplicate articles
+### RSS Feed Quality
+- **Feed Coverage**: 10+ reliable RSS feed sources
+- **Update Frequency**: 5-minute to 1-hour intervals based on feed patterns
+- **Relevance Rate**: >90% job loss related content after filtering
+- **Deduplication**: <3% duplicate articles across feeds
 
 ### User Engagement
-- **Daily Active Users**: Track user engagement
-- **Search Queries**: Monitor search patterns
-- **Analysis Usage**: AI feature adoption
-- **Export Activity**: Data export frequency
+- **Feed Configuration**: Track RSS feed setup and management usage
+- **Article Selection**: Monitor article selection patterns
+- **Analysis Usage**: AI analysis feature adoption rates
+- **Export Activity**: RSS data export frequency
 
 ### Technical Performance
-- **Response Time**: <2 seconds for search results
-- **Uptime**: 99.9% service availability
-- **Scalability**: Support for 10,000+ concurrent users
-- **Cost Efficiency**: Optimize per-user operational costs
+- **RSS Parse Time**: <2 seconds for feed processing
+- **Uptime**: 99.9% RSS feed processing availability
+- **Scalability**: Support for 100+ RSS feeds per user
+- **Cost Efficiency**: Optimize OpenRouter usage for RSS analysis
 
 ## Risk Considerations
 
 ### Technical Risks
-- **API Rate Limits**: Third-party service restrictions
-- **Data Quality**: Inconsistent source reliability
-- **Scalability**: Performance under high load
-- **Maintenance**: Ongoing source monitoring
+- **RSS Feed Reliability**: Dependency on external RSS feed availability and quality
+- **Feed Format Changes**: RSS feed structure modifications breaking parsing
+- **Scalability**: Performance impact of processing multiple large RSS feeds
+- **Maintenance**: Ongoing RSS feed health monitoring and management
 
 ### Business Risks
-- **Cost Escalation**: Increasing API and infrastructure costs
-- **Legal Compliance**: Data usage rights and regulations
-- **Competition**: Similar services in the market
-- **User Adoption**: Feature utilization rates
+- **Cost Escalation**: Increasing OpenRouter usage costs for RSS analysis
+- **Legal Compliance**: RSS feed terms of service and content usage rights
+- **Feed Dependencies**: Reliance on external RSS feed providers
+- **User Adoption**: Multi-feed feature complexity and utilization rates
 
 ## Conclusion
 
-These enhancements represent significant opportunities to expand the Job Loss Feed into a comprehensive employment intelligence platform. Implementation should be prioritized based on user feedback, business value, and technical feasibility after the core DuckDuckGo integration is successfully deployed.
+These enhancements represent significant opportunities to expand the RSS-based Job Loss Feed into a comprehensive employment intelligence platform. Implementation should be prioritized based on user feedback, business value, and technical feasibility after the core single RSS feed integration is successfully deployed.

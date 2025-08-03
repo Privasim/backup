@@ -9,146 +9,150 @@
 ├─────────────────────────────────────────────────────────────┤
 │                  Job Loss Feed Component                     │
 ├─────────────────────────────────────────────────────────────┤
-│              Data Source Management Layer                    │
+│                   RSS Feed Parser                           │
 ├─────────────────────────────────────────────────────────────┤
-│  DuckDuckGo │ RSS Feeds │ News APIs │ Social Media │ Gov APIs │
+│              AI Content Analysis Layer                       │
+├─────────────────────────────────────────────────────────────┤
+│                  User-Configured RSS Feed                   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ### Component Hierarchy
 ```
 JobLossFeedContainer
-├── DataSourceSelector
-├── SearchInterface
-├── FilterControls
-├── FeedDisplay
+├── FeedConfigurationPanel
+│   ├── RSSUrlInput
+│   ├── RefreshIntervalSelector
+│   └── FeedStatusIndicator
+├── ContentFilterControls
+│   ├── RelevanceToggle
+│   └── AnalysisStatusFilter
+├── ArticleDisplay
 │   ├── ArticleCard[]
 │   ├── LoadingStates
 │   └── ErrorBoundary
 ├── AnalysisPanel
-│   ├── AIInsights
-│   ├── TrendAnalysis
-│   └── ImpactMetrics
-└── ExportControls
+│   ├── SelectedArticles
+│   ├── AIAnalysisResults
+│   └── AnalysisControls
+└── FeedStatistics
 ```
 
-## Data Source Architecture
+## RSS Feed Architecture
 
-### Provider Interface
+### RSS Feed Service Interface
 ```typescript
-interface DataSourceProvider {
-  id: string;
-  name: string;
-  description: string;
-  isEnabled: boolean;
-  priority: number;
-  rateLimit: RateLimit;
+interface RSSFeedService {
+  feedUrl: string;
+  lastUpdated: Date | null;
+  status: 'healthy' | 'error' | 'loading';
   
-  search(query: SearchQuery): Promise<NewsItem[]>;
-  getLatest(options: FetchOptions): Promise<NewsItem[]>;
-  validateConfig(): Promise<boolean>;
-  getStatus(): ProviderStatus;
+  parseFeed(url: string): Promise<RSSFeedData>;
+  validateFeedUrl(url: string): Promise<boolean>;
+  getArticles(): Promise<RSSArticle[]>;
+  refreshFeed(): Promise<void>;
+  getStatus(): FeedStatus;
 }
 ```
 
-### Supported Data Sources
+### RSS Feed Data Model
 
-#### 1. Web Search Providers
-- **DuckDuckGo** (Primary)
-  - Real-time web search
-  - No API key required
-  - Rate limit: 100 requests/hour
+#### RSS Article Structure
+```typescript
+interface RSSArticle {
+  id: string;
+  title: string;
+  description: string;
+  link: string;
+  pubDate: Date;
+  author?: string;
+  category?: string[];
+  guid?: string;
   
-- **Bing Search API**
-  - Comprehensive news coverage
-  - Requires API key
-  - Rate limit: 1000 requests/month (free tier)
+  // Analysis fields
+  isJobLossRelated?: boolean;
+  relevanceScore?: number;
+  analysisResult?: AnalysisResult;
+  isSelected?: boolean;
+}
+```
 
-#### 2. RSS Feed Providers
-- **TechCrunch**: Technology layoffs
-- **Reuters Business**: Global business news
-- **Bloomberg**: Financial impact news
-- **Wall Street Journal**: Corporate announcements
-- **Industry Week**: Manufacturing automation
+#### Feed Configuration
+```typescript
+interface FeedConfig {
+  url: string;
+  refreshInterval: number; // minutes
+  maxArticles: number;
+  filterRelevant: boolean;
+  autoAnalyze: boolean;
+}
+```
 
-#### 3. News API Providers
-- **NewsAPI**: Aggregated news from 80,000+ sources
-- **Guardian API**: Quality journalism with tagging
-- **Associated Press**: Breaking news alerts
-- **Reuters API**: Professional news service
+#### Supported RSS Formats
+- **RSS 2.0**: Standard RSS format
+- **Atom 1.0**: Modern syndication format
+- **RSS 1.0**: RDF-based RSS format
 
-#### 4. Social Media Providers
-- **Twitter/X API**: Real-time social mentions
-- **LinkedIn API**: Professional network updates
-- **Reddit API**: Community discussions
+### Content Processing Engine
 
-#### 5. Government Data Sources
-- **Bureau of Labor Statistics**: Official employment data
-- **WARN Act Database**: Mass layoff notifications
-- **SEC Filings**: Corporate restructuring announcements
+#### Relevance Detection
+```typescript
+interface RelevanceFilter {
+  keywords: string[]; // job loss, layoff, automation, AI
+  titleWeight: number; // 0.6
+  descriptionWeight: number; // 0.4
+  minimumScore: number; // 0.3
+}
+```
 
-### Data Aggregation Engine
-
-#### Deduplication Strategy
+#### Article Deduplication
 ```typescript
 interface DeduplicationConfig {
-  titleSimilarityThreshold: number; // 0.8
-  contentSimilarityThreshold: number; // 0.7
-  timeWindowHours: number; // 24
-  urlNormalization: boolean; // true
-}
-```
-
-#### Source Weighting
-```typescript
-interface SourceWeight {
-  reliability: number; // 0-1
-  freshness: number; // 0-1
-  relevance: number; // 0-1
-  authority: number; // 0-1
+  titleSimilarityThreshold: number; // 0.85
+  linkNormalization: boolean; // true
+  timeWindowHours: number; // 48
+  guidComparison: boolean; // true
 }
 ```
 
 ## User Interface Design
 
-### Data Source Selector
-```
-┌─────────────────────────────────────────┐
-│ Data Sources                    [⚙️]     │
-├─────────────────────────────────────────┤
-│ ☑️ Web Search (DuckDuckGo)      [🟢]     │
-│ ☑️ RSS Feeds (5 sources)        [🟢]     │
-│ ☐ News APIs (3 available)      [🔴]     │
-│ ☐ Social Media                 [🟡]     │
-│ ☐ Government Data              [🔴]     │
-├─────────────────────────────────────────┤
-│ Auto-refresh: [Every 15 min ▼]         │
-│ Max articles: [50 ▼]                   │
-└─────────────────────────────────────────┘
-```
-
-### Search & Filter Interface
+### RSS Feed Configuration
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ 🔍 [Search job loss news...              ] [🔍 Search]      │
+│ RSS Feed Configuration                              [⚙️]     │
 ├─────────────────────────────────────────────────────────────┤
-│ Filters: [Industry ▼] [Region ▼] [Time ▼] [Impact ▼]       │
-│ Active: [AI-Related] [High Impact] [×]                      │
+│ Feed URL: [https://feeds.reuters.com/reuters/businessNews]  │
+│           [🔍 Validate] [🔄 Refresh Now]            [🟢]     │
+├─────────────────────────────────────────────────────────────┤
+│ Refresh: [Every 15 min ▼] Max articles: [50 ▼]            │
+│ ☑️ Filter job loss content  ☑️ Auto-analyze relevant       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Content Filter Interface
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Content Filters                                             │
+├─────────────────────────────────────────────────────────────┤
+│ Show: [All Articles ▼] [Job Loss Only] [Analyzed Only]     │
+│ Sort: [Latest First ▼] [Relevance] [Analysis Score]        │
+│ Selected: [3 articles] [🤖 Analyze Selected]               │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ### Article Display
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ [📰] TechCorp Announces 1,200 AI-Related Layoffs           │
-│      TechCrunch • 2 hours ago • High Impact                │
-│      AI automation replacing customer service roles...      │
-│      [🏢 TechCorp] [🤖 AI-Related] [📊 Analyze]            │
+│ [☐] TechCorp Announces Major Workforce Restructuring       │
+│     Reuters Business • 2 hours ago • [🟢 Relevant: 92%]    │
+│     Company plans to reduce workforce by 15% due to...     │
+│     [🔗 Read Full] [🤖 Analyzed] [📊 View Analysis]        │
 ├─────────────────────────────────────────────────────────────┤
-│ [📰] MediaGiant Cuts 800 Jobs Due to AI Content Tools      │
-│      Reuters • 4 hours ago • High Impact                   │
-│      AI content generation reducing need for writers...     │
-│      [🏢 MediaGiant] [✍️ Content] [📊 Analyze]             │
+│ [☑️] AI Automation Impacts Manufacturing Jobs              │
+│     Industry Week • 4 hours ago • [🟢 Relevant: 88%]       │
+│     New robotic systems expected to replace 800 workers... │
+│     [🔗 Read Full] [⏳ Pending Analysis]                   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -156,27 +160,27 @@ interface SourceWeight {
 
 ### Analysis Pipeline
 ```
-Raw Article → Content Extraction → AI Analysis → Result Processing → UI Display
+RSS Article → Relevance Filter → User Selection → AI Analysis → Result Display
 ```
 
 ### Analysis Components
 
-#### 1. Content Extractor
-- Full article content retrieval
-- Metadata extraction
-- Image and media processing
-- Content sanitization
+#### 1. Relevance Filter
+- Keyword-based initial filtering
+- Title and description analysis
+- Relevance score calculation
+- Automatic filtering toggle
 
 #### 2. AI Analyzer (OpenRouter)
-- Impact level assessment
-- Company/industry extraction
+- Job loss impact assessment
+- Company and industry extraction
 - Job count estimation
-- Sentiment analysis
+- AI/automation relationship detection
 - Key insights generation
 
 #### 3. Result Processor
+- Analysis result formatting
 - Confidence scoring
-- Data validation
 - Result caching
 - Error handling
 
@@ -185,14 +189,14 @@ Raw Article → Content Extraction → AI Analysis → Result Processing → UI 
 ┌─────────────────────────────────────────────────────────────┐
 │ 🤖 AI Analysis Results                                      │
 ├─────────────────────────────────────────────────────────────┤
-│ Impact Level: [🔴 HIGH] (Confidence: 92%)                  │
-│ Companies: TechCorp, ServiceBot Inc.                        │
-│ Jobs Affected: ~1,200 (Customer Service, QA)               │
+│ Job Loss Impact: [🔴 HIGH] (Confidence: 94%)               │
+│ Companies: TechCorp, Manufacturing Inc.                     │
+│ Estimated Jobs: ~1,200 (Manufacturing, QA)                 │
+│ AI/Automation: [🤖 AI-Related] [⚙️ Automation-Related]     │
 │ Key Insights:                                               │
-│ • AI chatbots replacing human agents                        │
-│ • Gradual transition over 6 months                          │
-│ • Retraining programs offered                               │
-│ Sentiment: [😟 Negative] (Employee concerns high)          │
+│ • Robotic assembly lines replacing workers                  │
+│ • Phased implementation over 8 months                       │
+│ • Retraining programs for 40% of workforce                  │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -201,25 +205,26 @@ Raw Article → Content Extraction → AI Analysis → Result Processing → UI 
 ### Store Structure
 ```typescript
 interface JobLossFeedState {
-  // Data Sources
-  dataSources: DataSourceConfig[];
-  activeProviders: string[];
-  
-  // Search & Filters
-  searchQuery: string;
-  filters: FilterState;
+  // RSS Feed Configuration
+  feedConfig: FeedConfig;
+  feedStatus: 'healthy' | 'error' | 'loading';
+  lastUpdated: Date | null;
   
   // Articles
-  articles: NewsItem[];
+  articles: RSSArticle[];
   selectedArticles: string[];
+  filteredArticles: RSSArticle[];
   
   // Analysis
   analysisResults: Record<string, AnalysisResult>;
+  isAnalyzing: boolean;
+  analysisError: string | null;
   
   // UI State
   isLoading: boolean;
   error: string | null;
-  viewMode: 'list' | 'grid' | 'timeline';
+  showRelevantOnly: boolean;
+  sortBy: 'date' | 'relevance' | 'analysis';
   
   // Settings
   autoRefresh: boolean;
@@ -231,23 +236,26 @@ interface JobLossFeedState {
 ### Actions
 ```typescript
 interface JobLossFeedActions {
-  // Data Source Management
-  toggleDataSource: (id: string) => void;
-  configureDataSource: (id: string, config: any) => void;
-  refreshDataSources: () => Promise<void>;
-  
-  // Search & Filtering
-  setSearchQuery: (query: string) => void;
-  updateFilters: (filters: Partial<FilterState>) => void;
-  clearFilters: () => void;
+  // RSS Feed Management
+  setFeedUrl: (url: string) => void;
+  validateFeed: (url: string) => Promise<boolean>;
+  refreshFeed: () => Promise<void>;
   
   // Article Management
   loadArticles: () => Promise<void>;
   selectArticle: (id: string) => void;
+  toggleSelectAll: (select: boolean) => void;
+  
+  // Analysis
   analyzeSelected: () => Promise<void>;
+  clearAnalysis: () => void;
+  
+  // Filtering
+  setShowRelevantOnly: (show: boolean) => void;
+  setSortBy: (sort: 'date' | 'relevance' | 'analysis') => void;
   
   // Settings
-  updateSettings: (settings: Partial<Settings>) => void;
+  updateSettings: (settings: Partial<FeedConfig>) => void;
 }
 ```
 
@@ -256,7 +264,7 @@ interface JobLossFeedActions {
 ### Caching Strategy
 ```typescript
 interface CacheConfig {
-  articles: {
+  feedData: {
     ttl: 15 * 60 * 1000; // 15 minutes
     maxSize: 1000;
   };
@@ -264,59 +272,59 @@ interface CacheConfig {
     ttl: 24 * 60 * 60 * 1000; // 24 hours
     maxSize: 500;
   };
-  sources: {
-    ttl: 5 * 60 * 1000; // 5 minutes
-    maxSize: 100;
+  relevanceScores: {
+    ttl: 60 * 60 * 1000; // 1 hour
+    maxSize: 2000;
   };
 }
 ```
 
-### Virtualization
+### Efficient Rendering
 - Virtual scrolling for large article lists
 - Lazy loading of article content
-- Progressive image loading
+- Progressive loading of analysis results
 - Intersection Observer for visibility
 
 ### Debouncing & Throttling
-- Search input: 300ms debounce
+- Feed URL validation: 500ms debounce
 - Filter changes: 200ms debounce
 - Scroll events: 16ms throttle (60fps)
-- API calls: Exponential backoff
+- RSS refresh: Exponential backoff on errors
 
 ## Error Handling
 
 ### Error Types
 ```typescript
 enum ErrorType {
-  NETWORK_ERROR = 'network_error',
-  API_RATE_LIMIT = 'api_rate_limit',
-  INVALID_API_KEY = 'invalid_api_key',
-  PARSING_ERROR = 'parsing_error',
+  FEED_PARSE_ERROR = 'feed_parse_error',
+  FEED_NETWORK_ERROR = 'feed_network_error',
+  INVALID_FEED_URL = 'invalid_feed_url',
   ANALYSIS_FAILED = 'analysis_failed',
+  OPENROUTER_ERROR = 'openrouter_error',
   UNKNOWN_ERROR = 'unknown_error'
 }
 ```
 
 ### Error Recovery
-- Automatic retry with exponential backoff
-- Fallback to alternative data sources
-- Graceful degradation of features
-- User-friendly error messages
-- Error reporting and logging
+- Automatic retry with exponential backoff for feed failures
+- Graceful degradation when analysis fails
+- User-friendly error messages for feed issues
+- Fallback to cached data when possible
+- Error reporting and logging integration
 
 ## Security Considerations
 
-### API Key Management
-- Secure storage in browser (encrypted)
-- No server-side storage
-- Validation before use
-- Automatic key rotation support
+### RSS Feed Security
+- URL validation and sanitization
+- HTTPS enforcement for feed URLs
+- XML parsing security (prevent XXE attacks)
+- Content sanitization for XSS prevention
 
 ### Data Sanitization
-- XSS prevention for article content
-- URL validation and sanitization
+- HTML content sanitization from RSS feeds
+- URL validation and normalization
+- Input validation for feed URLs
 - Content Security Policy enforcement
-- Input validation and escaping
 
 ### Privacy Protection
 - No personal data collection
@@ -327,39 +335,40 @@ enum ErrorType {
 ## Testing Strategy
 
 ### Unit Tests
-- Data source providers
+- RSS parser functionality
+- Relevance filtering algorithms
 - Analysis components
 - State management
 - Utility functions
 
 ### Integration Tests
-- End-to-end data flow
-- API integration
+- End-to-end RSS feed processing
+- OpenRouter integration
 - Error scenarios
 - Performance benchmarks
 
 ### User Testing
-- Usability testing
-- Accessibility testing
-- Cross-browser testing
+- Feed configuration usability
+- Article selection workflow
+- Analysis results display
 - Mobile responsiveness
 
 ## Deployment & Monitoring
 
 ### Performance Metrics
-- Initial load time < 3 seconds
-- Search response time < 1 second
-- Memory usage < 100MB
-- Bundle size impact < 500KB
+- RSS feed parse time < 2 seconds
+- Article filtering time < 500ms
+- Memory usage < 50MB
+- Bundle size impact < 300KB
 
 ### Monitoring
-- API response times
-- Error rates by source
+- RSS feed health status
+- Analysis success rates
 - User engagement metrics
 - Performance budgets
 
 ### Rollout Strategy
 - Feature flags for gradual rollout
 - A/B testing for UI changes
-- Canary deployments
+- Progressive enhancement approach
 - Rollback procedures

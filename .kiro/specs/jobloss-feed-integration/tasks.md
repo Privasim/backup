@@ -1,81 +1,102 @@
-# Job Loss Feed Integration - Core Implementation
+# Job Loss Feed Integration - RSS Implementation
 
-## Phase 1: Component Integration
+## Phase 1: RSS Feed Foundation
 
-### 1.1 Existing Component Adaptation
-- [ ] Copy existing jobloss components to new location
-- [ ] Remove Material-UI dependencies from all components
-- [ ] Convert styling to Tailwind CSS classes
-- [ ] Update imports and component references
+### 1.1 RSS Parser Implementation
+- [ ] Install and configure RSS parsing library (fast-xml-parser or rss-parser)
+- [ ] Create RSSFeedService class with parsing capabilities
+- [ ] Implement support for RSS 2.0, Atom 1.0, and RSS 1.0 formats
+- [ ] Add XML validation and error handling
 
-### 1.2 Core Components Setup
-- [ ] Adapt `JobLossSearch` component for Tailwind
-- [ ] Convert `JobLossResults` component styling
-- [ ] Update `JobLossAnalysis` component design
-- [ ] Integrate `ApiKeyManager` component
+### 1.2 Feed Configuration Interface
+- [ ] Create RSSUrlInput component with validation
+- [ ] Add RefreshIntervalSelector component
+- [ ] Implement FeedStatusIndicator with health monitoring
+- [ ] Add feed URL validation and auto-discovery
 
-### 1.3 State Management Integration
-- [ ] Adapt existing `useJobLossTracker` hook
-- [ ] Integrate `useJobLossStore` with current architecture
-- [ ] Connect to existing debug console logging
-- [ ] Add state persistence for user preferences
+### 1.3 Article Data Model
+- [ ] Define RSSArticle interface and types
+- [ ] Create article normalization functions
+- [ ] Implement article deduplication logic
+- [ ] Add article caching mechanism
 
-## Phase 2: Service Layer Integration
+## Phase 2: Content Processing & Analysis
 
-### 2.1 DuckDuckGo Service Adaptation
-- [ ] Integrate existing `webSearchService` 
-- [ ] Adapt `DuckDuckGoProvider` for current architecture
-- [ ] Add error handling and retry logic
-- [ ] Connect to existing debug logging system
+### 2.1 Relevance Filtering System
+- [ ] Create RelevanceFilter class with keyword matching
+- [ ] Implement relevance scoring algorithm
+- [ ] Add configurable relevance thresholds
+- [ ] Create filtering toggle interface
 
 ### 2.2 AI Analysis Integration
-- [ ] Integrate existing `NewsAnalyzer` service
-- [ ] Connect OpenRouter client to current system
-- [ ] Add analysis result caching
-- [ ] Implement batch processing for selected articles
+- [ ] Adapt existing OpenRouter client for RSS content
+- [ ] Create RSS-specific analysis prompts
+- [ ] Implement batch analysis for selected articles
+- [ ] Add analysis result caching and persistence
 
-### 2.3 Data Flow Setup
-- [ ] Connect search → results → analysis pipeline
-- [ ] Add loading states and error boundaries
-- [ ] Implement article selection and analysis workflow
-- [ ] Add real-time updates and notifications
+### 2.3 Article Selection System
+- [ ] Create article selection UI components
+- [ ] Implement multi-select functionality
+- [ ] Add select all/none controls
+- [ ] Connect selection to analysis workflow
 
-## Phase 3: UI Integration & Polish
+## Phase 3: State Management & UI Integration
 
-### 3.1 Quiz Page Integration
-- [ ] Add JobLossFeed component to UnifiedDebugInterface
-- [ ] Position feed at bottom of quiz page
-- [ ] Ensure responsive design and proper spacing
+### 3.1 State Management Redesign
+- [ ] Replace existing store with RSS-focused state structure
+- [ ] Implement RSS feed configuration persistence
+- [ ] Add article selection and analysis state management
+- [ ] Connect to existing debug console logging
+
+### 3.2 Component Redesign
+- [ ] Replace existing JobLossFeed component with RSS version
+- [ ] Create new ArticleCard components for RSS articles
+- [ ] Implement FeedConfigurationPanel component
+- [ ] Add AnalysisPanel for selected articles
+
+### 3.3 Quiz Page Integration
+- [ ] Integrate new RSS feed component into quiz page
+- [ ] Ensure responsive design with Tailwind CSS
 - [ ] Add expand/collapse functionality
+- [ ] Position at bottom of quiz interface
 
-### 3.2 Design System Alignment
-- [ ] Apply existing design system colors and typography
-- [ ] Ensure consistent spacing and layout patterns
-- [ ] Add proper loading states and animations
-- [ ] Implement error states with user-friendly messages
+## Phase 4: Testing & Polish
 
-### 3.3 Final Integration
-- [ ] Remove all mock data from JobLossFeed component
-- [ ] Test complete search → analysis workflow
-- [ ] Validate integration with existing debug console
-- [ ] Ensure proper error handling and recovery
+### 4.1 Testing Implementation
+- [ ] Create unit tests for RSS parser
+- [ ] Add integration tests for feed processing
+- [ ] Test relevance filtering accuracy
+- [ ] Validate AI analysis integration
+
+### 4.2 Error Handling & Recovery
+- [ ] Implement comprehensive error boundaries
+- [ ] Add graceful degradation for feed failures
+- [ ] Create user-friendly error messages
+- [ ] Add retry mechanisms with exponential backoff
+
+### 4.3 Performance Optimization
+- [ ] Implement article caching strategy
+- [ ] Add lazy loading for large feeds
+- [ ] Optimize rendering performance
+- [ ] Add loading states and progress indicators
 
 ## Technical Requirements
 
 ### Core Functionality
-- [ ] Real-time job loss news search via DuckDuckGo
-- [ ] AI-powered analysis of selected articles
-- [ ] Article selection and batch processing
+- [ ] Real-time RSS feed parsing and article extraction
+- [ ] AI-powered relevance filtering and analysis
+- [ ] Article selection and batch processing workflow
 - [ ] Integration with existing quiz page layout
 
 ### Code Quality
-- [ ] Remove all mock data implementations
-- [ ] Maintain TypeScript coverage
+- [ ] Complete removal of mock data and DuckDuckGo dependencies
+- [ ] Full TypeScript coverage for new RSS components
 - [ ] Follow existing code patterns and architecture
-- [ ] Add proper error boundaries and handling
+- [ ] Comprehensive error handling for RSS operations
 
 ### Success Criteria
-- [ ] Functional job loss feed with real data
-- [ ] Working AI analysis of news articles
+- [ ] Functional RSS feed with real-time article updates
+- [ ] Working AI analysis of RSS articles
 - [ ] Seamless integration with quiz page
 - [ ] No breaking changes to existing functionality
+- [ ] Improved performance over previous DuckDuckGo implementation
