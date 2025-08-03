@@ -1,32 +1,45 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { NewsItem, AnalysisResult } from '@/types/jobloss';
+import { RSSArticle, FeedConfig, FeedStatus, AnalysisResult } from '@/lib/rss/types';
 
 interface JobLossState {
-  // Search state
-  searchQuery: string;
-  searchResults: NewsItem[];
-  isLoading: boolean;
-  error: string | null;
-  lastSearchedQuery: string;
+  // RSS Feed Configuration
+  feedConfig: FeedConfig;
+  feedStatus: FeedStatus;
   
-  // Selection state
-  selectedItems: string[]; // Array of news item IDs
+  // Articles
+  articles: RSSArticle[];
+  selectedArticles: string[];
+  filteredArticles: RSSArticle[];
   
-  // Analysis state
-  analysisResults: Record<string, AnalysisResult>; // articleId -> AnalysisResult
+  // Analysis
+  analysisResults: Record<string, AnalysisResult>;
   isAnalyzing: boolean;
   analysisError: string | null;
   
+  // UI State
+  isLoading: boolean;
+  error: string | null;
+  showRelevantOnly: boolean;
+  sortBy: 'date' | 'relevance' | 'analysis';
+  
+  // Settings
+  autoRefresh: boolean;
+  refreshInterval: number;
+  maxArticles: number;
+  
   // Actions
-  setSearchQuery: (query: string) => void;
-  setSearchResults: (results: NewsItem[]) => void;
+  setFeedUrl: (url: string) => void;
+  setFeedConfig: (config: Partial<FeedConfig>) => void;
+  setFeedStatus: (status: Partial<FeedStatus>) => void;
+  setArticles: (articles: RSSArticle[]) => void;
+  setFilteredArticles: (articles: RSSArticle[]) => void;
   setLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
   
   // Selection actions
-  toggleItemSelection: (id: string) => void;
-  selectAllItems: (select: boolean) => void;
+  toggleArticleSelection: (id: string) => void;
+  selectAllArticles: (select: boolean) => void;
   clearSelection: () => void;
   
   // Analysis actions
@@ -35,20 +48,43 @@ interface JobLossState {
   setAnalysisError: (error: string | null) => void;
   clearAnalysis: () => void;
   
+  // Filtering actions
+  setShowRelevantOnly: (show: boolean) => void;
+  setSortBy: (sort: 'date' | 'relevance' | 'analysis') => void;
+  
+  // Settings actions
+  updateSettings: (settings: Partial<FeedConfig>) => void;
+  
   // Reset entire state
   reset: () => void;
 }
 
 const initialState = {
-  searchQuery: '',
-  searchResults: [],
-  isLoading: false,
-  error: null,
-  lastSearchedQuery: '',
-  selectedItems: [],
+  feedConfig: {
+    url: '',
+    refreshInterval: 15, // minutes
+    maxArticles: 50,
+    filterRelevant: true,
+    autoAnalyze: false
+  },
+  feedStatus: {
+    status: 'healthy' as const,
+    lastUpdated: null,
+    articleCount: 0
+  },
+  articles: [],
+  selectedArticles: [],
+  filteredArticles: [],
   analysisResults: {},
   isAnalyzing: false,
   analysisError: null,
+  isLoading: false,
+  error: null,
+  showRelevantOnly: true,
+  sortBy: 'date' as const,
+  autoRefresh: true,
+  refreshInterval: 15,
+  maxArticles: 50,
 };
 
 export const useJobLossStore = create<JobLossState>()(
@@ -56,33 +92,48 @@ export const useJobLossStore = create<JobLossState>()(
     (set, get) => ({
       ...initialState,
       
-      setSearchQuery: (query) => set({ searchQuery: query }),
+      setFeedUrl: (url) => 
+        set((state) => ({
+          feedConfig: { ...state.feedConfig, url },
+          error: null,
+        })),
       
-      setSearchResults: (results) => set({ 
-        searchResults: results,
-        lastSearchedQuery: get().searchQuery,
+      setFeedConfig: (config) => 
+        set((state) => ({
+          feedConfig: { ...state.feedConfig, ...config },
+        })),
+      
+      setFeedStatus: (status) => 
+        set((state) => ({
+          feedStatus: { ...state.feedStatus, ...status },
+        })),
+      
+      setArticles: (articles) => set({ 
+        articles,
         error: null,
       }),
+      
+      setFilteredArticles: (filteredArticles) => set({ filteredArticles }),
       
       setLoading: (isLoading) => set({ isLoading }),
       
       setError: (error) => set({ error }),
       
-      toggleItemSelection: (id) => 
+      toggleArticleSelection: (id) => 
         set((state) => ({
-          selectedItems: state.selectedItems.includes(id)
-            ? state.selectedItems.filter(itemId => itemId !== id)
-            : [...state.selectedItems, id],
+          selectedArticles: state.selectedArticles.includes(id)
+            ? state.selectedArticles.filter(articleId => articleId !== id)
+            : [...state.selectedArticles, id],
         })),
       
-      selectAllItems: (select) => 
+      selectAllArticles: (select) => 
         set((state) => ({
-          selectedItems: select 
-            ? state.searchResults.map(item => item.id)
+          selectedArticles: select 
+            ? state.filteredArticles.map(article => article.id)
             : [],
         })),
       
-      clearSelection: () => set({ selectedItems: [] }),
+      clearSelection: () => set({ selectedArticles: [] }),
       
       addAnalysisResult: (result) => 
         set((state) => ({
@@ -101,31 +152,49 @@ export const useJobLossStore = create<JobLossState>()(
         analysisError: null,
       }),
       
+      setShowRelevantOnly: (showRelevantOnly) => set({ showRelevantOnly }),
+      
+      setSortBy: (sortBy) => set({ sortBy }),
+      
+      updateSettings: (settings) => 
+        set((state) => ({
+          feedConfig: { ...state.feedConfig, ...settings },
+          autoRefresh: settings.refreshInterval !== undefined ? true : state.autoRefresh,
+          refreshInterval: settings.refreshInterval || state.refreshInterval,
+          maxArticles: settings.maxArticles || state.maxArticles,
+        })),
+      
       reset: () => set(initialState),
     }),
     {
-      name: 'job-loss-storage', // name for localStorage
+      name: 'job-loss-rss-storage', // name for localStorage
       partialize: (state) => ({
         // Persist only specific parts of the state
-        searchQuery: state.searchQuery,
-        lastSearchedQuery: state.lastSearchedQuery,
-        selectedItems: state.selectedItems,
+        feedConfig: state.feedConfig,
+        selectedArticles: state.selectedArticles,
         analysisResults: state.analysisResults,
+        showRelevantOnly: state.showRelevantOnly,
+        sortBy: state.sortBy,
+        autoRefresh: state.autoRefresh,
       }),
     }
   )
 );
 
 // Selector hooks for optimized re-renders
-export const useSearchState = () => {
+export const useFeedState = () => {
   return useJobLossStore((state) => ({
-    searchQuery: state.searchQuery,
-    searchResults: state.searchResults,
+    feedConfig: state.feedConfig,
+    feedStatus: state.feedStatus,
+    articles: state.articles,
+    filteredArticles: state.filteredArticles,
     isLoading: state.isLoading,
     error: state.error,
-    lastSearchedQuery: state.lastSearchedQuery,
-    setSearchQuery: state.setSearchQuery,
-    setSearchResults: state.setSearchResults,
+    setFeedUrl: state.setFeedUrl,
+    setFeedConfig: state.setFeedConfig,
+    setFeedStatus: state.setFeedStatus,
+    setArticles: state.setArticles,
+    setFilteredArticles: state.setFilteredArticles,
     setLoading: state.setLoading,
     setError: state.setError,
   }));
@@ -133,9 +202,9 @@ export const useSearchState = () => {
 
 export const useSelectionState = () => {
   return useJobLossStore((state) => ({
-    selectedItems: state.selectedItems,
-    toggleItemSelection: state.toggleItemSelection,
-    selectAllItems: state.selectAllItems,
+    selectedArticles: state.selectedArticles,
+    toggleArticleSelection: state.toggleArticleSelection,
+    selectAllArticles: state.selectAllArticles,
     clearSelection: state.clearSelection,
   }));
 };
@@ -149,5 +218,14 @@ export const useAnalysisState = () => {
     setAnalyzing: state.setAnalyzing,
     setAnalysisError: state.setAnalysisError,
     clearAnalysis: state.clearAnalysis,
+  }));
+};
+
+export const useFilterState = () => {
+  return useJobLossStore((state) => ({
+    showRelevantOnly: state.showRelevantOnly,
+    sortBy: state.sortBy,
+    setShowRelevantOnly: state.setShowRelevantOnly,
+    setSortBy: state.setSortBy,
   }));
 };
