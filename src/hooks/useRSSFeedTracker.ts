@@ -1,165 +1,178 @@
-import { useState, useCallback, useEffect } from 'react';
-import { useJobLossStore, useFeedState, useSelectionState, useAnalysisState, useFilterState } from '@/store/useJobLossStore';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useJobLossStore } from '@/store/useJobLossStore';
 import { rssFeedService, relevanceFilterService, deduplicationService } from '@/lib/rss';
 import { RSSArticle, AnalysisResult } from '@/lib/rss/types';
 import { debugLog } from '@/components/debug/DebugConsole';
 
 export const useRSSFeedTracker = () => {
-  // Get state and actions from store
-  const feedState = useFeedState();
-  const selectionState = useSelectionState();
-  const analysisState = useAnalysisState();
-  const filterState = useFilterState();
+  // Get state directly from store to avoid selector issues
+  const store = useJobLossStore();
   
   // Local state for API key management
   const [apiKey, setApiKey] = useState<string>('');
   const [isApiKeyValid, setIsApiKeyValid] = useState<boolean>(false);
+  
+  // Memoized selectors to prevent unnecessary re-renders
+  const feedConfig = useMemo(() => store.feedConfig, [store.feedConfig]);
+  const feedStatus = useMemo(() => store.feedStatus, [store.feedStatus]);
+  const articles = useMemo(() => store.articles, [store.articles]);
+  const filteredArticles = useMemo(() => store.filteredArticles, [store.filteredArticles]);
+  const selectedArticles = useMemo(() => store.selectedArticles, [store.selectedArticles]);
+  const analysisResults = useMemo(() => Object.values(store.analysisResults), [store.analysisResults]);
+  const isLoading = store.isLoading;
+  const isAnalyzing = store.isAnalyzing;
+  const error = store.error;
+  const analysisError = store.analysisError;
+  const showRelevantOnly = store.showRelevantOnly;
+  const sortBy = store.sortBy;
 
   /**
    * Validate RSS feed URL
    */
   const validateFeedUrl = useCallback(async (url: string): Promise<boolean> => {
     try {
-      feedState.setLoading(true);
-      feedState.setError(null);
+      store.setLoading(true);
+      store.setError(null);
       
       const isValid = await rssFeedService.validateFeedUrl(url);
       
       if (isValid) {
-        feedState.setFeedUrl(url);
-        feedState.setFeedStatus({ status: 'healthy' });
+        store.setFeedUrl(url);
+        store.setFeedStatus({ status: 'healthy' });
       } else {
-        feedState.setError('Invalid RSS feed URL. Please check the URL and try again.');
-        feedState.setFeedStatus({ status: 'error', lastError: 'Invalid RSS feed URL' });
+        store.setError('Invalid RSS feed URL. Please check the URL and try again.');
+        store.setFeedStatus({ status: 'error', lastError: 'Invalid RSS feed URL' });
       }
       
       return isValid;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to validate RSS feed';
-      feedState.setError(errorMessage);
-      feedState.setFeedStatus({ status: 'error', lastError: errorMessage });
+      store.setError(errorMessage);
+      store.setFeedStatus({ status: 'error', lastError: errorMessage });
       return false;
     } finally {
-      feedState.setLoading(false);
+      store.setLoading(false);
     }
-  }, [feedState]);
+  }, [store]);
 
   /**
    * Load articles from RSS feed
    */
   const loadArticles = useCallback(async () => {
-    if (!feedState.feedConfig.url) {
-      feedState.setError('Please configure an RSS feed URL first');
+    const currentFeedUrl = feedConfig.url;
+    
+    if (!currentFeedUrl) {
+      store.setError('Please configure an RSS feed URL first');
       return;
     }
 
     try {
-      feedState.setLoading(true);
-      feedState.setError(null);
-      feedState.setFeedStatus({ status: 'loading' });
+      store.setLoading(true);
+      store.setError(null);
+      store.setFeedStatus({ status: 'loading' });
       
       debugLog.info('RSSFeedTracker', 'Loading articles from RSS feed', {
-        url: feedState.feedConfig.url,
-        maxArticles: feedState.feedConfig.maxArticles
+        url: currentFeedUrl,
+        maxArticles: feedConfig.maxArticles
       });
       
       // Parse RSS feed
-      const feedData = await rssFeedService.parseFeed(feedState.feedConfig.url);
+      const feedData = await rssFeedService.parseFeed(currentFeedUrl);
       
       // Limit articles to max configured
-      let articles = feedData.articles.slice(0, feedState.feedConfig.maxArticles);
+      let processedArticles = feedData.articles.slice(0, feedConfig.maxArticles);
       
       // Apply deduplication
-      articles = deduplicationService.deduplicateArticles(articles);
+      processedArticles = deduplicationService.deduplicateArticles(processedArticles);
       
       // Apply relevance filtering if enabled
-      if (feedState.feedConfig.filterRelevant) {
-        articles = relevanceFilterService.filterRelevantArticles(articles);
+      if (feedConfig.filterRelevant) {
+        processedArticles = relevanceFilterService.filterRelevantArticles(processedArticles);
       }
       
       // Update store
-      feedState.setArticles(articles);
-      feedState.setFilteredArticles(articles);
-      feedState.setFeedStatus({
+      store.setArticles(processedArticles);
+      store.setFilteredArticles(processedArticles);
+      store.setFeedStatus({
         status: 'healthy',
         lastUpdated: new Date(),
-        articleCount: articles.length
+        articleCount: processedArticles.length
       });
       
       debugLog.success('RSSFeedTracker', 'Articles loaded successfully', {
-        totalArticles: articles.length,
-        relevantArticles: articles.filter(a => a.isJobLossRelated).length
+        totalArticles: processedArticles.length,
+        relevantArticles: processedArticles.filter(a => a.isJobLossRelated).length
       });
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to load RSS feed';
-      feedState.setError(errorMessage);
-      feedState.setFeedStatus({ 
+      store.setError(errorMessage);
+      store.setFeedStatus({ 
         status: 'error', 
         lastError: errorMessage 
       });
       
       debugLog.error('RSSFeedTracker', 'Failed to load articles', { error });
     } finally {
-      feedState.setLoading(false);
+      store.setLoading(false);
     }
-  }, [feedState]);
+  }, [feedConfig.url, feedConfig.maxArticles, feedConfig.filterRelevant, store]);
 
   /**
    * Filter and sort articles based on current settings
    */
   const applyFiltersAndSort = useCallback(() => {
-    let filtered = [...feedState.articles];
+    let filtered = [...articles];
     
     // Apply relevance filter
-    if (filterState.showRelevantOnly) {
+    if (showRelevantOnly) {
       filtered = filtered.filter(article => article.isJobLossRelated);
     }
     
     // Apply sorting
     filtered.sort((a, b) => {
-      switch (filterState.sortBy) {
+      switch (sortBy) {
         case 'date':
           return b.pubDate.getTime() - a.pubDate.getTime();
         case 'relevance':
           return (b.relevanceScore || 0) - (a.relevanceScore || 0);
         case 'analysis':
-          const aHasAnalysis = analysisState.analysisResults[a.id] ? 1 : 0;
-          const bHasAnalysis = analysisState.analysisResults[b.id] ? 1 : 0;
+          const aHasAnalysis = store.analysisResults[a.id] ? 1 : 0;
+          const bHasAnalysis = store.analysisResults[b.id] ? 1 : 0;
           return bHasAnalysis - aHasAnalysis;
         default:
           return 0;
       }
     });
     
-    feedState.setFilteredArticles(filtered);
-  }, [feedState, filterState, analysisState.analysisResults]);
+    store.setFilteredArticles(filtered);
+  }, [articles, showRelevantOnly, sortBy, store.analysisResults, store.setFilteredArticles]);
 
   /**
    * Analyze selected articles using OpenRouter
    */
   const analyzeSelected = useCallback(async () => {
-    if (selectionState.selectedArticles.length === 0) {
-      analysisState.setAnalysisError('Please select at least one article to analyze');
+    if (selectedArticles.length === 0) {
+      store.setAnalysisError('Please select at least one article to analyze');
       return;
     }
 
     if (!apiKey || !isApiKeyValid) {
-      analysisState.setAnalysisError('Please provide a valid OpenRouter API key');
+      store.setAnalysisError('Please provide a valid OpenRouter API key');
       return;
     }
 
     try {
-      analysisState.setAnalyzing(true);
-      analysisState.setAnalysisError(null);
+      store.setAnalyzing(true);
+      store.setAnalysisError(null);
       
       debugLog.info('RSSFeedTracker', 'Starting analysis of selected articles', {
-        selectedCount: selectionState.selectedArticles.length
+        selectedCount: selectedArticles.length
       });
       
       // Get selected articles
-      const articlesToAnalyze = feedState.articles.filter(article => 
-        selectionState.selectedArticles.includes(article.id)
+      const articlesToAnalyze = articles.filter(article => 
+        selectedArticles.includes(article.id)
       );
 
       // Import OpenRouter client dynamically to avoid circular dependencies
@@ -210,7 +223,7 @@ Please provide a JSON response with the following structure:
                 ...analysisData
               };
               
-              analysisState.addAnalysisResult(result);
+              store.addAnalysisResult(result);
               
               debugLog.success('RSSFeedTracker', 'Article analysis complete', {
                 articleId: article.id,
@@ -240,12 +253,12 @@ Please provide a JSON response with the following structure:
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Analysis failed';
-      analysisState.setAnalysisError(errorMessage);
+      store.setAnalysisError(errorMessage);
       debugLog.error('RSSFeedTracker', 'Analysis batch failed', { error });
     } finally {
-      analysisState.setAnalyzing(false);
+      store.setAnalyzing(false);
     }
-  }, [selectionState.selectedArticles, feedState.articles, apiKey, isApiKeyValid, analysisState]);
+  }, [selectedArticles, articles, apiKey, isApiKeyValid, store]);
 
   /**
    * Validate and set API key
@@ -262,52 +275,54 @@ Please provide a JSON response with the following structure:
    * Auto-refresh effect
    */
   useEffect(() => {
-    if (feedState.feedConfig.url && feedState.feedConfig.refreshInterval > 0) {
+    if (feedConfig.url && feedConfig.refreshInterval > 0) {
       const interval = setInterval(() => {
         loadArticles();
-      }, feedState.feedConfig.refreshInterval * 60 * 1000);
+      }, feedConfig.refreshInterval * 60 * 1000);
 
       return () => clearInterval(interval);
     }
-  }, [feedState.feedConfig.url, feedState.feedConfig.refreshInterval, loadArticles]);
+  }, [feedConfig.url, feedConfig.refreshInterval, loadArticles]);
 
   /**
    * Apply filters when dependencies change
    */
   useEffect(() => {
-    applyFiltersAndSort();
-  }, [applyFiltersAndSort]);
+    if (articles.length > 0) {
+      applyFiltersAndSort();
+    }
+  }, [articles, showRelevantOnly, sortBy, store.analysisResults, applyFiltersAndSort]);
 
   return {
     // State
-    feedConfig: feedState.feedConfig,
-    feedStatus: feedState.feedStatus,
-    articles: feedState.filteredArticles,
-    selectedArticles: selectionState.selectedArticles,
-    analysisResults: Object.values(analysisState.analysisResults),
-    isLoading: feedState.isLoading,
-    isAnalyzing: analysisState.isAnalyzing,
-    error: feedState.error,
-    analysisError: analysisState.analysisError,
-    showRelevantOnly: filterState.showRelevantOnly,
-    sortBy: filterState.sortBy,
+    feedConfig,
+    feedStatus,
+    articles: filteredArticles,
+    selectedArticles,
+    analysisResults,
+    isLoading,
+    isAnalyzing,
+    error,
+    analysisError,
+    showRelevantOnly,
+    sortBy,
     apiKey,
     isApiKeyValid,
     
     // Actions
-    setFeedUrl: feedState.setFeedUrl,
-    setFeedConfig: feedState.setFeedConfig,
+    setFeedUrl: store.setFeedUrl,
+    setFeedConfig: store.setFeedConfig,
     validateFeedUrl,
     loadArticles,
-    toggleArticleSelection: selectionState.toggleArticleSelection,
-    selectAllArticles: selectionState.selectAllArticles,
-    clearSelection: selectionState.clearSelection,
+    toggleArticleSelection: store.toggleArticleSelection,
+    selectAllArticles: store.selectAllArticles,
+    clearSelection: store.clearSelection,
     analyzeSelected,
-    setShowRelevantOnly: filterState.setShowRelevantOnly,
-    setSortBy: filterState.setSortBy,
-    updateSettings: feedState.setFeedConfig,
+    setShowRelevantOnly: store.setShowRelevantOnly,
+    setSortBy: store.setSortBy,
+    updateSettings: store.setFeedConfig,
     setApiKey: validateAndSetApiKey,
-    clearAnalysis: analysisState.clearAnalysis,
-    reset: useJobLossStore.getState().reset,
+    clearAnalysis: store.clearAnalysis,
+    reset: store.reset,
   };
 };

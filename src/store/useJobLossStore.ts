@@ -181,51 +181,74 @@ export const useJobLossStore = create<JobLossState>()(
   )
 );
 
-// Selector hooks for optimized re-renders
+// Memoized selector hooks for optimized re-renders
 export const useFeedState = () => {
-  return useJobLossStore((state) => ({
-    feedConfig: state.feedConfig,
-    feedStatus: state.feedStatus,
-    articles: state.articles,
-    filteredArticles: state.filteredArticles,
-    isLoading: state.isLoading,
-    error: state.error,
-    setFeedUrl: state.setFeedUrl,
-    setFeedConfig: state.setFeedConfig,
-    setFeedStatus: state.setFeedStatus,
-    setArticles: state.setArticles,
-    setFilteredArticles: state.setFilteredArticles,
-    setLoading: state.setLoading,
-    setError: state.setError,
-  }));
+  return useJobLossStore(
+    (state) => ({
+      feedConfig: state.feedConfig,
+      feedStatus: state.feedStatus,
+      articles: state.articles,
+      filteredArticles: state.filteredArticles,
+      isLoading: state.isLoading,
+      error: state.error,
+      setFeedUrl: state.setFeedUrl,
+      setFeedConfig: state.setFeedConfig,
+      setFeedStatus: state.setFeedStatus,
+      setArticles: state.setArticles,
+      setFilteredArticles: state.setFilteredArticles,
+      setLoading: state.setLoading,
+      setError: state.setError,
+    }),
+    (a, b) => 
+      a.feedConfig === b.feedConfig &&
+      a.feedStatus === b.feedStatus &&
+      a.articles === b.articles &&
+      a.filteredArticles === b.filteredArticles &&
+      a.isLoading === b.isLoading &&
+      a.error === b.error
+  );
 };
 
 export const useSelectionState = () => {
-  return useJobLossStore((state) => ({
-    selectedArticles: state.selectedArticles,
-    toggleArticleSelection: state.toggleArticleSelection,
-    selectAllArticles: state.selectAllArticles,
-    clearSelection: state.clearSelection,
-  }));
+  return useJobLossStore(
+    (state) => ({
+      selectedArticles: state.selectedArticles,
+      toggleArticleSelection: state.toggleArticleSelection,
+      selectAllArticles: state.selectAllArticles,
+      clearSelection: state.clearSelection,
+    }),
+    (a, b) => a.selectedArticles === b.selectedArticles
+  );
 };
 
 export const useAnalysisState = () => {
-  return useJobLossStore((state) => ({
-    analysisResults: state.analysisResults,
-    isAnalyzing: state.isAnalyzing,
-    analysisError: state.analysisError,
-    addAnalysisResult: state.addAnalysisResult,
-    setAnalyzing: state.setAnalyzing,
-    setAnalysisError: state.setAnalysisError,
-    clearAnalysis: state.clearAnalysis,
-  }));
+  return useJobLossStore(
+    (state) => ({
+      analysisResults: state.analysisResults,
+      isAnalyzing: state.isAnalyzing,
+      analysisError: state.analysisError,
+      addAnalysisResult: state.addAnalysisResult,
+      setAnalyzing: state.setAnalyzing,
+      setAnalysisError: state.setAnalysisError,
+      clearAnalysis: state.clearAnalysis,
+    }),
+    (a, b) => 
+      a.analysisResults === b.analysisResults &&
+      a.isAnalyzing === b.isAnalyzing &&
+      a.analysisError === b.analysisError
+  );
 };
 
 export const useFilterState = () => {
-  return useJobLossStore((state) => ({
-    showRelevantOnly: state.showRelevantOnly,
-    sortBy: state.sortBy,
-    setShowRelevantOnly: state.setShowRelevantOnly,
-    setSortBy: state.setSortBy,
-  }));
+  return useJobLossStore(
+    (state) => ({
+      showRelevantOnly: state.showRelevantOnly,
+      sortBy: state.sortBy,
+      setShowRelevantOnly: state.setShowRelevantOnly,
+      setSortBy: state.setSortBy,
+    }),
+    (a, b) => 
+      a.showRelevantOnly === b.showRelevantOnly &&
+      a.sortBy === b.sortBy
+  );
 };

@@ -1,1 +1,1 @@
-export { default as JobLossFeed } from './JobLossFeed';
+export { default as JobLossFeed } from './RSSJobLossFeed';

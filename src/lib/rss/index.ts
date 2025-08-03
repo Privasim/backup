@@ -1,15 +1,15 @@
-export * from './types';
-export * from './parser';
-export * from './relevance-filter';
-export * from './deduplication';
+// RSS Feed Services
+export { rssFeedService, RSSFeedService } from './parser';
+export { relevanceFilterService, RelevanceFilterService } from './relevance-filter';
+export { deduplicationService, DeduplicationService } from './deduplication';
 
-import { rssFeedService } from './parser';
-import { relevanceFilterService } from './relevance-filter';
-import { deduplicationService } from './deduplication';
-
-// Re-export services for convenience
-export {
-  rssFeedService,
-  relevanceFilterService,
-  deduplicationService
-};
+// Types
+export type {
+  RSSArticle,
+  FeedConfig,
+  RSSFeedData,
+  FeedStatus,
+  AnalysisResult,
+  RelevanceFilter,
+  DeduplicationConfig
+} from './types';

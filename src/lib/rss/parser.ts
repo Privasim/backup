@@ -8,6 +8,8 @@ export class RSSFeedService {
   private lastUpdated: Date | null = null;
   private status: 'healthy' | 'error' | 'loading' = 'healthy';
   private lastError?: string;
+  private retryCount: number = 0;
+  private maxRetries: number = 3;
 
   constructor() {
     this.parser = new Parser({
@@ -46,14 +48,26 @@ export class RSSFeedService {
   }
 
   /**
-   * Parse RSS feed from URL
+   * Parse RSS feed from URL with retry mechanism
    */
   async parseFeed(url: string): Promise<RSSFeedData> {
+    return this.parseFeedWithRetry(url, 0);
+  }
+
+  /**
+   * Parse RSS feed with exponential backoff retry
+   */
+  private async parseFeedWithRetry(url: string, attempt: number): Promise<RSSFeedData> {
     try {
       this.status = 'loading';
       this.feedUrl = url;
+      this.retryCount = attempt;
       
-      debugLog.info('RSSFeedService', 'Parsing RSS feed', { url });
+      debugLog.info('RSSFeedService', 'Parsing RSS feed', { 
+        url, 
+        attempt: attempt + 1, 
+        maxRetries: this.maxRetries 
+      });
       
       const feed = await this.parser.parseURL(url);
       
@@ -84,20 +98,44 @@ export class RSSFeedService {
       this.lastUpdated = new Date();
       this.status = 'healthy';
       this.lastError = undefined;
+      this.retryCount = 0;
 
       debugLog.success('RSSFeedService', 'RSS feed parsed successfully', {
         title: feedData.title,
         articleCount: articles.length,
-        lastBuildDate: feedData.lastBuildDate
+        lastBuildDate: feedData.lastBuildDate,
+        attemptsUsed: attempt + 1
       });
 
       return feedData;
     } catch (error) {
-      this.status = 'error';
-      this.lastError = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       
-      debugLog.error('RSSFeedService', 'RSS feed parsing failed', { url, error });
-      throw error;
+      if (attempt < this.maxRetries) {
+        const delay = Math.pow(2, attempt) * 1000; // Exponential backoff: 1s, 2s, 4s
+        
+        debugLog.warn('RSSFeedService', `RSS feed parsing failed, retrying in ${delay}ms`, { 
+          url, 
+          error: errorMessage, 
+          attempt: attempt + 1, 
+          maxRetries: this.maxRetries 
+        });
+        
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return this.parseFeedWithRetry(url, attempt + 1);
+      } else {
+        this.status = 'error';
+        this.lastError = errorMessage;
+        this.retryCount = 0;
+        
+        debugLog.error('RSSFeedService', 'RSS feed parsing failed after all retries', { 
+          url, 
+          error: errorMessage, 
+          totalAttempts: attempt + 1 
+        });
+        
+        throw error;
+      }
     }
   }
 
