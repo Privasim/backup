@@ -9,6 +9,7 @@ import QuizFormPanel from './QuizFormPanel';
 import DebugConsolePanel from './DebugConsolePanel';
 import ResultsPanel from './ResultsPanel';
 import ResearchTransparencyPanel from './ResearchTransparencyPanel';
+import { JobLossFeed } from '@/components/jobloss-feed';
 import '@/styles/design-system.css';
 
 interface AssessmentResult {
@@ -504,6 +505,11 @@ export default function UnifiedDebugInterface({
               />
             </div>
           )}
+
+          {/* Job Loss Feed - Always visible at bottom */}
+          <div className="job-loss-feed-panel card-elevated overflow-hidden animate-fade-in">
+            <JobLossFeed />
+          </div>
         </div>
 
         {/* Right Column - Insights Panels */}
