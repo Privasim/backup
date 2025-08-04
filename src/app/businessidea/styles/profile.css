@@ -1,0 +1,312 @@
+/* Profile Panel Styles */
+.profile-panel {
+  @apply relative;
+}
+
+.profile-panel-dropdown {
+  @apply absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg z-50 max-h-[85vh] overflow-hidden;
+}
+
+.profile-panel-header {
+  @apply px-4 py-3 border-b border-gray-200;
+}
+
+.profile-panel-content {
+  @apply px-4 py-4 max-h-[70vh] overflow-y-auto;
+}
+
+/* Progress Bar */
+.progress-bar {
+  @apply w-full bg-gray-200 rounded-full h-2;
+}
+
+.progress-bar-fill {
+  @apply bg-indigo-600 h-2 rounded-full transition-all duration-300;
+}
+
+/* Form Steps */
+.form-step {
+  @apply space-y-4;
+}
+
+.form-step-title {
+  @apply text-sm font-medium text-gray-700;
+}
+
+.form-step-navigation {
+  @apply flex justify-between pt-4 border-t border-gray-200;
+}
+
+/* Experience Cards */
+.experience-card {
+  @apply border border-gray-200 rounded-lg p-3 hover:border-gray-300 transition-colors;
+}
+
+.experience-card-header {
+  @apply flex items-start justify-between;
+}
+
+.experience-card-content {
+  @apply flex-1;
+}
+
+.experience-card-actions {
+  @apply flex space-x-1 ml-2;
+}
+
+.experience-type-badge {
+  @apply text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full;
+}
+
+/* Skills */
+.skill-card {
+  @apply flex items-center justify-between p-3 rounded-lg border transition-colors;
+}
+
+.skill-card-highlighted {
+  @apply border-yellow-300 bg-yellow-50;
+}
+
+.skill-card-normal {
+  @apply border-gray-200 bg-white hover:border-gray-300;
+}
+
+.skill-badge {
+  @apply text-xs px-2 py-0.5 rounded-full;
+}
+
+.skill-badge-beginner {
+  @apply bg-red-100 text-red-800;
+}
+
+.skill-badge-basic {
+  @apply bg-orange-100 text-orange-800;
+}
+
+.skill-badge-intermediate {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.skill-badge-advanced {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.skill-badge-expert {
+  @apply bg-green-100 text-green-800;
+}
+
+/* Tabs */
+.tab-navigation {
+  @apply flex space-x-1 bg-gray-100 p-1 rounded-lg;
+}
+
+.tab-button {
+  @apply flex-1 flex items-center justify-center space-x-1 py-2 px-3 rounded-md text-xs font-medium transition-colors;
+}
+
+.tab-button-active {
+  @apply bg-white text-indigo-700 shadow-sm;
+}
+
+.tab-button-inactive {
+  @apply text-gray-600 hover:text-gray-900;
+}
+
+/* Forms */
+.form-input {
+  @apply w-full text-sm border-gray-300 rounded-md focus:border-indigo-500 focus:ring-indigo-500;
+}
+
+.form-input-error {
+  @apply border-red-300 focus:border-red-500;
+}
+
+.form-select {
+  @apply w-full text-sm border-gray-300 rounded-md focus:border-indigo-500 focus:ring-indigo-500;
+}
+
+.form-textarea {
+  @apply w-full text-sm border-gray-300 rounded-md focus:border-indigo-500 focus:ring-indigo-500;
+}
+
+.form-checkbox {
+  @apply h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded;
+}
+
+.form-error {
+  @apply text-xs text-red-600 mt-1;
+}
+
+/* Buttons */
+.btn-primary {
+  @apply px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700 transition-colors;
+}
+
+.btn-secondary {
+  @apply px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors;
+}
+
+.btn-danger {
+  @apply px-4 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 transition-colors;
+}
+
+.btn-disabled {
+  @apply bg-gray-300 text-gray-500 cursor-not-allowed;
+}
+
+/* Add/Remove Buttons */
+.add-button {
+  @apply w-full flex items-center justify-center space-x-2 py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-indigo-300 hover:text-indigo-600 transition-colors;
+}
+
+.icon-button {
+  @apply p-1 text-gray-400 hover:text-indigo-600 transition-colors;
+}
+
+.icon-button-danger {
+  @apply p-1 text-gray-400 hover:text-red-600 transition-colors;
+}
+
+/* Status Indicators */
+.status-badge-completed {
+  @apply text-xs px-2 py-1 rounded-full bg-green-100 text-green-800;
+}
+
+.status-badge-draft {
+  @apply text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-800;
+}
+
+.status-indicator-completed {
+  @apply w-8 h-8 rounded-full flex items-center justify-center bg-green-100;
+}
+
+.status-indicator-draft {
+  @apply w-8 h-8 rounded-full flex items-center justify-center bg-yellow-100;
+}
+
+.status-indicator-none {
+  @apply w-8 h-8 rounded-full flex items-center justify-center bg-gray-300;
+}
+
+/* Animations */
+.fade-in {
+  @apply animate-fade-in;
+}
+
+.slide-up {
+  @apply animate-slide-up;
+}
+
+/* Custom animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+/* Scrollbar styling */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Loading states */
+.loading-spinner {
+  @apply animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600;
+}
+
+.loading-skeleton {
+  @apply animate-pulse bg-gray-200 rounded;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .profile-panel-dropdown {
+    @apply w-screen max-w-sm right-0 left-auto;
+  }
+  
+  .experience-card {
+    @apply p-2;
+  }
+  
+  .skill-card {
+    @apply p-2;
+  }
+}
+
+/* Focus states for accessibility */
+.focus-visible:focus {
+  @apply outline-none ring-2 ring-indigo-500 ring-offset-2;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .skill-badge {
+    @apply border border-current;
+  }
+  
+  .experience-card {
+    @apply border-2;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .progress-bar-fill,
+  .transition-colors,
+  .animate-fade-in,
+  .animate-slide-up {
+    @apply transition-none;
+    animation: none;
+  }
+}

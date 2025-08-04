@@ -16,6 +16,16 @@ const ConditionalFieldsStep = dynamic(
   { ssr: false }
 );
 
+const ExperienceStep = dynamic(
+  () => import('./ExperienceStep'),
+  { ssr: false }
+);
+
+const ReviewStep = dynamic(
+  () => import('./ReviewStep'),
+  { ssr: false }
+);
+
 const PostSubmissionPanel = dynamic(
   () => import('./PostSubmissionPanel'),
   { ssr: false }
@@ -156,9 +166,9 @@ const ProfilePanel = () => {
       case 'skills':
         return <SkillsetSelector />;
       case 'experience':
-        return <div className="text-center py-8 text-gray-500">Experience step coming soon</div>;
+        return <ExperienceStep />;
       case 'review':
-        return <div className="text-center py-8 text-gray-500">Review step coming soon</div>;
+        return <ReviewStep />;
       default:
         return null;
     }
