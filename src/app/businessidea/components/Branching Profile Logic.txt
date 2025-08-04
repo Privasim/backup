@@ -1,0 +1,183 @@
+---
+
+# **Product Requirements Document (PRD): Branching Profile Form Panel**
+
+---
+
+### **Product Name**:
+
+**Branching Profile Form Panel (LLM-ready)**
+
+### **Overview**
+
+This module is designed to collect structured, logic-based user profile data via a branching form interface. The system will adapt form fields dynamically based on previous inputs (conditional logic). The collected data will later be used for generating personalized recommendations (e.g., backup plans, business ideas, career paths) through LLM-based analysis (planned for future implementation).
+
+> ⚠️ **NOTE**: No LLM functionality is implemented at this stage. However, all design decisions must be compatible with future LLM integration.
+
+---
+
+## **Goals**
+
+1. Create a modular, dynamic profile form panel for structured user input.
+2. Implement conditional branching logic to customize questions per user context.
+3. Display actionable buttons below the form for post-submission actions (currently placeholder).
+4. Ensure all user interaction is **non-PII**, anonymous, and clearly stated as such.
+
+---
+
+## **User Flow Summary**
+
+1. User visits the profile panel.
+2. User selects their current status (e.g., "Working Full-Time", "Student", etc.).
+3. Conditional questions are presented based on that choice.
+4. Once complete, the user clicks **“Set Profile”**.
+5. Post-submission, they are prompted to explore analysis/suggestion actions (currently placeholders).
+
+---
+
+## **Core UI Components**
+
+### 1. **Profile Panel (UI Card or Fullscreen Panel)**
+
+* **Header**: "Tell us about yourself"
+* **Subheader**: "No private info required. We're not Meta."
+
+### 2. **Dropdown: User Category Selection**
+
+* Options:
+
+  * Working Full-Time
+  * Working Part-Time
+  * Freelancer
+  * Student
+  * Unemployed (Actively Searching)
+  * Career Shifter
+  * Entrepreneur
+  * Other (with free text field)
+
+### 3. **Dynamic Branching Form Logic**
+
+* Uses rule-based display logic.
+* Example logic trees:
+
+#### If “Student”:
+
+* Field: Major or Focus Area (text)
+* Field: Expected Graduation Year (dropdown)
+* Field: Skills Acquired (multi-select chips)
+* Field: Interested Industries (multi-select)
+
+#### If “Working Full-Time”:
+
+* Field: Current Industry (dropdown)
+* Field: Job Role (text)
+* Field: Years of Experience (number)
+* Field: Key Skills (multi-select)
+* Field: Technologies Used (multi-select or tags)
+
+#### If “Entrepreneur”:
+
+* Field: Business Stage (Idea / MVP / Launched / Profitable)
+* Field: Industry
+* Field: Team Size
+* Field: No-code / Low-code familiarity
+
+#### All paths end with:
+
+* Checkbox: “I confirm no private info is submitted.”
+* Button: **“Set Profile”**
+
+---
+
+## **Post-Submission Action Panel**
+
+Located directly beneath the form after submission.
+
+* Text:
+
+  > “Profile is now ready for analysis. You can generate personalized recommendations using the buttons below. No private info needed.”
+
+* Quick Action Buttons (disabled for now):
+
+  * Create a Backup Plan
+  * Suggest a Startup Idea
+  * Explore Industry Fit
+  * Generate Personal Learning Path
+  * \[More in future versions]
+
+> 🛈 These are **non-functional placeholders** until LLM integration is active.
+
+---
+
+## **Data Model & Technical Design**
+
+* All responses should be stored in structured JSON:
+
+```json
+{
+  "category": "Student",
+  "major": "Computer Science",
+  "graduationYear": 2026,
+  "skills": ["Python", "Data Analysis"],
+  "interestedIndustries": ["Cybersecurity", "EdTech"]
+}
+```
+
+* Design must be modular, allowing easy addition/removal of branching logic.
+* Data must be fully anonymized and stored locally/client-side by default.
+
+---
+
+## **Non-Functional Requirements**
+
+* **No PII Collection**.
+* **No Account Requirement**.
+* **Client-side Data Storage** or ephemeral session-based architecture.
+* **Mobile-First Design**.
+* Fully accessible (WCAG 2.1 AA compliant).
+
+---
+
+## **Future-Looking (LLM Readiness)**
+
+> 🔒 **NOTE**: The current release does *not* include any form of LLM inference or model calls. However, the following should be prepared:
+
+* API layer stubs for:
+
+  * `/suggest/backup-plan`
+  * `/suggest/business-idea`
+  * `/suggest/career-fit`
+* Modular prompt-building logic from JSON profile
+* UI slots for LLM-generated responses
+* Toggle or indicator for "AI-assisted recommendations (coming soon)"
+
+---
+
+## **Dependencies**
+
+* Component library (e.g., React + Tailwind, ShadCN, etc.)
+* Dynamic form schema engine (recommended: React Hook Form + Zod or similar)
+* Optional: JSON schema builder for rapid prototyping
+
+---
+
+## **Milestones**
+
+| Milestone | Deliverable                                        | Timeline  |
+| --------- | -------------------------------------------------- | --------- |
+| v0.1      | Static form panel with branching logic             | T+3 days  |
+| v0.2      | Modular JSON data output + validation              | T+6 days  |
+| v0.3      | Post-submission action UI with placeholder buttons | T+8 days  |
+| v0.4      | Final cleanup, UX optimization, documentation      | T+10 days |
+
+---
+
+## **Risks & Considerations**
+
+* Over-branching may confuse users; keep max branching depth ≤ 3.
+* Avoid assumptions about user goals; all suggestions must be opt-in and optional.
+* Must clearly communicate that no data is sold, stored permanently, or tied to identity.
+
+---
+
+Let me know if you want a JSON schema or wireframe layout next.
