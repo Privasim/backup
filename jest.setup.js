@@ -16,18 +16,22 @@ global.ResizeObserver = class ResizeObserver {
   unobserve() {}
 }
 
-// Mock Chart.js
-jest.mock('chart.js', () => ({
-  Chart: {
-    register: jest.fn(),
-  },
-  CategoryScale: {},
-  LinearScale: {},
-  BarElement: {},
-  Title: {},
-  Tooltip: {},
-  Legend: {},
-}))
+// Mock Chart.js (only if it exists)
+try {
+  jest.mock('chart.js', () => ({
+    Chart: {
+      register: jest.fn(),
+    },
+    CategoryScale: {},
+    LinearScale: {},
+    BarElement: {},
+    Title: {},
+    Tooltip: {},
+    Legend: {},
+  }))
+} catch (e) {
+  // Chart.js not available, skip mock
+}
 
 // Mock react-chartjs-2
 jest.mock('react-chartjs-2', () => ({

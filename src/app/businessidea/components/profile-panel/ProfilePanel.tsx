@@ -5,21 +5,61 @@ import { useProfile, ProfileProvider } from '../../context/ProfileContext';
 import { PROFILE_TYPE_LABELS, ProfileType } from '../../types/profile.types';
 import dynamic from 'next/dynamic';
 
-// Lazy load the SkillsetSelector to reduce bundle size
+// Lazy load components to reduce bundle size
 const SkillsetSelector = dynamic(
   () => import('./SkillsetSelector'),
   { ssr: false }
 );
 
+const ConditionalFieldsStep = dynamic(
+  () => import('./ConditionalFieldsStep'),
+  { ssr: false }
+);
+
+const PostSubmissionPanel = dynamic(
+  () => import('./PostSubmissionPanel'),
+  { ssr: false }
+);
+
 const ProfileTypeSelector = ({ onNext }: { onNext: () => void }) => {
-  const { updateProfileType, profile } = useProfile();
-  const [selectedType, setSelectedType] = useState<ProfileType | null>(profile.type || null);
+  const { updateProfileType, profile, getProfileStatus, profileFormData } = useProfile();
+  const [selectedType, setSelectedType] = useState<ProfileType | null>(
+    profileFormData?.profile?.profileType || profile.type || null
+  );
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  const profileStatus = isClient ? getProfileStatus() : 'none';
+  
+  const handleNext = () => {
+    if (selectedType) {
+      updateProfileType(selectedType);
+      // Use setTimeout to ensure state update is processed before navigation
+      setTimeout(() => {
+        onNext();
+      }, 0);
+    }
+  };
   
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <p className="text-sm font-medium text-gray-700">Tell me about yourself</p>
-        <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-medium text-gray-700">Tell me about yourself</p>
+          {isClient && profileStatus !== 'none' && (
+            <span className={`text-xs px-2 py-1 rounded-full ${
+              profileStatus === 'completed' 
+                ? 'bg-green-100 text-green-800' 
+                : 'bg-yellow-100 text-yellow-800'
+            }`}>
+              {profileStatus === 'completed' ? 'Completed' : 'Draft'}
+            </span>
+          )}
+        </div>
+        <div className="space-y-1 max-h-64 overflow-y-auto">
           {Object.entries(PROFILE_TYPE_LABELS).map(([key, label]) => (
             <button
               key={key}
@@ -38,14 +78,9 @@ const ProfileTypeSelector = ({ onNext }: { onNext: () => void }) => {
       
       <div className="flex justify-end pt-2">
         <button
-          onClick={() => {
-            if (selectedType) {
-              updateProfileType(selectedType);
-              onNext();
-            }
-          }}
+          onClick={handleNext}
           disabled={!selectedType}
-          className={`px-4 py-2 rounded-md text-sm ${
+          className={`px-4 py-2 rounded-md text-sm transition-colors ${
             selectedType 
               ? 'bg-indigo-600 text-white hover:bg-indigo-700' 
               : 'bg-gray-200 text-gray-500 cursor-not-allowed'
@@ -60,8 +95,14 @@ const ProfileTypeSelector = ({ onNext }: { onNext: () => void }) => {
 
 const ProfilePanel = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
-  const { currentStep, nextStep, prevStep } = useProfile();
+  const { currentStep, nextStep, isLoading, getProfileStatus, isProfileComplete } = useProfile();
+
+  // Set client flag to prevent hydration mismatch
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Close panel when clicking outside
   useEffect(() => {
@@ -77,31 +118,79 @@ const ProfilePanel = () => {
     };
   }, []);
 
+  const getStepTitle = () => {
+    switch (currentStep) {
+      case 'profile': return 'Profile Type';
+      case 'conditional': return 'Additional Details';
+      case 'experience': return 'Experience';
+      case 'skills': return 'Skills';
+      case 'review': return 'Review';
+      default: return 'Profile';
+    }
+  };
+
+  const getProgressPercentage = () => {
+    const steps = ['profile', 'conditional', 'experience', 'skills', 'review'];
+    const currentIndex = steps.indexOf(currentStep);
+    return ((currentIndex + 1) / steps.length) * 100;
+  };
+
   const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        </div>
+      );
+    }
+
+    if (isProfileComplete()) {
+      return <PostSubmissionPanel />;
+    }
+
     switch (currentStep) {
       case 'profile':
         return <ProfileTypeSelector onNext={nextStep} />;
-      case 'skillset':
+      case 'conditional':
+        return <ConditionalFieldsStep />;
+      case 'skills':
         return <SkillsetSelector />;
       case 'experience':
-        return <div>Experience step (coming soon)</div>;
+        return <div className="text-center py-8 text-gray-500">Experience step coming soon</div>;
+      case 'review':
+        return <div className="text-center py-8 text-gray-500">Review step coming soon</div>;
       default:
         return null;
     }
   };
 
+  // Get profile status only on client to prevent hydration mismatch
+  const profileStatus = isClient ? getProfileStatus() : 'none';
+
   return (
     <div className="relative" ref={panelRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 focus:outline-none"
+        className="flex items-center space-x-2 focus:outline-none relative"
         aria-label="User menu"
         aria-expanded={isOpen}
       >
-        <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+          isClient && profileStatus === 'completed' 
+            ? 'bg-green-100' 
+            : isClient && profileStatus === 'draft' 
+            ? 'bg-yellow-100' 
+            : 'bg-gray-300'
+        }`}>
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
-            className="h-5 w-5 text-gray-600" 
+            className={`h-5 w-5 ${
+              isClient && profileStatus === 'completed' 
+                ? 'text-green-600' 
+                : isClient && profileStatus === 'draft' 
+                ? 'text-yellow-600' 
+                : 'text-gray-600'
+            }`}
             viewBox="0 0 20 20" 
             fill="currentColor"
           >
@@ -112,11 +201,38 @@ const ProfilePanel = () => {
             />
           </svg>
         </div>
+        {isClient && profileStatus === 'draft' && (
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-500 rounded-full"></div>
+        )}
+        {isClient && profileStatus === 'completed' && (
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full"></div>
+        )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-72 bg-white rounded-md shadow-lg py-4 px-4 z-50 max-h-[80vh] overflow-y-auto">
-          {renderContent()}
+        <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg z-50 max-h-[85vh] overflow-hidden">
+          {/* Header with progress */}
+          {!isProfileComplete() && (
+            <div className="px-4 py-3 border-b border-gray-200">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-gray-900">{getStepTitle()}</h3>
+                <span className="text-xs text-gray-500">
+                  {Math.round(getProgressPercentage())}%
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${getProgressPercentage()}%` }}
+                ></div>
+              </div>
+            </div>
+          )}
+          
+          {/* Content */}
+          <div className="px-4 py-4 max-h-[70vh] overflow-y-auto">
+            {renderContent()}
+          </div>
         </div>
       )}
     </div>
