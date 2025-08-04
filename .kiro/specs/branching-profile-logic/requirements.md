@@ -1,21 +1,25 @@
-# Branching Profile Logic - Requirements
+# Branching Profile Logic - Frontend Requirements
 
 ## Overview
-Enhance the existing profile system to implement dynamic branching form logic that adapts questions based on user selections. The system will collect structured, non-PII profile data for future LLM-powered personalized recommendations.
+Enhance the existing ProfilePanel and ProfileContext to implement sophisticated client-side branching form logic. The system will collect structured, non-PII profile data through an intuitive multi-step wizard, with all processing happening on the frontend while maintaining interfaces for future backend integration.
 
-## Goals
-1. **Expand Profile Types**: Extend from 6 to 8 profile categories with conditional branching
-2. **Dynamic Form Logic**: Implement rule-based field display based on user selections
-3. **Enhanced Data Collection**: Capture skills, experience, and qualifications systematically
-4. **LLM Integration Ready**: Structure data and create service stubs for future AI recommendations
-5. **Privacy-First**: Maintain anonymous, client-side data storage approach
+## Primary Goals
+1. **Frontend-First Implementation**: Build complete UI/UX experience with no backend dependencies
+2. **Expand Profile Types**: Extend current 6 types to 8 with sophisticated conditional branching
+3. **Dynamic Form Logic**: Implement client-side rule engine for adaptive question flow
+4. **Enhanced Data Collection**: Capture comprehensive skills, experience, and qualifications
+5. **Future-Ready Architecture**: Design service interfaces and data contracts for seamless backend integration
+6. **Privacy-First**: Maintain anonymous, client-side-only data storage approach
 
-## User Flow
-1. User selects profile type from expanded dropdown
-2. Conditional questions appear based on selection
-3. Multi-step form guides through profile, experience, and skills
-4. Form validates and stores data locally
-5. Post-submission panel shows placeholder action buttons for future LLM features
+## Enhanced User Flow
+1. User clicks profile avatar to open enhanced ProfilePanel
+2. User selects from 8 profile types in improved dropdown interface
+3. Conditional questions dynamically appear based on selection with smooth transitions
+4. Multi-step wizard guides through: Profile Details → Experience → Skills → Review
+5. Real-time validation provides immediate feedback at field and form levels
+6. Auto-save preserves progress with draft state management
+7. Completion triggers PostSubmissionPanel with success confirmation
+8. Placeholder action buttons prepare for future LLM-powered features
 
 ## Core Requirements
 
@@ -36,49 +40,78 @@ Enhance the existing profile system to implement dynamic branching form logic th
 - **Career Shifter**: Previous career, years in previous role, target industry
 - **Others**: Relevant contextual fields based on selection
 
-### Data Structure
+### Enhanced Data Structure (Building on Current Profile Interface)
 ```typescript
 interface ProfileFormData {
-  profile: ProfileData;
-  experience: ExperienceEntry[];
-  skills: SkillCategory[];
-  certifications: Certification[];
-  languages: LanguageProficiency[];
+  profile: ProfileData;           // Enhanced with conditional fields
+  experience: ExperienceEntry[];  // Work, education, projects, volunteer
+  skillset: EnhancedSkillset;     // Categories, proficiency, certifications
+  metadata: {
+    completedAt?: string;
+    lastModified: string;
+    version: string;
+    isDraft: boolean;
+  };
 }
 ```
 
-### Post-Submission Actions (Placeholders)
-- Create a Backup Plan
-- Suggest a Startup Idea  
-- Explore Industry Fit
-- Generate Personal Learning Path
+### Future Action Placeholders (UI Only)
+- **Create a Backup Plan**: Analyze profile for alternative career paths
+- **Suggest a Startup Idea**: Generate business ideas based on skills/experience  
+- **Explore Industry Fit**: Assess compatibility with different industries
+- **Generate Personal Learning Path**: Create customized skill development roadmap
+- **Export Profile Data**: Download structured profile for external use
 
 ## Technical Requirements
 
-### Frontend
-- React + TypeScript with existing component patterns
-- Zod validation schemas for form data
-- Local storage for data persistence
-- Mobile-first responsive design
-- WCAG 2.1 AA accessibility compliance
+### Frontend Implementation
+- **Framework**: React + TypeScript extending current ProfilePanel/ProfileContext architecture
+- **Validation**: Zod schemas with conditional validation based on profile type
+- **State Management**: Enhanced ProfileContext with wizard state and persistence
+- **Storage**: localStorage with draft auto-save and completion tracking
+- **Styling**: Consistent with existing design system and component patterns
+- **Performance**: Code splitting, lazy loading, and optimized re-renders
+- **Accessibility**: WCAG 2.1 AA compliance with full keyboard navigation
 
-### Integration Readiness
-- OpenRouter client integration stubs
-- Structured prompt templates for LLM analysis
-- API service layer with placeholder endpoints
-- Data transformation utilities for backend sync
+### Future Integration Interfaces (No Implementation)
+- **Service Contracts**: TypeScript interfaces for future LLM integration
+- **Data Transformation**: Utilities for API format conversion (interface only)
+- **Event System**: Hooks for future analytics and tracking integration
+- **Configuration**: Extensible field and validation configuration system
 
 ### Non-Functional Requirements
-- No PII collection or storage
-- Client-side data storage only
-- Anonymous usage patterns
-- Maximum 3 levels of branching depth
-- Form completion under 5 minutes
+- **Privacy**: Zero PII collection, anonymous client-side storage only
+- **Performance**: Form completion under 3 minutes, < 2s step transitions
+- **Reliability**: Graceful error handling, offline capability, data recovery
+- **Scalability**: Support for future field types and validation rules
+- **Maintainability**: Modular architecture, comprehensive testing, clear documentation
 
 ## Success Criteria
-- [ ] All 8 profile types implemented with conditional logic
-- [ ] Form validation prevents invalid submissions
-- [ ] Data persists across browser sessions
-- [ ] Mobile experience matches desktop functionality
-- [ ] LLM integration stubs ready for future activation
-- [ ] Zero PII data collection verified
+
+### Core Functionality
+- [ ] All 8 profile types implemented with sophisticated conditional logic
+- [ ] Dynamic field rendering based on profile type selection
+- [ ] Multi-step wizard with progress tracking and navigation
+- [ ] Real-time validation with immediate user feedback
+- [ ] Auto-save functionality with draft state management
+- [ ] Profile completion with success confirmation
+
+### User Experience
+- [ ] Smooth transitions between form steps and field sets
+- [ ] Mobile-first responsive design matching desktop functionality
+- [ ] Full accessibility compliance (WCAG 2.1 AA)
+- [ ] Form completion time under 3 minutes
+- [ ] Intuitive error handling and recovery
+
+### Technical Excellence
+- [ ] Zero PII data collection verified through code review
+- [ ] Data persists reliably across browser sessions
+- [ ] Performance optimized with code splitting and lazy loading
+- [ ] Comprehensive test coverage (unit, integration, accessibility)
+- [ ] Future integration interfaces defined and documented
+
+### Future Readiness
+- [ ] Service layer interfaces ready for backend integration
+- [ ] Data transformation utilities prepared for API consumption
+- [ ] Placeholder UI components for LLM-powered features
+- [ ] Event system hooks prepared for analytics integration

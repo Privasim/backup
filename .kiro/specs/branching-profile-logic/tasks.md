@@ -1,39 +1,47 @@
-# Branching Profile Logic - Implementation Tasks
+# Branching Profile Logic - Frontend Implementation Tasks
 
-## Phase 1: Core Infrastructure
-- [ ] **Expand ProfileType enum** - Add missing types (career-shifter, entrepreneur, other)
-- [ ] **Enhanced ProfileData interface** - Add conditional fields for all profile types  
-- [ ] **Zod validation schemas** - Create conditional validation per profile type
-- [ ] **Update ProfileContext** - Extend state management for new data structure
-- [ ] **Local storage utilities** - Add persistence layer with draft/complete states
+## Phase 1: Core Infrastructure Enhancement
+- [ ] **Expand ProfileType enum** - Add career-shifter, entrepreneur, other to existing types
+- [ ] **Enhanced ProfileData interface** - Extend current Profile interface with conditional fields
+- [ ] **Conditional validation schemas** - Create Zod schemas with dynamic field validation
+- [ ] **Enhanced ProfileContext** - Extend current context with wizard state and persistence
+- [ ] **localStorage utilities** - Add draft auto-save, completion tracking, and data recovery
+- [ ] **Field configuration system** - Create centralized field definitions and branching rules
 
-## Phase 2: Conditional Form Logic
-- [ ] **ConditionalFieldsStep component** - Dynamic field rendering based on profile type
-- [ ] **Field registry system** - Centralized field definitions and validation rules
-- [ ] **Branching logic engine** - Rule-based field display with max 3-level depth
-- [ ] **Enhanced form navigation** - Step validation gates and progress tracking
-- [ ] **Real-time validation** - Field-level and form-level error handling
+## Phase 2: Dynamic Form Logic Implementation
+- [ ] **ConditionalFieldsStep component** - New component for dynamic field rendering
+- [ ] **Field rendering engine** - Smart component that renders fields based on profile type
+- [ ] **Branching logic system** - Client-side rule engine using CONDITIONAL_FIELD_CONFIG
+- [ ] **Enhanced ProfileWizard** - Multi-step navigation with conditional progression
+- [ ] **Real-time validation** - Immediate feedback with Zod schema validation
+- [ ] **Form state management** - Complex form state with step validation and error handling
 
 ## Phase 3: Experience & Skills Enhancement
-- [ ] **ExperienceEntry components** - Work, education, project, volunteer tracking
-- [ ] **Enhanced SkillsStep** - Skill categories, proficiency levels, years experience
-- [ ] **Certification tracking** - Add certification management with validation
-- [ ] **Language proficiency** - Multi-language support with standard levels
-- [ ] **Data transformation utils** - Normalize data for storage and future API integration
+- [ ] **Enhanced ExperienceStep** - Build on current step with multiple entry types
+- [ ] **ExperienceEntry components** - Work, education, project, volunteer entry forms
+- [ ] **Enhanced SkillsStep** - Extend current SkillsetSelector with categories and proficiency
+- [ ] **Skill management system** - Advanced skill selection with search and filtering
+- [ ] **Certification tracking** - New certification management with validation
+- [ ] **Language proficiency** - Multi-language support with standard proficiency levels
+- [ ] **Data normalization** - Utilities for consistent data structure and validation
 
-## Phase 4: UI/UX Polish
-- [ ] **Mobile-first responsive design** - Optimize for all screen sizes
-- [ ] **Accessibility compliance** - ARIA labels, keyboard nav, screen reader support
-- [ ] **Visual design system** - Consistent styling with existing components
-- [ ] **Loading states** - Skeleton screens and progress indicators
-- [ ] **Error boundary** - Graceful error handling and recovery
+## Phase 4: UI/UX Enhancement
+- [ ] **Enhanced ProfilePanel UI** - Improve current panel with better layout and interactions
+- [ ] **Mobile-first responsive design** - Optimize form experience for all screen sizes
+- [ ] **Accessibility implementation** - ARIA labels, keyboard navigation, screen reader support
+- [ ] **Visual design consistency** - Align with existing design system and component patterns
+- [ ] **Loading and transition states** - Smooth animations, skeleton screens, progress indicators
+- [ ] **Error boundary implementation** - Comprehensive error handling and user-friendly recovery
+- [ ] **Form UX improvements** - Better field focus, validation feedback, and user guidance
 
-## Phase 5: Integration Readiness
-- [ ] **Service layer stubs** - Create placeholder services for future LLM integration
-- [ ] **Data transformation layer** - Structure data for future API consumption
-- [ ] **PostSubmissionPanel** - Action buttons with placeholder functionality
-- [ ] **Event tracking hooks** - Prepare analytics events for user interactions
-- [ ] **Configuration interfaces** - Define contracts for future backend integration
+## Phase 5: Future Integration Preparation (Interface Only)
+- [ ] **Service interface definitions** - TypeScript interfaces for future LLM services
+- [ ] **Data transformation utilities** - Interface definitions for API format conversion
+- [ ] **PostSubmissionPanel** - New component with placeholder action buttons
+- [ ] **Future action placeholders** - UI components for backup plans, business ideas, etc.
+- [ ] **Event system hooks** - Prepare hooks for future analytics and tracking
+- [ ] **API client interfaces** - Define contracts for future backend integration
+- [ ] **Configuration system** - Extensible system for future field types and rules
 
 ## Phase 6: Testing & Documentation
 - [ ] **Unit tests** - Validation schemas, utilities, state management
@@ -42,34 +50,32 @@
 - [ ] **Accessibility testing** - Screen reader, keyboard navigation
 - [ ] **Documentation** - Component API docs, integration guide
 
-## Implementation Focus
+## Implementation Strategy
 
-### Frontend-First Approach
-- Build complete UI/UX experience with local state management
-- Implement all form logic and validation without external dependencies
-- Create comprehensive data models ready for future API integration
-- Design service layer interfaces without actual implementation
+### Frontend-First Development Approach
+- **Complete Client-Side Implementation**: Build full UI/UX experience with no backend dependencies
+- **Local State Management**: Extend current ProfileContext for complex wizard state
+- **Client-Side Validation**: Comprehensive Zod validation with conditional rules
+- **localStorage Persistence**: Robust data storage with draft management and recovery
+- **Interface-Only Integration**: Define service contracts without implementation
 
-### Future-Proof Architecture
-- Structure components for easy LLM service integration
-- Design data models compatible with database schemas
-- Create clear separation between UI logic and data processing
-- Implement extensible validation system for new field types
+### Architecture Principles
+- **Modular Design**: Components that can be easily extended and modified
+- **Separation of Concerns**: Clear boundaries between UI, validation, and data management
+- **Future-Ready Interfaces**: Service contracts ready for seamless backend integration
+- **Performance-First**: Optimized rendering, lazy loading, and efficient state updates
+- **Accessibility-First**: WCAG 2.1 AA compliance built into every component
 
-### Integration Preparation
-- Define service contracts for future backend endpoints
-- Structure data transformation utilities for API compatibility
-- Create placeholder components for LLM-powered features
-- Design event system for future analytics integration
+### Development Priorities
+1. **Extend Current Implementation**: Build on existing ProfilePanel and ProfileContext
+2. **Progressive Enhancement**: Add features incrementally without breaking existing functionality
+3. **Client-Side Focus**: Complete all functionality without external API dependencies
+4. **Interface Preparation**: Define clear contracts for future backend integration
+5. **User Experience**: Prioritize smooth, intuitive form interactions
 
-### Performance Considerations
-- Lazy loading for form steps to reduce initial bundle size
-- Memoization for expensive form components and validation
-- Debounced auto-save to prevent excessive localStorage operations
-- Code splitting for validation schemas and heavy dependencies
-
-### Quality Assurance
-- Comprehensive test coverage for all form logic
-- Accessibility compliance with WCAG 2.1 AA standards
-- Cross-browser compatibility testing
-- Mobile-first responsive design validation
+### Quality Standards
+- **Comprehensive Testing**: Unit, integration, and accessibility testing
+- **Performance Optimization**: Code splitting, memoization, and efficient re-renders
+- **Cross-Browser Compatibility**: Support for all modern browsers
+- **Mobile-First Design**: Responsive design optimized for mobile devices
+- **Documentation**: Clear component APIs and integration guides
