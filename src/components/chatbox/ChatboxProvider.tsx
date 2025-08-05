@@ -186,25 +186,27 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
+    if (!profileData) {
+      setState(prev => ({ 
+        ...prev, 
+        status: 'error', 
+        error: 'Profile data is required for analysis' 
+      }));
+      return;
+    }
+
     setState(prev => ({ ...prev, status: 'analyzing', error: undefined }));
     
     try {
-      // Find appropriate provider
-      const provider = providers.find(p => 
-        p.supportedModels.includes(state.config.model)
-      );
+      // Import analysis service dynamically to avoid circular dependencies
+      const { analysisService } = await import('@/lib/chatbox/AnalysisService');
       
-      if (!provider) {
-        throw new Error(`No provider found for model: ${state.config.model}`);
+      // Perform analysis using the service
+      const result = await analysisService.analyze(state.config, profileData);
+      
+      if (result.status === 'error') {
+        throw new Error(result.error || 'Analysis failed');
       }
-
-      // Validate configuration
-      if (!provider.validateConfig(state.config)) {
-        throw new Error('Invalid configuration for selected provider');
-      }
-
-      // Perform analysis
-      const result = await provider.analyze(state.config, profileData);
       
       setState(prev => ({
         ...prev,
@@ -239,7 +241,7 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
         content: `Analysis failed: ${errorMessage}`
       });
     }
-  }, [state.config, profileData, providers, addMessage, getStorage, setStorage]);
+  }, [state.config, profileData, addMessage, getStorage, setStorage]);
 
   const retryAnalysis = useCallback(async () => {
     await startAnalysis();
@@ -330,6 +332,20 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     loadSession();
   }, [loadSession]);
+
+  // Initialize analysis services
+  useEffect(() => {
+    const initializeServices = async () => {
+      try {
+        const { initializeChatboxServices } = await import('@/lib/chatbox/initialization');
+        initializeChatboxServices();
+      } catch (error) {
+        console.error('Failed to initialize chatbox services:', error);
+      }
+    };
+    
+    initializeServices();
+  }, []);
 
   const contextValue: ChatboxContextType = {
     ...state,
