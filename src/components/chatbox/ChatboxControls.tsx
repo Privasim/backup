@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useChatbox } from './ChatboxProvider';
 import { getAvailableModels } from '@/lib/openrouter';
 import { useChatboxSettings } from './utils/settings-utils';
@@ -31,23 +31,25 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
   const [showStoragePanel, setShowStoragePanel] = useState(false);
   const [showHistoryPanel, setShowHistoryPanel] = useState(false);
 
-  const availableModels = getAvailableModels().map(model => {
-    const modelInfo = {
-      'qwen/qwen3-coder:free': { label: 'Qwen3 Coder (Free)', description: 'Optimized for coding and analysis tasks' },
-      'z-ai/glm-4.5-air:free': { label: 'GLM 4.5 Air (Free)', description: 'Lightweight for conversational analysis' },
-      'moonshotai/kimi-k2:free': { label: 'Kimi K2 (Free)', description: 'Advanced reasoning & synthesis' }
-    };
-    
-    return {
-      value: model,
-      ...modelInfo[model as keyof typeof modelInfo] || { label: model, description: 'AI model for analysis' }
-    };
-  });
+  const availableModels = useMemo(() => {
+    return getAvailableModels().map(model => {
+      const modelInfo = {
+        'qwen/qwen3-coder:free': { label: 'Qwen3 Coder (Free)', description: 'Optimized for coding and analysis tasks' },
+        'z-ai/glm-4.5-air:free': { label: 'GLM 4.5 Air (Free)', description: 'Lightweight for conversational analysis' },
+        'moonshotai/kimi-k2:free': { label: 'Kimi K2 (Free)', description: 'Advanced reasoning & synthesis' }
+      };
+      
+      return {
+        value: model,
+        ...modelInfo[model as keyof typeof modelInfo] || { label: model, description: 'AI model for analysis' }
+      };
+    });
+  }, []);
 
   // Validate configuration on change
   useEffect(() => {
     if (touched) {
-      const availableModelValues = availableModels.map(m => m.value);
+      const availableModelValues = availableModels.map((m: { value: string }) => m.value);
       const validation = validateAnalysisConfig(config, availableModelValues);
       setErrors(validation.errors);
       
@@ -106,7 +108,7 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
     }
     
     // Validate configuration
-    const availableModelValues = availableModels.map(m => m.value);
+    const availableModelValues = availableModels.map((m: { value: string }) => m.value);
     const validation = validateAnalysisConfig(config, availableModelValues);
     setErrors(validation.errors);
     
@@ -153,7 +155,7 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
             }`}
           >
             <option value="" disabled>Select an AI model</option>
-            {availableModels.map((modelOption) => (
+            {availableModels.map((modelOption: { value: string; label: string }) => (
               <option key={modelOption.value} value={modelOption.value}>
                 {modelOption.label}
               </option>
