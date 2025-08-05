@@ -1,4 +1,4 @@
-import { ChatboxMessage, AnalysisType } from '../types';
+import { ChatboxMessageData, AnalysisType } from '../types';
 
 /**
  * Utilities for managing chatbox messages
@@ -8,13 +8,13 @@ import { ChatboxMessage, AnalysisType } from '../types';
  * Create a new message with generated ID and timestamp
  */
 export const createMessage = (
-  type: ChatboxMessage['type'],
+  type: ChatboxMessageData['type'],
   content: string,
   options: {
     analysisType?: AnalysisType;
     metadata?: Record<string, any>;
   } = {}
-): ChatboxMessage => {
+): ChatboxMessageData => {
   return {
     id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     type,
@@ -29,9 +29,9 @@ export const createMessage = (
  * Filter messages by type
  */
 export const filterMessagesByType = (
-  messages: ChatboxMessage[],
-  type: ChatboxMessage['type']
-): ChatboxMessage[] => {
+  messages: ChatboxMessageData[],
+  type: ChatboxMessageData['type']
+): ChatboxMessageData[] => {
   return messages.filter(message => message.type === type);
 };
 
@@ -39,9 +39,9 @@ export const filterMessagesByType = (
  * Filter messages by analysis type
  */
 export const filterMessagesByAnalysisType = (
-  messages: ChatboxMessage[],
+  messages: ChatboxMessageData[],
   analysisType: AnalysisType
-): ChatboxMessage[] => {
+): ChatboxMessageData[] => {
   return messages.filter(message => message.analysisType === analysisType);
 };
 
@@ -49,10 +49,10 @@ export const filterMessagesByAnalysisType = (
  * Get messages from a specific time range
  */
 export const getMessagesInTimeRange = (
-  messages: ChatboxMessage[],
+  messages: ChatboxMessageData[],
   startTime: Date,
   endTime: Date
-): ChatboxMessage[] => {
+): ChatboxMessageData[] => {
   return messages.filter(message => {
     const messageTime = new Date(message.timestamp);
     return messageTime >= startTime && messageTime <= endTime;
@@ -63,9 +63,9 @@ export const getMessagesInTimeRange = (
  * Get the last N messages
  */
 export const getLastMessages = (
-  messages: ChatboxMessage[],
+  messages: ChatboxMessageData[],
   count: number
-): ChatboxMessage[] => {
+): ChatboxMessageData[] => {
   return messages.slice(-count);
 };
 
@@ -73,10 +73,10 @@ export const getLastMessages = (
  * Search messages by content
  */
 export const searchMessages = (
-  messages: ChatboxMessage[],
+  messages: ChatboxMessageData[],
   query: string,
   caseSensitive: boolean = false
-): ChatboxMessage[] => {
+): ChatboxMessageData[] => {
   const searchTerm = caseSensitive ? query : query.toLowerCase();
   
   return messages.filter(message => {
@@ -89,9 +89,9 @@ export const searchMessages = (
  * Group messages by analysis type
  */
 export const groupMessagesByAnalysisType = (
-  messages: ChatboxMessage[]
-): Record<string, ChatboxMessage[]> => {
-  const groups: Record<string, ChatboxMessage[]> = {};
+  messages: ChatboxMessageData[]
+): Record<string, ChatboxMessageData[]> => {
+  const groups: Record<string, ChatboxMessageData[]> = {};
   
   messages.forEach(message => {
     const key = message.analysisType || 'general';
@@ -108,9 +108,9 @@ export const groupMessagesByAnalysisType = (
  * Get conversation pairs (user message followed by assistant response)
  */
 export const getConversationPairs = (
-  messages: ChatboxMessage[]
-): Array<{ user: ChatboxMessage; assistant: ChatboxMessage }> => {
-  const pairs: Array<{ user: ChatboxMessage; assistant: ChatboxMessage }> = [];
+  messages: ChatboxMessageData[]
+): Array<{ user: ChatboxMessageData; assistant: ChatboxMessageData }> => {
+  const pairs: Array<{ user: ChatboxMessageData; assistant: ChatboxMessageData }> = [];
   
   for (let i = 0; i < messages.length - 1; i++) {
     const current = messages[i];
@@ -127,7 +127,7 @@ export const getConversationPairs = (
 /**
  * Calculate message statistics
  */
-export const getMessageStatistics = (messages: ChatboxMessage[]) => {
+export const getMessageStatistics = (messages: ChatboxMessageData[]) => {
   const stats = {
     total: messages.length,
     byType: {} as Record<string, number>,
@@ -174,7 +174,7 @@ export const exportMessages = {
   /**
    * Export as plain text
    */
-  toText: (messages: ChatboxMessage[]): string => {
+  toText: (messages: ChatboxMessageData[]): string => {
     return messages.map(message => {
       const timestamp = new Date(message.timestamp).toLocaleString();
       const type = message.type.toUpperCase();
@@ -185,14 +185,14 @@ export const exportMessages = {
   /**
    * Export as JSON
    */
-  toJSON: (messages: ChatboxMessage[]): string => {
+  toJSON: (messages: ChatboxMessageData[]): string => {
     return JSON.stringify(messages, null, 2);
   },
 
   /**
    * Export as CSV
    */
-  toCSV: (messages: ChatboxMessage[]): string => {
+  toCSV: (messages: ChatboxMessageData[]): string => {
     const headers = ['ID', 'Type', 'Content', 'Timestamp', 'Analysis Type'];
     const rows = messages.map(message => [
       message.id,
@@ -208,7 +208,7 @@ export const exportMessages = {
   /**
    * Export as Markdown
    */
-  toMarkdown: (messages: ChatboxMessage[]): string => {
+  toMarkdown: (messages: ChatboxMessageData[]): string => {
     return messages.map(message => {
       const timestamp = new Date(message.timestamp).toLocaleString();
       const type = message.type === 'user' ? '👤 User' : 
@@ -223,7 +223,7 @@ export const exportMessages = {
 /**
  * Validate message structure
  */
-export const validateMessage = (message: any): message is ChatboxMessage => {
+export const validateMessage = (message: any): message is ChatboxMessageData => {
   return (
     typeof message === 'object' &&
     message !== null &&
@@ -240,10 +240,10 @@ export const validateMessage = (message: any): message is ChatboxMessage => {
  * Clean up old messages (keep only recent ones)
  */
 export const cleanupOldMessages = (
-  messages: ChatboxMessage[],
+  messages: ChatboxMessageData[],
   maxMessages: number = 100,
   maxAge: number = 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
-): ChatboxMessage[] => {
+): ChatboxMessageData[] => {
   const now = Date.now();
   
   // Filter by age

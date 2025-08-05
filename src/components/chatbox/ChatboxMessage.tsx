@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ChatboxMessage as MessageType } from './types';
+import { ChatboxMessageData as MessageType } from './types';
 import { 
   UserIcon, 
   ComputerDesktopIcon, 

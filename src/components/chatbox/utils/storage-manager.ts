@@ -1,7 +1,7 @@
 import { 
   ChatboxStorage, 
   AnalysisResult, 
-  ChatboxMessage, 
+  ChatboxMessageData, 
   AnalysisConfig,
   ChatboxPreferences 
 } from '../types';
@@ -58,7 +58,7 @@ interface CacheEntry {
  */
 interface SessionData {
   config: AnalysisConfig;
-  messages: ChatboxMessage[];
+  messages: ChatboxMessageData[];
   profileDataHash?: string;
   timestamp: string;
   expiresAt: string;
@@ -268,7 +268,7 @@ export class ChatboxStorageManager {
   /**
    * Save session state
    */
-  saveSession(config: AnalysisConfig, messages: ChatboxMessage[], profileDataHash?: string): void {
+  saveSession(config: AnalysisConfig, messages: ChatboxMessageData[], profileDataHash?: string): void {
     const sessionData: SessionData = {
       config,
       messages,

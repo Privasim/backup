@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ChatboxMessage as MessageType } from './types';
+import { ChatboxMessageData as MessageType } from './types';
 import { ContentProcessor } from './utils/content-processor';
 import { ClipboardUtils } from './utils/clipboard-utils';
 

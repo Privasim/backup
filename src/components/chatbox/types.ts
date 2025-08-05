@@ -18,7 +18,7 @@ export interface ChatboxPlugin {
 }
 
 // Message system
-export interface ChatboxMessage {
+export interface ChatboxMessageData {
   id: string;
   type: 'user' | 'assistant' | 'system' | 'error';
   content: string;
@@ -52,9 +52,9 @@ export interface AnalysisResult {
 // Chatbox context for plugins
 export interface ChatboxContext {
   profileData?: ProfileFormData;
-  messages: ChatboxMessage[];
+  messages: ChatboxMessageData[];
   config: AnalysisConfig;
-  addMessage: (message: Omit<ChatboxMessage, 'id' | 'timestamp'>) => void;
+  addMessage: (message: Omit<ChatboxMessageData, 'id' | 'timestamp'>) => void;
   updateConfig: (config: Partial<AnalysisConfig>) => void;
   triggerAnalysis: () => Promise<void>;
 }
@@ -66,7 +66,7 @@ export interface ChatboxStorage {
   preferences: ChatboxPreferences;
   lastSession?: {
     config: AnalysisConfig;
-    messages: ChatboxMessage[];
+    messages: ChatboxMessageData[];
     timestamp: string;
   };
 }
@@ -102,7 +102,7 @@ export type ChatboxEventHandler = (event: ChatboxEvent) => void;
 export type ChatboxState = {
   status: ChatboxStatus;
   config: AnalysisConfig;
-  messages: ChatboxMessage[];
+  messages: ChatboxMessageData[];
   currentAnalysis?: AnalysisResult;
   error?: string;
   isVisible: boolean;

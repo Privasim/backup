@@ -19,7 +19,7 @@ export type {
   ChatboxStatus,
   AnalysisType,
   ChatboxPlugin,
-  ChatboxMessage,
+  ChatboxMessageData,
   AnalysisConfig,
   AnalysisResult,
   ChatboxContext,

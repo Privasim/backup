@@ -1,5 +1,5 @@
 import { ContentProcessor } from '../content-processor';
-import { AnalysisResult, ChatboxMessage } from '../../types';
+import { AnalysisResult, ChatboxMessageData } from '../../types';
 
 describe('ContentProcessor', () => {
   const mockAnalysisResult: AnalysisResult = {
@@ -116,7 +116,7 @@ describe('ContentProcessor', () => {
   });
 
   describe('exportContent', () => {
-    const messages: ChatboxMessage[] = [
+    const messages: ChatboxMessageData[] = [
       {
         id: 'msg-1',
         type: 'user',

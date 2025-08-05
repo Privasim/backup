@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { storageManager } from '../utils/storage-manager';
-import { AnalysisResult, AnalysisConfig, ChatboxMessage } from '../types';
+import { AnalysisResult, AnalysisConfig, ChatboxMessageData } from '../types';
 
 /**
  * Storage statistics interface
@@ -73,7 +73,7 @@ export const useStorageManager = () => {
    */
   const saveSession = useCallback((
     config: AnalysisConfig, 
-    messages: ChatboxMessage[], 
+    messages: ChatboxMessageData[], 
     profileDataHash?: string
   ) => {
     storageManager.saveSession(config, messages, profileDataHash);
@@ -296,7 +296,7 @@ export const useStorageManager = () => {
  */
 export const useSessionManager = (
   config: AnalysisConfig,
-  messages: ChatboxMessage[],
+  messages: ChatboxMessageData[],
   profileDataHash?: string,
   autoSave = true
 ) => {

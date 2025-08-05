@@ -1,4 +1,4 @@
-import { ChatboxMessage, AnalysisResult } from '../types';
+import { ChatboxMessageData, AnalysisResult } from '../types';
 
 /**
  * Content sanitization options
@@ -207,7 +207,7 @@ export class ContentProcessor {
    * Convert content to different export formats
    */
   static exportContent(
-    messages: ChatboxMessage[],
+    messages: ChatboxMessageData[],
     format: ExportFormat,
     options: { includeMetadata?: boolean; title?: string } = {}
   ): string {
@@ -234,7 +234,7 @@ export class ContentProcessor {
   /**
    * Export as plain text
    */
-  private static exportAsText(messages: ChatboxMessage[], includeMetadata: boolean): string {
+  private static exportAsText(messages: ChatboxMessageData[], includeMetadata: boolean): string {
     const lines: string[] = [];
     
     if (includeMetadata) {
@@ -271,7 +271,7 @@ export class ContentProcessor {
   /**
    * Export as Markdown
    */
-  private static exportAsMarkdown(messages: ChatboxMessage[], includeMetadata: boolean, title: string): string {
+  private static exportAsMarkdown(messages: ChatboxMessageData[], includeMetadata: boolean, title: string): string {
     const lines: string[] = [];
     
     lines.push(`# ${title}`);
@@ -306,7 +306,7 @@ export class ContentProcessor {
   /**
    * Export as HTML
    */
-  private static exportAsHtml(messages: ChatboxMessage[], includeMetadata: boolean, title: string): string {
+  private static exportAsHtml(messages: ChatboxMessageData[], includeMetadata: boolean, title: string): string {
     const escapeHtml = (text: string) => {
       return text
         .replace(/&/g, '&amp;')
@@ -388,7 +388,7 @@ export class ContentProcessor {
   /**
    * Export as JSON
    */
-  private static exportAsJson(messages: ChatboxMessage[], includeMetadata: boolean): string {
+  private static exportAsJson(messages: ChatboxMessageData[], includeMetadata: boolean): string {
     const exportData = {
       metadata: includeMetadata ? {
         generated: new Date().toISOString(),

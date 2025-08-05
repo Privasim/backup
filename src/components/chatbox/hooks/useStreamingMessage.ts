@@ -1,17 +1,17 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
-import { ChatboxMessage } from '../types';
+import { ChatboxMessageData } from '../types';
 
 interface StreamingMessageState {
-  message: ChatboxMessage | null;
+  message: ChatboxMessageData | null;
   isStreaming: boolean;
   isComplete: boolean;
   error: string | null;
 }
 
 interface UseStreamingMessageOptions {
-  onComplete?: (message: ChatboxMessage) => void;
+  onComplete?: (message: ChatboxMessageData) => void;
   onError?: (error: string) => void;
   onChunk?: (chunk: string, fullContent: string) => void;
 }
