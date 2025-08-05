@@ -2,6 +2,7 @@
 
 import React from 'react';
 import ProfilePanel from './profile-panel/ProfilePanel';
+import { ChatboxToggle } from '@/components/chatbox/ChatboxToggle';
 
 interface BusinessHeaderProps {
   title: string;
@@ -25,6 +26,7 @@ const BusinessHeader: React.FC<BusinessHeaderProps> = ({
             )}
           </div>
           <div className="flex items-center space-x-4">
+            <ChatboxToggle variant="icon" size="md" />
             <ProfilePanel />
           </div>
         </div>

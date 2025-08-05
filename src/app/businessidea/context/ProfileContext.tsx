@@ -236,7 +236,19 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
         return false;
       }
       
-      return ProfileStorage.saveCompleted(profileFormData);
+      const saveSuccess = ProfileStorage.saveCompleted(profileFormData);
+      
+      // Integrate with chatbox after successful save
+      if (saveSuccess) {
+        // Dynamic import to avoid circular dependencies
+        import('@/components/chatbox/services/ProfileIntegrationService').then(({ profileIntegrationService }) => {
+          profileIntegrationService.handleProfileSave(profileFormData);
+        }).catch(error => {
+          console.warn('Failed to trigger profile analysis:', error);
+        });
+      }
+      
+      return saveSuccess;
     } catch (error) {
       console.error('Save profile error:', error);
       setErrors([{ field: 'general', message: 'Failed to save profile' }]);

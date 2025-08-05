@@ -4,6 +4,7 @@ import React from 'react';
 import { useProfile } from '../../context/ProfileContext';
 import { PROFILE_TYPE_LABELS } from '../../types/profile.types';
 import { CheckCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { ProfileAnalysisTrigger } from '@/components/chatbox/ProfileAnalysisTrigger';
 
 const ReviewStep = () => {
   const { profileFormData, saveProfile, prevStep, errors } = useProfile();
@@ -298,6 +299,22 @@ const ReviewStep = () => {
               Profile saved successfully! 🎉
             </span>
           </div>
+        </div>
+      )}
+
+      {/* Profile Analysis Trigger */}
+      {saveSuccess && (
+        <div className="mt-4">
+          <ProfileAnalysisTrigger 
+            profileData={profileFormData}
+            variant="card"
+            onAnalysisStart={() => {
+              console.log('Profile analysis started');
+            }}
+            onAnalysisComplete={() => {
+              console.log('Profile analysis completed');
+            }}
+          />
         </div>
       )}
 
