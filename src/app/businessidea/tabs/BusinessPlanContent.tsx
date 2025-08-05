@@ -12,29 +12,47 @@ export default function BusinessPlanContent() {
           </div>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100 hover:shadow transition-shadow">
-            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mb-2">
-              <span className="text-sm">🎯</span>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 h-[calc(100vh-180px)]">
+          {/* Option A */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow transition-shadow flex flex-col h-full">
+            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+              <span className="text-xl font-bold text-blue-600">A</span>
             </div>
-            <h3 className="font-medium text-sm text-gray-900 mb-1">Executive Summary</h3>
-            <p className="text-xs text-gray-600">Create compelling overviews</p>
+            <h3 className="font-semibold text-lg text-gray-900 mb-3">Option A</h3>
+            <div className="flex-grow space-y-4">
+              <p className="text-gray-600">Detailed description for Option A. This section can include more content about what this option entails, its benefits, and any other relevant information that helps the user understand this choice better.</p>
+              <div className="mt-auto pt-4 border-t border-gray-100">
+                <p className="text-sm text-gray-500">Additional details or features can go here</p>
+              </div>
+            </div>
           </div>
-          
-          <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100 hover:shadow transition-shadow">
-            <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mb-2">
-              <span className="text-sm">📊</span>
+
+          {/* Option B */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow transition-shadow flex flex-col h-full">
+            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+              <span className="text-xl font-bold text-blue-600">B</span>
             </div>
-            <h3 className="font-medium text-sm text-gray-900 mb-1">Market Analysis</h3>
-            <p className="text-xs text-gray-600">Research target market</p>
+            <h3 className="font-semibold text-lg text-gray-900 mb-3">Option B</h3>
+            <div className="flex-grow space-y-4">
+              <p className="text-gray-600">Detailed description for Option B. This section can include more content about what this option entails, its benefits, and any other relevant information that helps the user understand this choice better.</p>
+              <div className="mt-auto pt-4 border-t border-gray-100">
+                <p className="text-sm text-gray-500">Additional details or features can go here</p>
+              </div>
+            </div>
           </div>
-          
-          <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100 hover:shadow transition-shadow">
-            <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mb-2">
-              <span className="text-sm">⚡</span>
+
+          {/* Option C */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow transition-shadow flex flex-col h-full">
+            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+              <span className="text-xl font-bold text-blue-600">C</span>
             </div>
-            <h3 className="font-medium text-sm text-gray-900 mb-1">Competitive Strategy</h3>
-            <p className="text-xs text-gray-600">Position your business for market success</p>
+            <h3 className="font-semibold text-lg text-gray-900 mb-3">Option C</h3>
+            <div className="flex-grow space-y-4">
+              <p className="text-gray-600">Detailed description for Option C. This section can include more content about what this option entails, its benefits, and any other relevant information that helps the user understand this choice better.</p>
+              <div className="mt-auto pt-4 border-t border-gray-100">
+                <p className="text-sm text-gray-500">Additional details or features can go here</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
