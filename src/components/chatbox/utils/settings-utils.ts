@@ -1,7 +1,9 @@
-import { AnalysisConfig, ChatboxPreferences } from '../types';
+import { AnalysisConfig, ChatboxPreferences, ChatboxStorage } from '../types';
+import { SecureStorage } from './secure-storage';
 
 const SETTINGS_STORAGE_KEY = 'chatbox-settings';
 const API_KEYS_STORAGE_KEY = 'chatbox-api-keys';
+const LEGACY_API_KEYS_STORAGE_KEY = 'chatbox-api-keys';
 
 /**
  * Default preferences
@@ -55,12 +57,26 @@ export class ChatboxSettingsManager {
   /**
    * Get stored API keys (by model)
    */
-  static getApiKeys(): Record<string, string> {
-    if (typeof window === 'undefined') return {};
-    
+  static loadApiKeys(): Record<string, string> {
     try {
-      const stored = localStorage.getItem(API_KEYS_STORAGE_KEY);
-      return stored ? JSON.parse(stored) : {};
+      // Try secure storage first
+      const secureStored = SecureStorage.getItem(API_KEYS_STORAGE_KEY);
+      if (secureStored) {
+        return JSON.parse(secureStored);
+      }
+      
+      // Fallback to legacy storage for migration
+      const legacyStored = localStorage.getItem(LEGACY_API_KEYS_STORAGE_KEY);
+      if (legacyStored && !secureStored) {
+        const keys = JSON.parse(legacyStored);
+        // Migrate to secure storage
+        this.saveApiKeyBatch(keys);
+        // Clean up legacy storage
+        localStorage.removeItem(LEGACY_API_KEYS_STORAGE_KEY);
+        return keys;
+      }
+      
+      return {};
     } catch (error) {
       console.warn('Failed to load API keys:', error);
       return {};
@@ -70,13 +86,13 @@ export class ChatboxSettingsManager {
   /**
    * Save API key for a specific model/provider
    */
-  static saveApiKey(model: string, apiKey: string): void {
+  static saveApiKey(service: string, key: string): void {
     if (typeof window === 'undefined') return;
     
     try {
-      const current = this.getApiKeys();
-      current[model] = apiKey;
-      localStorage.setItem(API_KEYS_STORAGE_KEY, JSON.stringify(current));
+      const keys = this.loadApiKeys();
+      keys[service] = key;
+      SecureStorage.setItem(API_KEYS_STORAGE_KEY, JSON.stringify(keys));
     } catch (error) {
       console.error('Failed to save API key:', error);
     }
@@ -86,23 +102,43 @@ export class ChatboxSettingsManager {
    * Get API key for a specific model
    */
   static getApiKey(model: string): string | undefined {
-    const keys = this.getApiKeys();
+    const keys = this.loadApiKeys();
     return keys[model];
   }
 
   /**
    * Remove API key for a specific model
    */
-  static removeApiKey(model: string): void {
+  static removeApiKey(service: string): void {
     if (typeof window === 'undefined') return;
     
     try {
-      const current = this.getApiKeys();
-      delete current[model];
-      localStorage.setItem(API_KEYS_STORAGE_KEY, JSON.stringify(current));
+      const keys = this.loadApiKeys();
+      delete keys[service];
+      SecureStorage.setItem(API_KEYS_STORAGE_KEY, JSON.stringify(keys));
     } catch (error) {
       console.error('Failed to remove API key:', error);
     }
+  }
+
+  /**
+   * Save multiple API keys at once (batch operation)
+   */
+  static saveApiKeyBatch(keys: Record<string, string>): void {
+    if (typeof window === 'undefined') return;
+    
+    try {
+      SecureStorage.setItem(API_KEYS_STORAGE_KEY, JSON.stringify(keys));
+    } catch (error) {
+      console.error('Failed to save API keys:', error);
+    }
+  }
+
+  /**
+   * Get all stored API keys
+   */
+  static getApiKeys(): Record<string, string> {
+    return this.loadApiKeys();
   }
 
   /**

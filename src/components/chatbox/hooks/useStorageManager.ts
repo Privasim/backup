@@ -231,22 +231,35 @@ export const useStorageManager = () => {
    * Initialize storage on mount
    */
   useEffect(() => {
+    let isMounted = true;
+    
     const initializeStorage = async () => {
+      if (!isMounted) return;
+      
       // Perform migration if needed
       await migrate();
       
-      // Refresh stats
-      refreshStats();
+      if (isMounted) {
+        refreshStats();
+      }
     };
     
     initializeStorage();
+    
+    return () => {
+      isMounted = false;
+    };
   }, [migrate, refreshStats]);
 
   /**
    * Auto-cleanup on mount (if needed)
    */
   useEffect(() => {
+    let isMounted = true;
+    
     const performAutoCleanup = async () => {
+      if (!isMounted) return;
+      
       const stats = storageManager.getStorageStats();
       
       // Auto-cleanup if storage is getting large (>5MB)
@@ -257,6 +270,10 @@ export const useStorageManager = () => {
     };
     
     performAutoCleanup();
+    
+    return () => {
+      isMounted = false;
+    };
   }, [cleanup]);
 
   return {
@@ -313,7 +330,6 @@ export const useSessionManager = (
       
       if (session) {
         console.log('Loaded session from storage:', session.timestamp);
-        return session;
       }
     }
   }, [loadSession, sessionLoaded]);

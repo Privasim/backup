@@ -1,7 +1,8 @@
 'use client';
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { ExclamationTriangleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import React, { Component, ErrorInfo, ReactNode, useEffect, useState } from 'react';
+import { AlertTriangle, RefreshCw, Settings, Copy, ExternalLink } from 'lucide-react';
+import { categorizeError, ErrorDetails } from './utils/error-handler';
 
 interface Props {
   children: ReactNode;
@@ -115,69 +116,68 @@ export class ChatboxErrorBoundary extends Component<Props, State> {
     });
   };
 
-  private getErrorCategory = (error: Error): string => {
-    if (error.message.includes('API key')) {
-      return 'authentication';
-    }
-    if (error.message.includes('network') || error.message.includes('fetch')) {
-      return 'network';
-    }
-    if (error.message.includes('timeout')) {
-      return 'timeout';
-    }
-    if (error.message.includes('rate limit')) {
-      return 'rate-limit';
-    }
-    if (error.message.includes('model') || error.message.includes('provider')) {
-      return 'configuration';
-    }
-    return 'unknown';
+  private getErrorDetails = (error: Error): ErrorDetails => {
+    return categorizeError(error);
   };
 
-  private getErrorMessage = (error: Error): { title: string; description: string; action: string } => {
-    const category = this.getErrorCategory(error);
-
-    switch (category) {
+  private getErrorMessage = (error: Error): { title: string; description: string; action: string; severity: string } => {
+    const errorDetails = this.getErrorDetails(error);
+    
+    switch (errorDetails.category) {
       case 'authentication':
         return {
           title: 'Authentication Error',
           description: 'There seems to be an issue with your API key. Please check that it\'s valid and try again.',
-          action: 'Check your API key in the settings'
+          action: 'Check your API key in the settings',
+          severity: errorDetails.severity
         };
       
       case 'network':
         return {
           title: 'Connection Error',
           description: 'Unable to connect to the AI service. Please check your internet connection.',
-          action: 'Check your connection and try again'
+          action: 'Check your connection and try again',
+          severity: errorDetails.severity
         };
       
       case 'timeout':
         return {
           title: 'Request Timeout',
           description: 'The analysis is taking longer than expected. This might be due to high server load.',
-          action: 'Try again in a few moments'
+          action: 'Try again in a few moments',
+          severity: errorDetails.severity
         };
       
       case 'rate-limit':
         return {
           title: 'Rate Limit Exceeded',
           description: 'You\'ve made too many requests in a short time. Please wait before trying again.',
-          action: 'Wait a moment and try again'
+          action: 'Wait a moment and try again',
+          severity: errorDetails.severity
+        };
+      
+      case 'storage':
+        return {
+          title: 'Storage Error',
+          description: 'There\'s an issue accessing your stored data. This might affect your chatbox settings.',
+          action: 'Clear storage and try again',
+          severity: errorDetails.severity
         };
       
       case 'configuration':
         return {
           title: 'Configuration Error',
           description: 'There\'s an issue with the analysis configuration. Please check your settings.',
-          action: 'Review your model and settings'
+          action: 'Review your model and settings',
+          severity: errorDetails.severity
         };
       
       default:
         return {
           title: 'Unexpected Error',
           description: 'Something unexpected happened. The chatbox encountered an error while processing.',
-          action: 'Try refreshing or contact support if the issue persists'
+          action: 'Try refreshing or contact support if the issue persists',
+          severity: errorDetails.severity
         };
     }
   };

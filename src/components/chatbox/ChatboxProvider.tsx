@@ -76,12 +76,19 @@ const defaultPreferences: ChatboxPreferences = {
 
 export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
   // Core state
-  const [state, setState] = useState<ChatboxState>({
+  const [state, setState] = useState<ChatboxState & { plugins: ChatboxPlugin[]; providers: AnalysisProvider[] }>({
     status: 'idle',
     config: defaultConfig,
     messages: [],
-    isVisible: false
+    isVisible: false,
+    error: undefined,
+    currentAnalysis: undefined,
+    plugins: [],
+    providers: []
   });
+  
+  // Analysis state
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   
   // Extended state
   const [profileData, setProfileDataState] = useState<ProfileFormData>();
@@ -234,7 +241,7 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    setState(prev => ({ ...prev, status: 'analyzing', error: undefined }));
+    setState(prev => ({ ...prev, status: 'analyzing', isAnalyzing: true, error: undefined }));
     
     // Add initial message to show analysis is starting
     const analysisMessageId = generateId();
@@ -301,20 +308,26 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
       setState(prev => ({
         ...prev,
         status: 'completed',
+        isAnalyzing: false,
         currentAnalysis: result
       }));
 
-      // Cache the result
-      cacheManager.cacheResult(state.config, profileDataHash, result);
-      
-      // Add to history
-      storageManager.addToHistory(result);
-
+      try {
+        // Cache the result
+        cacheManager.cacheResult(state.config, profileDataHash, result);
+        
+        // Add to history
+        storageManager.addToHistory(result);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        console.error('Failed to cache or save analysis result:', errorMessage);
+      }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Analysis failed';
-      setState(prev => ({ 
-        ...prev, 
-        status: 'error', 
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      
+      setState(prev => ({
+        ...prev,
+        isAnalyzing: false,
         error: errorMessage 
       }));
       
@@ -405,75 +418,27 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
 
   const clearStorage = useCallback(() => {
     storageManager.clearAll();
+    setState(prev => ({
+      ...prev,
+      messages: [],
+      status: 'idle',
+      error: undefined,
+      currentAnalysis: undefined
+    }));
   }, [storageManager]);
 
-  // Session management with new storage system
-  useSessionManager(state.config, state.messages, profileDataHash, true);
 
-  // Load session and settings on mount
-  useEffect(() => {
-    loadSession();
-    
-    // Load last used configuration
-    const loadSettings = async () => {
-      try {
-        const { ChatboxSettingsManager } = await import('./utils/settings-utils');
-        const lastConfig = ChatboxSettingsManager.getLastConfig();
-        
-        setState(prev => ({
-          ...prev,
-          config: { ...prev.config, ...lastConfig }
-        }));
-      } catch (error) {
-        console.error('Failed to load chatbox settings:', error);
-      }
-    };
-    
-    loadSettings();
-  }, [loadSession]);
 
-  // Initialize analysis services
-  useEffect(() => {
-    const initializeServices = async () => {
-      try {
-        const { initializeChatboxServices } = await import('@/lib/chatbox/initialization');
-        initializeChatboxServices();
-      } catch (error) {
-        console.error('Failed to initialize chatbox services:', error);
-      }
-    };
-    
-    initializeServices();
-  }, []);
-
-  // Auto-save configuration changes
-  useEffect(() => {
-    if (state.config.apiKey && state.config.model) {
-      const saveSettings = async () => {
-        try {
-          const { ChatboxSettingsManager } = await import('./utils/settings-utils');
-          ChatboxSettingsManager.saveLastConfig(state.config);
-        } catch (error) {
-          console.error('Failed to save chatbox settings:', error);
-        }
-      };
-      
-      saveSettings();
-    }
-  }, [state.config]);
-
-  const contextValue: ChatboxContextType = {
+  const contextValue = {
     ...state,
     profileData,
-    plugins,
-    providers,
+    setProfileData: setProfileDataState,
     openChatbox,
     closeChatbox,
     toggleChatbox,
-    updateConfig,
-    setProfileData,
     addMessage,
     clearMessages,
+    updateConfig,
     startAnalysis,
     retryAnalysis,
     registerPlugin,
