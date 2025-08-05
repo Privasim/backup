@@ -205,3 +205,24 @@ export const useChatboxSettings = () => {
     getStorageInfo: ChatboxSettingsManager.getStorageInfo
   };
 };
+
+/**
+ * Migration utility to move from old settings format to new storage manager
+ */
+export const migrateToNewStorage = async () => {
+  try {
+    const { storageManager } = await import('./storage-manager');
+    const migrationResult = await storageManager.migrate();
+    
+    if (migrationResult.success) {
+      console.log(`Successfully migrated ${migrationResult.migratedItems} items to new storage format`);
+    } else {
+      console.warn('Storage migration had errors:', migrationResult.errors);
+    }
+    
+    return migrationResult;
+  } catch (error) {
+    console.error('Failed to migrate storage:', error);
+    return { success: false, migratedItems: 0, errors: [String(error)] };
+  }
+};

@@ -5,7 +5,9 @@ import { useChatbox } from './ChatboxProvider';
 import { getAvailableModels } from '@/lib/openrouter';
 import { useChatboxSettings } from './utils/settings-utils';
 import { validateApiKey, validateAnalysisConfig } from './utils/validation-utils';
-import { PlayIcon, CogIcon } from '@heroicons/react/24/outline';
+import { PlayIcon, CogIcon, CircleStackIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { StorageManagementPanel } from './StorageManagementPanel';
+import { AnalysisHistory } from './AnalysisHistory';
 
 interface ChatboxControlsProps {
   className?: string;
@@ -26,6 +28,8 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
   const [validationStatus, setValidationStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
   const [touched, setTouched] = useState(false);
   const [errors, setErrors] = useState<{ apiKey?: string; model?: string }>({});
+  const [showStoragePanel, setShowStoragePanel] = useState(false);
+  const [showHistoryPanel, setShowHistoryPanel] = useState(false);
 
   const availableModels = getAvailableModels().map(model => {
     const modelInfo = {
@@ -282,6 +286,37 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
           Complete your profile to enable analysis
         </div>
       )}
+
+      {/* Additional Actions */}
+      <div className="pt-2 border-t border-gray-200 space-y-2">
+        <button
+          onClick={() => setShowHistoryPanel(true)}
+          className="w-full flex items-center justify-center px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+        >
+          <ClockIcon className="w-4 h-4 mr-2" />
+          Analysis History
+        </button>
+        
+        <button
+          onClick={() => setShowStoragePanel(true)}
+          className="w-full flex items-center justify-center px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+        >
+          <CircleStackIcon className="w-4 h-4 mr-2" />
+          Manage Storage
+        </button>
+      </div>
+
+      {/* Analysis History Panel */}
+      <AnalysisHistory
+        isVisible={showHistoryPanel}
+        onClose={() => setShowHistoryPanel(false)}
+      />
+
+      {/* Storage Management Panel */}
+      <StorageManagementPanel
+        isVisible={showStoragePanel}
+        onClose={() => setShowStoragePanel(false)}
+      />
     </div>
   );
 };

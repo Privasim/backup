@@ -131,7 +131,7 @@ export const ProfileAnalysisTrigger: React.FC<ProfileAnalysisTriggerProps> = ({
   if (variant === 'card') {
     return (
       <div className={`bg-white rounded-lg border border-gray-200 p-4 ${className}`}>
-        <div className=\"flex items-start space-x-3\">
+        <div className="flex items-start space-x-3">
           <div className={`flex-shrink-0 ${canAnalyze ? 'text-blue-600' : 'text-gray-400'}`}>
             {canAnalyze ? (
               <ChatBubbleLeftRightIcon className={currentSize.icon} />
@@ -140,12 +140,12 @@ export const ProfileAnalysisTrigger: React.FC<ProfileAnalysisTriggerProps> = ({
             )}
           </div>
           
-          <div className=\"flex-1 min-w-0\">
+          <div className="flex-1 min-w-0">
             <h3 className={`font-medium text-gray-900 ${currentSize.text}`}>
               {canAnalyze ? 'Profile Analysis Ready' : 'Complete Your Profile'}
             </h3>
             
-            <p className=\"mt-1 text-sm text-gray-500\">
+            <p className="mt-1 text-sm text-gray-500">
               {canAnalyze 
                 ? 'Get AI-powered insights about your career profile and opportunities.'
                 : `Complete ${readiness.missing.join(', ')} to enable analysis.`
@@ -153,12 +153,12 @@ export const ProfileAnalysisTrigger: React.FC<ProfileAnalysisTriggerProps> = ({
             </p>
 
             {/* Progress indicator */}
-            <div className=\"mt-3\">
-              <div className=\"flex items-center justify-between text-xs text-gray-600 mb-1\">
+            <div className="mt-3">
+              <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
                 <span>Profile Completion</span>
                 <span>{readiness.completionLevel}%</span>
               </div>
-              <div className=\"w-full bg-gray-200 rounded-full h-2\">
+              <div className="w-full bg-gray-200 rounded-full h-2">
                 <div 
                   className={`h-2 rounded-full transition-all duration-300 ${
                     readiness.completionLevel >= 50 ? 'bg-blue-600' : 'bg-gray-400'
@@ -169,7 +169,7 @@ export const ProfileAnalysisTrigger: React.FC<ProfileAnalysisTriggerProps> = ({
             </div>
 
             {/* Action button */}
-            <div className=\"mt-4\">
+            <div className="mt-4">
               <button
                 onClick={handleTriggerAnalysis}
                 disabled={!canAnalyze || isTriggering || analysisStatus === 'analyzing'}
@@ -184,12 +184,12 @@ export const ProfileAnalysisTrigger: React.FC<ProfileAnalysisTriggerProps> = ({
               >
                 {isTriggering || analysisStatus === 'analyzing' ? (
                   <>
-                    <SparklesIcon className=\"w-4 h-4 animate-spin\" />
+                    <SparklesIcon className="w-4 h-4 animate-spin" />
                     <span>Analyzing...</span>
                   </>
                 ) : (
                   <>
-                    <ChatBubbleLeftRightIcon className=\"w-4 h-4\" />
+                    <ChatBubbleLeftRightIcon className="w-4 h-4" />
                     <span>Start Analysis</span>
                   </>
                 )}

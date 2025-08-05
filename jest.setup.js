@@ -33,21 +33,25 @@ try {
   // Chart.js not available, skip mock
 }
 
-// Mock react-chartjs-2
-jest.mock('react-chartjs-2', () => ({
-  Bar: ({ data, options }) => (
-    <div data-testid="bar-chart">
-      <div data-testid="chart-title">{options?.plugins?.title?.text}</div>
-      <div data-testid="chart-data">{JSON.stringify(data)}</div>
-    </div>
-  ),
-  Line: ({ data, options }) => (
-    <div data-testid="line-chart">
-      <div data-testid="chart-title">{options?.plugins?.title?.text}</div>
-      <div data-testid="chart-data">{JSON.stringify(data)}</div>
-    </div>
-  ),
-}))
+// Mock react-chartjs-2 (only if it exists)
+try {
+  jest.mock('react-chartjs-2', () => ({
+    Bar: ({ data, options }) => (
+      <div data-testid="bar-chart">
+        <div data-testid="chart-title">{options?.plugins?.title?.text}</div>
+        <div data-testid="chart-data">{JSON.stringify(data)}</div>
+      </div>
+    ),
+    Line: ({ data, options }) => (
+      <div data-testid="line-chart">
+        <div data-testid="chart-title">{options?.plugins?.title?.text}</div>
+        <div data-testid="chart-data">{JSON.stringify(data)}</div>
+      </div>
+    ),
+  }))
+} catch (e) {
+  // react-chartjs-2 not available, skip mock
+}
 
 // Mock Heroicons
 jest.mock('@heroicons/react/24/outline', () => ({

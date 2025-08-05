@@ -14,6 +14,7 @@ import {
   ChatboxPreferences
 } from './types';
 import { ProfileFormData } from '@/app/businessidea/types/profile.types';
+import { useStorageManager, useSessionManager, useCacheManager } from './hooks/useStorageManager';
 
 interface ChatboxContextType extends ChatboxState {
   // Core actions
@@ -86,6 +87,13 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
   const [profileData, setProfileDataState] = useState<ProfileFormData>();
   const [plugins, setPlugins] = useState<ChatboxPlugin[]>([]);
   const [providers, setProviders] = useState<AnalysisProvider[]>([]);
+  
+  // Storage hooks
+  const storageManager = useStorageManager();
+  const cacheManager = useCacheManager();
+  
+  // Generate profile data hash for caching
+  const profileDataHash = profileData ? storageManager.generateDataHash(profileData) : undefined;
 
   // Generate unique ID
   const generateId = useCallback(() => {
@@ -181,7 +189,7 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
     }));
   }, []);
 
-  // Analysis with streaming support
+  // Analysis with streaming support and caching
   const startAnalysis = useCallback(async (useStreaming: boolean = true) => {
     if (!state.config.apiKey || !state.config.model) {
       setState(prev => ({ 
@@ -192,12 +200,37 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    if (!profileData) {
+    if (!profileData || !profileDataHash) {
       setState(prev => ({ 
         ...prev, 
         status: 'error', 
         error: 'Profile data is required for analysis' 
       }));
+      return;
+    }
+
+    // Check cache first
+    const cachedResult = await cacheManager.getCachedResult(state.config, profileDataHash);
+    if (cachedResult) {
+      console.log('Using cached analysis result');
+      
+      // Add cached result as message
+      const cachedMessage: ChatboxMessage = {
+        id: generateId(),
+        type: 'assistant',
+        content: cachedResult.content,
+        timestamp: new Date().toISOString(),
+        analysisType: state.config.type,
+        metadata: { ...cachedResult.metadata, cached: true }
+      };
+      
+      setState(prev => ({
+        ...prev,
+        status: 'completed',
+        currentAnalysis: cachedResult,
+        messages: [...prev.messages, cachedMessage]
+      }));
+      
       return;
     }
 
@@ -271,11 +304,11 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
         currentAnalysis: result
       }));
 
-      // Save to history
-      const storage = getStorage();
-      setStorage({
-        analysisHistory: [...storage.analysisHistory, result]
-      });
+      // Cache the result
+      cacheManager.cacheResult(state.config, profileDataHash, result);
+      
+      // Add to history
+      storageManager.addToHistory(result);
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Analysis failed';
@@ -299,7 +332,7 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
         )
       }));
     }
-  }, [state.config, profileData, generateId, getStorage, setStorage]);
+  }, [state.config, profileData, profileDataHash, generateId, cacheManager, storageManager]);
 
   const retryAnalysis = useCallback(async () => {
     await startAnalysis();
@@ -351,40 +384,31 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
     return providers.find(p => p.id === providerId);
   }, [providers]);
 
-  // Storage
+  // Storage - using new storage manager
   const saveSession = useCallback(() => {
-    setStorage({
-      lastSession: {
-        config: state.config,
-        messages: state.messages,
-        timestamp: new Date().toISOString()
-      }
-    });
-  }, [state.config, state.messages, setStorage]);
+    storageManager.saveSession(state.config, state.messages, profileDataHash);
+  }, [state.config, state.messages, profileDataHash, storageManager]);
 
   const loadSession = useCallback(() => {
-    const storage = getStorage();
-    if (storage.lastSession) {
+    const session = storageManager.loadSession();
+    if (session) {
       setState(prev => ({
         ...prev,
-        config: storage.lastSession!.config,
-        messages: storage.lastSession!.messages
+        config: session.config,
+        messages: session.messages
       }));
+      
+      return session;
     }
-  }, [getStorage]);
+    return null;
+  }, [storageManager]);
 
   const clearStorage = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(STORAGE_KEY);
-    }
-  }, []);
+    storageManager.clearAll();
+  }, [storageManager]);
 
-  // Auto-save session on changes
-  useEffect(() => {
-    if (state.messages.length > 0) {
-      saveSession();
-    }
-  }, [state.messages, saveSession]);
+  // Session management with new storage system
+  useSessionManager(state.config, state.messages, profileDataHash, true);
 
   // Load session and settings on mount
   useEffect(() => {
