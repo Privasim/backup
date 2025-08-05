@@ -159,37 +159,6 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
             {activePlugins.length === 0 && (
               <ChatboxControls />
             )}
-
-            {/* Utility Actions */}
-            <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-              <div className="text-xs text-gray-500">
-                {messages.length} message{messages.length !== 1 ? 's' : ''}
-              </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={clearMessages}
-                  className="px-3 py-1.5 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
-                >
-                  Clear
-                </button>
-                <button
-                  onClick={() => {
-                    const { exportMessages } = require('./utils/message-utils');
-                    const text = exportMessages.toMarkdown(messages);
-                    const blob = new Blob([text], { type: 'text/markdown' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `chatbox-export-${new Date().toISOString().split('T')[0]}.md`;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                  }}
-                  className="px-3 py-1.5 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors"
-                >
-                  Export
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
