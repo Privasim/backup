@@ -172,11 +172,17 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
   }, [generateId]);
 
   const clearMessages = useCallback(() => {
-    setState(prev => ({ ...prev, messages: [] }));
+    setState(prev => ({ 
+      ...prev, 
+      messages: [],
+      status: 'idle',
+      currentAnalysis: undefined,
+      error: undefined
+    }));
   }, []);
 
-  // Analysis
-  const startAnalysis = useCallback(async () => {
+  // Analysis with streaming support
+  const startAnalysis = useCallback(async (useStreaming: boolean = true) => {
     if (!state.config.apiKey || !state.config.model) {
       setState(prev => ({ 
         ...prev, 
@@ -197,12 +203,63 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
 
     setState(prev => ({ ...prev, status: 'analyzing', error: undefined }));
     
+    // Add initial message to show analysis is starting
+    const analysisMessageId = generateId();
+    const initialMessage: ChatboxMessage = {
+      id: analysisMessageId,
+      type: 'assistant',
+      content: '',
+      timestamp: new Date().toISOString(),
+      analysisType: state.config.type
+    };
+    
+    setState(prev => ({
+      ...prev,
+      messages: [...prev.messages, initialMessage]
+    }));
+    
     try {
       // Import analysis service dynamically to avoid circular dependencies
       const { analysisService } = await import('@/lib/chatbox/AnalysisService');
+      const provider = analysisService.findProviderForModel(state.config.model);
       
-      // Perform analysis using the service
-      const result = await analysisService.analyze(state.config, profileData);
+      if (!provider) {
+        throw new Error(`No provider found for model: ${state.config.model}`);
+      }
+
+      let result: any;
+      
+      if (useStreaming && (provider as any).analyzeStreaming) {
+        // Use streaming analysis
+        result = await (provider as any).analyzeStreaming(
+          state.config, 
+          profileData,
+          (chunk: string) => {
+            // Update the message content in real-time
+            setState(prev => ({
+              ...prev,
+              messages: prev.messages.map(msg => 
+                msg.id === analysisMessageId 
+                  ? { ...msg, content: msg.content + chunk }
+                  : msg
+              )
+            }));
+          }
+        );
+      } else {
+        // Use regular analysis
+        result = await analysisService.analyze(state.config, profileData);
+        
+        // Update message with complete content
+        setState(prev => ({
+          ...prev,
+          messages: prev.messages.map(msg => 
+            msg.id === analysisMessageId 
+              ? { ...msg, content: result.content, metadata: result.metadata }
+              : msg
+          )
+        }));
+      }
       
       if (result.status === 'error') {
         throw new Error(result.error || 'Analysis failed');
@@ -213,14 +270,6 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
         status: 'completed',
         currentAnalysis: result
       }));
-
-      // Add result as message
-      addMessage({
-        type: 'assistant',
-        content: result.content,
-        analysisType: result.type,
-        metadata: result.metadata
-      });
 
       // Save to history
       const storage = getStorage();
@@ -236,12 +285,21 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
         error: errorMessage 
       }));
       
-      addMessage({
-        type: 'error',
-        content: `Analysis failed: ${errorMessage}`
-      });
+      // Update the message to show error
+      setState(prev => ({
+        ...prev,
+        messages: prev.messages.map(msg => 
+          msg.id === analysisMessageId 
+            ? { 
+                ...msg, 
+                type: 'error',
+                content: `Analysis failed: ${errorMessage}`
+              }
+            : msg
+        )
+      }));
     }
-  }, [state.config, profileData, addMessage, getStorage, setStorage]);
+  }, [state.config, profileData, generateId, getStorage, setStorage]);
 
   const retryAnalysis = useCallback(async () => {
     await startAnalysis();
@@ -328,9 +386,26 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [state.messages, saveSession]);
 
-  // Load session on mount
+  // Load session and settings on mount
   useEffect(() => {
     loadSession();
+    
+    // Load last used configuration
+    const loadSettings = async () => {
+      try {
+        const { ChatboxSettingsManager } = await import('./utils/settings-utils');
+        const lastConfig = ChatboxSettingsManager.getLastConfig();
+        
+        setState(prev => ({
+          ...prev,
+          config: { ...prev.config, ...lastConfig }
+        }));
+      } catch (error) {
+        console.error('Failed to load chatbox settings:', error);
+      }
+    };
+    
+    loadSettings();
   }, [loadSession]);
 
   // Initialize analysis services
@@ -346,6 +421,22 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
     
     initializeServices();
   }, []);
+
+  // Auto-save configuration changes
+  useEffect(() => {
+    if (state.config.apiKey && state.config.model) {
+      const saveSettings = async () => {
+        try {
+          const { ChatboxSettingsManager } = await import('./utils/settings-utils');
+          ChatboxSettingsManager.saveLastConfig(state.config);
+        } catch (error) {
+          console.error('Failed to save chatbox settings:', error);
+        }
+      };
+      
+      saveSettings();
+    }
+  }, [state.config]);
 
   const contextValue: ChatboxContextType = {
     ...state,

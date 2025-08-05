@@ -179,7 +179,7 @@ export const createProfileAnalysisProvider = (): AnalysisProvider => {
       const prompts = generateProfilePrompt(transformedData, config.customPrompt);
       
       try {
-        // Make the API request
+        // Make the API request (non-streaming for now, streaming will be handled at the UI level)
         const response = await client.chat({
           model: config.model,
           messages: [
@@ -233,6 +233,85 @@ export const createProfileAnalysisProvider = (): AnalysisProvider => {
           error: `Profile analysis failed: ${errorMessage}`,
           metadata: {
             originalError: error
+          }
+        };
+      }
+    },
+
+    /**
+     * Streaming analysis method for real-time updates
+     */
+    analyzeStreaming: async (
+      config: AnalysisConfig, 
+      data: ProfileFormData,
+      onChunk: (chunk: string) => void
+    ): Promise<AnalysisResult> => {
+      const client = new OpenRouterClient(config.apiKey);
+      
+      // Transform and format the data
+      const transformedData = transformProfileData(data);
+      const prompts = generateProfilePrompt(transformedData, config.customPrompt);
+      
+      let fullContent = '';
+      
+      try {
+        // Make streaming API request
+        await client.chat({
+          model: config.model,
+          messages: [
+            {
+              role: 'system',
+              content: prompts.systemPrompt
+            },
+            {
+              role: 'user',
+              content: prompts.userPrompt
+            }
+          ],
+          temperature: config.temperature || 0.7,
+          max_tokens: config.maxTokens || 800
+        }, {
+          stream: true,
+          onChunk: (chunk: string) => {
+            fullContent += chunk;
+            onChunk(chunk);
+          }
+        });
+        
+        if (!fullContent) {
+          throw new Error('No content received from streaming response');
+        }
+        
+        return {
+          id: `profile-analysis-stream-${Date.now()}`,
+          type: 'profile',
+          status: 'success',
+          content: fullContent.trim(),
+          timestamp: new Date().toISOString(),
+          model: config.model,
+          metadata: {
+            profileStats: transformedData.statistics,
+            promptLength: prompts.userPrompt.length,
+            responseLength: fullContent.length,
+            streaming: true
+          }
+        };
+        
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Streaming analysis failed';
+        
+        return {
+          id: `profile-analysis-stream-error-${Date.now()}`,
+          type: 'profile',
+          status: 'error',
+          content: fullContent, // Include partial content if any
+          timestamp: new Date().toISOString(),
+          model: config.model,
+          error: `Streaming analysis failed: ${errorMessage}`,
+          metadata: {
+            originalError: error,
+            partialContent: fullContent,
+            streaming: true
           }
         };
       }

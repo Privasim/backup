@@ -18,13 +18,19 @@
   - Extend existing OpenRouter client for analysis requests
   - _Requirements: 3.1, 5.1, 5.2_
 
-- [ ] 3. Implement controls with model selection and API key management
+- [x] 3. Implement controls with model selection and API key management
+
+
+
   - Create `ChatboxControls.tsx` adapting existing `ApiKeyInput.tsx`
   - Add model selection dropdown with validation
   - Implement settings persistence using existing localStorage patterns
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ] 4. Create message system with streaming support
+- [x] 4. Create message system with streaming support
+
+
+
   - Implement `ChatboxMessage.tsx` with rich content support
   - Build streaming response handler with progress feedback
   - Add message history and export functionality

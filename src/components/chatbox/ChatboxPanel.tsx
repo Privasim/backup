@@ -3,6 +3,8 @@
 import React, { useEffect, useRef } from 'react';
 import { useChatbox } from './ChatboxProvider';
 import { XMarkIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
+import ChatboxControls from './ChatboxControls';
+import ChatboxMessage from './ChatboxMessage';
 
 interface ChatboxPanelProps {
   className?: string;
@@ -15,6 +17,7 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
     messages,
     error,
     closeChatbox,
+    clearMessages,
     getActivePlugins
   } = useChatbox();
   
@@ -64,16 +67,22 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
         </div>
       )}
 
-      {/* Plugin Controls Slot */}
-      <div className="border-b border-gray-200">
+      {/* Controls Section */}
+      <div className="border-b border-gray-200 p-4">
+        {/* Plugin Controls Slot */}
         {activePlugins.map(plugin => {
           const ControlsComponent = plugin.getControls?.();
           return ControlsComponent ? (
-            <div key={plugin.id} className="p-4">
+            <div key={plugin.id} className="mb-4 last:mb-0">
               <ControlsComponent />
             </div>
           ) : null;
         })}
+        
+        {/* Default Controls when no plugins provide custom controls */}
+        {activePlugins.length === 0 && (
+          <ChatboxControls />
+        )}
       </div>
 
       {/* Messages Area */}
@@ -86,29 +95,16 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
         )}
 
         {messages.map((message) => (
-          <div
+          <ChatboxMessage
             key={message.id}
-            className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div
-              className={`max-w-[80%] rounded-lg px-3 py-2 ${
-                message.type === 'user'
-                  ? 'bg-blue-600 text-white'
-                  : message.type === 'error'
-                  ? 'bg-red-50 text-red-800 border border-red-200'
-                  : message.type === 'system'
-                  ? 'bg-gray-50 text-gray-700 border border-gray-200'
-                  : 'bg-gray-100 text-gray-800'
-              }`}
-            >
-              <div className="text-sm whitespace-pre-wrap">{message.content}</div>
-              {message.metadata?.showTimestamp && (
-                <div className="text-xs opacity-70 mt-1">
-                  {new Date(message.timestamp).toLocaleTimeString()}
-                </div>
-              )}
-            </div>
-          </div>
+            message={message}
+            isStreaming={status === 'analyzing' && message.type === 'assistant' && !message.content.trim()}
+            showTimestamp={false}
+            onCopy={(content) => {
+              // Handle copy action - could show toast notification
+              console.log('Message copied:', content.substring(0, 50) + '...');
+            }}
+          />
         ))}
 
         {/* Error Display */}
@@ -131,26 +127,41 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Plugin Actions Slot */}
-      <div className="border-t border-gray-200 p-4">
-        {activePlugins.map(plugin => {
-          // Future: Plugin action components can be rendered here
-          return (
-            <div key={`${plugin.id}-actions`} className="mb-2 last:mb-0">
-              {/* Plugin-specific action buttons will go here */}
+      {/* Actions Footer */}
+      {messages.length > 0 && (
+        <div className="border-t border-gray-200 p-3">
+          <div className="flex items-center justify-between">
+            <div className="text-xs text-gray-500">
+              {messages.length} message{messages.length !== 1 ? 's' : ''}
             </div>
-          );
-        })}
-        
-        {/* Default actions when no plugins provide custom actions */}
-        {activePlugins.length === 0 && (
-          <div className="text-center">
-            <p className="text-xs text-gray-500">
-              Configure analysis settings to enable actions
-            </p>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={clearMessages}
+                className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                Clear
+              </button>
+              <button
+                onClick={() => {
+                  // Export messages
+                  const { exportMessages } = require('./utils/message-utils');
+                  const text = exportMessages.toMarkdown(messages);
+                  const blob = new Blob([text], { type: 'text/markdown' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `chatbox-export-${new Date().toISOString().split('T')[0]}.md`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="text-xs text-blue-600 hover:text-blue-700 transition-colors"
+              >
+                Export
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
