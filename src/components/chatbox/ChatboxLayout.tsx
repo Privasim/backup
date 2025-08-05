@@ -5,16 +5,28 @@ import { useChatbox } from './ChatboxProvider';
 import ChatboxPanel from './ChatboxPanel';
 
 /**
- * Overlay component for mobile chatbox
+ * Enhanced overlay component for mobile chatbox with better animations
  */
 const ChatboxOverlay: React.FC = () => {
   const { isVisible, closeChatbox } = useChatbox();
+  const [isAnimating, setIsAnimating] = useState(false);
 
-  if (!isVisible) return null;
+  useEffect(() => {
+    if (isVisible) {
+      setIsAnimating(true);
+    } else {
+      const timer = setTimeout(() => setIsAnimating(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isVisible]);
+
+  if (!isAnimating) return null;
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-25 z-40 lg:hidden"
+      className={`fixed inset-0 bg-black z-40 lg:hidden transition-opacity duration-300 ease-in-out ${
+        isVisible ? 'bg-opacity-25' : 'bg-opacity-0'
+      }`}
       onClick={closeChatbox}
     />
   );
@@ -28,7 +40,7 @@ interface ChatboxLayoutProps {
 }
 
 /**
- * Layout component that handles chatbox positioning and slide-out behavior
+ * Enhanced layout component with improved responsive behavior and animations
  */
 export const ChatboxLayout: React.FC<ChatboxLayoutProps> = ({
   children,
@@ -38,10 +50,20 @@ export const ChatboxLayout: React.FC<ChatboxLayoutProps> = ({
 }) => {
   const { isVisible } = useChatbox();
   const [isClient, setIsClient] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    if (isVisible) {
+      setIsAnimating(true);
+    } else {
+      const timer = setTimeout(() => setIsAnimating(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isVisible]);
 
   // Don't render on server to avoid hydration issues
   if (!isClient) {
@@ -50,16 +72,17 @@ export const ChatboxLayout: React.FC<ChatboxLayoutProps> = ({
 
   return (
     <div className={`relative min-h-screen ${className}`}>
-      {/* Main content */}
+      {/* Main content with enhanced transitions */}
       <div 
         className={`
           transition-all duration-300 ease-in-out
           ${isVisible 
             ? position === 'right' 
-              ? `mr-[${width}]` 
-              : `ml-[${width}]`
+              ? 'lg:mr-96' 
+              : 'lg:ml-96'
             : ''
           }
+          ${isAnimating && isVisible ? 'lg:overflow-hidden' : ''}
         `}
         style={{
           marginRight: isVisible && position === 'right' ? width : undefined,
@@ -69,22 +92,23 @@ export const ChatboxLayout: React.FC<ChatboxLayoutProps> = ({
         {children}
       </div>
 
-      {/* Chatbox Panel */}
+      {/* Enhanced Chatbox Panel with better animations */}
       <div
         className={`
           fixed top-0 bottom-0 z-50 
           ${position === 'right' ? 'right-0' : 'left-0'}
-          transition-transform duration-300 ease-in-out
+          transition-all duration-300 ease-in-out
           ${isVisible ? 'translate-x-0' : 
             position === 'right' ? 'translate-x-full' : '-translate-x-full'
           }
+          ${isAnimating ? 'block' : 'hidden'}
         `}
         style={{ width }}
       >
         <ChatboxPanel className="h-full w-full" />
       </div>
 
-      {/* Overlay for mobile */}
+      {/* Enhanced overlay for mobile with fade animation */}
       <ChatboxOverlay />
     </div>
   );
