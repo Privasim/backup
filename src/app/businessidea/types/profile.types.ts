@@ -1,14 +1,8 @@
 export type ProfileType = 
   | 'student'
-  | 'working_full_time'
-  | 'working_part_time'
-  | 'freelancer'
-  | 'business_owner'
-  | 'stay_at_home_parent'
-  | 'unemployed'
-  | 'career_shifter'
-  | 'entrepreneur'
-  | 'other';
+  | 'professional'
+  | 'businessOwner'
+  | 'unemployed';
 
 export interface Profile {
   type: ProfileType;
@@ -23,42 +17,31 @@ export interface ProfileData {
   profileType: ProfileType;
   completedAt?: string;
   
-  // Student-specific fields
+  // Student fields
   educationLevel?: string;
   fieldOfStudy?: string;
-  graduationYear?: number;
-  interestedIndustries?: string[];
+  yearLevel?: string;
   
-  // Professional fields (working_full_time, working_part_time)
-  currentRole?: string;
+  // Professional fields
   industry?: string;
-  yearsOfExperience?: number;
-  technologies?: string[];
+  employmentType?: string;
+  yearsOfExperience?: string;
+  toolsUsed?: string[];
+  topWorkActivities?: string;
   
-  // Freelancer fields
-  services?: string[];
-  clientTypes?: string[];
-  hourlyRate?: number;
-  
-  // Entrepreneur fields
-  businessStage?: 'idea' | 'mvp' | 'launched' | 'profitable';
-  teamSize?: number;
-  noCodeFamiliarity?: boolean;
-  fundingStage?: string;
-  
-  // Career shifter fields
-  previousCareer?: string;
-  yearsInPreviousCareer?: number;
-  targetIndustry?: string;
-  transitionReason?: string;
+  // Business Owner fields
+  businessType?: string;
+  businessStatus?: string;
+  teamSize?: string;
+  salesChannels?: string[];
+  biggestChallenge?: string;
   
   // Unemployed fields
-  lastRole?: string;
-  unemployedTargetIndustry?: string;
-  jobSearchDuration?: number;
-  
-  // Other
-  customDescription?: string;
+  previousRole?: string;
+  targetIndustry?: string;
+  goal?: string;
+  toolsPreviouslyUsed?: string[];
+  enjoyedTasks?: string;
 }
 
 export interface ProfileMetadata {
@@ -131,15 +114,9 @@ export interface LanguageProficiency {
 
 export const PROFILE_TYPE_LABELS: Record<ProfileType, string> = {
   student: 'Student',
-  working_full_time: 'Working Full Time',
-  working_part_time: 'Working Part Time',
-  freelancer: 'Freelancer',
-  business_owner: 'Business Owner',
-  stay_at_home_parent: 'Stay-at-Home Parent',
-  unemployed: 'Unemployed (Actively Searching)',
-  career_shifter: 'Career Shifter',
-  entrepreneur: 'Entrepreneur',
-  other: 'Other'
+  professional: 'Professional',
+  businessOwner: 'Business Owner',
+  unemployed: 'Unemployed'
 };
 
 export const DEFAULT_PROFILE: Profile = {
@@ -177,52 +154,22 @@ export interface ConditionalFieldConfig {
 export const CONDITIONAL_FIELD_CONFIG: Record<ProfileType, ConditionalFieldConfig> = {
   student: {
     required: ['educationLevel'],
-    optional: ['fieldOfStudy', 'graduationYear', 'interestedIndustries'],
+    optional: ['fieldOfStudy', 'yearLevel'],
     nextSteps: ['experience', 'skills']
   },
-  working_full_time: {
-    required: ['currentRole', 'industry'],
-    optional: ['yearsOfExperience', 'technologies'],
+  professional: {
+    required: ['industry', 'employmentType', 'yearsOfExperience'],
+    optional: ['toolsUsed', 'topWorkActivities'],
     nextSteps: ['experience', 'skills']
   },
-  working_part_time: {
-    required: ['currentRole'],
-    optional: ['industry', 'yearsOfExperience', 'technologies'],
-    nextSteps: ['experience', 'skills']
-  },
-  freelancer: {
-    required: ['services'],
-    optional: ['clientTypes', 'yearsOfExperience', 'technologies', 'hourlyRate'],
-    nextSteps: ['experience', 'skills']
-  },
-  business_owner: {
-    required: ['businessStage'],
-    optional: ['industry', 'teamSize', 'yearsOfExperience'],
-    nextSteps: ['experience', 'skills']
-  },
-  stay_at_home_parent: {
-    required: [],
-    optional: ['previousRole', 'yearsOutOfWorkforce', 'interestedIndustries'],
+  businessOwner: {
+    required: ['businessType', 'businessStatus', 'teamSize'],
+    optional: ['salesChannels', 'biggestChallenge'],
     nextSteps: ['experience', 'skills']
   },
   unemployed: {
-    required: ['unemployedTargetIndustry'],
-    optional: ['lastRole', 'jobSearchDuration'],
-    nextSteps: ['experience', 'skills']
-  },
-  career_shifter: {
-    required: ['previousCareer', 'targetIndustry'],
-    optional: ['yearsInPreviousCareer', 'transitionReason'],
-    nextSteps: ['experience', 'skills']
-  },
-  entrepreneur: {
-    required: ['businessStage'],
-    optional: ['industry', 'teamSize', 'noCodeFamiliarity', 'fundingStage'],
-    nextSteps: ['experience', 'skills']
-  },
-  other: {
-    required: ['customDescription'],
-    optional: [],
+    required: ['previousRole', 'targetIndustry', 'goal'],
+    optional: ['toolsPreviouslyUsed', 'enjoyedTasks'],
     nextSteps: ['experience', 'skills']
   }
 };

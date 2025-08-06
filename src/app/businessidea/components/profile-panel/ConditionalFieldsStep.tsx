@@ -148,7 +148,7 @@ const ConditionalFieldsStep: React.FC = () => {
       educationLevel: {
         label: 'Education Level',
         type: 'select',
-        options: ['High School', 'Associate Degree', 'Bachelor\'s Degree', 'Master\'s Degree', 'PhD', 'Other'],
+        options: ['High School', 'College', 'Graduate School'],
         placeholder: 'Select your education level'
       },
       fieldOfStudy: {
@@ -156,122 +156,92 @@ const ConditionalFieldsStep: React.FC = () => {
         type: 'text',
         placeholder: 'e.g., Computer Science, Business, etc.'
       },
-      graduationYear: {
-        label: 'Graduation Year',
-        type: 'number',
-        placeholder: '2024'
-      },
-      interestedIndustries: {
-        label: 'Industries of Interest',
-        type: 'multiselect',
-        options: ['Technology', 'Healthcare', 'Finance', 'Education', 'Manufacturing', 'Retail', 'Consulting', 'Media', 'Non-profit', 'Government']
+      yearLevel: {
+        label: 'Year Level',
+        type: 'select',
+        options: ['1st', '2nd', '3rd', '4th', '5th+'],
+        placeholder: 'Select your year level'
       },
       
       // Professional fields
-      currentRole: {
-        label: 'Current Role',
-        type: 'text',
-        placeholder: 'e.g., Software Engineer, Marketing Manager'
-      },
       industry: {
         label: 'Industry',
         type: 'select',
-        options: ['Technology', 'Healthcare', 'Finance', 'Education', 'Manufacturing', 'Retail', 'Consulting', 'Media', 'Non-profit', 'Government', 'Other']
+        options: ['Technology', 'Healthcare', 'Finance', 'Education', 'Manufacturing', 'Retail', 'Consulting', 'Media', 'Non-profit', 'Other']
+      },
+      employmentType: {
+        label: 'Employment Type',
+        type: 'select',
+        options: ['Full-time', 'Part-time', 'Freelancer', 'Contract']
       },
       yearsOfExperience: {
         label: 'Years of Experience',
-        type: 'number',
-        placeholder: '5'
-      },
-      technologies: {
-        label: 'Technologies/Tools',
-        type: 'multiselect',
-        options: ['JavaScript', 'Python', 'Java', 'React', 'Node.js', 'SQL', 'AWS', 'Docker', 'Git', 'Figma', 'Photoshop', 'Excel', 'Salesforce']
-      },
-      
-      // Freelancer fields
-      services: {
-        label: 'Services Offered',
-        type: 'multiselect',
-        options: ['Web Development', 'Mobile Development', 'Design', 'Writing', 'Marketing', 'Consulting', 'Photography', 'Video Production', 'Translation', 'Data Analysis']
-      },
-      clientTypes: {
-        label: 'Client Types',
-        type: 'multiselect',
-        options: ['Startups', 'Small Business', 'Enterprise', 'Agencies', 'Non-profits', 'Government', 'Individuals']
-      },
-      hourlyRate: {
-        label: 'Hourly Rate (USD)',
-        type: 'number',
-        placeholder: '50'
-      },
-      
-      // Entrepreneur fields
-      businessStage: {
-        label: 'Business Stage',
         type: 'select',
-        options: ['idea', 'mvp', 'launched', 'profitable']
+        options: ['0-1', '2-4', '5-9', '10+']
+      },
+      toolsUsed: {
+        label: 'Tools Used',
+        type: 'multiselect',
+        options: ['Excel', 'PowerPoint', 'Salesforce', 'HubSpot', 'Canva', 'Figma', 'Slack', 'Notion', 'Jira', 'Git', 'AWS', 'Google Analytics']
+      },
+      topWorkActivities: {
+        label: 'Top 3 Work Activities',
+        type: 'textarea',
+        placeholder: 'e.g., Project management, Data analysis, Client communication'
+      },
+      
+      // Business Owner fields
+      businessType: {
+        label: 'Type of Business',
+        type: 'text',
+        placeholder: 'e.g., E-commerce, Consulting, Food service'
+      },
+      businessStatus: {
+        label: 'Business Status',
+        type: 'select',
+        options: ['Active', 'Paused', 'Closed']
       },
       teamSize: {
         label: 'Team Size',
-        type: 'number',
-        placeholder: '5'
-      },
-      noCodeFamiliarity: {
-        label: 'No-Code Tools Familiarity',
         type: 'select',
-        options: ['None', 'Basic', 'Intermediate', 'Advanced']
+        options: ['Solo', '2-5', '6-20', '20+']
       },
-      fundingStage: {
-        label: 'Funding Stage',
+      salesChannels: {
+        label: 'Sales Channels',
+        type: 'multiselect',
+        options: ['Facebook', 'Lazada', 'Shopify', 'In-person', 'Instagram', 'TikTok Shop', 'Shopee']
+      },
+      biggestChallenge: {
+        label: 'Biggest Challenge',
         type: 'select',
-        options: ['Self-funded', 'Friends & Family', 'Angel', 'Seed', 'Series A+', 'Not seeking funding']
+        options: ['Getting leads', 'Managing costs', 'Staffing', 'Customer churn', 'Scaling operations', 'Marketing']
       },
       
-      // Career shifter fields
-      previousCareer: {
-        label: 'Previous Career',
+      // Unemployed fields
+      previousRole: {
+        label: 'Previous Role',
         type: 'text',
-        placeholder: 'e.g., Teacher, Accountant, Sales Manager'
-      },
-      yearsInPreviousCareer: {
-        label: 'Years in Previous Career',
-        type: 'number',
-        placeholder: '8'
+        placeholder: 'e.g., Marketing Manager, Developer, Teacher'
       },
       targetIndustry: {
         label: 'Target Industry',
         type: 'select',
-        options: ['Technology', 'Healthcare', 'Finance', 'Education', 'Manufacturing', 'Retail', 'Consulting', 'Media', 'Non-profit', 'Government', 'Other']
+        options: ['Technology', 'Healthcare', 'Finance', 'Education', 'Manufacturing', 'Retail', 'Consulting', 'Media', 'Non-profit', 'Other']
       },
-      transitionReason: {
-        label: 'Reason for Career Change',
-        type: 'textarea',
-        placeholder: 'What motivated you to change careers?'
-      },
-      
-      // Unemployed fields
-      lastRole: {
-        label: 'Last Role',
-        type: 'text',
-        placeholder: 'e.g., Project Manager, Developer'
-      },
-      unemployedTargetIndustry: {
-        label: 'Target Industry',
+      goal: {
+        label: 'Goal',
         type: 'select',
-        options: ['Technology', 'Healthcare', 'Finance', 'Education', 'Manufacturing', 'Retail', 'Consulting', 'Media', 'Non-profit', 'Government', 'Other']
+        options: ['Find job', 'Start business', 'Undecided']
       },
-      jobSearchDuration: {
-        label: 'Job Search Duration (months)',
-        type: 'number',
-        placeholder: '3'
+      toolsPreviouslyUsed: {
+        label: 'Tools Previously Used',
+        type: 'multiselect',
+        options: ['Excel', 'PowerPoint', 'Salesforce', 'HubSpot', 'Canva', 'Figma', 'Slack', 'Notion', 'Jira', 'Git', 'AWS', 'Google Analytics']
       },
-      
-      // Other
-      customDescription: {
-        label: 'Tell us about yourself',
+      enjoyedTasks: {
+        label: 'Enjoyed Tasks',
         type: 'textarea',
-        placeholder: 'Please describe your current situation, goals, and what you\'re looking for...'
+        placeholder: 'e.g., Team collaboration, Problem solving, Creative work'
       }
     };
 

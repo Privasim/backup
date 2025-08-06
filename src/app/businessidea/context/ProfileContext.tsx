@@ -55,7 +55,33 @@ const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
 // Create safe default values outside component to avoid recreation
 const createDefaultProfileData = (): ProfileData => ({
-  profileType: 'student'
+  profileType: 'student',
+  
+  // Student fields
+  educationLevel: '',
+  fieldOfStudy: '',
+  yearLevel: '',
+  
+  // Professional fields
+  industry: '',
+  employmentType: '',
+  yearsOfExperience: '',
+  toolsUsed: [],
+  topWorkActivities: '',
+  
+  // Business Owner fields
+  businessType: '',
+  businessStatus: '',
+  teamSize: '',
+  salesChannels: [],
+  biggestChallenge: '',
+  
+  // Unemployed fields
+  previousRole: '',
+  targetIndustry: '',
+  goal: '',
+  toolsPreviouslyUsed: [],
+  enjoyedTasks: ''
 });
 
 const createDefaultSkillset = (): EnhancedSkillset => ({

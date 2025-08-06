@@ -5,15 +5,9 @@ import { ProfileType, CONDITIONAL_FIELD_CONFIG } from '../types/profile.types';
 const baseProfileSchema = z.object({
   profileType: z.enum([
     'student',
-    'working_full_time', 
-    'working_part_time',
-    'freelancer',
+    'professional',
     'business_owner',
-    'stay_at_home_parent',
-    'unemployed',
-    'career_shifter',
-    'entrepreneur',
-    'other'
+    'unemployed'
   ])
 });
 
@@ -21,41 +15,41 @@ const baseProfileSchema = z.object({
 const getFieldValidator = (field: string, required: boolean) => {
   const validators: Record<string, z.ZodTypeAny> = {
     // Student fields
-    educationLevel: z.string().min(1, 'Education level is required'),
-    fieldOfStudy: z.string().optional(),
-    graduationYear: z.number().min(2020).max(2030).optional(),
-    interestedIndustries: z.array(z.string()).optional(),
+    educationLevel: z.enum(['High School', 'College', 'Graduate School']),
+    fieldOfStudy: z.string().min(1, 'Field of study is required'),
+    yearLevel: z.enum(['1st', '2nd', '3rd', '4th', '5th+']),
     
     // Professional fields
-    currentRole: z.string().min(1, 'Current role is required'),
-    industry: z.string().min(1, 'Industry is required'),
-    yearsOfExperience: z.number().min(0).max(50).optional(),
-    technologies: z.array(z.string()).optional(),
+    industry: z.enum([
+      'Technology', 'Healthcare', 'Finance', 'Education', 
+      'Manufacturing', 'Retail', 'Consulting', 'Media', 
+      'Non-profit', 'Other'
+    ]),
+    employmentType: z.enum(['Full-time', 'Part-time', 'Freelancer', 'Contract']),
+    yearsOfExperience: z.enum(['0-1', '2-4', '5-9', '10+']),
+    toolsUsed: z.array(z.string()).min(1, 'Please select at least one tool'),
+    topWorkActivities: z.array(z.string()).min(1, 'Please add at least one activity').max(3, 'Maximum 3 activities'),
     
-    // Freelancer fields
-    services: z.array(z.string()).min(1, 'At least one service is required'),
-    clientTypes: z.array(z.string()).optional(),
-    hourlyRate: z.number().min(0).optional(),
-    
-    // Entrepreneur fields
-    businessStage: z.enum(['idea', 'mvp', 'launched', 'profitable']),
-    teamSize: z.number().min(0).optional(),
-    noCodeFamiliarity: z.boolean().optional(),
-    fundingStage: z.string().optional(),
-    
-    // Career shifter fields
-    previousCareer: z.string().min(1, 'Previous career is required'),
-    yearsInPreviousCareer: z.number().min(0).max(50).optional(),
-    targetIndustry: z.string().min(1, 'Target industry is required'),
-    transitionReason: z.string().optional(),
+    // Business Owner fields
+    businessType: z.string().min(1, 'Business type is required'),
+    businessStatus: z.enum(['Active', 'Paused', 'Closed']),
+    teamSize: z.enum(['Solo', '2-5', '6-20', '20+']),
+    salesChannels: z.array(z.string()).min(1, 'Please select at least one sales channel'),
+    biggestChallenge: z.enum([
+      'Getting leads', 'Managing costs', 'Staffing', 
+      'Customer churn', 'Scaling operations', 'Marketing'
+    ]),
     
     // Unemployed fields
-    lastRole: z.string().optional(),
-    unemployedTargetIndustry: z.string().min(1, 'Target industry is required'),
-    jobSearchDuration: z.number().min(0).optional(),
-    
-    // Other fields
-    customDescription: z.string().min(10, 'Please provide a detailed description (minimum 10 characters)')
+    previousRole: z.string().min(1, 'Previous role is required'),
+    targetIndustry: z.enum([
+      'Technology', 'Healthcare', 'Finance', 'Education', 
+      'Manufacturing', 'Retail', 'Consulting', 'Media', 
+      'Non-profit', 'Other'
+    ]),
+    goal: z.enum(['Find job', 'Start business', 'Undecided']),
+    toolsPreviouslyUsed: z.array(z.string()).optional(),
+    enjoyedTasks: z.array(z.string()).min(1, 'Please add at least one task').max(3, 'Maximum 3 tasks')
   };
 
   const validator = validators[field];
