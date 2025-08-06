@@ -1,0 +1,162 @@
+Here is a structured **Branching Logic Form Specification** document that captures the **entire user journey** from minimalist profile creation to the **Business Summary Page**, aligned with your updated UX philosophy and LLM-ready structure.
+
+---
+
+# 📄 **User Profile Form + Branching Logic Specification**
+
+**Phase:** Profile Creation → Summary Plan Output
+**Platform Role:** Backup Business Plan Generator
+**Version:** v1.0
+**Date:** 2025-08-05
+
+---
+
+## 🧠 OVERVIEW
+
+This branching logic maps how users move from simplified profile input into a tailored set of **business summaries** (tech and non-tech) that match their professional identity, experience, and work habits.
+
+This is built for both **user simplicity** and **LLM function readiness.**
+
+---
+
+## 🧱 PAGE 1 — IDENTITY SELECTION
+
+> “Which of these best describes you right now?”
+
+| Option                        | Next Branch                     |
+| ----------------------------- | ------------------------------- |
+| 🧑‍🎓 Student                 | → Page 2: Student Branch        |
+| 💼 Professional               | → Page 2: Professional Branch   |
+| 🧑‍💼 Business Owner          | → Page 2: Business Owner Branch |
+| ⚠️ Unemployed / In Transition | → Page 2: Unemployed Branch     |
+
+---
+
+## 🧩 PAGE 2 — ROLE-BASED BRANCHING LOGIC
+
+---
+
+### 🧑‍🎓 **STUDENT BRANCH**
+
+| Field           | Type               | Notes                                                         |
+| --------------- | ------------------ | ------------------------------------------------------------- |
+| Education Level | Enum               | High School, College, Graduate School                         |
+| Field of Study  | Text/Tag           | Optional; use to seed business type (STEM → Tech ideas, etc.) |
+| Year Level      | Dropdown (1st–5th) | Optional                                                      |
+
+➡️ **Feeds into business types:**
+
+* Freelance services
+* Student-focused content businesses
+* Resell models
+* Study-based SaaS tools
+
+---
+
+### 💼 **PROFESSIONAL BRANCH**
+
+| Field                 | Type                                | Notes                                                               |
+| --------------------- | ----------------------------------- | ------------------------------------------------------------------- |
+| Industry              | Tag input                           | Autocomplete e.g., “Logistics,” “Retail,” “Education”               |
+| Employment Type       | Enum                                | Full-time, Part-time, Freelancer, Contract                          |
+| Years of Experience   | Dropdown                            | Ranges: 0–1, 2–4, 5–9, 10+                                          |
+| Tools Used            | Tag input                           | Optional: Excel, Canva, Salesforce, Notion, etc.                    |
+| Top 3 Work Activities | Free text or dropdown (suggestions) | e.g., “Managing schedules,” “Writing reports,” “Creating campaigns” |
+
+➡️ **Feeds into business types:**
+
+* SaaS tools for repetitive workflows
+* Workflow outsourcing (service business)
+* Consulting in current industry
+* AI-enhanced content/workflows
+
+---
+
+### 🧑‍💼 **BUSINESS OWNER BRANCH**
+
+| Field             | Type        | Notes                                          |
+| ----------------- | ----------- | ---------------------------------------------- |
+| Type of Business  | Text        | Free input (used to semantically match models) |
+| Status            | Enum        | Active, Paused, Closed                         |
+| Team Size         | Dropdown    | Solo, 2–5, 6–20, 20+                           |
+| Sales Channel     | Multiselect | Facebook, Lazada, Shopify, In-person           |
+| Biggest Challenge | Dropdown    | Leads, cost, staffing, customer churn, etc.    |
+
+➡️ **Feeds into business types:**
+
+* Process automation tools
+* Expansion plans
+* Re-launch playbooks
+* Upsell path tools
+
+---
+
+### ⚠️ **UNEMPLOYED BRANCH**
+
+| Field                 | Type              | Notes                                            |
+| --------------------- | ----------------- | ------------------------------------------------ |
+| Previous Role         | Tag input or text | Optional AI correction layer for role extraction |
+| Industry              | Tag               | Match to risk exposure model                     |
+| Tools Previously Used | Tag input         | Helps simulate workflows they already know       |
+| Enjoyed Tasks         | Free input        | Seeds emotional alignment + idea fit             |
+| Goal                  | Enum              | Find job, Start business, Undecided              |
+
+➡️ **Feeds into business types:**
+
+* Domain-skills turned into services
+* Digital franchises (e.g., compliance consulting)
+* Entry-level low-risk SaaS
+
+---
+
+## 🚀 NEXT STEP — SUMMARY PAGE LOGIC
+
+### After profile creation, user is taken to:
+
+> 🔍 **"Based on your experience and background, here are 4 business ideas tailored to you."**
+
+| Slot | Type                     | Notes                                          |
+| ---- | ------------------------ | ---------------------------------------------- |
+| 1    | SaaS / Tech Idea         | Auto-generated from activity → features prompt |
+| 2    | Service Business         | Offline or semi-digital, based on skillset     |
+| 3    | Non-Tech Business        | Market-based idea from tools + industry        |
+| 4    | Hybrid (Tech + Physical) | For flexibility and monetization diversity     |
+
+### Summary Output Format:
+
+| Field                              | Example                                                         |
+| ---------------------------------- | --------------------------------------------------------------- |
+| 🏷️ Title                          | “Clinic Compliance Toolkit”                                     |
+| 💡 Type                            | SaaS / Service / Brick-and-Mortar                               |
+| 🔍 Summary                         | 25-word business pitch                                          |
+| 🧭 Fit Reason                      | “You worked in health compliance and used Excel + Trello daily” |
+| 🛠️ Tool Stack                     | Bolt.new, Canva, Excel                                          |
+| 💰 Est. Monthly Earnings (6–12 mo) | ₱15,000–₱40,000                                                 |
+| ⏱️ Time to MVP                     | 2–3 weeks                                                       |
+| 📊 Risk Profile                    | Low / Medium / High                                             |
+| CTA                                | “See Full Plan” + “Visualize”                                   |
+
+---
+
+## 🧠 AI SYSTEM INTEGRATION CHECKPOINT
+
+* Profile form outputs should be stored as a `profile_input` JSON block
+* LLM function call uses this structure as input for `generateBusinessPlanSummary()`
+* Fallback prompts or scoring logic should detect:
+
+  * Missing tools → fallback to general activity mapping
+  * Missing tasks → fallback to role + industry model
+
+---
+
+## 🔜 FUTURE ADD-ONS (v2+)
+
+| Feature                                               | Benefit                                                 |
+| ----------------------------------------------------- | ------------------------------------------------------- |
+| “Pick a Skill You Want to Monetize”                   | Supports undecided users or multi-skilled professionals |
+| Skill confidence slider                               | Helps personalize complexity of ideas                   |
+| Goal-based prompt tuning (freelance vs scalable SaaS) | Refines simulation logic                                |
+
+---
+
+Would you like this packaged as a PDF/Notion/Markdown spec for your team to implement directly, or should I also prepare a low-fidelity UI wireframe for these flows?
