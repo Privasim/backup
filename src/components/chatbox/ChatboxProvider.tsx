@@ -3,19 +3,18 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { 
   ChatboxState, 
-  ChatboxMessage, 
+  ChatboxMessageData, 
   AnalysisConfig, 
   AnalysisResult, 
   AnalysisType,
   ChatboxPlugin,
   AnalysisProvider,
-  ChatboxContext,
   ChatboxStorage,
   ChatboxPreferences
 } from './types';
+import type { ChatboxContext } from './types';
 import { ProfileFormData } from '@/app/businessidea/types/profile.types';
-import { getMockProfile } from '@/data/mockProfiles';
-import { useStorageManager, useSessionManager } from './hooks/useStorageManager';
+import { useStorageManager } from './hooks/useStorageManager';
 import { useCacheManager } from './hooks/useCacheManager';
 
 interface ChatboxContextType extends ChatboxState {
@@ -29,7 +28,7 @@ interface ChatboxContextType extends ChatboxState {
   setProfileData: (data: ProfileFormData) => void;
   
   // Messages
-  addMessage: (message: Omit<ChatboxMessage, 'id' | 'timestamp'>) => void;
+  addMessage: (message: Omit<ChatboxMessageData, 'id' | 'timestamp'>) => void;
   clearMessages: () => void;
   
   // Analysis
@@ -60,7 +59,7 @@ interface ChatboxContextType extends ChatboxState {
   toggleMockData: () => void;
 }
 
-const ChatboxContext = createContext<ChatboxContextType | undefined>(undefined);
+const ChatboxReactContext = createContext<ChatboxContextType | undefined>(undefined);
 
 const STORAGE_KEY = 'chatbox-storage';
 
@@ -92,9 +91,23 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
     plugins: [],
     providers: []
   });
+
+  // Initialize the chatbox system on mount
+  useEffect(() => {
+    const initializeSystem = async () => {
+      try {
+        const { initializeChatboxSystem } = await import('@/lib/chatbox/initialization');
+        await initializeChatboxSystem();
+        console.log('Chatbox system initialized successfully');
+      } catch (error) {
+        console.error('Failed to initialize chatbox system:', error);
+      }
+    };
+
+    initializeSystem();
+  }, []);
   
-  // Analysis state
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
   
   // Extended state
   const [profileData, setProfileDataState] = useState<ProfileFormData>();
@@ -111,7 +124,7 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
 
   // Generate unique ID
   const generateId = useCallback(() => {
-    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
   }, []);
 
   // Storage utilities
@@ -138,17 +151,7 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const setStorage = useCallback((storage: Partial<ChatboxStorage>) => {
-    if (typeof window === 'undefined') return;
-    
-    try {
-      const current = getStorage();
-      const updated = { ...current, ...storage };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    } catch (error) {
-      console.error('Failed to save chatbox storage:', error);
-    }
-  }, [getStorage]);
+
 
   // Core actions
   const openChatbox = useCallback((analysisType: AnalysisType = 'profile') => {
@@ -175,13 +178,11 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
     }));
   }, []);
 
-  const setProfileData = useCallback((data: ProfileFormData) => {
-    setProfileDataState(data);
-  }, []);
+
 
   // Messages
-  const addMessage = useCallback((message: Omit<ChatboxMessage, 'id' | 'timestamp'>) => {
-    const newMessage: ChatboxMessage = {
+  const addMessage = useCallback((message: Omit<ChatboxMessageData, 'id' | 'timestamp'>) => {
+    const newMessage: ChatboxMessageData = {
       ...message,
       id: generateId(),
       timestamp: new Date().toISOString()
@@ -205,11 +206,21 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
 
   // Analysis with streaming support and caching
   const startAnalysis = useCallback(async (useStreaming: boolean = true) => {
+    console.log('ChatboxProvider: startAnalysis called', {
+      hasApiKey: !!state.config.apiKey,
+      hasModel: !!state.config.model,
+      hasProfileData: !!profileData,
+      useMockData,
+      config: state.config
+    });
+
     if (!state.config.apiKey || !state.config.model) {
+      const error = 'API key and model are required';
+      console.error('ChatboxProvider: Missing required config', { apiKey: !!state.config.apiKey, model: !!state.config.model });
       setState(prev => ({ 
         ...prev, 
         status: 'error', 
-        error: 'API key and model are required' 
+        error 
       }));
       return;
     }
@@ -220,7 +231,7 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
       console.log('Using cached analysis result');
       
       // Add cached result as message
-      const cachedMessage: ChatboxMessage = {
+      const cachedMessage: ChatboxMessageData = {
         id: generateId(),
         type: 'assistant',
         content: cachedResult.content,
@@ -239,11 +250,11 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    setState(prev => ({ ...prev, status: 'analyzing', isAnalyzing: true, error: undefined }));
+    setState(prev => ({ ...prev, status: 'analyzing', error: undefined }));
     
     // Add initial message to show analysis is starting
     const analysisMessageId = generateId();
-    const initialMessage: ChatboxMessage = {
+    const initialMessage: ChatboxMessageData = {
       id: analysisMessageId,
       type: 'assistant',
       content: '',
@@ -259,9 +270,17 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
     try {
       // Import analysis service dynamically to avoid circular dependencies
       const { analysisService } = await import('@/lib/chatbox/AnalysisService');
+      console.log('ChatboxProvider: Analysis service loaded, looking for provider for model:', state.config.model);
+      
       const provider = analysisService.findProviderForModel(state.config.model);
+      console.log('ChatboxProvider: Provider found:', !!provider, provider?.id);
       
       if (!provider) {
+        const availableProviders = analysisService.getAllProviders();
+        console.error('ChatboxProvider: No provider found for model', {
+          model: state.config.model,
+          availableProviders: availableProviders.map(p => ({ id: p.id, supportedModels: p.supportedModels }))
+        });
         throw new Error(`No provider found for model: ${state.config.model}`);
       }
 
@@ -286,7 +305,9 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
         );
       } else {
         // Use regular analysis
+        console.log('ChatboxProvider: Starting regular analysis with profile data:', profileData);
         result = await analysisService.analyze(state.config, profileData);
+        console.log('ChatboxProvider: Analysis completed:', result);
         
         // Update message with complete content
         setState(prev => ({
@@ -306,7 +327,6 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
       setState(prev => ({
         ...prev,
         status: 'completed',
-        isAnalyzing: false,
         currentAnalysis: result
       }));
 
@@ -325,7 +345,7 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
       
       setState(prev => ({
         ...prev,
-        isAnalyzing: false,
+        status: 'error',
         error: errorMessage 
       }));
       
@@ -456,14 +476,14 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <ChatboxContext.Provider value={contextValue}>
+    <ChatboxReactContext.Provider value={contextValue}>
       {children}
-    </ChatboxContext.Provider>
+    </ChatboxReactContext.Provider>
   );
 };
 
 export const useChatbox = () => {
-  const context = useContext(ChatboxContext);
+  const context = useContext(ChatboxReactContext);
   if (context === undefined) {
     throw new Error('useChatbox must be used within a ChatboxProvider');
   }

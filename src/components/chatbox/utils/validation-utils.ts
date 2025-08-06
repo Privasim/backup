@@ -5,7 +5,7 @@ import { AnalysisConfig } from '../types';
  */
 
 /**
- * Validate OpenRouter API key format
+ * Validate OpenRouter API key format - using same pattern as working quiz
  */
 export const validateApiKey = (apiKey: string): { isValid: boolean; error?: string } => {
   if (!apiKey) {
@@ -16,10 +16,10 @@ export const validateApiKey = (apiKey: string): { isValid: boolean; error?: stri
     return { isValid: false, error: 'API key is too short' };
   }
   
-  // OpenRouter API key format: sk-or-v1-[hex string]
+  // Use the same pattern as the working quiz validation
   const openRouterPattern = /^sk-or-v1-[a-f0-9]{32,}$/;
   if (!openRouterPattern.test(apiKey)) {
-    return { isValid: false, error: 'Invalid API key format. Expected: sk-or-v1-...' };
+    return { isValid: false, error: 'Please enter a valid OpenRouter API key (sk-or-v1-...)' };
   }
   
   return { isValid: true };

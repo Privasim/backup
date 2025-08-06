@@ -15,7 +15,7 @@ interface ChatboxControlsProps {
 }
 
 export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = '' }) => {
-  const { config, status, updateConfig, startAnalysis, profileData, useMockData } = useChatbox();
+  const { config, status, updateConfig, startAnalysis, profileData, useMockData, setProfileData } = useChatbox();
   const { saveApiKey, getApiKey } = useChatboxSettings();
 
   const [showKey, setShowKey] = useState(false);
@@ -41,7 +41,10 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
     const modelValues = availableModels.map(m => m.value);
     const result = validateAnalysisConfig(config, modelValues);
 
-    const apiKeyValidation = config.apiKey ? validateApiKey(config.apiKey) : { isValid: false };
+    // Use the same validation pattern as the working quiz
+    const apiKeyValidation = config.apiKey ? 
+      { isValid: /^sk-or-v1-[a-f0-9]{32,}$/.test(config.apiKey) } : 
+      { isValid: false };
     const isValid = apiKeyValidation.isValid && result.isValid;
 
     if (process.env.NODE_ENV === 'development') {
@@ -70,7 +73,7 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
     setTouched(true);
     const key = value.trim();
     updateConfig({ apiKey: key });
-    if (config.model && validateApiKey(key).isValid) saveApiKey(config.model, key);
+    if (config.model && /^sk-or-v1-[a-f0-9]{32,}$/.test(key)) saveApiKey(config.model, key);
   }, [config.model, updateConfig, saveApiKey]);
 
   const handleApiKeyPaste = useCallback((e: React.ClipboardEvent<HTMLInputElement>) => {
@@ -90,18 +93,37 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
   // Get current profile data (either real or mock)
   const currentProfileData = useMemo(() => {
     if (useMockData) {
-      return getMockProfile();
+      const mockData = getMockProfile();
+      // Set the mock data in the provider so analysis can use it
+      setProfileData(mockData);
+      return mockData;
     }
     return profileData || null;
-  }, [useMockData, profileData]);
+  }, [useMockData, profileData, setProfileData]);
 
   const handleAnalyze = useCallback(async () => {
     setTouched(true);
     validate();
+    
+    console.log('ChatboxControls: handleAnalyze called', {
+      validationStatus: validation.status,
+      hasProfileData: !!currentProfileData,
+      profileDataType: useMockData ? 'mock' : 'real',
+      config: config,
+      errors: validation.errors
+    });
+    
     if (validation.status === 'valid' && currentProfileData) {
+      console.log('ChatboxControls: Starting analysis with profile data:', currentProfileData);
       await startAnalysis();
+    } else {
+      console.error('ChatboxControls: Cannot start analysis', {
+        validationStatus: validation.status,
+        hasProfileData: !!currentProfileData,
+        errors: validation.errors
+      });
     }
-  }, [validation.status, currentProfileData, startAnalysis, validate]);
+  }, [validation.status, validation.errors, currentProfileData, startAnalysis, validate, config, useMockData]);
 
   const canAnalyze = validation.status === 'valid' && currentProfileData && status !== 'analyzing';
 
