@@ -1,12 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
 import SuggestionCard from '@/components/business/SuggestionCard';
-import { SparklesIcon, LightBulbIcon } from '@heroicons/react/24/outline';
+import BusinessPlanSettings from '@/components/business/BusinessPlanSettings';
+import { SparklesIcon, LightBulbIcon, CogIcon } from '@heroicons/react/24/outline';
 
 export default function BusinessPlanContent() {
   const { businessSuggestions } = useChatbox();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   const { suggestions, suggestionStatus, suggestionError } = businessSuggestions;
   const isLoading = suggestionStatus === 'generating';
@@ -93,12 +95,23 @@ export default function BusinessPlanContent() {
             </div>
           </div>
           
-          {hasSuggestions && (
-            <div className="flex items-center space-x-2 text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
-              <SparklesIcon className="h-3 w-3" />
-              <span>AI Generated</span>
-            </div>
-          )}
+          <div className="flex items-center space-x-2">
+            {hasSuggestions && (
+              <div className="flex items-center space-x-2 text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                <SparklesIcon className="h-3 w-3" />
+                <span>AI Generated</span>
+              </div>
+            )}
+            
+            {/* Settings Button */}
+            <button
+              onClick={() => setIsSettingsOpen(true)}
+              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Business Plan Settings"
+            >
+              <CogIcon className="h-5 w-5" />
+            </button>
+          </div>
         </div>
         
         <div className="flex flex-col gap-4 h-[calc(100vh-180px)] overflow-y-auto">
@@ -123,6 +136,12 @@ export default function BusinessPlanContent() {
           ))}
         </div>
       </div>
+
+      {/* Settings Modal */}
+      <BusinessPlanSettings
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
     </div>
   );
 }
