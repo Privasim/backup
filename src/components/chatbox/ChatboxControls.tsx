@@ -88,13 +88,15 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
   const selectedModel = availableModels.find(m => m.value === config.model);
 
   const currentProfileData = useMemo(() => {
+    return useMockData ? getMockProfile() : profileData || null;
+  }, [useMockData, profileData]);
+
+  useEffect(() => {
     if (useMockData) {
       const mockData = getMockProfile();
       setProfileData(mockData);
-      return mockData;
     }
-    return profileData || null;
-  }, [useMockData, profileData, setProfileData]);
+  }, [useMockData, setProfileData]);
 
   const handleStartAnalysis = useCallback(async () => {
     if (!validate()) {
@@ -110,7 +112,7 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
     });
 
     try {
-      await saveApiKey(config.apiKey);
+      await saveApiKey(config.model, config.apiKey);
       if (validation.status === 'valid' && currentProfileData) {
         chatboxDebug.debug('chatbox:analysis', 'Starting analysis with profile data', currentProfileData);
         await startAnalysis();
@@ -227,7 +229,7 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
       {/* Compact Action Bar */}
       <div className="flex items-center space-x-1.5">
         <button
-          onClick={handleAnalyze}
+          onClick={handleStartAnalysis}
           disabled={!canAnalyze}
           className={`flex-1 flex items-center justify-center px-2 py-1 text-xs font-medium rounded transition-all duration-200 ${canAnalyze
             ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 active:scale-[0.98] shadow-sm'
