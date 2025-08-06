@@ -14,6 +14,7 @@ import {
   ChatboxPreferences
 } from './types';
 import { ProfileFormData } from '@/app/businessidea/types/profile.types';
+import { getMockProfile } from '@/data/mockProfiles';
 import { useStorageManager, useSessionManager, useCacheManager } from './hooks/useStorageManager';
 
 interface ChatboxContextType extends ChatboxState {
@@ -52,6 +53,10 @@ interface ChatboxContextType extends ChatboxState {
   profileData?: ProfileFormData;
   plugins: ChatboxPlugin[];
   providers: AnalysisProvider[];
+  
+  // Mock data functionality
+  useMockData: boolean;
+  toggleMockData: () => void;
 }
 
 const ChatboxContext = createContext<ChatboxContextType | undefined>(undefined);
@@ -94,6 +99,7 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
   const [profileData, setProfileDataState] = useState<ProfileFormData>();
   const [plugins, setPlugins] = useState<ChatboxPlugin[]>([]);
   const [providers, setProviders] = useState<AnalysisProvider[]>([]);
+  const [useMockData, setUseMockData] = useState(false);
   
   // Storage hooks
   const storageManager = useStorageManager();
@@ -203,15 +209,6 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
         ...prev, 
         status: 'error', 
         error: 'API key and model are required' 
-      }));
-      return;
-    }
-
-    if (!profileData || !profileDataHash) {
-      setState(prev => ({ 
-        ...prev, 
-        status: 'error', 
-        error: 'Profile data is required for analysis' 
       }));
       return;
     }
@@ -429,9 +426,15 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
 
 
 
+  const toggleMockData = useCallback(() => {
+    setUseMockData(prev => !prev);
+  }, []);
+
   const contextValue = {
     ...state,
     profileData,
+    useMockData,
+    toggleMockData,
     setProfileData: setProfileDataState,
     openChatbox,
     closeChatbox,

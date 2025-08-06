@@ -26,7 +26,9 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
     error,
     closeChatbox,
     clearMessages,
-    getActivePlugins
+    getActivePlugins,
+    useMockData,
+    toggleMockData
   } = useChatbox();
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -155,6 +157,35 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
               ) : null;
             })}
             
+            {/* Mock Data Toggle */}
+            <div className="border-t border-gray-200 pt-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900">Use Mock Data</h4>
+                  <p className="text-xs text-gray-500">Toggle between real and mock profile data for testing</p>
+                </div>
+                <button
+                  onClick={toggleMockData}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    useMockData ? 'bg-blue-600' : 'bg-gray-200'
+                  }`}
+                  role="switch"
+                  aria-checked={useMockData}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      useMockData ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+              {useMockData && (
+                <div className="mt-2 p-2 bg-blue-50 rounded-md">
+                  <p className="text-xs text-blue-700">✓ Using mock profile data for analysis</p>
+                </div>
+              )}
+            </div>
+
             {/* Default Controls */}
             {activePlugins.length === 0 && (
               <ChatboxControls />
