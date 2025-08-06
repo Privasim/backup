@@ -16,6 +16,7 @@ import ChatboxMessage from './ChatboxMessage';
 import { getMockProfile } from '@/data/mockProfiles';
 import { ProfileSummaryTooltip } from './ProfileSummaryTooltip';
 import { ProfileSection } from './ProfileSection';
+import { chatboxDebug } from '@/app/businessidea/utils/logStore';
 
 interface ChatboxPanelProps {
   className?: string;

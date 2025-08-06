@@ -9,6 +9,7 @@ import { PlayIcon, CogIcon, CircleStackIcon, ClockIcon } from '@heroicons/react/
 import { StorageManagementPanel } from './StorageManagementPanel';
 import { AnalysisHistory } from './AnalysisHistory';
 import { getMockProfile } from '@/data/mockProfiles';
+import { chatboxDebug } from '@/app/businessidea/utils/logStore';
 
 interface ChatboxControlsProps {
   className?: string;
@@ -41,28 +42,24 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
     const modelValues = availableModels.map(m => m.value);
     const result = validateAnalysisConfig(config, modelValues);
 
-    // Use the same validation pattern as the working quiz
     const apiKeyValidation = config.apiKey ? 
       { isValid: /^sk-or-v1-[a-f0-9]{32,}$/.test(config.apiKey) } : 
       { isValid: false };
     const isValid = apiKeyValidation.isValid && result.isValid;
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Validation Debug:', {
-        apiKey: config.apiKey ? `${config.apiKey.substring(0, 10)}...` : 'none',
-        model: config.model,
-        apiKeyValid: apiKeyValidation.isValid,
-        configValid: result.isValid,
-        overallValid: isValid,
-        errors: result.errors
-      });
-    }
+    chatboxDebug.debug('chatbox:validation', 'Validation check', { 
+      isValid, 
+      errors: result.errors,
+      apiKeyValid: apiKeyValidation.isValid,
+      configValid: result.isValid 
+    });
 
     setValidation({
-      status: (isValid ? 'valid' :
-        config.apiKey ? 'invalid' : 'idle') as 'idle' | 'valid' | 'invalid',
+      status: isValid ? 'valid' : 'invalid',
       errors: result.errors
     });
+
+    return isValid;
   }, [config, availableModels]);
 
   useEffect(() => {
@@ -90,38 +87,44 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
 
   const selectedModel = availableModels.find(m => m.value === config.model);
 
-  // Get current profile data (either real or mock)
   const currentProfileData = useMemo(() => {
     if (useMockData) {
       const mockData = getMockProfile();
-      // Set the mock data in the provider so analysis can use it
       setProfileData(mockData);
       return mockData;
     }
     return profileData || null;
   }, [useMockData, profileData, setProfileData]);
 
-  const handleAnalyze = useCallback(async () => {
-    setTouched(true);
-    validate();
-    
-    console.log('ChatboxControls: handleAnalyze called', {
-      validationStatus: validation.status,
+  const handleStartAnalysis = useCallback(async () => {
+    if (!validate()) {
+      setTouched(true);
+      chatboxDebug.warn('chatbox:analysis', 'Analysis blocked - validation failed');
+      return;
+    }
+
+    chatboxDebug.info('chatbox:analysis', 'Starting analysis', { 
       hasProfileData: !!currentProfileData,
-      profileDataType: useMockData ? 'mock' : 'real',
-      config: config,
-      errors: validation.errors
+      useMockData,
+      model: config.model
     });
-    
-    if (validation.status === 'valid' && currentProfileData) {
-      console.log('ChatboxControls: Starting analysis with profile data:', currentProfileData);
-      await startAnalysis();
-    } else {
-      console.error('ChatboxControls: Cannot start analysis', {
-        validationStatus: validation.status,
-        hasProfileData: !!currentProfileData,
-        errors: validation.errors
-      });
+
+    try {
+      await saveApiKey(config.apiKey);
+      if (validation.status === 'valid' && currentProfileData) {
+        chatboxDebug.debug('chatbox:analysis', 'Starting analysis with profile data', currentProfileData);
+        await startAnalysis();
+        chatboxDebug.success('chatbox:analysis', 'Analysis started successfully');
+      } else {
+        chatboxDebug.error('chatbox:analysis', 'Cannot start analysis', {
+          validationStatus: validation.status,
+          hasProfileData: !!currentProfileData,
+          errors: validation.errors
+        });
+      }
+    } catch (error) {
+      chatboxDebug.error('chatbox:analysis', 'Analysis failed', error);
+      console.error('Analysis failed:', error);
     }
   }, [validation.status, validation.errors, currentProfileData, startAnalysis, validate, config, useMockData]);
 
