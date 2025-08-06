@@ -37,7 +37,7 @@ export default function BusinessPlanContent() {
 
   // Empty state component
   const EmptyState = () => (
-    <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
+    <div className="flex flex-col items-center justify-center py-12 text-center">
       <div className="p-4 bg-blue-50 rounded-full mb-4">
         <LightBulbIcon className="h-12 w-12 text-blue-500" />
       </div>
@@ -56,7 +56,7 @@ export default function BusinessPlanContent() {
 
   // Error state component
   const ErrorState = () => (
-    <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
+    <div className="flex flex-col items-center justify-center py-12 text-center">
       <div className="p-4 bg-red-50 rounded-full mb-4">
         <svg className="h-12 w-12 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
@@ -101,13 +101,13 @@ export default function BusinessPlanContent() {
           )}
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 h-[calc(100vh-180px)]">
+        <div className="flex flex-col gap-4 h-[calc(100vh-180px)] overflow-y-auto">
           {isLoading && (
-            <>
+            <div className="space-y-4">
               <LoadingSkeleton />
               <LoadingSkeleton />
               <LoadingSkeleton />
-            </>
+            </div>
           )}
           
           {hasError && <ErrorState />}
@@ -115,10 +115,11 @@ export default function BusinessPlanContent() {
           {!isLoading && !hasError && !hasSuggestions && <EmptyState />}
           
           {hasSuggestions && suggestions.map((suggestion) => (
-            <SuggestionCard
-              key={suggestion.id}
-              suggestion={suggestion}
-            />
+            <div key={suggestion.id} className="w-full">
+              <SuggestionCard
+                suggestion={suggestion}
+              />
+            </div>
           ))}
         </div>
       </div>

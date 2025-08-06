@@ -32,7 +32,7 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
   };
 
   return (
-    <div className={`bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col h-full ${className}`}>
+    <div className={`bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col w-full ${className}`}>
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
