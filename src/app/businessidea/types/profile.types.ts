@@ -55,10 +55,10 @@ export interface ExperienceEntry {
   id: string;
   type: 'work' | 'education' | 'project' | 'volunteer';
   title: string;
-  organization: string;
-  startDate: string;
-  endDate?: string;
-  current: boolean;
+  organization?: string; // Optional - keeping for backward compatibility
+  industry: string;
+  companySize: string;
+  seniority: string;
   description?: string;
   skills?: string[];
   achievements?: string[];
