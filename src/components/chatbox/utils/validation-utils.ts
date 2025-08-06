@@ -1,4 +1,5 @@
 import { AnalysisConfig } from '../types';
+import { validateSystemPrompt } from '../../../lib/chatbox/utils/system-prompt-utils';
 
 /**
  * Validation utilities for chatbox controls
@@ -46,8 +47,9 @@ export const validateModel = (model: string, availableModels: string[]): { isVal
 export const validateAnalysisConfig = (
   config: AnalysisConfig, 
   availableModels: string[]
-): { isValid: boolean; errors: Record<string, string> } => {
+): { isValid: boolean; errors: Record<string, string>; warnings: Record<string, string> } => {
   const errors: Record<string, string> = {};
+  const warnings: Record<string, string> = {};
   
   // Validate API key
   const apiKeyValidation = validateApiKey(config.apiKey);
@@ -75,9 +77,20 @@ export const validateAnalysisConfig = (
     }
   }
   
+  // Validate system prompt if present
+  if (config.customPrompt) {
+    const systemPromptValidation = validateSystemPrompt(config.customPrompt);
+    if (!systemPromptValidation.isValid) {
+      errors.customPrompt = systemPromptValidation.errors[0] || 'Invalid system prompt';
+    } else if (systemPromptValidation.warnings.length > 0) {
+      warnings.customPrompt = systemPromptValidation.warnings[0];
+    }
+  }
+  
   return {
     isValid: Object.keys(errors).length === 0,
-    errors
+    errors,
+    warnings
   };
 };
 

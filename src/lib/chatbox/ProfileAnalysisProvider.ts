@@ -90,8 +90,55 @@ export const transformProfileData = (profileData: ProfileFormData) => {
 export const generateProfilePrompt = (
   data: any, 
   customPrompt?: string,
-  templateId: string = 'default-profile'
+  templateId: string = 'default-profile',
+  customSystemPrompt?: string
 ): { systemPrompt: string; userPrompt: string } => {
+  // If custom system prompt is provided, use it with the template user prompt
+  if (customSystemPrompt) {
+    // Import prompt templates
+    const { getPromptTemplate, renderPromptTemplate } = require('./prompts/ProfileAnalysisPrompts');
+    
+    const template = getPromptTemplate(templateId);
+    if (!template) {
+      throw new Error(`Prompt template not found: ${templateId}`);
+    }
+
+    const profileData = data;
+    
+    // Prepare template data for user prompt
+    const templateData = {
+      profileType: profileData.profileType,
+      currentRole: profileData.basicInfo.currentRole || 'Not specified',
+      industry: profileData.basicInfo.industry || 'Not specified',
+      yearsOfExperience: profileData.basicInfo.yearsOfExperience || 'Not specified',
+      completionPercentage: profileData.statistics.completionPercentage,
+      skillsCount: profileData.keySkills.length,
+      keySkills: profileData.keySkills.map(skill => 
+        `- ${skill.name} (${skill.category}, Level ${skill.proficiency}/5${skill.yearsOfExperience ? `, ${skill.yearsOfExperience} years` : ''})`
+      ).join('\n') || 'No key skills specified',
+      experienceCount: profileData.recentExperience.length,
+      recentExperience: profileData.recentExperience.map(exp => 
+        `- ${exp.title} at ${exp.organization} (${exp.type}${exp.current ? ', Current' : ''})`
+      ).join('\n') || 'No recent experience specified',
+      certificationsCount: profileData.certifications.length,
+      certifications: profileData.certifications.map(cert => 
+        `- ${cert.name} by ${cert.issuer} (${cert.dateObtained})`
+      ).join('\n') || 'No certifications specified',
+      languagesCount: profileData.languages.length,
+      languages: profileData.languages.map(lang => 
+        `- ${lang.language} (${lang.proficiency})`
+      ).join('\n') || 'No languages specified'
+    };
+    
+    const renderedTemplate = renderPromptTemplate(template, templateData);
+    
+    return {
+      systemPrompt: customSystemPrompt,
+      userPrompt: renderedTemplate.userPrompt
+    };
+  }
+  
+  // Legacy custom prompt handling (for backward compatibility)
   if (customPrompt) {
     return {
       systemPrompt: 'You are a professional career analyst providing actionable insights.',
@@ -176,7 +223,18 @@ export const createProfileAnalysisProvider = (): AnalysisProvider => {
       
       // Transform and format the data
       const transformedData = transformProfileData(data);
-      const prompts = generateProfilePrompt(transformedData, config.customPrompt);
+      
+      // Check if customPrompt is actually a system prompt (starts with "You are")
+      const isSystemPrompt = config.customPrompt?.trim().toLowerCase().startsWith('you are');
+      const customSystemPrompt = isSystemPrompt ? config.customPrompt : undefined;
+      const legacyCustomPrompt = !isSystemPrompt ? config.customPrompt : undefined;
+      
+      const prompts = generateProfilePrompt(
+        transformedData, 
+        legacyCustomPrompt, 
+        'default-profile',
+        customSystemPrompt
+      );
       
       try {
         // Make the API request (non-streaming for now, streaming will be handled at the UI level)
@@ -250,7 +308,18 @@ export const createProfileAnalysisProvider = (): AnalysisProvider => {
       
       // Transform and format the data
       const transformedData = transformProfileData(data);
-      const prompts = generateProfilePrompt(transformedData, config.customPrompt);
+      
+      // Check if customPrompt is actually a system prompt (starts with "You are")
+      const isSystemPrompt = config.customPrompt?.trim().toLowerCase().startsWith('you are');
+      const customSystemPrompt = isSystemPrompt ? config.customPrompt : undefined;
+      const legacyCustomPrompt = !isSystemPrompt ? config.customPrompt : undefined;
+      
+      const prompts = generateProfilePrompt(
+        transformedData, 
+        legacyCustomPrompt, 
+        'default-profile',
+        customSystemPrompt
+      );
       
       let fullContent = '';
       

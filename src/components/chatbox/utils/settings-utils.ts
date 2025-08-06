@@ -1,9 +1,11 @@
 import { AnalysisConfig, ChatboxPreferences, ChatboxStorage } from '../types';
 import { SecureStorage } from './secure-storage';
+import { SystemPromptConfig, createDefaultSystemPromptConfig } from '../../../lib/chatbox/utils/system-prompt-utils';
 
 const SETTINGS_STORAGE_KEY = 'chatbox-settings';
 const API_KEYS_STORAGE_KEY = 'chatbox-api-keys';
 const LEGACY_API_KEYS_STORAGE_KEY = 'chatbox-api-keys';
+const SYSTEM_PROMPTS_STORAGE_KEY = 'chatbox-system-prompts';
 
 /**
  * Default preferences
@@ -150,6 +152,7 @@ export class ChatboxSettingsManager {
     try {
       localStorage.removeItem(SETTINGS_STORAGE_KEY);
       localStorage.removeItem(API_KEYS_STORAGE_KEY);
+      localStorage.removeItem(SYSTEM_PROMPTS_STORAGE_KEY);
     } catch (error) {
       console.error('Failed to clear chatbox storage:', error);
     }
@@ -185,31 +188,168 @@ export class ChatboxSettingsManager {
   }
 
   /**
+   * Get system prompt configuration
+   */
+  static getSystemPromptConfig(): SystemPromptConfig {
+    if (typeof window === 'undefined') return createDefaultSystemPromptConfig();
+    
+    try {
+      const stored = localStorage.getItem(SYSTEM_PROMPTS_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return { ...createDefaultSystemPromptConfig(), ...parsed };
+      }
+    } catch (error) {
+      console.warn('Failed to load system prompt config:', error);
+    }
+    
+    return createDefaultSystemPromptConfig();
+  }
+
+  /**
+   * Save system prompt configuration
+   */
+  static saveSystemPromptConfig(config: Partial<SystemPromptConfig>): void {
+    if (typeof window === 'undefined') return;
+    
+    try {
+      const current = this.getSystemPromptConfig();
+      const updated = { 
+        ...current, 
+        ...config, 
+        lastModified: new Date().toISOString() 
+      };
+      localStorage.setItem(SYSTEM_PROMPTS_STORAGE_KEY, JSON.stringify(updated));
+    } catch (error) {
+      console.error('Failed to save system prompt config:', error);
+    }
+  }
+
+  /**
+   * Get system prompt for a specific model
+   */
+  static getSystemPromptForModel(model: string): string | undefined {
+    const config = this.getSystemPromptConfig();
+    
+    // Check if per-model prompts are enabled and available
+    if (config.perModelPrompts && config.perModelPrompts[model]) {
+      return config.perModelPrompts[model];
+    }
+    
+    // Return global prompt if enabled
+    return config.enabled ? config.prompt : undefined;
+  }
+
+  /**
+   * Save system prompt for a specific model
+   */
+  static saveSystemPromptForModel(model: string, prompt: string): void {
+    const config = this.getSystemPromptConfig();
+    const perModelPrompts = config.perModelPrompts || {};
+    
+    perModelPrompts[model] = prompt;
+    
+    this.saveSystemPromptConfig({
+      perModelPrompts,
+      lastUsedPrompt: prompt
+    });
+  }
+
+  /**
+   * Clear system prompt for a specific model
+   */
+  static clearSystemPromptForModel(model: string): void {
+    const config = this.getSystemPromptConfig();
+    if (config.perModelPrompts && config.perModelPrompts[model]) {
+      delete config.perModelPrompts[model];
+      this.saveSystemPromptConfig({ perModelPrompts: config.perModelPrompts });
+    }
+  }
+
+  /**
+   * Get all per-model system prompts
+   */
+  static getAllModelPrompts(): Record<string, string> {
+    const config = this.getSystemPromptConfig();
+    return config.perModelPrompts || {};
+  }
+
+  /**
+   * Clear all system prompt data
+   */
+  static clearSystemPrompts(): void {
+    if (typeof window === 'undefined') return;
+    
+    try {
+      localStorage.removeItem(SYSTEM_PROMPTS_STORAGE_KEY);
+    } catch (error) {
+      console.error('Failed to clear system prompts:', error);
+    }
+  }
+
+  /**
+   * Migrate existing custom prompts from AnalysisConfig
+   */
+  static migrateCustomPrompts(configs: AnalysisConfig[]): void {
+    try {
+      const systemPromptConfig = this.getSystemPromptConfig();
+      let hasChanges = false;
+
+      for (const config of configs) {
+        if (config.customPrompt && config.model) {
+          // Migrate to per-model prompts
+          if (!systemPromptConfig.perModelPrompts) {
+            systemPromptConfig.perModelPrompts = {};
+          }
+          
+          if (!systemPromptConfig.perModelPrompts[config.model]) {
+            systemPromptConfig.perModelPrompts[config.model] = config.customPrompt;
+            hasChanges = true;
+          }
+        }
+      }
+
+      if (hasChanges) {
+        this.saveSystemPromptConfig(systemPromptConfig);
+        console.log('Successfully migrated custom prompts to system prompt storage');
+      }
+    } catch (error) {
+      console.error('Failed to migrate custom prompts:', error);
+    }
+  }
+
+  /**
    * Get storage usage information
    */
   static getStorageInfo(): { 
     preferencesSize: number; 
     apiKeysSize: number; 
+    systemPromptsSize: number;
     totalSize: number;
     keyCount: number;
+    promptCount: number;
   } {
     if (typeof window === 'undefined') {
-      return { preferencesSize: 0, apiKeysSize: 0, totalSize: 0, keyCount: 0 };
+      return { preferencesSize: 0, apiKeysSize: 0, systemPromptsSize: 0, totalSize: 0, keyCount: 0, promptCount: 0 };
     }
     
     try {
       const preferences = localStorage.getItem(SETTINGS_STORAGE_KEY) || '';
       const apiKeys = localStorage.getItem(API_KEYS_STORAGE_KEY) || '';
+      const systemPrompts = localStorage.getItem(SYSTEM_PROMPTS_STORAGE_KEY) || '';
       const keys = this.getApiKeys();
+      const prompts = this.getAllModelPrompts();
       
       return {
         preferencesSize: preferences.length,
         apiKeysSize: apiKeys.length,
-        totalSize: preferences.length + apiKeys.length,
-        keyCount: Object.keys(keys).length
+        systemPromptsSize: systemPrompts.length,
+        totalSize: preferences.length + apiKeys.length + systemPrompts.length,
+        keyCount: Object.keys(keys).length,
+        promptCount: Object.keys(prompts).length
       };
     } catch (error) {
-      return { preferencesSize: 0, apiKeysSize: 0, totalSize: 0, keyCount: 0 };
+      return { preferencesSize: 0, apiKeysSize: 0, systemPromptsSize: 0, totalSize: 0, keyCount: 0, promptCount: 0 };
     }
   }
 }
@@ -230,6 +370,19 @@ export const useChatboxSettings = () => {
   const saveLastConfig = (config: AnalysisConfig) => 
     ChatboxSettingsManager.saveLastConfig(config);
   
+  // System prompt methods
+  const getSystemPromptConfig = () => ChatboxSettingsManager.getSystemPromptConfig();
+  const saveSystemPromptConfig = (config: Partial<SystemPromptConfig>) => 
+    ChatboxSettingsManager.saveSystemPromptConfig(config);
+  const getSystemPromptForModel = (model: string) => 
+    ChatboxSettingsManager.getSystemPromptForModel(model);
+  const saveSystemPromptForModel = (model: string, prompt: string) => 
+    ChatboxSettingsManager.saveSystemPromptForModel(model, prompt);
+  const clearSystemPromptForModel = (model: string) => 
+    ChatboxSettingsManager.clearSystemPromptForModel(model);
+  const getAllModelPrompts = () => ChatboxSettingsManager.getAllModelPrompts();
+  const clearSystemPrompts = () => ChatboxSettingsManager.clearSystemPrompts();
+  
   return {
     getPreferences,
     savePreferences,
@@ -237,6 +390,13 @@ export const useChatboxSettings = () => {
     saveApiKey,
     getLastConfig,
     saveLastConfig,
+    getSystemPromptConfig,
+    saveSystemPromptConfig,
+    getSystemPromptForModel,
+    saveSystemPromptForModel,
+    clearSystemPromptForModel,
+    getAllModelPrompts,
+    clearSystemPrompts,
     clearAll: ChatboxSettingsManager.clearAll,
     getStorageInfo: ChatboxSettingsManager.getStorageInfo
   };

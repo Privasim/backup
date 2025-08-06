@@ -8,8 +8,10 @@ import { validateApiKey, validateAnalysisConfig } from './utils/validation-utils
 import { PlayIcon, CogIcon, CircleStackIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { StorageManagementPanel } from './StorageManagementPanel';
 import { AnalysisHistory } from './AnalysisHistory';
+import { SystemPromptSection } from './SystemPromptSection';
 import { getMockProfile } from '@/data/mockProfiles';
 import { chatboxDebug } from '@/app/businessidea/utils/logStore';
+import { AnalysisConfig } from './types';
 
 interface ChatboxControlsProps {
   className?: string;
@@ -20,9 +22,14 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
   const { saveApiKey, getApiKey } = useChatboxSettings();
 
   const [showKey, setShowKey] = useState(false);
-  const [validation, setValidation] = useState({ status: 'idle' as 'idle' | 'valid' | 'invalid', errors: {} as Record<string, string> });
+  const [validation, setValidation] = useState({ 
+    status: 'idle' as 'idle' | 'valid' | 'invalid', 
+    errors: {} as Record<string, string>,
+    warnings: {} as Record<string, string>
+  });
   const [showStoragePanel, setShowStoragePanel] = useState(false);
   const [showHistoryPanel, setShowHistoryPanel] = useState(false);
+  const [isSystemPromptExpanded, setIsSystemPromptExpanded] = useState(false);
   const [touched, setTouched] = useState(false);
 
   const availableModels = useMemo(() => {
@@ -56,7 +63,8 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
 
     setValidation({
       status: isValid ? 'valid' : 'invalid',
-      errors: result.errors
+      errors: result.errors,
+      warnings: result.warnings || {}
     });
 
     return isValid;
@@ -72,6 +80,11 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
     updateConfig({ apiKey: key });
     if (config.model && /^sk-or-v1-[a-f0-9]{32,}$/.test(key)) saveApiKey(config.model, key);
   }, [config.model, updateConfig, saveApiKey]);
+
+  const handleConfigUpdate = useCallback((configUpdate: Partial<AnalysisConfig>) => {
+    setTouched(true);
+    updateConfig(configUpdate);
+  }, [updateConfig]);
 
   const handleApiKeyPaste = useCallback((e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -216,6 +229,14 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
         )}
       </div>
 
+      {/* System Prompt Section */}
+      <SystemPromptSection
+        config={config}
+        onConfigUpdate={handleConfigUpdate}
+        isExpanded={isSystemPromptExpanded}
+        onToggleExpanded={() => setIsSystemPromptExpanded(!isSystemPromptExpanded)}
+      />
+
       {/* Debug Info */}
       {process.env.NODE_ENV === 'development' && (
         <div className="text-xs text-gray-500 p-2 bg-gray-50 rounded">
@@ -228,29 +249,38 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
 
       {/* Compact Action Bar */}
       <div className="flex items-center space-x-1.5">
-        <button
-          onClick={handleStartAnalysis}
-          disabled={!canAnalyze}
-          className={`flex-1 flex items-center justify-center px-2 py-1 text-xs font-medium rounded transition-all duration-200 ${canAnalyze
-            ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 active:scale-[0.98] shadow-sm'
-            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            }`}
-        >
-          {status === 'analyzing' ? (
-            <>
-              <svg className="animate-spin -ml-0.5 mr-1 h-2.5 w-2.5" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              Analyzing...
-            </>
-          ) : (
-            <>
-              <PlayIcon className="w-2.5 h-2.5 mr-1" />
-              Analyze
-            </>
+        <div className="flex-1 flex items-center space-x-1">
+          <button
+            onClick={handleStartAnalysis}
+            disabled={!canAnalyze}
+            className={`flex-1 flex items-center justify-center px-2 py-1 text-xs font-medium rounded transition-all duration-200 ${canAnalyze
+              ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 active:scale-[0.98] shadow-sm'
+              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              }`}
+          >
+            {status === 'analyzing' ? (
+              <>
+                <svg className="animate-spin -ml-0.5 mr-1 h-2.5 w-2.5" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Analyzing...
+              </>
+            ) : (
+              <>
+                <PlayIcon className="w-2.5 h-2.5 mr-1" />
+                Analyze
+              </>
+            )}
+          </button>
+          
+          {/* System Prompt Indicator */}
+          {config.customPrompt && (
+            <div className="px-1.5 py-0.5 bg-purple-100 text-purple-800 text-xs rounded-full font-medium">
+              Custom
+            </div>
           )}
-        </button>
+        </div>
 
         <div className="flex space-x-0.5">
           <button
