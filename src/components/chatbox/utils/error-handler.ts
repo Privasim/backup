@@ -436,4 +436,54 @@ export const createComponentErrorHandler = (componentName: string) => {
   };
 };
 
+/**
+ * Business suggestion specific error handler
+ */
+export const businessSuggestionErrorHandler = createComponentErrorHandler('BusinessSuggestion');
+
+/**
+ * Handle business suggestion generation errors with specific messaging
+ */
+export const handleBusinessSuggestionError = (error: Error | any): UserFriendlyError => {
+  const baseError = businessSuggestionErrorHandler.handleError(error, 'generateSuggestions');
+  
+  // Customize messages for business suggestion context
+  switch (baseError.category) {
+    case ErrorCategory.API_KEY:
+      return {
+        ...baseError,
+        message: 'Unable to generate business suggestions due to API key issues.',
+        suggestedAction: 'Please check your OpenRouter API key in the chatbox settings.'
+      };
+      
+    case ErrorCategory.RATE_LIMIT:
+      return {
+        ...baseError,
+        message: 'Too many business suggestion requests. Please wait before generating more.',
+        suggestedAction: 'Wait a few minutes before requesting new business suggestions.'
+      };
+      
+    case ErrorCategory.QUOTA:
+      return {
+        ...baseError,
+        message: 'Cannot generate business suggestions due to quota limits.',
+        suggestedAction: 'Check your OpenRouter account balance or upgrade your plan.'
+      };
+      
+    case ErrorCategory.MODEL:
+      return {
+        ...baseError,
+        message: 'The selected AI model cannot generate business suggestions right now.',
+        suggestedAction: 'Try selecting a different model or wait a moment and try again.'
+      };
+      
+    default:
+      return {
+        ...baseError,
+        message: 'Failed to generate business suggestions. This might be a temporary issue.',
+        suggestedAction: 'Please try again. If the problem persists, check your analysis results and settings.'
+      };
+  }
+};
+
 export default errorHandler;

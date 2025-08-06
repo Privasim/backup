@@ -13,6 +13,7 @@ import {
 } from '@heroicons/react/24/outline';
 import ChatboxControls from './ChatboxControls';
 import ChatboxMessage from './ChatboxMessage';
+import QuickActionBar from './QuickActionBar';
 import { getMockProfile } from '@/data/mockProfiles';
 import { ProfileSummaryTooltip } from './ProfileSummaryTooltip';
 import { ProfileSection } from './ProfileSection';
@@ -144,6 +145,9 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
               }}
             />
           ))}
+
+          {/* Quick Action Bar */}
+          <QuickActionBar />
 
           {/* Error Display */}
           {error && (

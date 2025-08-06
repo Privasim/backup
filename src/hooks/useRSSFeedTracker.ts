@@ -176,8 +176,8 @@ export const useRSSFeedTracker = () => {
       );
 
       // Import OpenRouter client dynamically to avoid circular dependencies
-      const { createOpenRouterClient } = await import('@/lib/openrouter/client');
-      const client = createOpenRouterClient(apiKey);
+      const { OpenRouterClient } = await import('@/lib/openrouter/client');
+      const client = new OpenRouterClient(apiKey);
 
       // Process articles one by one to avoid rate limiting
       for (const article of articlesToAnalyze) {

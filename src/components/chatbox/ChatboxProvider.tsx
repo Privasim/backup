@@ -10,7 +10,9 @@ import {
   ChatboxPlugin,
   AnalysisProvider,
   ChatboxStorage,
-  ChatboxPreferences
+  ChatboxPreferences,
+  BusinessSuggestion,
+  BusinessSuggestionState
 } from './types';
 import type { ChatboxContext } from './types';
 import { ProfileFormData } from '@/app/businessidea/types/profile.types';
@@ -57,6 +59,10 @@ interface ChatboxContextType extends ChatboxState {
   // Mock data functionality
   useMockData: boolean;
   toggleMockData: () => void;
+  
+  // Business suggestions
+  generateBusinessSuggestions: () => Promise<void>;
+  clearBusinessSuggestions: () => void;
 }
 
 const ChatboxReactContext = createContext<ChatboxContextType | undefined>(undefined);
@@ -69,6 +75,13 @@ const defaultConfig: AnalysisConfig = {
   apiKey: '',
   temperature: 0.7,
   maxTokens: 800
+};
+
+const defaultBusinessSuggestionState = {
+  suggestions: [],
+  suggestionStatus: 'idle' as const,
+  suggestionError: undefined,
+  lastGeneratedAt: undefined
 };
 
 const defaultPreferences: ChatboxPreferences = {
@@ -88,6 +101,7 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
     isVisible: false,
     error: undefined,
     currentAnalysis: undefined,
+    businessSuggestions: defaultBusinessSuggestionState,
     plugins: [],
     providers: []
   });
@@ -451,6 +465,92 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
     setUseMockData(prev => !prev);
   }, []);
 
+  // Business suggestions
+  const generateBusinessSuggestions = useCallback(async () => {
+    if (!state.currentAnalysis) {
+      console.error('No analysis result available for business suggestion generation');
+      return;
+    }
+
+    setState(prev => ({
+      ...prev,
+      businessSuggestions: {
+        ...prev.businessSuggestions,
+        suggestionStatus: 'generating',
+        suggestionError: undefined
+      }
+    }));
+
+    try {
+      const { businessSuggestionService } = await import('@/lib/chatbox/BusinessSuggestionService');
+      const { businessSuggestionErrorHandler } = await import('./utils/error-handler');
+      
+      const suggestions = await businessSuggestionErrorHandler.retryOperation(
+        () => businessSuggestionService.generateSuggestions(
+          state.config,
+          state.currentAnalysis,
+          profileData
+        ),
+        {
+          maxAttempts: 2,
+          retryableErrors: ['network', 'timeout', 'rate_limit'] as any
+        }
+      );
+
+      setState(prev => ({
+        ...prev,
+        businessSuggestions: {
+          suggestions,
+          suggestionStatus: 'completed',
+          suggestionError: undefined,
+          lastGeneratedAt: new Date().toISOString()
+        }
+      }));
+
+      // Cache the suggestions
+      try {
+        await cacheManager.cacheResult(
+          { ...state.config, type: 'business-suggestion' },
+          profileDataHash,
+          {
+            id: `business-suggestions-${Date.now()}`,
+            type: 'business-suggestion',
+            status: 'success',
+            content: JSON.stringify(suggestions),
+            timestamp: new Date().toISOString(),
+            model: state.config.model,
+            metadata: { suggestionCount: suggestions.length }
+          }
+        );
+
+        // Also save to storage manager
+        storageManager.saveBusinessSuggestions(suggestions, profileDataHash);
+      } catch (cacheError) {
+        console.warn('Failed to cache business suggestions:', cacheError);
+      }
+
+    } catch (error) {
+      const { handleBusinessSuggestionError } = await import('./utils/error-handler');
+      const userError = handleBusinessSuggestionError(error);
+      
+      setState(prev => ({
+        ...prev,
+        businessSuggestions: {
+          ...prev.businessSuggestions,
+          suggestionStatus: 'error',
+          suggestionError: userError.message
+        }
+      }));
+    }
+  }, [state.config, state.currentAnalysis, profileData, profileDataHash, cacheManager]);
+
+  const clearBusinessSuggestions = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      businessSuggestions: defaultBusinessSuggestionState
+    }));
+  }, []);
+
   const contextValue = {
     ...state,
     profileData,
@@ -472,7 +572,9 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
     getProvider,
     saveSession,
     loadSession,
-    clearStorage
+    clearStorage,
+    generateBusinessSuggestions,
+    clearBusinessSuggestions
   };
 
   return (

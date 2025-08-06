@@ -363,6 +363,68 @@ export class ChatboxStorageManager {
   }
 
   /**
+   * Business suggestion specific storage methods
+   */
+  saveBusinessSuggestions(suggestions: any[], profileHash?: string): void {
+    try {
+      const storageItem = this.getStorageItem<any>(STORAGE_KEYS.MAIN);
+      const storage = storageItem?.data || {
+        apiKeys: {},
+        analysisHistory: [],
+        businessSuggestions: [],
+        preferences: {
+          defaultModel: 'qwen/qwen3-coder:free',
+          autoSave: true,
+          showTimestamps: true,
+          theme: 'auto' as const,
+          analysisTypes: ['profile' as const]
+        }
+      };
+
+      const suggestionEntry = {
+        id: `business-suggestions-${Date.now()}`,
+        suggestions,
+        profileHash,
+        timestamp: new Date().toISOString()
+      };
+
+      if (!storage.businessSuggestions) {
+        storage.businessSuggestions = [];
+      }
+
+      storage.businessSuggestions.unshift(suggestionEntry);
+      
+      // Keep only last 10 suggestion sets
+      if (storage.businessSuggestions.length > 10) {
+        storage.businessSuggestions = storage.businessSuggestions.slice(0, 10);
+      }
+      
+      this.setStorageItem(STORAGE_KEYS.MAIN, storage);
+    } catch (error) {
+      console.error('Failed to save business suggestions:', error);
+    }
+  }
+
+  getBusinessSuggestions(profileHash?: string): any[] {
+    try {
+      const storageItem = this.getStorageItem<any>(STORAGE_KEYS.MAIN);
+      const storage = storageItem?.data;
+      
+      if (!storage?.businessSuggestions) return [];
+
+      // Find suggestions for this profile hash
+      const entry = storage.businessSuggestions.find(
+        (entry: any) => entry.profileHash === profileHash
+      );
+
+      return entry?.suggestions || [];
+    } catch (error) {
+      console.error('Failed to get business suggestions:', error);
+      return [];
+    }
+  }
+
+  /**
    * Clear analysis history
    */
   clearHistory(): void {

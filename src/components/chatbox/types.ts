@@ -3,7 +3,27 @@ import { ProfileFormData } from '@/app/businessidea/types/profile.types';
 // Core chatbox types
 export type ChatboxStatus = 'idle' | 'configuring' | 'analyzing' | 'completed' | 'error';
 
-export type AnalysisType = 'profile' | 'resume' | 'interview' | 'career-planning';
+export type AnalysisType = 'profile' | 'resume' | 'interview' | 'career-planning' | 'business-suggestion';
+
+// Business suggestion types
+export interface BusinessSuggestion {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  viabilityScore: number;
+  keyFeatures: string[];
+  targetMarket: string;
+  estimatedStartupCost: string;
+  metadata: Record<string, any>;
+}
+
+export interface BusinessSuggestionState {
+  suggestions: BusinessSuggestion[];
+  suggestionStatus: 'idle' | 'generating' | 'completed' | 'error';
+  suggestionError?: string;
+  lastGeneratedAt?: string;
+}
 
 // Plugin system interfaces
 export interface ChatboxPlugin {
@@ -106,4 +126,5 @@ export type ChatboxState = {
   currentAnalysis?: AnalysisResult;
   error?: string;
   isVisible: boolean;
+  businessSuggestions: BusinessSuggestionState;
 };
