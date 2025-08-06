@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { useChatbox } from './ChatboxProvider';
 import { 
   XMarkIcon, 
@@ -13,6 +13,9 @@ import {
 } from '@heroicons/react/24/outline';
 import ChatboxControls from './ChatboxControls';
 import ChatboxMessage from './ChatboxMessage';
+import { getMockProfile } from '@/data/mockProfiles';
+import { ProfileSummaryTooltip } from './ProfileSummaryTooltip';
+import { ProfileSection } from './ProfileSection';
 
 interface ChatboxPanelProps {
   className?: string;
@@ -28,7 +31,8 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
     clearMessages,
     getActivePlugins,
     useMockData,
-    toggleMockData
+    toggleMockData,
+    profileData
   } = useChatbox();
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -39,6 +43,14 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Get current profile data for display
+  const currentProfileData = useMemo(() => {
+    if (useMockData) {
+      return getMockProfile();
+    }
+    return profileData || null;
+  }, [useMockData, profileData]);
 
   if (!isVisible) {
     return null;
@@ -66,6 +78,27 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
               </span>
             </div>
           </div>
+          
+          {/* Profile Data Source Badge */}
+          <div className="relative group ml-2">
+            <span className={`px-2 py-1 rounded text-xs font-medium cursor-help transition-all ${
+              useMockData 
+                ? 'bg-orange-100 text-orange-800 hover:bg-orange-200' 
+                : 'bg-green-100 text-green-800 hover:bg-green-200'
+            }`}>
+              {useMockData ? 'Mock' : 'Real'}
+            </span>
+            
+            {/* Tooltip */}
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+              <div className="bg-white shadow-lg rounded-lg border border-gray-200 p-3 min-w-[200px]">
+                <ProfileSummaryTooltip 
+                  profileData={currentProfileData} 
+                  isMock={useMockData} 
+                />
+              </div>
+            </div>
+          </div>
         </div>
         <button
           onClick={closeChatbox}
@@ -74,6 +107,14 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
         >
           <XMarkIcon className="h-4 w-4 text-gray-500" />
         </button>
+      </div>
+
+      {/* Profile Section */}
+      <div className="border-b border-gray-200">
+        <ProfileSection 
+          profileData={currentProfileData} 
+          isMock={useMockData} 
+        />
       </div>
 
       {/* Messages Area - Maximized */}
