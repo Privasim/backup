@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { ProfileFormData } from '@/app/businessidea/types/profile.types';
+import { BriefcaseIcon, CodeBracketIcon, DocumentTextIcon, GlobeAltIcon } from '@heroicons/react/20/solid';
 
 interface ProfileSummaryTooltipProps {
   profileData: ProfileFormData | null;
@@ -14,60 +15,51 @@ export const ProfileSummaryTooltip: React.FC<ProfileSummaryTooltipProps> = ({
 }) => {
   if (!profileData) {
     return (
-      <div className="text-sm text-gray-600">
-        No profile data available
+      <div className="text-xs text-gray-500 p-1.5">
+        No profile data
       </div>
     );
   }
 
   const { profile, experience, skillset } = profileData;
   
-  // Use profile type directly
-  const profileType = profile.profileType || 'Profile';
-  
-  // Calculate counts
+  const profileType = profile.profileType?.toLowerCase() || 'profile';
   const experienceCount = experience.length;
-  const skillsCount = 
-    (skillset.technical?.length || 0) + 
-    (skillset.soft?.length || 0);
+  const skillsCount = (skillset.technical?.length || 0) + (skillset.soft?.length || 0);
   const certificationsCount = skillset.certifications?.length || 0;
   const languagesCount = skillset.languages?.length || 0;
 
   return (
-    <div className="w-48">
-      <div className="flex items-center mb-2">
-        <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-          isMock 
-            ? 'bg-orange-100 text-orange-800' 
-            : 'bg-green-100 text-green-800'
+    <div className="text-[11px] text-gray-700 p-1.5 max-w-xs">
+      <div className="flex items-center font-medium mb-1">
+        <span className="truncate">{profileType} Profile</span>
+        <span className={`ml-1.5 px-1 py-0.5 rounded text-[10px] ${
+          isMock ? 'bg-orange-50 text-orange-700' : 'bg-green-50 text-green-700'
         }`}>
-          {isMock ? 'Mock' : 'Real'} Data
+          {isMock ? 'Mock' : 'Real'}
         </span>
       </div>
-      
-      <div className="text-sm space-y-1">
-        <div className="font-medium text-gray-900 capitalize">
-          {profileType} Profile
+      <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
+        <div className="flex items-center">
+          <BriefcaseIcon className="h-2.5 w-2.5 mr-1 text-gray-500" />
+          <span>{experienceCount} {experienceCount === 1 ? 'role' : 'roles'}</span>
         </div>
-        
-        <div className="text-xs text-gray-500 pt-1 border-t border-gray-200">
-          {profileType} • {experienceCount} experience{experienceCount !== 1 ? 's' : ''}
+        <div className="flex items-center">
+          <CodeBracketIcon className="h-2.5 w-2.5 mr-1 text-gray-500" />
+          <span>{skillsCount} {skillsCount === 1 ? 'skill' : 'skills'}</span>
         </div>
-        
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="flex items-center space-x-1">
-            <span>⚙️</span>
-            <span>{skillsCount} skills</span>
+        {certificationsCount > 0 && (
+          <div className="flex items-center">
+            <DocumentTextIcon className="h-2.5 w-2.5 mr-1 text-gray-500" />
+            <span>{certificationsCount} {certificationsCount === 1 ? 'cert' : 'certs'}</span>
           </div>
-          <div className="flex items-center space-x-1">
-            <span>📜</span>
-            <span>{certificationsCount}</span>
+        )}
+        {languagesCount > 0 && (
+          <div className="flex items-center">
+            <GlobeAltIcon className="h-2.5 w-2.5 mr-1 text-gray-500" />
+            <span>{languagesCount} {languagesCount === 1 ? 'lang' : 'langs'}</span>
           </div>
-          <div className="flex items-center space-x-1">
-            <span>🌐</span>
-            <span>{languagesCount}</span>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
