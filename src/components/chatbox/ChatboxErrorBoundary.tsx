@@ -1,8 +1,8 @@
 'use client';
 
-import React, { Component, ErrorInfo, ReactNode, useEffect, useState } from 'react';
-import { AlertTriangle, RefreshCw, Settings, Copy, ExternalLink } from 'lucide-react';
-import { categorizeError, ErrorDetails } from './utils/error-handler';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { AlertTriangle, RefreshCw, Copy } from 'lucide-react';
+import { errorHandler, UserFriendlyError, ErrorCategory } from './utils/error-handler';
 
 interface Props {
   children: ReactNode;
@@ -41,7 +41,7 @@ export class ChatboxErrorBoundary extends Component<Props, State> {
     return {
       hasError: true,
       error,
-      errorId: `error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      errorId: `error-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
     };
   }
 
@@ -116,70 +116,23 @@ export class ChatboxErrorBoundary extends Component<Props, State> {
     });
   };
 
-  private getErrorDetails = (error: Error): ErrorDetails => {
-    return categorizeError(error);
+  private getErrorDetails = (error: Error): UserFriendlyError => {
+    return errorHandler.handleAnalysisError(error, {
+      component: 'ChatboxErrorBoundary',
+      action: 'componentDidCatch',
+      timestamp: new Date().toISOString()
+    });
   };
 
-  private getErrorMessage = (error: Error): { title: string; description: string; action: string; severity: string } => {
+  private getErrorMessage = (error: Error): { title: string; description: string; action: string; retryable: boolean } => {
     const errorDetails = this.getErrorDetails(error);
     
-    switch (errorDetails.category) {
-      case 'authentication':
-        return {
-          title: 'Authentication Error',
-          description: 'There seems to be an issue with your API key. Please check that it\'s valid and try again.',
-          action: 'Check your API key in the settings',
-          severity: errorDetails.severity
-        };
-      
-      case 'network':
-        return {
-          title: 'Connection Error',
-          description: 'Unable to connect to the AI service. Please check your internet connection.',
-          action: 'Check your connection and try again',
-          severity: errorDetails.severity
-        };
-      
-      case 'timeout':
-        return {
-          title: 'Request Timeout',
-          description: 'The analysis is taking longer than expected. This might be due to high server load.',
-          action: 'Try again in a few moments',
-          severity: errorDetails.severity
-        };
-      
-      case 'rate-limit':
-        return {
-          title: 'Rate Limit Exceeded',
-          description: 'You\'ve made too many requests in a short time. Please wait before trying again.',
-          action: 'Wait a moment and try again',
-          severity: errorDetails.severity
-        };
-      
-      case 'storage':
-        return {
-          title: 'Storage Error',
-          description: 'There\'s an issue accessing your stored data. This might affect your chatbox settings.',
-          action: 'Clear storage and try again',
-          severity: errorDetails.severity
-        };
-      
-      case 'configuration':
-        return {
-          title: 'Configuration Error',
-          description: 'There\'s an issue with the analysis configuration. Please check your settings.',
-          action: 'Review your model and settings',
-          severity: errorDetails.severity
-        };
-      
-      default:
-        return {
-          title: 'Unexpected Error',
-          description: 'Something unexpected happened. The chatbox encountered an error while processing.',
-          action: 'Try refreshing or contact support if the issue persists',
-          severity: errorDetails.severity
-        };
-    }
+    return {
+      title: errorDetails.title,
+      description: errorDetails.message,
+      action: errorDetails.suggestedAction || 'Try again',
+      retryable: errorDetails.retryable
+    };
   };
 
   private copyErrorDetails = () => {
@@ -226,7 +179,7 @@ export class ChatboxErrorBoundary extends Component<Props, State> {
           <div className="max-w-md w-full">
             <div className="bg-red-50 border border-red-200 rounded-lg p-6">
               <div className="flex items-center mb-4">
-                <ExclamationTriangleIcon className="h-8 w-8 text-red-600 mr-3" />
+                <AlertTriangle className="h-8 w-8 text-red-600 mr-3" />
                 <div>
                   <h3 className="text-lg font-medium text-red-900">
                     {errorDetails.title}
@@ -243,19 +196,22 @@ export class ChatboxErrorBoundary extends Component<Props, State> {
                 </div>
 
                 <div className="flex space-x-3">
-                  <button
-                    onClick={this.handleReset}
-                    className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
-                  >
-                    <ArrowPathIcon className="h-4 w-4 mr-2" />
-                    Try Again
-                  </button>
+                  {errorDetails.retryable && (
+                    <button
+                      onClick={this.handleReset}
+                      className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                    >
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Try Again
+                    </button>
+                  )}
 
                   <button
                     onClick={this.copyErrorDetails}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                    className="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
                   >
-                    Copy Error Details
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy Details
                   </button>
                 </div>
 

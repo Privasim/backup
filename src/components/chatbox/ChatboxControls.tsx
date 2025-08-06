@@ -8,13 +8,14 @@ import { validateApiKey, validateAnalysisConfig } from './utils/validation-utils
 import { PlayIcon, CogIcon, CircleStackIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { StorageManagementPanel } from './StorageManagementPanel';
 import { AnalysisHistory } from './AnalysisHistory';
+import { getMockProfile } from '@/data/mockProfiles';
 
 interface ChatboxControlsProps {
   className?: string;
 }
 
 export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = '' }) => {
-  const { config, status, updateConfig, startAnalysis, profileData } = useChatbox();
+  const { config, status, updateConfig, startAnalysis, profileData, useMockData } = useChatbox();
   const { saveApiKey, getApiKey } = useChatboxSettings();
 
   const [showKey, setShowKey] = useState(false);
@@ -29,7 +30,7 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
       'z-ai/glm-4.5-air:free': { label: 'GLM 4.5 Air', tag: 'Free', description: 'Lightweight analysis' },
       'moonshotai/kimi-k2:free': { label: 'Kimi K2', tag: 'Free', description: 'Advanced reasoning' }
     };
-    
+
     return getAvailableModels().map(model => ({
       value: model,
       ...modelInfo[model as keyof typeof modelInfo] || { label: model, tag: 'Model', description: 'AI analysis' }
@@ -39,11 +40,24 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
   const validate = useCallback(() => {
     const modelValues = availableModels.map(m => m.value);
     const result = validateAnalysisConfig(config, modelValues);
-    
+
     const apiKeyValidation = config.apiKey ? validateApiKey(config.apiKey) : { isValid: false };
+    const isValid = apiKeyValidation.isValid && result.isValid;
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Validation Debug:', {
+        apiKey: config.apiKey ? `${config.apiKey.substring(0, 10)}...` : 'none',
+        model: config.model,
+        apiKeyValid: apiKeyValidation.isValid,
+        configValid: result.isValid,
+        overallValid: isValid,
+        errors: result.errors
+      });
+    }
+
     setValidation({
-      status: (apiKeyValidation.isValid && result.isValid ? 'valid' : 
-              config.apiKey ? 'invalid' : 'idle') as 'idle' | 'valid' | 'invalid',
+      status: (isValid ? 'valid' :
+        config.apiKey ? 'invalid' : 'idle') as 'idle' | 'valid' | 'invalid',
       errors: result.errors
     });
   }, [config, availableModels]);
@@ -71,16 +85,25 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
     updateConfig({ model, apiKey: savedKey || config.apiKey || '' });
   }, [config.apiKey, updateConfig, getApiKey]);
 
+  const selectedModel = availableModels.find(m => m.value === config.model);
+
+  // Get current profile data (either real or mock)
+  const currentProfileData = useMemo(() => {
+    if (useMockData) {
+      return getMockProfile();
+    }
+    return profileData || null;
+  }, [useMockData, profileData]);
+
   const handleAnalyze = useCallback(async () => {
     setTouched(true);
     validate();
-    if (validation.status === 'valid' && profileData) {
+    if (validation.status === 'valid' && currentProfileData) {
       await startAnalysis();
     }
-  }, [validation.status, profileData, startAnalysis, validate]);
+  }, [validation.status, currentProfileData, startAnalysis, validate]);
 
-  const selectedModel = availableModels.find(m => m.value === config.model);
-  const canAnalyze = validation.status === 'valid' && profileData && status !== 'analyzing';
+  const canAnalyze = validation.status === 'valid' && currentProfileData && status !== 'analyzing';
 
   return (
     <div className={`space-y-1.5 ${className}`}>
@@ -94,11 +117,10 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
           <select
             value={config.model || ''}
             onChange={(e) => handleModelChange(e.target.value)}
-            className={`w-full px-2.5 py-1.5 pr-7 text-xs border rounded-md transition-all duration-200 ${
-              validation.errors.model && touched
-                ? 'border-red-300 bg-red-50/50 focus:ring-2 focus:ring-red-500'
-                : 'border-gray-200 hover:border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-            }`}
+            className={`w-full px-2.5 py-1.5 pr-7 text-xs border rounded-md transition-all duration-200 ${validation.errors.model && touched
+              ? 'border-red-300 bg-red-50/50 focus:ring-2 focus:ring-red-500'
+              : 'border-gray-200 hover:border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+              }`}
           >
             <option value="" disabled>Choose model...</option>
             {availableModels.map(model => (
@@ -109,7 +131,7 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
           </select>
           <CogIcon className="absolute right-2.5 top-2.5 h-4 w-4 text-gray-400 pointer-events-none" />
         </div>
-        
+
         {selectedModel && (
           <p className="mt-0.5 text-[11px] text-gray-500 leading-tight">{selectedModel.description}</p>
         )}
@@ -131,13 +153,12 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
             onChange={(e) => handleApiKeyChange(e.target.value)}
             onPaste={(e) => handleApiKeyPaste(e)}
             placeholder="sk-or-..."
-            className={`w-full px-2.5 py-1.5 pr-10 text-xs font-mono border rounded-md transition-all duration-200 ${
-              validation.status === 'valid'
-                ? 'border-green-300 bg-green-50/30 focus:ring-2 focus:ring-green-500'
-                : validation.status === 'invalid' && touched
+            className={`w-full px-2.5 py-1.5 pr-10 text-xs font-mono border rounded-md transition-all duration-200 ${validation.status === 'valid'
+              ? 'border-green-300 bg-green-50/30 focus:ring-2 focus:ring-green-500'
+              : validation.status === 'invalid' && touched
                 ? 'border-red-300 bg-red-50/30 focus:ring-2 focus:ring-red-500'
                 : 'border-gray-200 hover:border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-            }`}
+              }`}
           />
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
             {validation.status === 'valid' && (
@@ -157,7 +178,7 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
               aria-label={showKey ? 'Hide' : 'Show'}
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d={showKey ? "M15 12a3 3 0 11-6 0 3 3 0 016 0z" : "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243"} />
               </svg>
             </button>
@@ -168,16 +189,25 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
         )}
       </div>
 
+      {/* Debug Info */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="text-xs text-gray-500 p-2 bg-gray-50 rounded">
+          <div>Validation: {validation.status}</div>
+          <div>Profile: {currentProfileData ? '✓' : '✗'} {useMockData ? '(mock)' : '(real)'}</div>
+          <div>Status: {status}</div>
+          <div>Can Analyze: {canAnalyze ? '✓' : '✗'}</div>
+        </div>
+      )}
+
       {/* Compact Action Bar */}
       <div className="flex items-center space-x-1.5">
         <button
           onClick={handleAnalyze}
           disabled={!canAnalyze}
-          className={`flex-1 flex items-center justify-center px-2 py-1 text-xs font-medium rounded transition-all duration-200 ${
-            canAnalyze
-              ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 active:scale-[0.98] shadow-sm'
-              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-          }`}
+          className={`flex-1 flex items-center justify-center px-2 py-1 text-xs font-medium rounded transition-all duration-200 ${canAnalyze
+            ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 active:scale-[0.98] shadow-sm'
+            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
         >
           {status === 'analyzing' ? (
             <>

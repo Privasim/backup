@@ -1,17 +1,17 @@
 import { useCallback, useState } from 'react';
-import { handleAsyncOperation, ErrorDetails, ErrorLogger } from '../utils/error-handler';
+import { retryOperation, UserFriendlyError, errorHandler, createComponentErrorHandler } from '../utils/error-handler';
 
 interface AsyncState<T> {
   data: T | null;
   loading: boolean;
-  error: ErrorDetails | null;
+  error: UserFriendlyError | null;
 }
 
 interface AsyncHandlerOptions {
   retries?: number;
   delay?: number;
   fallback?: any;
-  onError?: (error: ErrorDetails) => void;
+  onError?: (error: UserFriendlyError) => void;
   onSuccess?: (data: any) => void;
   componentName?: string;
 }
@@ -45,22 +45,29 @@ export function useAsyncErrorHandler<T = any>() {
     setState(prev => ({ ...prev, loading: true, error: null }));
 
     try {
-      const result = await handleAsyncOperation(operation, {
-        retries,
-        delay,
-        fallback,
-        context: { component: componentName }
+      const result = await retryOperation(operation, {
+        maxAttempts: retries + 1,
+        baseDelay: delay
       });
 
       setState({ data: result, loading: false, error: null });
       onSuccess?.(result);
       return result;
     } catch (error) {
-      const errorDetails = error as ErrorDetails;
+      const errorDetails = errorHandler.handleAnalysisError(error, {
+        component: componentName,
+        action: 'execute',
+        timestamp: new Date().toISOString()
+      });
+      
       setState({ data: fallback ?? null, loading: false, error: errorDetails });
       
       // Log error
-      ErrorLogger.log(error, { component: componentName });
+      errorHandler.logError(error, {
+        component: componentName,
+        action: 'execute',
+        timestamp: new Date().toISOString()
+      });
       
       // Call custom error handler
       onError?.(errorDetails);
@@ -114,21 +121,28 @@ export function useAsyncOperations() {
     setOperations(prev => new Map(prev.set(key, { data: null, loading: true, error: null })));
 
     try {
-      const result = await handleAsyncOperation(operation, {
-        retries,
-        delay,
-        fallback,
-        context: { component: componentName }
+      const result = await retryOperation(operation, {
+        maxAttempts: retries + 1,
+        baseDelay: delay
       });
 
       setOperations(prev => new Map(prev.set(key, { data: result, loading: false, error: null })));
       onSuccess?.(result);
       return result;
     } catch (error) {
-      const errorDetails = error as ErrorDetails;
+      const errorDetails = errorHandler.handleAnalysisError(error, {
+        component: componentName,
+        action: 'executeOperation',
+        timestamp: new Date().toISOString()
+      });
+      
       setOperations(prev => new Map(prev.set(key, { data: fallback ?? null, loading: false, error: errorDetails })));
       
-      ErrorLogger.log(error, { component: componentName });
+      errorHandler.logError(error, {
+        component: componentName,
+        action: 'executeOperation',
+        timestamp: new Date().toISOString()
+      });
       onError?.(errorDetails);
       
       return fallback ?? null;
@@ -169,7 +183,10 @@ export function withAsyncErrorHandler<T extends (...args: any[]) => Promise<any>
 ) {
   return async (...args: Parameters<T>): Promise<ReturnType<T> | null> => {
     try {
-      return await handleAsyncOperation(() => fn(...args), options);
+      return await retryOperation(() => fn(...args), {
+        maxAttempts: (options.retries || 0) + 1,
+        baseDelay: options.delay || 1000
+      });
     } catch (error) {
       console.error(`Error in ${fn.name}:`, error);
       return null;
@@ -181,13 +198,21 @@ export function withAsyncErrorHandler<T extends (...args: any[]) => Promise<any>
  * Error boundary for async operations in React components
  */
 export function useAsyncErrorBoundary() {
-  const [error, setError] = useState<ErrorDetails | null>(null);
+  const [error, setError] = useState<UserFriendlyError | null>(null);
   const [isRecovering, setIsRecovering] = useState(false);
 
   const handleError = useCallback((error: Error | any, context?: string) => {
-    const errorDetails = error as ErrorDetails;
+    const errorDetails = errorHandler.handleAnalysisError(error, {
+      component: context || 'useAsyncErrorBoundary',
+      action: 'handleError',
+      timestamp: new Date().toISOString()
+    });
     setError(errorDetails);
-    ErrorLogger.log(error, { component: context || 'useAsyncErrorBoundary' });
+    errorHandler.logError(error, {
+      component: context || 'useAsyncErrorBoundary',
+      action: 'handleError',
+      timestamp: new Date().toISOString()
+    });
   }, []);
 
   const recover = useCallback(async (recoveryFn?: () => Promise<void>) => {

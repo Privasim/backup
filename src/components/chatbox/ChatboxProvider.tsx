@@ -15,7 +15,8 @@ import {
 } from './types';
 import { ProfileFormData } from '@/app/businessidea/types/profile.types';
 import { getMockProfile } from '@/data/mockProfiles';
-import { useStorageManager, useSessionManager, useCacheManager } from './hooks/useStorageManager';
+import { useStorageManager, useSessionManager } from './hooks/useStorageManager';
+import { useCacheManager } from './hooks/useCacheManager';
 
 interface ChatboxContextType extends ChatboxState {
   // Core actions
@@ -99,7 +100,7 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
   const [profileData, setProfileDataState] = useState<ProfileFormData>();
   const [plugins, setPlugins] = useState<ChatboxPlugin[]>([]);
   const [providers, setProviders] = useState<AnalysisProvider[]>([]);
-  const [useMockData, setUseMockData] = useState(false);
+  const [useMockData, setUseMockData] = useState(process.env.NODE_ENV === 'development');
   
   // Storage hooks
   const storageManager = useStorageManager();
@@ -311,7 +312,7 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
 
       try {
         // Cache the result
-        cacheManager.cacheResult(state.config, profileDataHash, result);
+        await cacheManager.cacheResult(state.config, profileDataHash, result);
         
         // Add to history
         storageManager.addToHistory(result);
