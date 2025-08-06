@@ -3,16 +3,13 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { AnalysisConfig } from './types';
 import { 
-  getAllSystemPromptTemplates, 
   getTemplatesByCategory, 
   getSystemPromptTemplate,
-  getTemplateCategories,
-  SystemPromptTemplate 
+  getTemplateCategories
 } from '@/lib/chatbox/prompts/SystemPromptTemplates';
 import { 
   validateSystemPrompt, 
   formatCharacterCount, 
-  getValidationStatusColor, 
   getCharacterCountColor,
   generateSystemPromptPreview,
   SYSTEM_PROMPT_LIMITS
@@ -37,7 +34,6 @@ export const SystemPromptSection: React.FC<SystemPromptSectionProps> = ({
   
   const currentPrompt = config.customPrompt || '';
   const validation = useMemo(() => validateSystemPrompt(currentPrompt), [currentPrompt]);
-  const isCustomPrompt = currentPrompt && !selectedTemplateId;
   
   const handlePromptChange = useCallback((value: string) => {
     onConfigUpdate({ customPrompt: value });
@@ -90,10 +86,8 @@ export const SystemPromptSection: React.FC<SystemPromptSectionProps> = ({
           {generateSystemPromptPreview(currentPrompt, 100)}
         </div>
       )}
-    </div>
-  );
-};      
-{/* Expanded Content */}
+
+      {/* Expanded Content */}
       {isExpanded && (
         <div className="mt-3 space-y-3">
           {/* Template Selector */}
@@ -192,7 +186,7 @@ export const SystemPromptSection: React.FC<SystemPromptSectionProps> = ({
           
           {/* Help Text */}
           <div className="text-xs text-gray-500 bg-blue-50 p-2 rounded">
-            <strong>Tip:</strong> Start with "You are..." to define the AI's role. 
+            <strong>Tip:</strong> Start with &quot;You are...&quot; to define the AI&apos;s role. 
             Be specific about the analysis style, tone, and focus areas you want.
           </div>
         </div>
