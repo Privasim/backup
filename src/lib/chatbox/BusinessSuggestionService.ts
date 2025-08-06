@@ -18,7 +18,8 @@ export class BusinessSuggestionService {
   async generateSuggestions(
     config: AnalysisConfig,
     analysisResult: AnalysisResult,
-    profileData?: ProfileFormData
+    profileData?: ProfileFormData,
+    customSystemPrompt?: string
   ): Promise<BusinessSuggestion[]> {
     chatboxDebug.info('business-suggestion', 'Starting business suggestion generation', {
       hasAnalysisResult: !!analysisResult,
@@ -27,7 +28,7 @@ export class BusinessSuggestionService {
     });
 
     try {
-      const prompt = this.buildBusinessSuggestionPrompt(analysisResult, profileData);
+      const prompt = this.buildBusinessSuggestionPrompt(analysisResult, profileData, customSystemPrompt);
       
       // Create OpenRouter client instance
       const client = new OpenRouterClient(config.apiKey);
@@ -66,11 +67,12 @@ export class BusinessSuggestionService {
 
   private buildBusinessSuggestionPrompt(
     analysisResult: AnalysisResult,
-    profileData?: ProfileFormData
+    profileData?: ProfileFormData,
+    customSystemPrompt?: string
   ): string {
     // Use dynamic import to avoid require()
     const BusinessSuggestionPrompts = require('./prompts/BusinessSuggestionPrompts').BusinessSuggestionPrompts;
-    return BusinessSuggestionPrompts.buildBusinessSuggestionPrompt(analysisResult, profileData);
+    return BusinessSuggestionPrompts.buildBusinessSuggestionPrompt(analysisResult, profileData, customSystemPrompt);
   }
 
   private parseBusinessSuggestions(content: string): BusinessSuggestion[] {

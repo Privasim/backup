@@ -485,11 +485,16 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
       const { businessSuggestionService } = await import('@/lib/chatbox/BusinessSuggestionService');
       const { businessSuggestionErrorHandler } = await import('./utils/error-handler');
       
+      // Get custom system prompt from settings
+      const { getCustomSystemPrompt } = await import('@/lib/business/settings-utils');
+      const customSystemPrompt = getCustomSystemPrompt();
+      
       const suggestions = await businessSuggestionErrorHandler.retryOperation(
         () => businessSuggestionService.generateSuggestions(
           state.config,
           state.currentAnalysis,
-          profileData
+          profileData,
+          customSystemPrompt
         ),
         {
           maxAttempts: 2,
@@ -542,7 +547,7 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
         }
       }));
     }
-  }, [state.config, state.currentAnalysis, profileData, profileDataHash, cacheManager]);
+  }, [state.config, state.currentAnalysis, profileData, profileDataHash, cacheManager, storageManager]);
 
   const clearBusinessSuggestions = useCallback(() => {
     setState(prev => ({

@@ -4,9 +4,10 @@ import { ProfileFormData } from '@/app/businessidea/types/profile.types';
 export class BusinessSuggestionPrompts {
   static buildBusinessSuggestionPrompt(
     analysisResult: AnalysisResult,
-    profileData?: ProfileFormData
+    profileData?: ProfileFormData,
+    customSystemPrompt?: string
   ): string {
-    const systemContext = this.getSystemContext();
+    const systemContext = this.getSystemContext(customSystemPrompt);
     const profileContext = this.buildProfileContext(profileData);
     const analysisContext = this.buildAnalysisContext(analysisResult);
     const outputFormat = this.getOutputFormat();
@@ -23,8 +24,14 @@ ${guidelines}
 ${outputFormat}`;
   }
 
-  private static getSystemContext(): string {
-    return `You are an expert business consultant AI specializing in personalized business opportunity identification. Your role is to analyze user profiles and generate viable, actionable business suggestions that align with their skills, experience, and market opportunities.`;
+  private static getSystemContext(customPrompt?: string): string {
+    const baseContext = `You are an expert business consultant AI specializing in personalized business opportunity identification. Your role is to analyze user profiles and generate viable, actionable business suggestions that align with their skills, experience, and market opportunities.`;
+    
+    if (customPrompt) {
+      return `${customPrompt}\n\n${baseContext}`;
+    }
+    
+    return baseContext;
   }
 
   private static buildProfileContext(profileData?: ProfileFormData): string {

@@ -1,21 +1,187 @@
 'use client';
 
-import React, { useState } from 'react';
-import { XMarkIcon, CogIcon } from '@heroicons/react/24/outline';
+import React, { useState, useCallback, useMemo } from 'react';
+import { XMarkIcon, CogIcon, SparklesIcon, ChevronDownIcon, ChevronUpIcon, ExclamationTriangleIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { getBusinessPromptTemplates, getTemplateById } from '@/lib/business/prompt-templates';
+import { validateSystemPrompt, formatCharacterCount, getCharacterCountColor, SYSTEM_PROMPT_LIMITS } from '@/lib/chatbox/utils/system-prompt-utils';
+import { getBusinessPlanSettings, saveBusinessPlanSettings, BusinessPlanSettings } from '@/lib/business/settings-utils';
 
 interface BusinessPlanSettingsProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+interface SystemPromptContentProps {
+  settings: BusinessPlanSettings;
+  onSettingsChange: (key: string, value: any) => void;
+}
+
+const SystemPromptContent: React.FC<SystemPromptContentProps> = ({ settings, onSettingsChange }) => {
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
+  const templates = getBusinessPromptTemplates();
+  
+  const currentPrompt = settings.systemPrompt.customPrompt || '';
+  const validation = useMemo(() => validateSystemPrompt(currentPrompt), [currentPrompt]);
+  
+  const handlePromptChange = useCallback((value: string) => {
+    onSettingsChange('systemPrompt', {
+      ...settings.systemPrompt,
+      customPrompt: value,
+      templateId: '' // Clear template selection when manually editing
+    });
+  }, [settings.systemPrompt, onSettingsChange]);
+  
+  const handleTemplateSelect = useCallback((templateId: string) => {
+    const template = getTemplateById(templateId);
+    if (template) {
+      onSettingsChange('systemPrompt', {
+        ...settings.systemPrompt,
+        templateId,
+        customPrompt: template.prompt
+      });
+    }
+    setShowTemplateSelector(false);
+  }, [settings.systemPrompt, onSettingsChange]);
+  
+  const clearPrompt = useCallback(() => {
+    onSettingsChange('systemPrompt', {
+      ...settings.systemPrompt,
+      templateId: '',
+      customPrompt: ''
+    });
+  }, [settings.systemPrompt, onSettingsChange]);
+
+  return (
+    <div className="mt-2 space-y-3">
+      {/* Enable Toggle */}
+      <div className="flex items-center justify-between py-2">
+        <div className="flex-1">
+          <div className="text-sm font-medium text-gray-900">Custom Prompts</div>
+          <div className="text-xs text-gray-500 mt-0.5">Customize AI generation</div>
+        </div>
+        <div className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2">
+          <input
+            type="checkbox"
+            checked={settings.systemPrompt.enabled}
+            onChange={(e) => onSettingsChange('systemPrompt', {
+              ...settings.systemPrompt,
+              enabled: e.target.checked
+            })}
+            className="sr-only"
+          />
+          <span
+            className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+              settings.systemPrompt.enabled ? 'translate-x-6 bg-white' : 'translate-x-1'
+            }`}
+          />
+          <span
+            className={`absolute inset-0 h-full w-full rounded-full transition-colors duration-200 ease-in-out ${
+              settings.systemPrompt.enabled ? 'bg-blue-600' : 'bg-gray-200'
+            }`}
+          />
+        </div>
+      </div>
+
+      {settings.systemPrompt.enabled && (
+        <div className="space-y-3 pl-4 border-l-2 border-blue-100">
+          {/* Template Selector */}
+          <div>
+            <button
+              onClick={() => setShowTemplateSelector(!showTemplateSelector)}
+              className="flex items-center justify-between w-full py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+            >
+              <span>Templates</span>
+              <ChevronDownIcon className={`h-4 w-4 transition-transform ${showTemplateSelector ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {showTemplateSelector && (
+              <div className="space-y-1 mt-2">
+                {templates.map(template => (
+                  <button
+                    key={template.id}
+                    onClick={() => handleTemplateSelect(template.id)}
+                    className="flex items-start p-2 w-full text-left text-xs bg-gray-50 hover:bg-blue-50 rounded-lg transition-colors group"
+                  >
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900 group-hover:text-blue-900">{template.name}</div>
+                      <div className="text-gray-600 group-hover:text-blue-700 mt-0.5 line-clamp-2">{template.description}</div>
+                    </div>
+                    {settings.systemPrompt.templateId === template.id && (
+                      <CheckIcon className="h-3 w-3 text-blue-600 mt-0.5 ml-2 flex-shrink-0" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          {/* Custom Prompt Input */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-700">Custom Prompt</span>
+              {currentPrompt && (
+                <button
+                  onClick={clearPrompt}
+                  className="text-xs text-red-600 hover:text-red-800 px-2 py-1 rounded hover:bg-red-50 transition-colors"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+            
+            <div className="relative">
+              <textarea
+                value={currentPrompt}
+                onChange={(e) => handlePromptChange(e.target.value)}
+                placeholder="Define how the AI should generate business suggestions..."
+                className={`w-full px-3 py-2 text-sm border rounded-lg resize-none transition-all duration-200 ${
+                  validation.isValid
+                    ? 'border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                    : 'border-red-300 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                }`}
+                rows={3}
+                maxLength={SYSTEM_PROMPT_LIMITS.MAX_CHARACTERS}
+              />
+              
+              {/* Character count overlay */}
+              <div className="absolute bottom-2 right-2 text-xs text-gray-400 bg-white px-1 rounded">
+                {validation.characterCount}/{SYSTEM_PROMPT_LIMITS.MAX_CHARACTERS}
+              </div>
+            </div>
+            
+            {/* Validation Feedback */}
+            {(validation.errors.length > 0 || validation.warnings.length > 0) && (
+              <div className="mt-1 text-xs">
+                {validation.errors.length > 0 && (
+                  <div className="flex items-center text-red-600">
+                    <ExclamationTriangleIcon className="h-3 w-3 mr-1" />
+                    <span>{validation.errors[0]}</span>
+                  </div>
+                )}
+                {validation.warnings.length > 0 && validation.errors.length === 0 && (
+                  <div className="flex items-center text-yellow-600">
+                    <ExclamationTriangleIcon className="h-3 w-3 mr-1" />
+                    <span>{validation.warnings[0]}</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          
+          {/* Help Text */}
+          <div className="text-xs text-blue-700 bg-blue-50 p-2 rounded-lg">
+            💡 Use templates as starting points or create custom prompts for specific business types
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function BusinessPlanSettings({ isOpen, onClose }: BusinessPlanSettingsProps) {
-  const [settings, setSettings] = useState({
-    autoRefresh: true,
-    showViabilityScores: true,
-    sortBy: 'viability',
-    maxSuggestions: 10,
-    includeMarketData: true,
-  });
+  const [settings, setSettings] = useState<BusinessPlanSettings>(() => getBusinessPlanSettings());
+
+  const [isSystemPromptExpanded, setIsSystemPromptExpanded] = useState(false);
 
   const handleSettingChange = (key: string, value: any) => {
     setSettings(prev => ({
@@ -131,6 +297,36 @@ export default function BusinessPlanSettings({ isOpen, onClose }: BusinessPlanSe
           </div>
         </div>
 
+        {/* System Prompt Section */}
+        <div className="border-t border-gray-200 pt-4">
+          <button
+            onClick={() => setIsSystemPromptExpanded(!isSystemPromptExpanded)}
+            className="w-full flex items-center justify-between text-sm text-gray-700 hover:text-gray-900 transition-colors"
+          >
+            <div className="flex items-center space-x-2">
+              <SparklesIcon className="h-4 w-4" />
+              <span className="font-medium">System Prompt</span>
+              {settings.systemPrompt.enabled && (
+                <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full">
+                  Active
+                </span>
+              )}
+            </div>
+            {isSystemPromptExpanded ? (
+              <ChevronDownIcon className="h-4 w-4" />
+            ) : (
+              <ChevronUpIcon className="h-4 w-4" />
+            )}
+          </button>
+
+          {isSystemPromptExpanded && (
+            <SystemPromptContent 
+              settings={settings}
+              onSettingsChange={handleSettingChange}
+            />
+          )}
+        </div>
+
         {/* Footer */}
         <div className="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
           <button
@@ -141,7 +337,7 @@ export default function BusinessPlanSettings({ isOpen, onClose }: BusinessPlanSe
           </button>
           <button
             onClick={() => {
-              // Here you would typically save the settings
+              saveBusinessPlanSettings(settings);
               console.log('Settings saved:', settings);
               onClose();
             }}
