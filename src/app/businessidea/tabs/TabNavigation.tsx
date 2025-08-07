@@ -1,13 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { useTab } from './TabContext';
+import { useTab, TabId } from './TabContext';
 import { 
   DocumentTextIcon, // For Business Plan
   CurrencyDollarIcon, // For Financials
   RocketLaunchIcon, // For Go-to-Market
   WrenchScrewdriverIcon, // For Tools
   ChartBarIcon, // For Visualization
+  ListBulletIcon, // For List
+  DevicePhoneMobileIcon, // For Mobile
 } from '@heroicons/react/24/outline';
 import { 
   DocumentTextIcon as SolidDocumentTextIcon,
@@ -15,6 +17,8 @@ import {
   RocketLaunchIcon as SolidRocketLaunchIcon,
   WrenchScrewdriverIcon as SolidWrenchScrewdriverIcon,
   ChartBarIcon as SolidChartBarIcon,
+  ListBulletIcon as SolidListBulletIcon,
+  DevicePhoneMobileIcon as SolidDevicePhoneMobileIcon,
 } from '@heroicons/react/24/solid';
 
 const TabIcons = {
@@ -43,26 +47,38 @@ const TabIcons = {
     solid: SolidChartBarIcon,
     label: 'Visualization'
   },
+  list: {
+    outline: ListBulletIcon,
+    solid: SolidListBulletIcon,
+    label: 'List'
+  },
+  mobile: {
+    outline: DevicePhoneMobileIcon,
+    solid: SolidDevicePhoneMobileIcon,
+    label: 'Mobile'
+  },
 } as const;
 
 export default function TabNavigation() {
   const { activeTab, setActiveTab } = useTab();
-  const [hoveredTab, setHoveredTab] = useState<string | null>(null);
+  const [hoveredTab, setHoveredTab] = useState<TabId | null>(null);
 
   return (
-    <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm border-b border-gray-100">
-      <div className="max-w-md mx-auto px-2">
-        <div className="flex justify-between items-center h-14 px-1">
+    <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm border-b border-gray-100 overflow-x-auto">
+      <div className="max-w-3xl mx-auto px-2">
+        <div className="flex items-center h-14 px-1 min-w-max">
           {Object.entries(TabIcons).map(([tabId, { outline: Icon, solid: SolidIcon, label }]) => {
-            const isActive = activeTab === tabId;
-            const isHovered = hoveredTab === tabId;
+            // Type assertion to ensure tabId is a valid TabId
+            const typedTabId = tabId as TabId;
+            const isActive = activeTab === typedTabId;
+            const isHovered = hoveredTab === typedTabId;
             const IconComponent = isActive ? SolidIcon : Icon;
             
             return (
               <button
-                key={tabId}
-                onClick={() => setActiveTab(tabId)}
-                onMouseEnter={() => setHoveredTab(tabId)}
+                key={typedTabId}
+                onClick={() => setActiveTab(typedTabId)}
+                onMouseEnter={() => setHoveredTab(typedTabId)}
                 onMouseLeave={() => setHoveredTab(null)}
                 className={`relative flex flex-col items-center justify-center w-full h-12 rounded-lg transition-all duration-200 ${
                   isActive 

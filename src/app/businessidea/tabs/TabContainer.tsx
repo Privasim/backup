@@ -7,6 +7,8 @@ import FinancialsContent from './FinancialsContent';
 import GoToMarketContent from './GoToMarketContent';
 import ToolsContent from './ToolsContent';
 import VisualizationContent from './VisualizationContent';
+import ListTab from './ListTab';
+import MobileTab from './MobileTab';
 
 const tabComponents = {
   businessplan: BusinessPlanContent,
@@ -14,6 +16,8 @@ const tabComponents = {
   gotomarket: GoToMarketContent,
   tools: ToolsContent,
   visualization: VisualizationContent,
+  list: ListTab,
+  mobile: MobileTab,
 } as const;
 
 function TabContent() {

@@ -3,8 +3,8 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
 
 type TabContextType = {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
+  activeTab: TabId;
+  setActiveTab: React.Dispatch<React.SetStateAction<TabId>>;
 };
 
 const TabContext = createContext<TabContextType | undefined>(undefined);
@@ -14,8 +14,16 @@ type TabProviderProps = {
   initialTab?: string;
 };
 
+// List of all valid tab IDs for type safety
+export const validTabs = ['businessplan', 'financials', 'gotomarket', 'tools', 'visualization', 'list', 'mobile'] as const;
+export type TabId = typeof validTabs[number];
+
 export function TabProvider({ children, initialTab = 'businessplan' }: TabProviderProps) {
-  const [activeTab, setActiveTab] = useState<string>(initialTab);
+  // Ensure the initialTab is valid, fallback to 'businessplan' if not
+  const validatedInitialTab = validTabs.includes(initialTab as TabId) 
+    ? initialTab as TabId 
+    : 'businessplan';
+  const [activeTab, setActiveTab] = useState<TabId>(validatedInitialTab);
 
   return (
     <TabContext.Provider value={{ activeTab, setActiveTab }}>
