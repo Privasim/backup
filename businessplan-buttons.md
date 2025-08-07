@@ -1,7 +1,7 @@
 # Business Plan Buttons - Analysis & Implementation Plan
 
 ## Overview
-This document outlines the analysis and implementation plan for adding two interactive buttons to the `SuggestionCard` component that will integrate with OpenRouter LLM services, following the established patterns in the codebase.
+This document outlines the analysis and implementation plan for adding two interactive buttons to the `SuggestionCard` component that will integrate with OpenRouter LLM services, following the established patterns in the codebase, and navigate to specific tabs.
 
 ## Current Architecture Analysis
 
@@ -112,10 +112,9 @@ clearButtonActions: () => void;
 
 #### Files to Modify:
 1. **`src/components/business/SuggestionCard.tsx`**
-   - Add button section to the footer area
-   - Implement loading states and error handling
-   - Integrate with context for action execution
-   - Maintain responsive design and accessibility
+   - Add two buttons with labels "Create Implementation Plan" and "Visualize App"
+   - Implement navigation to respective tabs
+   - Connect button actions to LLM processing
 
 #### Button Implementation Structure:
 ```typescript
@@ -126,13 +125,13 @@ const ButtonSection = () => (
       <ActionButton
         type="button1"
         suggestionId={suggestion.id}
-        label="Button 1 Placeholder"
+        label="Create Implementation Plan"
         icon={Button1Icon}
       />
       <ActionButton
         type="button2"
         suggestionId={suggestion.id}
-        label="Button 2 Placeholder"
+        label="Visualize App"
         icon={Button2Icon}
       />
     </div>
@@ -222,6 +221,29 @@ src/components/business/
 - **Mobile Optimization**: Button layout adapts to smaller screens
 - **Touch Targets**: Adequate button sizes for touch interfaces
 - **Content Overflow**: Proper handling of long result content
+
+## Navigation Flow
+```mermaid
+sequenceDiagram
+    participant User
+    participant SuggestionCard
+    participant ChatboxProvider
+    participant OpenRouter
+    participant ListTab
+    participant MobileTab
+    
+    User->>SuggestionCard: Click "Create Implementation Plan"
+    SuggestionCard->>ChatboxProvider: Trigger LLM processing
+    ChatboxProvider->>OpenRouter: Request implementation plan
+    OpenRouter-->>ChatboxProvider: Return plan
+    ChatboxProvider->>ListTab: Display results
+    
+    User->>SuggestionCard: Click "Visualize App"
+    SuggestionCard->>ChatboxProvider: Trigger LLM processing
+    ChatboxProvider->>OpenRouter: Request app visualization
+    OpenRouter-->>ChatboxProvider: Return visualization
+    ChatboxProvider->>MobileTab: Display results
+```
 
 ## Future Enhancement Considerations
 
