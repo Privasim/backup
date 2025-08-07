@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import MobileSettingsTrigger from './mobile-settings-panel/MobileSettingsTrigger';
 import MobileSettingsPanel from './mobile-settings-panel/MobileSettingsPanel';
+import { PromptBox } from './PromptBox';
 
 export default function MobileTab() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -32,12 +33,21 @@ export default function MobileTab() {
               
               {/* App content */}
               <div className="flex-1 p-4 overflow-y-auto">
-                <div className="text-center mb-6">
+                <div className="text-center mb-4">
                   <div className="h-16 w-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-2">
                     <span className="text-2xl">📱</span>
                   </div>
                   <h3 className="font-medium text-gray-900">Mobile App</h3>
                   <p className="text-sm text-gray-500">Preview Mode</p>
+                </div>
+                
+                {/* Prompt Box */}
+                <div className="mb-4">
+                  <PromptBox 
+                    showLabel={false}
+                    maxLength={500}
+                    placeholder="Enter your system prompt..."
+                  />
                 </div>
                 
                 <div className="space-y-3">

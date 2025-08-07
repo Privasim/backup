@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import styles from './MobileSettingsPanel.module.css';
+import { usePromptStore } from '@/store/usePromptStore';
 import { getAvailableModels } from '@/lib/openrouter/client';
 
 interface MobileSettingsPanelProps {
@@ -13,12 +14,14 @@ type SettingsTab = 'api' | 'model' | 'prompt';
 
 const MobileSettingsPanel: React.FC<MobileSettingsPanelProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState<SettingsTab>('api');
-  const [apiKey, setApiKey] = useState<string>('');
-  const [selectedModel, setSelectedModel] = useState<string>('');
-  const [systemPrompt, setSystemPrompt] = useState<string>('');
+  const [apiKey, setApiKey] = useState('');
   const [showKey, setShowKey] = useState(false);
   const [validationStatus, setValidationStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
-  const [touched, setTouched] = useState(false);
+  const [selectedModel, setSelectedModel] = useState('');
+  const { systemPrompt, setSystemPrompt, resetPrompt, getDefaultPrompt } = usePromptStore();
+  const [models, setModels] = useState<Array<{id: string, name: string, description?: string}>>([]);
+  const [loadingModels, setLoadingModels] = useState(false);
+  const [modelsError, setModelsError] = useState<string | null>(null);
 
   const availableModels = useMemo(() => {
     const modelInfo = {
@@ -33,85 +36,74 @@ const MobileSettingsPanel: React.FC<MobileSettingsPanelProps> = ({ isOpen, onClo
     }));
   }, []);
 
-  // Load saved settings
+  // Load from localStorage on mount
   useEffect(() => {
-    const savedApiKey = localStorage.getItem('openrouter_api_key') || '';
-    const savedModel = localStorage.getItem('openrouter_model') || '';
-    const savedPrompt = localStorage.getItem('openrouter_system_prompt') || 'You are a helpful assistant';
+    const savedApiKey = localStorage.getItem('openrouter-api-key') || '';
+    const savedModel = localStorage.getItem('openrouter-selected-model') || '';
     
     setApiKey(savedApiKey);
     setSelectedModel(savedModel);
-    setSystemPrompt(savedPrompt);
     
     if (savedApiKey) {
-      setValidationStatus(isValidFormat(savedApiKey) ? 'valid' : 'invalid');
+      validateApiKey(savedApiKey);
     }
-  }, []);
-
-  // API key format validation
-  const isValidFormat = useCallback((key: string) => {
-    return /^sk-or-v1-[a-f0-9]{32,}$/.test(key);
+    
+    if (savedApiKey && savedModel) {
+      loadModels(savedApiKey);
+    }
   }, []);
 
   // Validate API key on change
   useEffect(() => {
     if (apiKey) {
-      setValidationStatus(isValidFormat(apiKey) ? 'valid' : 'invalid');
+      validateApiKey(apiKey);
     } else {
       setValidationStatus('idle');
     }
-  }, [apiKey, isValidFormat]);
+  }, [apiKey]);
+
+  const validateApiKey = useCallback((key: string) => {
+    return /^sk-or-v1-[a-f0-9]{32,}$/.test(key);
+  }, []);
+
+  const loadModels = useCallback((apiKey: string) => {
+    setLoadingModels(true);
+    setModelsError(null);
+    // Implement API call to load models
+    // For now, just set some dummy data
+    setModels([
+      { id: 'model1', name: 'Model 1' },
+      { id: 'model2', name: 'Model 2' },
+    ]);
+    setLoadingModels(false);
+  }, []);
 
   const handleApiKeyChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const key = e.target.value.trim();
     setApiKey(key);
-    localStorage.setItem('openrouter_api_key', key);
-    setTouched(true);
+    localStorage.setItem('openrouter-api-key', key);
   }, []);
 
   const handleApiKeyPaste = useCallback((e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
     const pastedText = e.clipboardData.getData('text').trim();
     setApiKey(pastedText);
-    localStorage.setItem('openrouter_api_key', pastedText);
-    setTouched(true);
+    localStorage.setItem('openrouter-api-key', pastedText);
   }, []);
 
   const handleModelChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     const model = e.target.value;
     setSelectedModel(model);
-    localStorage.setItem('openrouter_model', model);
+    localStorage.setItem('openrouter-selected-model', model);
   }, []);
 
-  const handleSystemPromptChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const prompt = e.target.value;
-    setSystemPrompt(prompt);
-    localStorage.setItem('openrouter_system_prompt', prompt);
+  const handlePromptChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setSystemPrompt(e.target.value);
   }, []);
 
-  const resetSystemPrompt = useCallback(() => {
-    const defaultPrompt = 'You are a helpful assistant';
-    setSystemPrompt(defaultPrompt);
-    localStorage.setItem('openrouter_system_prompt', defaultPrompt);
+  const handleResetPrompt = useCallback(() => {
+    resetPrompt();
   }, []);
-
-  const getValidationIcon = () => {
-    if (validationStatus === 'valid') {
-      return (
-        <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-        </svg>
-      );
-    }
-    if (validationStatus === 'invalid' && apiKey) {
-      return (
-        <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-        </svg>
-      );
-    }
-    return null;
-  };
 
   const tabs = [
     { id: 'api' as SettingsTab, label: 'API Key', icon: '🔑' },
@@ -131,7 +123,7 @@ const MobileSettingsPanel: React.FC<MobileSettingsPanelProps> = ({ isOpen, onClo
               </label>
               <div className="relative">
                 <input
-                  type={showKey ? 'text' : 'password'}
+                  type="text"
                   value={apiKey}
                   onChange={handleApiKeyChange}
                   onPaste={handleApiKeyPaste}
@@ -142,24 +134,15 @@ const MobileSettingsPanel: React.FC<MobileSettingsPanelProps> = ({ isOpen, onClo
                   }`}
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 space-x-1">
-                  {getValidationIcon()}
-                  <button
-                    type="button"
-                    onClick={() => setShowKey(!showKey)}
-                    className="p-1 text-gray-400 hover:text-gray-600"
-                    aria-label={showKey ? 'Hide API key' : 'Show API key'}
-                  >
-                    {showKey ? (
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    ) : (
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
-                      </svg>
-                    )}
-                  </button>
+                  {validationStatus === 'valid' ? (
+                    <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  ) : validationStatus === 'invalid' && apiKey ? (
+                    <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  ) : null}
                 </div>
               </div>
               {validationStatus === 'invalid' && apiKey && (
@@ -228,19 +211,20 @@ const MobileSettingsPanel: React.FC<MobileSettingsPanelProps> = ({ isOpen, onClo
                   System Prompt
                 </label>
                 <button
-                  type="button"
-                  onClick={resetSystemPrompt}
-                  className="text-xs text-blue-600 hover:text-blue-800"
+                  onClick={handleResetPrompt}
+                  className={`text-xs text-blue-600 hover:text-blue-800 transition-colors ${styles['hover\:no-underline']}`}
                 >
-                  Reset to Default
+                  Reset to default
                 </button>
               </div>
               <textarea
                 value={systemPrompt}
-                onChange={handleSystemPromptChange}
+                onChange={handlePromptChange}
+                className={`w-full px-3 py-2 text-sm border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  styles['border-gray-300']
+                }`}
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm resize-none"
-                placeholder="Define the AI's behavior and instructions..."
+                placeholder="Enter system prompt..."
               />
               <p className="mt-1 text-xs text-gray-500">
                 This prompt guides how the AI responds to your queries.
