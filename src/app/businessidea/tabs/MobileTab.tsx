@@ -1,10 +1,19 @@
 'use client';
 
+import { useState } from 'react';
+import SettingsTrigger from './settings-panel/SettingsTrigger';
+import SettingsPanel from './settings-panel/SettingsPanel';
+
 export default function MobileTab() {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto relative">
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h2 className="text-2xl font-semibold text-gray-900 mb-6">Mobile App View</h2>
+        <div className="absolute top-4 right-4 z-10">
+          <SettingsTrigger onClick={() => setIsSettingsOpen(true)} />
+        </div>
         <div className="space-y-6">
           <div className="relative mx-auto w-64 h-[500px] bg-gray-900 rounded-3xl p-1 shadow-2xl overflow-hidden">
             {/* Phone notch */}
@@ -64,6 +73,10 @@ export default function MobileTab() {
           </div>
         </div>
       </div>
+      <SettingsPanel 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+      />
     </div>
   );
 }
