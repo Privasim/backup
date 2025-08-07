@@ -1,8 +1,16 @@
 'use client';
 
+import { useState } from 'react';
+import SettingsTrigger from './settings-panel/SettingsTrigger';
+import SettingsPanel from './settings-panel/SettingsPanel';
+
 export default function ListTab() {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto relative">
+      <SettingsTrigger onClick={() => setIsSettingsOpen(true)} />
+      
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h2 className="text-2xl font-semibold text-gray-900 mb-6">List View</h2>
         <div className="space-y-4">
@@ -24,6 +32,11 @@ export default function ListTab() {
           </div>
         </div>
       </div>
+
+      <SettingsPanel 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+      />
     </div>
   );
 }
