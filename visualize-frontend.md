@@ -19,7 +19,53 @@ graph TD
     end
 ```
 
-#### 2. SuggestionCard Modifications
+#### 2. Prompt Management System
+- **Purpose**: Centralized system prompt configuration for AI behavior customization
+- **Components**:
+  - `PromptBox.tsx`: Modular input component with validation
+  - `usePromptStore.ts`: Zustand store for state management
+- **Key Features**:
+  - Real-time synchronization between UI components
+  - LocalStorage persistence
+  - Character limit enforcement
+  - Reset to default functionality
+- **Integration Points**:
+  - MobileTab (primary user-facing input)
+  - MobileSettingsPanel (advanced configuration)
+  - SuggestionCard (via Zustand store)
+
+#### 3. State Management Updates
+```mermaid
+graph LR
+    A[PromptBox] --> B[usePromptStore]
+    C[MobileSettingsPanel] --> B
+    B --> D[LocalStorage]
+    B --> E[OpenRouter API]
+```
+
+#### 4. Component Relationships
+```mermaid
+graph TD
+    A[PromptBox] --> B[MobileTab]
+    A --> C[MobileSettingsPanel]
+    C --> D[AnalysisEngine]
+    D --> E[BusinessSuggestion]
+    E --> F[SuggestionCard]
+```
+
+#### 5. SuggestionCard Integration Notes
+- **Prompt Context Access**:
+  ```tsx
+  const { systemPrompt } = usePromptStore();
+  // Use prompt to influence suggestion generation
+  ```
+- **Implementation Guidelines**:
+  1. Import usePromptStore hook
+  2. Access systemPrompt value
+  3. Incorporate into suggestion generation logic
+  4. Maintain component independence
+
+#### 6. SuggestionCard Modifications
 - **New Props**:
   - `onVisualize: (businessIdea: BusinessIdea) => void`
 - **Visualize Button**:
@@ -30,7 +76,7 @@ graph TD
   ```
 *(No changes required for this component for the new task, but included for completeness of the overall architecture.)*
 
-#### 3. OpenRouter Integration Layer
+#### 7. OpenRouter Integration Layer
 ```mermaid
 graph LR
     A[UI Generator Service] --> B[Prompt Engineering]
@@ -46,7 +92,7 @@ graph LR
 - `src/lib/openrouter/uiGenerator.ts`: Add `generateFromPrompt` function.
 - `src/lib/openrouter/analysis/types.ts`: Update types if necessary to accommodate new request structures.
 
-#### 4. MobileTab Component Enhancement
+#### 8. MobileTab Component Enhancement
 This section details the integration of the new prompt-based UI generation.
 - **New State**:
   ```typescript
@@ -108,7 +154,7 @@ This section details the integration of the new prompt-based UI generation.
 **Modified File**:
 - `src/app/businessidea/tabs/MobileTab.tsx`: Major modifications for state, UI, and integration of the new prompt panel.
 
-#### 5. UI Rendering Mechanism
+#### 9. UI Rendering Mechanism
 ```tsx
 // MobileTab.tsx
 const renderGeneratedUI = () => {
@@ -136,81 +182,15 @@ const renderPromptGeneratedUI = () => {
 ```
 *(No direct changes to `DynamicComponentRenderer.tsx` as it's generic.)*
 
-#### 6. DynamicComponentRenderer Implementation
-```tsx
-// src/components/common/DynamicComponentRenderer.tsx
-import { useMemo } from 'react';
-
-export default function DynamicComponentRenderer({ code }) {
-  const Component = useMemo(() => {
-    try {
-      // Security sanitization
-      const sanitizedCode = sanitizeCode(code);
-      return new Function('React', `return ${sanitizedCode}`)(React);
-    } catch (error) {
-      return () => <ErrorFallback error={error} />;
-    }
-  }, [code]);
-
-  return <Component />;
-}
-```
-*(This component remains unchanged and will be reused for both generation methods.)*
-
-#### 7. Prompt Engineering Strategy
-- **Business Idea Template**: (Existing)
-  ```
-  Generate a mobile app UI wireframe for a business idea about: 
-  "{businessIdea.description}"
-  ...
-  ```
-- **Prompt-Based Generation Template**: **New**
-  ```
-  Generate a mobile app UI wireframe based on the following user prompt: 
-  "{userPrompt}"
-
-  Requirements:
-  - Use React functional components with TypeScript
-  - Style with Tailwind CSS classes
-  - Mobile-first responsive design
-  - Include core screens: dashboard, detail view, profile
-  - Use placeholder data where needed
-  - Export as default component
-
-  Constraints:
-  - Maximum 3 screens
-  - No backend integration
-  - Use simple navigation pattern
-  - Avoid complex state management
-  ```
-
-#### 8. Error Handling System
-```mermaid
-graph LR
-    A[Generation Error] --> B[Error Boundary]
-    B --> C[User-Friendly Message]
-    C --> D[Regeneration Option]
-```
-**Error Types**:
-1. API request failures
-2. Code generation errors
-3. Component rendering errors
-4. Timeout errors
-5. **New**: Invalid prompt submissions (e.g., empty, too long, harmful content)
-
-#### 9. Performance Optimization
-- **Debounce Requests**: 300ms delay on rapid clicks.
-- **Component Caching**: Session storage caching.
-- **Lazy Loading**: Dynamic import of heavy components.
-- **Virtualization**: For long lists in generated UIs.
-- **New**: Cached prompt results (LRU cache) for frequently generated prompts.
-
-#### 10. Security Measures
-1. Code sanitization (remove eval, fetch, etc.)
-2. Sandboxed iframe rendering
-3. Content Security Policy (CSP) headers
-4. Output validation against schema
-5. **New**: Prompt validation (blocklisted keywords, length limits, AI-based toxicity screening).
+#### 10. Security Enhancements
+- **Prompt Validation**:
+  - Character length limits
+  - Restricted keyword filtering
+  - Input sanitization
+- **Data Flow**:
+  - Client-side only persistence
+  - No server transmission of prompts
+  - Secure API key handling
 
 #### 11. Testing Strategy
 1. **Unit Tests**:
