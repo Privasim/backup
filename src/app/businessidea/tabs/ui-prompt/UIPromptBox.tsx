@@ -78,7 +78,7 @@ export default function UIPromptBox() {
   return (
     <div className="flex flex-col h-full">
       {/* Main Display Area - Takes most of the space */}
-      <div className="flex-1 p-5">
+      <div className="flex-1 overflow-auto p-4 sm:p-5">
         {/* Stage A Panel */}
         {stage === 'spec' && (
           <DesignSpecPanel
@@ -127,8 +127,8 @@ export default function UIPromptBox() {
         )}
       </div>
 
-      {/* Compact Bottom Controls */}
-      <div className="border-t border-slate-200/60 bg-slate-50/50 backdrop-blur-sm p-4">
+      {/* Compact Bottom Controls - sticky on mobile only */}
+      <div className="sticky bottom-0 lg:static lg:bottom-auto z-10 border-t border-slate-200/60 bg-white/80 supports-[backdrop-filter]:bg-white/60 backdrop-blur-sm p-3 sm:p-4 pb-[env(safe-area-inset-bottom)]">
         {/* Compact Header with Stepper and Model */}
         <div className="flex items-center justify-between mb-3">
           {/* Compact Stepper */}
