@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import MobileSettingsTrigger from './mobile-settings-panel/MobileSettingsTrigger';
 import MobileSettingsPanel from './mobile-settings-panel/MobileSettingsPanel';
+import UIPromptBox from './ui-prompt/UIPromptBox';
 
 
 export default function MobileTab() {
@@ -16,9 +17,7 @@ export default function MobileTab() {
         <MobileSettingsTrigger onClick={() => setIsSettingsOpen(true)} />
 
         <div className="space-y-6">
-          <div className="text-center py-12">
-            <p className="text-gray-500">Mobile functionality will be available in a future update.</p>
-          </div>
+          <UIPromptBox />
         </div>
       </div>
       <MobileSettingsPanel isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
