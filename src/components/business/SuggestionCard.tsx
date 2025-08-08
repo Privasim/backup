@@ -7,8 +7,11 @@ import {
   CurrencyDollarIcon, 
   UserGroupIcon,
   ClockIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  ClipboardDocumentCheckIcon,
+  DevicePhoneMobileIcon
 } from '@heroicons/react/24/outline';
+import { useTab } from '@/app/businessidea/tabs/TabContext';
 
 interface SuggestionCardProps {
   suggestion: BusinessSuggestion;
@@ -19,6 +22,7 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
   suggestion, 
   className = '' 
 }) => {
+  const { setActiveTab } = useTab();
   const getViabilityColor = (score: number) => {
     if (score >= 85) return 'text-green-600 bg-green-100';
     if (score >= 70) return 'text-blue-600 bg-blue-100';
@@ -102,6 +106,28 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
             </span>
           )}
         </div>
+      </div>
+
+      {/* Actions */}
+      <div className="mt-4 flex flex-col space-y-2">
+        <button
+          type="button"
+          aria-label="Create Implementation Plan"
+          onClick={() => setActiveTab('list')}
+          className="w-full inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 px-3 py-2 text-sm font-medium hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300 transition-all"
+        >
+          <ClipboardDocumentCheckIcon className="h-4 w-4 mr-2" />
+          Create Implementation Plan
+        </button>
+        <button
+          type="button"
+          aria-label="Visualize App"
+          onClick={() => setActiveTab('mobile')}
+          className="w-full inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-indigo-500 to-blue-600 text-white px-3 py-2 text-sm font-medium hover:from-indigo-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-all"
+        >
+          <DevicePhoneMobileIcon className="h-4 w-4 mr-2" />
+          Visualize App
+        </button>
       </div>
     </div>
   );
