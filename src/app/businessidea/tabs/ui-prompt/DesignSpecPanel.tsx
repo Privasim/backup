@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { DesignSpec } from './types.design';
 
 interface Props {
@@ -15,6 +15,12 @@ interface Props {
 }
 
 export default function DesignSpecPanel({ status, error, spec, streamText, metrics, onApprove, onRegenerate, onCancel }: Props) {
+  const streamRef = useRef<HTMLPreElement>(null);
+  useEffect(() => {
+    if (streamRef.current) {
+      streamRef.current.scrollTop = streamRef.current.scrollHeight;
+    }
+  }, [streamText]);
   return (
     <div className="mt-4 space-y-4">
       {/* Live JSON */}
@@ -27,7 +33,15 @@ export default function DesignSpecPanel({ status, error, spec, streamText, metri
               {` • ${metrics.tokenCount} chunks • ${metrics.bytes} bytes`}
             </span>
           </div>
-          <pre className="max-h-48 overflow-auto rounded-md border border-gray-200 bg-gray-50 p-2 text-xs text-gray-800" aria-live="polite">{streamText}</pre>
+          <div className="rounded-lg border border-gray-200 bg-gray-50/80 shadow-sm">
+            <pre
+              ref={streamRef}
+              className="h-[56vh] md:h-[64vh] w-full overflow-auto p-3 text-xs md:text-sm text-gray-800 font-mono whitespace-pre-wrap break-words"
+              aria-live="polite"
+            >
+              {streamText}
+            </pre>
+          </div>
         </div>
       )}
 
@@ -63,7 +77,7 @@ export default function DesignSpecPanel({ status, error, spec, streamText, metri
           </div>
 
           {/* Tokens */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+          <div className="grid grid-cols-1 gap-3 mb-4">
             <div className="rounded-md border border-gray-200 p-3">
               <div className="text-xs font-medium text-gray-700 mb-2">Colors</div>
               <div className="text-xs text-gray-700 space-y-1">
@@ -87,7 +101,7 @@ export default function DesignSpecPanel({ status, error, spec, streamText, metri
           </div>
 
           {/* Components + Layout */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+          <div className="grid grid-cols-1 gap-3 mb-4">
             <div className="rounded-md border border-gray-200 p-3">
               <div className="text-sm font-medium text-gray-800 mb-2">Components</div>
               <ul className="space-y-1">
@@ -113,7 +127,7 @@ export default function DesignSpecPanel({ status, error, spec, streamText, metri
           </div>
 
           {/* Interactions + Libraries */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3">
             <div className="rounded-md border border-gray-200 p-3">
               <div className="text-sm font-medium text-gray-800 mb-2">Interactions</div>
               <ul className="space-y-1">
