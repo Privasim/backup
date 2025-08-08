@@ -48,7 +48,7 @@ export const MessageRenderer: React.FC<MessageRendererProps> = ({
       if (currentSection.length > 0) {
         const text = currentSection.join('\n');
         elements.push(
-          <div key={elements.length} className="mb-3">
+          <div key={elements.length} className="mb-1.5">
             {renderInlineFormatting(text)}
           </div>
         );
@@ -62,7 +62,7 @@ export const MessageRenderer: React.FC<MessageRendererProps> = ({
         if (inCodeBlock) {
           // End code block
           elements.push(
-            <pre key={elements.length} className="bg-gray-800 text-gray-100 p-3 rounded-lg overflow-x-auto mb-3">
+            <pre key={elements.length} className="bg-gray-800 text-gray-100 p-2 rounded-lg overflow-x-auto mb-2 text-[12px] leading-snug">
               <code className={`language-${codeBlockLanguage}`}>
                 {currentSection.join('\n')}
               </code>
@@ -89,7 +89,7 @@ export const MessageRenderer: React.FC<MessageRendererProps> = ({
       if (line.startsWith('# ')) {
         flushCurrentSection();
         elements.push(
-          <h1 key={elements.length} className="text-xl font-bold mb-3 text-gray-900">
+          <h1 key={elements.length} className="text-[14px] font-semibold mb-2 text-gray-900">
             {line.slice(2)}
           </h1>
         );
@@ -99,7 +99,7 @@ export const MessageRenderer: React.FC<MessageRendererProps> = ({
       if (line.startsWith('## ')) {
         flushCurrentSection();
         elements.push(
-          <h2 key={elements.length} className="text-lg font-semibold mb-2 text-gray-900">
+          <h2 key={elements.length} className="text-[13px] font-medium mb-1.5 text-gray-900">
             {line.slice(3)}
           </h2>
         );
@@ -109,7 +109,7 @@ export const MessageRenderer: React.FC<MessageRendererProps> = ({
       if (line.startsWith('### ')) {
         flushCurrentSection();
         elements.push(
-          <h3 key={elements.length} className="text-base font-medium mb-2 text-gray-900">
+          <h3 key={elements.length} className="text-[12px] font-medium mb-1 text-gray-900">
             {line.slice(4)}
           </h3>
         );
@@ -126,9 +126,9 @@ export const MessageRenderer: React.FC<MessageRendererProps> = ({
         return;
       }
 
-      if (line.startsWith('- ') || line.startsWith('* ')) {
+      if (line.startsWith('- ') || line.startsWith('* ') || line.startsWith('• ')) {
         // Bullet list item
-        if (currentSection.length === 0 || (!currentSection[currentSection.length - 1].startsWith('- ') && !currentSection[currentSection.length - 1].startsWith('* '))) {
+        if (currentSection.length === 0 || (!currentSection[currentSection.length - 1].startsWith('- ') && !currentSection[currentSection.length - 1].startsWith('* ') && !currentSection[currentSection.length - 1].startsWith('• '))) {
           flushCurrentSection();
         }
         currentSection.push(line);
@@ -165,13 +165,13 @@ export const MessageRenderer: React.FC<MessageRendererProps> = ({
         if (line.match(/^\d+\.\s/)) {
           isNumberedList = true;
           listItems.push(
-            <li key={index} className="mb-1">
+            <li key={index} className="mb-0.5">
               {formatInlineText(line.replace(/^\d+\.\s/, ''))}
             </li>
           );
-        } else if (line.startsWith('- ') || line.startsWith('* ')) {
+        } else if (line.startsWith('- ') || line.startsWith('* ') || line.startsWith('• ')) {
           listItems.push(
-            <li key={index} className="mb-1">
+            <li key={index} className="mb-0.5">
               {formatInlineText(line.slice(2))}
             </li>
           );
@@ -185,9 +185,9 @@ export const MessageRenderer: React.FC<MessageRendererProps> = ({
       });
 
       if (isNumberedList) {
-        return <ol className="list-decimal list-inside space-y-1 ml-4">{listItems}</ol>;
-      } else if (listItems.some((_, i) => lines[i]?.startsWith('- ') || lines[i]?.startsWith('* '))) {
-        return <ul className="list-disc list-inside space-y-1 ml-4">{listItems}</ul>;
+        return <ol className="list-decimal list-inside marker:text-gray-400 space-y-0.5 ml-4 md:columns-2 md:gap-x-8">{listItems}</ol>;
+      } else if (listItems.some((_, i) => lines[i]?.startsWith('- ') || lines[i]?.startsWith('* ') || lines[i]?.startsWith('• '))) {
+        return <ul className="list-disc list-inside marker:text-gray-400 space-y-0.5 ml-4 md:columns-2 md:gap-x-8">{listItems}</ul>;
       }
     }
 
@@ -210,14 +210,14 @@ export const MessageRenderer: React.FC<MessageRendererProps> = ({
       if (match.index > lastIndex) {
         elements.push(text.slice(lastIndex, match.index));
       }
-      
+
       // Add code element
       elements.push(
-        <code key={match.index} className="bg-gray-200 px-1 py-0.5 rounded text-sm font-mono">
+        <code key={match.index} className="bg-gray-200 px-1 py-0.5 rounded text-[12px] font-mono">
           {match[1]}
         </code>
       );
-      
+
       lastIndex = match.index + match[0].length;
     }
 
