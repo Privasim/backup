@@ -76,7 +76,7 @@ export default function UIPromptBox() {
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="e.g., A login screen with email and password fields, primary continue button, and a small forgot password link"
           rows={3}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <div className="flex gap-2">
           <button
