@@ -2,6 +2,68 @@
 
 This document outlines the implementation plan for the frontend visualization feature, including both the existing `SuggestionCard`-triggered flow and the new prompt-based UI generation within `MobileTab`.
 
+## Streamlined UI Generation Plan (3-Step)
+
+This section supersedes the prior multi-stage approach. We now use a lean pipeline that preserves output quality and the sample UI aesthetics while minimizing moving parts.
+
+### 1) Prompt → Design Spec → Code Blueprint
+- **Prompt**: User describes the app goal and tone. We stream a compact Design Spec JSON.
+- **Design Spec**: Validated (Zod). User can quickly review/edit key fields. We render a safe preview from the spec (no TSX execution).
+- **Code Blueprint**: Single completion generates an export-only React+Tailwind file list. Download as zip; do not eval at runtime.
+
+### Deliverables
+- **Design Spec** (JSON): theme, screens, components, constraints, accessibility, target_platform.
+- **Preview**: Render from spec via a safe DSL using the existing `UIWireframeRenderer` (extend incrementally as needed).
+- **Code Blueprint**: List of {path, contents_text} for React + Tailwind.
+
+### Non-Goals
+- No runtime execution of generated TSX in the app.
+- No complex stepper/providers; a single controls panel is enough.
+- No backend—client-only with OpenRouter.
+
+### Architecture (lightweight)
+- UI: `MobileTab` becomes two-column (Left: PhonePreview; Right: controls/spec/code actions).
+- Controls: reuse `UIPromptBox.tsx` for prompt + model + “Generate Spec”. Add a minimal spec viewer and a “Generate Code” button gated by validation.
+- Hooks: reuse `useUIGeneration` for streaming; add thin `useDesignSpec` and `useCodeBlueprint` wrappers around the same OpenRouter client.
+- Types: add Zod schemas for `DesignSpec` and `CodeBlueprint` only (keep current wireframe types and extend as needed).
+
+### Minimal Component Set (MVP)
+- Header/NavBar, TabBar
+- Button (primary/secondary)
+- Card, Stat/Metric row
+- ListItem (title/subtitle/avatar/badge)
+- FormField (text/password/email)
+- ChartPlaceholder, Avatar, Icon
+- NumberPad/Keyboard placeholder
+
+### Validation & Safety
+- Strict Zod on Spec and Code Blueprint; strip/normalize unknown fields.
+- Safe renderer only; never eval TSX.
+- API key via `ChatboxControls` and `useChatboxSettings()` remains unchanged.
+
+### Performance & Reliability
+- Stream only the Design Spec for fast feedback; Code Blueprint can be non-stream.
+- Throttle UI updates during streaming; keep cancel support.
+- Cache by hash(prompt) for spec and hash(spec) for blueprint.
+
+### Error Handling
+- Spec invalid → show validation diff + one-click refine (retry with tighter constraints).
+- Codegen failure → single retry with reduced component set and shorter limits.
+
+### Acceptance Criteria
+- Spec generation p50 < 5s, JSON validates.
+- Preview matches Spec using only allowed primitives.
+- Code Blueprint builds in a stock React+Tailwind starter without edits.
+- Cancel works; errors are actionable; artifacts cached.
+
+### Milestones
+- M1: Spec generation + Zod validation + viewer + caching.
+- M2: Preview renderer updates for MVP primitives.
+- M3: Code blueprint generation + download + QA.
+
+---
+
+### Archived Previous Plan (for reference)
 #### 1. Component Architecture Updates
 ```mermaid
 graph TD
