@@ -5,6 +5,7 @@ import { OpenRouterClient, getAvailableModels } from '@/lib/openrouter';
 import { useChatboxSettings } from '@/components/chatbox/utils/settings-utils';
 import { validateApiKey, validateModel, getErrorMessage } from '@/components/chatbox/utils/validation-utils';
 import type { WireframeScreen, WireframeNode } from './types';
+import { chatboxDebug } from '@/app/businessidea/utils/logStore';
 
 export type UIGenerationStatus = 'idle' | 'loading' | 'success' | 'error';
 
@@ -94,22 +95,41 @@ export const useUIGeneration = (): UseUIGenerationResult => {
       const model = opts?.model || resolveModel();
       const apiKey = resolveApiKey(model);
 
+      chatboxDebug.info('ui-prompt', 'Starting UI generation', {
+        model,
+        promptLength: prompt?.length || 0,
+        hasApiKey: !!apiKey
+      });
+
       const keyValidation = validateApiKey(apiKey);
       if (!keyValidation.isValid) {
-        throw new Error(keyValidation.error || 'Invalid API key');
+        const msg = keyValidation.error || 'Invalid API key';
+        chatboxDebug.error('ui-prompt', 'API key validation failed', { model, reason: msg });
+        throw new Error(msg);
       }
 
       const modelValidation = validateModel(model, availableModels);
       if (!modelValidation.isValid) {
-        throw new Error(modelValidation.error || 'Invalid model');
+        const msg = modelValidation.error || 'Invalid model';
+        chatboxDebug.error('ui-prompt', 'Model validation failed', { model, reason: msg });
+        throw new Error(msg);
       }
 
       if (!prompt || prompt.trim().length < 3) {
-        throw new Error('Please enter a longer prompt');
+        const msg = 'Please enter a longer prompt';
+        chatboxDebug.warn('ui-prompt', 'Prompt too short', { promptLength: prompt?.length || 0 });
+        throw new Error(msg);
       }
 
       const client = new OpenRouterClient(apiKey);
 
+      chatboxDebug.debug('ui-prompt', 'Sending request to OpenRouter', {
+        model,
+        temperature: opts?.temperature ?? 0.2,
+        maxTokens: opts?.maxTokens ?? 800
+      });
+
+      let contentSnippet: string | undefined;
       const response = await client.chat({
         model,
         messages: [
@@ -121,25 +141,42 @@ export const useUIGeneration = (): UseUIGenerationResult => {
       }, { stream: false });
 
       if (!response || !('choices' in response)) {
+        chatboxDebug.error('ui-prompt', 'Empty response from model', { model });
         throw new Error('Empty response from model');
       }
 
       const content = response.choices?.[0]?.message?.content || '';
+      contentSnippet = content?.slice(0, 800);
+
+      chatboxDebug.debug('ui-prompt', 'Received response from OpenRouter', {
+        model,
+        choiceCount: response.choices?.length || 0,
+        contentPreview: contentSnippet
+      });
       let parsed: any;
       try {
         parsed = JSON.parse(content);
       } catch (e) {
+        chatboxDebug.error('ui-prompt', 'Non-JSON content received', {
+          model,
+          error: getErrorMessage(e),
+          contentPreview: contentSnippet
+        });
         throw new Error('The model returned non-JSON content. Please try again with a simpler prompt.');
       }
 
       if (!validateWireframe(parsed)) {
+        chatboxDebug.error('ui-prompt', 'Wireframe validation failed', { model, parsedPreview: JSON.stringify(parsed).slice(0, 800) });
         throw new Error('The generated structure is invalid or unsupported.');
       }
 
       setResult(parsed);
       setStatus('success');
+      chatboxDebug.success('ui-prompt', 'UI generation successful', { model });
     } catch (e) {
-      setError(getErrorMessage(e));
+      const msg = getErrorMessage(e);
+      chatboxDebug.error('ui-prompt', 'UI generation failed', { error: msg });
+      setError(msg);
       setStatus('error');
     }
   }, [availableModels, buildSystemPrompt, resolveApiKey, resolveModel]);

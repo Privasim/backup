@@ -13,6 +13,7 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({ isOpen, onClose }) => {
   const [filter, setFilter] = useState('');
   const [levelFilter, setLevelFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'chatbox' | 'ui-prompt'>('all');
   const [autoScroll, setAutoScroll] = useState(true);
   const logsEndRef = useRef<HTMLDivElement>(null);
 
@@ -67,6 +68,11 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({ isOpen, onClose }) => {
     }
   };
 
+  const handleSelectTab = (tab: 'all' | 'chatbox' | 'ui-prompt') => {
+    setActiveTab(tab);
+    setCategoryFilter(tab === 'all' ? 'all' : tab);
+  };
+
   if (!isOpen) return null;
 
   const categories = Array.from(new Set(logs.map(log => log.category)));
@@ -100,8 +106,27 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({ isOpen, onClose }) => {
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Tabs + Filters */}
       <div className="p-2 border-b border-gray-200 space-y-2">
+        {/* Tabs */}
+        <div role="tablist" aria-label="Debug categories" className="flex items-center gap-1">
+          {([
+            { id: 'all', label: 'All' },
+            { id: 'chatbox', label: 'Chatbox' },
+            { id: 'ui-prompt', label: 'UI Prompt' }
+          ] as const).map(t => (
+            <button
+              key={t.id}
+              role="tab"
+              aria-selected={activeTab === t.id}
+              onClick={() => handleSelectTab(t.id)}
+              className={`px-2 py-1 text-xs rounded border ${activeTab === t.id ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
         <input
           type="text"
           placeholder="Filter logs..."
