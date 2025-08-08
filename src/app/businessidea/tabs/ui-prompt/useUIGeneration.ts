@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { OpenRouterClient, getAvailableModels } from '@/lib/openrouter';
 import { useChatboxSettings } from '@/components/chatbox/utils/settings-utils';
 import { validateApiKey, validateModel, getErrorMessage } from '@/components/chatbox/utils/validation-utils';
@@ -13,7 +13,10 @@ export interface UseUIGenerationResult {
   status: UIGenerationStatus;
   error?: string;
   result?: WireframeScreen;
+  streamText: string;
+  metrics: { startedAt?: number; lastChunkAt?: number; tokenCount: number; bytes: number };
   generate: (prompt: string, opts?: { model?: string; temperature?: number; maxTokens?: number }) => Promise<void>;
+  cancel: () => void;
 }
 
 const coercePadding = (p: any): 'none' | 'sm' | 'md' | 'lg' | undefined => {
@@ -45,6 +48,9 @@ export const useUIGeneration = (): UseUIGenerationResult => {
   const [status, setStatus] = useState<UIGenerationStatus>('idle');
   const [error, setError] = useState<string | undefined>(undefined);
   const [result, setResult] = useState<WireframeScreen | undefined>(undefined);
+  const [streamText, setStreamText] = useState<string>('');
+  const [metrics, setMetrics] = useState<{ startedAt?: number; lastChunkAt?: number; tokenCount: number; bytes: number }>({ tokenCount: 0, bytes: 0 });
+  const abortRef = useRef<AbortController | null>(null);
 
   const availableModels = useMemo(() => getAvailableModels(), []);
 
@@ -68,10 +74,11 @@ export const useUIGeneration = (): UseUIGenerationResult => {
   const resolveApiKey = useCallback((model: string) => {
     let apiKey = settings.getApiKey(model);
     if (!apiKey) {
-      // Legacy fallback
+      // Legacy fallbacks
       try {
-        const legacyKey = localStorage.getItem('openrouter-api-key') || '';
-        if (legacyKey) apiKey = legacyKey;
+        const legacyHyphen = localStorage.getItem('openrouter-api-key') || '';
+        const legacyUnderscore = localStorage.getItem('openrouter_api_key') || '';
+        apiKey = legacyHyphen || legacyUnderscore || '';
       } catch {}
     }
     return apiKey || '';
@@ -86,16 +93,45 @@ export const useUIGeneration = (): UseUIGenerationResult => {
     ].join(' ');
   }, []);
 
+  const extractBalancedJson = (text: string): string | null => {
+    // Remove common code fences if present
+    const sanitized = text.replace(/```[a-zA-Z]*\n?/g, '').replace(/```/g, '');
+    let depth = 0;
+    let start = -1;
+    for (let i = 0; i < sanitized.length; i++) {
+      const ch = sanitized[i];
+      if (ch === '{') {
+        if (depth === 0) start = i;
+        depth++;
+      } else if (ch === '}') {
+        depth--;
+        if (depth === 0 && start !== -1) {
+          return sanitized.slice(start, i + 1);
+        }
+      }
+    }
+    return null;
+  };
+
+  const cancel = useCallback(() => {
+    if (abortRef.current) {
+      abortRef.current.abort();
+      chatboxDebug.warn('ui-prompt', 'Generation aborted by user');
+    }
+  }, []);
+
   const generate = useCallback<UseUIGenerationResult['generate']>(async (prompt, opts) => {
     setStatus('loading');
     setError(undefined);
     setResult(undefined);
+    setStreamText('');
+    setMetrics({ startedAt: Date.now(), lastChunkAt: undefined, tokenCount: 0, bytes: 0 });
 
     try {
       const model = opts?.model || resolveModel();
       const apiKey = resolveApiKey(model);
 
-      chatboxDebug.info('ui-prompt', 'Starting UI generation', {
+      chatboxDebug.info('ui-prompt', 'Starting UI generation (streaming)', {
         model,
         promptLength: prompt?.length || 0,
         hasApiKey: !!apiKey
@@ -122,15 +158,35 @@ export const useUIGeneration = (): UseUIGenerationResult => {
       }
 
       const client = new OpenRouterClient(apiKey);
+      const controller = new AbortController();
+      abortRef.current = controller;
 
-      chatboxDebug.debug('ui-prompt', 'Sending request to OpenRouter', {
-        model,
-        temperature: opts?.temperature ?? 0.2,
-        maxTokens: opts?.maxTokens ?? 800
-      });
+      const onChunk = (chunk: string) => {
+        setStreamText(prev => {
+          const next = prev + chunk;
+          // Progressive parse using latest buffer
+          const candidate = extractBalancedJson(next);
+          if (candidate) {
+            try {
+              const parsed = JSON.parse(candidate);
+              if (validateWireframe(parsed)) {
+                setResult(parsed);
+              }
+            } catch {
+              // ignore partial JSON errors
+            }
+          }
+          return next;
+        });
+        setMetrics(prev => ({
+          ...prev,
+          lastChunkAt: Date.now(),
+          tokenCount: prev.tokenCount + 1,
+          bytes: prev.bytes + chunk.length
+        }));
+      };
 
-      let contentSnippet: string | undefined;
-      const response = await client.chat({
+      await client.chat({
         model,
         messages: [
           { role: 'system', content: buildSystemPrompt() },
@@ -138,39 +194,47 @@ export const useUIGeneration = (): UseUIGenerationResult => {
         ],
         temperature: opts?.temperature ?? 0.2,
         max_tokens: opts?.maxTokens ?? 800
-      }, { stream: false });
+      }, { stream: true, onChunk, signal: controller.signal });
 
-      if (!response || !('choices' in response)) {
-        chatboxDebug.error('ui-prompt', 'Empty response from model', { model });
-        throw new Error('Empty response from model');
+      // Stream ended; final parse attempt
+      const finalCandidate = extractBalancedJson(streamText);
+      if (finalCandidate && !result) {
+        try {
+          const parsed = JSON.parse(finalCandidate);
+          if (validateWireframe(parsed)) {
+            setResult(parsed);
+          }
+        } catch {/* ignore */}
       }
 
-      const content = response.choices?.[0]?.message?.content || '';
-      contentSnippet = content?.slice(0, 800);
-
-      chatboxDebug.debug('ui-prompt', 'Received response from OpenRouter', {
-        model,
-        choiceCount: response.choices?.length || 0,
-        contentPreview: contentSnippet
-      });
-      let parsed: any;
-      try {
-        parsed = JSON.parse(content);
-      } catch (e) {
-        chatboxDebug.error('ui-prompt', 'Non-JSON content received', {
+      if (!result) {
+        // Fallback: non-streaming single-shot
+        chatboxDebug.warn('ui-prompt', 'Streaming did not yield valid JSON; attempting non-streaming fallback');
+        const response = await client.chat({
           model,
-          error: getErrorMessage(e),
-          contentPreview: contentSnippet
-        });
-        throw new Error('The model returned non-JSON content. Please try again with a simpler prompt.');
+          messages: [
+            { role: 'system', content: buildSystemPrompt() },
+            { role: 'user', content: `Prompt: ${prompt}. Output JSON only.` }
+          ],
+          temperature: opts?.temperature ?? 0.2,
+          max_tokens: opts?.maxTokens ?? 800
+        }, { stream: false });
+
+        if (!response || !('choices' in response)) {
+          throw new Error('Empty response from model');
+        }
+        const content = response.choices?.[0]?.message?.content || '';
+        try {
+          const parsed = JSON.parse(content);
+          if (!validateWireframe(parsed)) {
+            throw new Error('The generated structure is invalid or unsupported.');
+          }
+          setResult(parsed);
+        } catch (e) {
+          throw new Error('The model returned non-JSON content. Please try again with a simpler prompt.');
+        }
       }
 
-      if (!validateWireframe(parsed)) {
-        chatboxDebug.error('ui-prompt', 'Wireframe validation failed', { model, parsedPreview: JSON.stringify(parsed).slice(0, 800) });
-        throw new Error('The generated structure is invalid or unsupported.');
-      }
-
-      setResult(parsed);
       setStatus('success');
       chatboxDebug.success('ui-prompt', 'UI generation successful', { model });
     } catch (e) {
@@ -178,8 +242,10 @@ export const useUIGeneration = (): UseUIGenerationResult => {
       chatboxDebug.error('ui-prompt', 'UI generation failed', { error: msg });
       setError(msg);
       setStatus('error');
+    } finally {
+      abortRef.current = null;
     }
-  }, [availableModels, buildSystemPrompt, resolveApiKey, resolveModel]);
+  }, [availableModels, buildSystemPrompt, resolveApiKey, resolveModel, result, streamText]);
 
-  return { status, error, result, generate };
+  return { status, error, result, streamText, metrics, generate, cancel };
 };

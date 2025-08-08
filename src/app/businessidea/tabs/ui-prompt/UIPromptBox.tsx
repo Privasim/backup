@@ -7,7 +7,7 @@ import { useChatboxSettings } from '@/components/chatbox/utils/settings-utils';
 import { getAvailableModels } from '@/lib/openrouter';
 
 export default function UIPromptBox() {
-  const { status, error, result, generate } = useUIGeneration();
+  const { status, error, result, streamText, metrics, generate, cancel } = useUIGeneration();
   const [prompt, setPrompt] = useState('');
   const settings = useChatboxSettings();
   const availableModels = useMemo(() => getAvailableModels(), []);
@@ -87,6 +87,15 @@ export default function UIPromptBox() {
           >
             {status === 'loading' ? 'Generating…' : 'Generate UI'}
           </button>
+          {status === 'loading' && (
+            <button
+              type="button"
+              onClick={cancel}
+              className="rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-800 hover:bg-gray-200"
+            >
+              Stop
+            </button>
+          )}
           <button
             type="button"
             onClick={onClear}
@@ -98,13 +107,30 @@ export default function UIPromptBox() {
         </div>
       </form>
 
+      {/* Streaming console */}
+      {(status === 'loading' || streamText.length > 0) && (
+        <div className="mt-3">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-gray-700">Live JSON</span>
+            <span className="text-[10px] text-gray-500">
+              {metrics.startedAt ? `${Math.max(0, (metrics.lastChunkAt || Date.now()) - metrics.startedAt)}ms` : ''}
+              {` • ${metrics.tokenCount} chunks • ${metrics.bytes} bytes`}
+            </span>
+          </div>
+          <pre
+            className="max-h-48 overflow-auto rounded-md border border-gray-200 bg-gray-50 p-2 text-xs text-gray-800"
+            aria-live="polite"
+          >{streamText}</pre>
+        </div>
+      )}
+
       {error && (
         <div className="mt-3 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700" role="alert">
           {error}
         </div>
       )}
 
-      {status === 'success' && result && (
+      {result && (
         <div className="mt-4">
           <UIWireframeRenderer screen={result} />
         </div>

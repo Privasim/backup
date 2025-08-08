@@ -48,7 +48,7 @@ export class OpenRouterClient {
 
   async chat(
     request: OpenRouterRequest,
-    options?: { stream?: boolean; onChunk?: (chunk: string) => void }
+    options?: { stream?: boolean; onChunk?: (chunk: string) => void; signal?: AbortSignal }
   ): Promise<OpenRouterResponse | void> {
     const isStreaming = options?.stream === true;
     
@@ -76,7 +76,8 @@ export class OpenRouterClient {
           'HTTP-Referer': window.location.origin,
           'X-Title': 'AI Career Risk Assessment'
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
+        signal: options?.signal
       });
 
       debugLog.info('OpenRouter', `API response received`, {
@@ -110,6 +111,10 @@ export class OpenRouterClient {
 
         try {
           while (true) {
+            if (options?.signal?.aborted) {
+              debugLog.warn('OpenRouter', 'Abort signal received during streaming; stopping read loop');
+              break;
+            }
             const { done, value } = await reader.read();
             if (done) {
               debugLog.success('OpenRouter', `Streaming completed. Processed ${totalChunks} chunks, ${totalContent.length} characters total`);
