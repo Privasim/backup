@@ -9,8 +9,10 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   PaperAirplaneIcon,
-  SparklesIcon
+  SparklesIcon,
+  UserIcon
 } from '@heroicons/react/24/outline';
+
 import ChatboxControls from './ChatboxControls';
 import ChatboxMessage from './ChatboxMessage';
 import QuickActionBar from './QuickActionBar';
@@ -130,6 +132,13 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
                 </div>
                 <h3 className="text-sm font-medium text-gray-900 mb-1">Ready to Analyze</h3>
                 <p className="text-xs text-gray-500">Configure your settings below and start your profile analysis</p>
+                <button
+                  onClick={() => { if (typeof window !== 'undefined') { window.dispatchEvent(new Event('profile-panel:open')); } }}
+                  className="mt-3 inline-flex items-center px-3 py-2 rounded-md bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                  <UserIcon className="h-4 w-4 mr-1" />
+                  Edit Profile
+                </button>
               </div>
             </div>
           )}

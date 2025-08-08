@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import ProfilePanel from './profile-panel/ProfilePanel';
 import { ChatboxToggle } from '@/components/chatbox/ChatboxToggle';
+import { useChatbox } from '@/components/chatbox/ChatboxProvider';
 
 interface BusinessHeaderProps {
   title: string;
@@ -13,6 +14,13 @@ const BusinessHeader: React.FC<BusinessHeaderProps> = ({
   title, 
   description = 'Explore innovative business opportunities and ideas' 
 }) => {
+  const { openChatbox } = useChatbox();
+
+  // Ensure chatbox panel is opened when this header mounts
+  useEffect(() => {
+    openChatbox();
+  }, [openChatbox]);
+
   return (
     <header className="bg-white shadow">
       <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
