@@ -9,6 +9,7 @@ import ToolsContent from './ToolsContent';
 import VisualizationContent from './VisualizationContent';
 import ListTab from './ListTab';
 import MobileTab from './MobileTab';
+import { ImplementationPlanProvider } from '@/features/implementation-plan/ImplementationPlanProvider';
 
 const tabComponents = {
   businessplan: BusinessPlanContent,
@@ -36,10 +37,12 @@ function TabContent() {
 export default function TabContainer() {
   return (
     <TabProvider>
-      <div className="space-y-4">
-        <TabNavigation />
-        <TabContent />
-      </div>
+      <ImplementationPlanProvider>
+        <div className="space-y-4">
+          <TabNavigation />
+          <TabContent />
+        </div>
+      </ImplementationPlanProvider>
     </TabProvider>
   );
 }

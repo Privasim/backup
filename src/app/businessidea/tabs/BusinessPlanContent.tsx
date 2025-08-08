@@ -5,10 +5,12 @@ import { useChatbox } from '@/components/chatbox/ChatboxProvider';
 import SuggestionCard from '@/components/business/SuggestionCard';
 import BusinessPlanSettings from '@/components/business/BusinessPlanSettings';
 import { SparklesIcon, LightBulbIcon, CogIcon } from '@heroicons/react/24/outline';
+import { useImplementationPlan } from '@/features/implementation-plan/useImplementationPlan';
 
 export default function BusinessPlanContent() {
   const { businessSuggestions } = useChatbox();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const { generate } = useImplementationPlan();
   
   const { suggestions, suggestionStatus, suggestionError } = businessSuggestions;
   const isLoading = suggestionStatus === 'generating';
@@ -131,6 +133,7 @@ export default function BusinessPlanContent() {
             <div key={suggestion.id} className="w-full">
               <SuggestionCard
                 suggestion={suggestion}
+                onCreatePlan={generate}
               />
             </div>
           ))}

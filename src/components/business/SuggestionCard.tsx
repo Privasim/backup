@@ -16,11 +16,13 @@ import { useTab } from '@/app/businessidea/tabs/TabContext';
 interface SuggestionCardProps {
   suggestion: BusinessSuggestion;
   className?: string;
+  onCreatePlan?: (suggestion: BusinessSuggestion) => void;
 }
 
 export const SuggestionCard: React.FC<SuggestionCardProps> = ({ 
   suggestion, 
-  className = '' 
+  className = '',
+  onCreatePlan,
 }) => {
   const { setActiveTab } = useTab();
   const getViabilityColor = (score: number) => {
@@ -113,7 +115,10 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
         <button
           type="button"
           aria-label="Create Implementation Plan"
-          onClick={() => setActiveTab('list')}
+          onClick={() => {
+            setActiveTab('list');
+            onCreatePlan?.(suggestion);
+          }}
           className="w-full inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 px-3 py-2 text-sm font-medium hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300 transition-all"
         >
           <ClipboardDocumentCheckIcon className="h-4 w-4 mr-2" />
