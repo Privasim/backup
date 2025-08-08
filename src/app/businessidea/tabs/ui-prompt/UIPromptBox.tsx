@@ -76,107 +76,161 @@ export default function UIPromptBox() {
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 p-4 bg-white">
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <h3 className="text-base font-semibold text-gray-900">Spec-Driven UI Generator</h3>
-        <div className="flex items-center gap-2">
-          <label htmlFor="ui-model" className="text-xs text-gray-600">Model</label>
-          <select
-            id="ui-model"
-            className="rounded-md border border-gray-300 bg-white px-2 py-1 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={selectedModel}
-            onChange={onModelChange}
-          >
-            {availableModels.map((m) => (
-              <option key={m} value={m}>{m}</option>
-            ))}
-          </select>
-        </div>
+    <div className="flex flex-col h-full">
+      {/* Main Display Area - Takes most of the space */}
+      <div className="flex-1 p-5">
+        {/* Stage A Panel */}
+        {stage === 'spec' && (
+          <DesignSpecPanel
+            status={specStatus}
+            error={specError}
+            spec={spec}
+            streamText={specStream}
+            metrics={specMetrics}
+            onApprove={async () => {
+              if (!spec) return;
+              setStage('code');
+              await generateCode(spec, { model: selectedModel });
+            }}
+            onRegenerate={async () => {
+              await generateSpec(prompt, { model: selectedModel });
+            }}
+            onCancel={specStatus === 'loading' ? () => cancelSpec() : undefined}
+          />
+        )}
+
+        {/* Stage B Panel */}
+        {stage === 'code' && (
+          <CodePreviewPanel
+            status={codeStatus}
+            error={codeError}
+            bundle={bundle}
+            streamText={codeStream}
+            metrics={codeMetrics}
+            onBack={() => setStage('spec')}
+          />
+        )}
+
+        {/* Empty State */}
+        {stage === 'spec' && !spec && !specStream && specStatus === 'idle' && (
+          <div className="flex items-center justify-center h-full min-h-[40vh]">
+            <div className="text-center">
+              <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              <h3 className="text-lg font-semibold text-slate-700 mb-2">Mobile Studio</h3>
+              <p className="text-sm text-slate-500 max-w-md">
+                Describe your mobile interface below and watch it come to life with AI-powered design and code generation.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Stepper */}
-      <div className="mb-3 flex items-center gap-3 text-xs">
-        <div className={`flex items-center gap-2 ${stage === 'spec' ? 'text-blue-700' : 'text-gray-600'}`}>
-          <div className={`h-5 w-5 rounded-full text-white text-[10px] flex items-center justify-center ${stage === 'spec' ? 'bg-blue-600' : 'bg-gray-400'}`}>1</div>
-          <span>Design Spec</span>
-        </div>
-        <div className="h-px flex-1 bg-gray-200" />
-        <div className={`flex items-center gap-2 ${stage === 'code' ? 'text-blue-700' : 'text-gray-600'}`}>
-          <div className={`h-5 w-5 rounded-full text-white text-[10px] flex items-center justify-center ${stage === 'code' ? 'bg-blue-600' : 'bg-gray-400'}`}>2</div>
-          <span>Code Generation</span>
-        </div>
-      </div>
+      {/* Compact Bottom Controls */}
+      <div className="border-t border-slate-200/60 bg-slate-50/50 backdrop-blur-sm p-4">
+        {/* Compact Header with Stepper and Model */}
+        <div className="flex items-center justify-between mb-3">
+          {/* Compact Stepper */}
+          <div className="flex items-center gap-2">
+            <div className={`flex items-center gap-1.5 ${stage === 'spec' ? 'text-blue-600' : 'text-slate-400'}`}>
+              <div className={`w-5 h-5 rounded-full text-white text-xs font-medium flex items-center justify-center transition-all duration-200 ${
+                stage === 'spec' ? 'bg-gradient-to-r from-blue-500 to-blue-600 shadow-sm' : 'bg-slate-300'
+              }`}>1</div>
+              <span className="text-xs font-medium">Spec</span>
+            </div>
+            <div className="w-6 h-px bg-slate-200" />
+            <div className={`flex items-center gap-1.5 ${stage === 'code' ? 'text-emerald-600' : 'text-slate-400'}`}>
+              <div className={`w-5 h-5 rounded-full text-white text-xs font-medium flex items-center justify-center transition-all duration-200 ${
+                stage === 'code' ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 shadow-sm' : 'bg-slate-300'
+              }`}>2</div>
+              <span className="text-xs font-medium">Code</span>
+            </div>
+          </div>
 
-      <form onSubmit={onSubmit} className="space-y-3">
-        <label htmlFor="ui-prompt" className="block text-xs text-gray-600">Describe the mobile screen you want to generate</label>
-        <textarea
-          id="ui-prompt"
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="e.g., A login screen with email and password fields, primary continue button, and a small forgot password link"
-          rows={3}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <div className="flex gap-2">
-          <button
-            type="submit"
-            disabled={!canSubmit}
-            className={`rounded-md px-4 py-2 text-sm text-white ${canSubmit ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-300 cursor-not-allowed'}`}
-            aria-disabled={!canSubmit}
-          >
-            {specStatus === 'loading' ? 'Generating Spec…' : (codeStatus === 'loading' ? 'Generating Code…' : 'Generate Spec')}
-          </button>
-          {(specStatus === 'loading' || codeStatus === 'loading') && (
+          {/* Compact Model Selection */}
+          <div className="flex items-center gap-2">
+            <label htmlFor="ui-model" className="text-xs font-medium text-slate-600">Model</label>
+            <select
+              id="ui-model"
+              className="rounded-lg border border-slate-200/60 bg-white/80 backdrop-blur-sm px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500/20 focus:border-blue-400/60 transition-all duration-200"
+              value={selectedModel}
+              onChange={onModelChange}
+            >
+              {availableModels.map((m) => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Compact Form */}
+        <form onSubmit={onSubmit} className="space-y-3">
+          <div className="relative">
+            <textarea
+              id="ui-prompt"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Describe your mobile interface (e.g., modern login screen with email/password fields...)"
+              rows={2}
+              className="w-full rounded-lg border border-slate-200/60 bg-white/80 px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500/20 focus:border-blue-400/60 focus:bg-white/90 resize-none transition-all duration-200"
+            />
+            <div className="absolute bottom-2 right-2 text-xs text-slate-400">
+              {prompt.length}/500
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="submit"
+              disabled={!canSubmit}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                canSubmit 
+                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-sm hover:shadow-md' 
+                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+              }`}
+              aria-disabled={!canSubmit}
+            >
+              {specStatus === 'loading' || codeStatus === 'loading' ? (
+                <>
+                  <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  {specStatus === 'loading' ? 'Generating...' : 'Coding...'}
+                </>
+              ) : (
+                <>
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  Generate
+                </>
+              )}
+            </button>
+
+            {(specStatus === 'loading' || codeStatus === 'loading') && (
+              <button
+                type="button"
+                onClick={() => (stage === 'spec' ? cancelSpec() : cancelCode())}
+                className="px-3 py-2 rounded-lg text-sm font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all duration-200"
+              >
+                Stop
+              </button>
+            )}
+
             <button
               type="button"
-              onClick={() => (stage === 'spec' ? cancelSpec() : cancelCode())}
-              className="rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-800 hover:bg-gray-200"
+              onClick={onClear}
+              disabled={specStatus === 'loading' || codeStatus === 'loading' || prompt.length === 0}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                prompt.length && specStatus !== 'loading' && codeStatus !== 'loading'
+                  ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' 
+                  : 'bg-slate-50 text-slate-300 cursor-not-allowed'
+              }`}
             >
-              Stop
+              Clear
             </button>
-          )}
-          <button
-            type="button"
-            onClick={onClear}
-            disabled={specStatus === 'loading' || codeStatus === 'loading' || prompt.length === 0}
-            className={`rounded-md px-3 py-2 text-sm ${prompt.length ? 'bg-gray-100 text-gray-800 hover:bg-gray-200' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
-          >
-            Clear
-          </button>
-        </div>
-      </form>
-
-      {/* Stage A Panel */}
-      {stage === 'spec' && (
-        <DesignSpecPanel
-          status={specStatus}
-          error={specError}
-          spec={spec}
-          streamText={specStream}
-          metrics={specMetrics}
-          onApprove={async () => {
-            if (!spec) return;
-            setStage('code');
-            await generateCode(spec, { model: selectedModel });
-          }}
-          onRegenerate={async () => {
-            await generateSpec(prompt, { model: selectedModel });
-          }}
-          onCancel={specStatus === 'loading' ? () => cancelSpec() : undefined}
-        />
-      )}
-
-      {/* Stage B Panel */}
-      {stage === 'code' && (
-        <CodePreviewPanel
-          status={codeStatus}
-          error={codeError}
-          bundle={bundle}
-          streamText={codeStream}
-          metrics={codeMetrics}
-          onBack={() => setStage('spec')}
-        />
-      )}
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
