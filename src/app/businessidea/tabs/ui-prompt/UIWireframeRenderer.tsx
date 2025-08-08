@@ -13,8 +13,8 @@ const padClass = (p?: 'none' | 'sm' | 'md' | 'lg') => {
   }
 };
 
-function renderNode(node: WireframeNode, idx?: number): React.ReactNode {
-  const key = idx ?? Math.random();
+function renderNode(node: WireframeNode, path: string = 'root'): React.ReactNode {
+  const key = path;
   const props: any = (node as any).props || {};
 
   switch (node.type) {
@@ -25,7 +25,7 @@ function renderNode(node: WireframeNode, idx?: number): React.ReactNode {
           {screen.props?.title ? (
             <div className="text-lg font-semibold text-gray-900">{screen.props.title}</div>
           ) : null}
-          {screen.children?.map((c, i) => renderNode(c, i))}
+          {screen.children?.map((c, i) => renderNode(c, `${path}.${i}`))}
         </div>
       );
     }
@@ -70,7 +70,7 @@ function renderNode(node: WireframeNode, idx?: number): React.ReactNode {
         <div key={key} className="rounded-lg border border-gray-200 p-4 shadow-sm">
           {props.title ? <div className="text-sm font-semibold text-gray-900 mb-1">{props.title}</div> : null}
           {props.content ? <div className="text-sm text-gray-700">{props.content}</div> : null}
-          {Array.isArray(node.children) ? node.children.map((c, i) => renderNode(c, i)) : null}
+          {Array.isArray(node.children) ? node.children.map((c, i) => renderNode(c, `${path}.${i}`)) : null}
         </div>
       );
     }
@@ -110,7 +110,7 @@ function renderNode(node: WireframeNode, idx?: number): React.ReactNode {
 const UIWireframeRenderer = memo(function UIWireframeRenderer({ screen }: { screen: WireframeScreen }) {
   return (
     <div className="bg-gray-50 rounded-lg border border-gray-200">
-      {renderNode(screen)}
+      {renderNode(screen, 'root')}
     </div>
   );
 });
