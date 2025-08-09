@@ -18,6 +18,18 @@ import type { ChatboxContext } from './types';
 import { ProfileFormData } from '@/app/businessidea/types/profile.types';
 import { useStorageManager } from './hooks/useStorageManager';
 import { useCacheManager } from './hooks/useCacheManager';
+import { ImplementationPlan } from '@/features/implementation-plan/types';
+import { OpenRouterClient } from '@/lib/openrouter/client';
+
+interface PlanOutline {
+  title: string;
+  overview: string;
+  keyPhases: string[];
+  estimatedTimeline: string;
+  majorMilestones: string[];
+  resourceRequirements: string[];
+  approvalRequired: boolean;
+}
 
 interface ChatboxContextType extends ChatboxState {
   // Core actions
@@ -63,6 +75,10 @@ interface ChatboxContextType extends ChatboxState {
   // Business suggestions
   generateBusinessSuggestions: () => Promise<void>;
   clearBusinessSuggestions: () => void;
+  
+  // Implementation plan methods
+  generatePlanOutline: (suggestion: BusinessSuggestion) => Promise<PlanOutline>;
+  generateFullPlan: (outline: PlanOutline, onChunk?: (chunk: string) => void) => Promise<ImplementationPlan>;
 }
 
 const ChatboxReactContext = createContext<ChatboxContextType | undefined>(undefined);
@@ -489,10 +505,14 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
       const { getCustomSystemPrompt } = await import('@/lib/business/settings-utils');
       const customSystemPrompt = getCustomSystemPrompt();
       
+      if (!state.currentAnalysis) {
+        throw new Error('No analysis result available');
+      }
+      
       const suggestions = await businessSuggestionErrorHandler.retryOperation(
         () => businessSuggestionService.generateSuggestions(
           state.config,
-          state.currentAnalysis,
+          state.currentAnalysis!,
           profileData,
           customSystemPrompt
         ),
@@ -528,8 +548,7 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
           }
         );
 
-        // Also save to storage manager
-        storageManager.saveBusinessSuggestions(suggestions, profileDataHash);
+        // Note: Business suggestions are cached via the cache manager above
       } catch (cacheError) {
         console.warn('Failed to cache business suggestions:', cacheError);
       }
@@ -556,6 +575,382 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
     }));
   }, []);
 
+  // Implementation Plan Methods
+  const generatePlanOutline = useCallback(async (suggestion: BusinessSuggestion): Promise<PlanOutline> => {
+    if (!state.config.apiKey || !state.config.model) {
+      throw new Error('API key and model are required');
+    }
+
+    console.log('ChatboxProvider: Starting plan outline generation', {
+      suggestionId: suggestion.id,
+      suggestionTitle: suggestion.title,
+      model: state.config.model
+    });
+
+    try {
+      const client = new OpenRouterClient(state.config.apiKey);
+      
+      const prompt = `Create a high-level implementation plan outline for this business idea:
+
+**Business Idea:** ${suggestion.title}
+**Description:** ${suggestion.description}
+**Category:** ${suggestion.category}
+**Target Market:** ${suggestion.targetMarket}
+**Estimated Startup Cost:** ${suggestion.estimatedStartupCost}
+**Key Features:** ${suggestion.keyFeatures.join(', ')}
+
+Please provide a concise outline that includes:
+1. A clear title for the implementation plan
+2. A brief overview (2-3 sentences)
+3. 4-6 key phases of implementation
+4. Estimated timeline for completion
+5. 3-5 major milestones
+6. Key resource requirements
+
+Respond with valid JSON in this format:
+{
+  "title": "Implementation Plan Title",
+  "overview": "Brief overview of the plan...",
+  "keyPhases": ["Phase 1: ...", "Phase 2: ...", ...],
+  "estimatedTimeline": "6-12 months",
+  "majorMilestones": ["Milestone 1", "Milestone 2", ...],
+  "resourceRequirements": ["Resource 1", "Resource 2", ...],
+  "approvalRequired": true
+}`;
+
+      const response = await client.chat({
+        model: state.config.model,
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a business planning expert. Generate concise, actionable implementation plan outlines. Always respond with valid JSON.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        temperature: state.config.temperature || 0.7,
+        max_tokens: 800
+      });
+
+      const content = response?.choices?.[0]?.message?.content || '';
+      const outline = parseOutlineResponse(content);
+      
+      console.log('ChatboxProvider: Plan outline generated successfully', {
+        title: outline.title,
+        phaseCount: outline.keyPhases.length
+      });
+
+      return outline;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.error('ChatboxProvider: Failed to generate plan outline', error);
+      throw new Error(`Plan outline generation failed: ${errorMessage}`);
+    }
+  }, [state.config]);
+
+  const generateFullPlan = useCallback(async (
+    outline: PlanOutline,
+    onChunk?: (chunk: string) => void
+  ): Promise<ImplementationPlan> => {
+    if (!state.config.apiKey || !state.config.model) {
+      throw new Error('API key and model are required');
+    }
+
+    console.log('ChatboxProvider: Starting full plan generation', {
+      outlineTitle: outline.title,
+      model: state.config.model,
+      streaming: !!onChunk
+    });
+
+    try {
+      const client = new OpenRouterClient(state.config.apiKey);
+      
+      const prompt = `Based on this approved outline, create a detailed implementation plan in a conversational, easy-to-read format:
+
+**Outline:**
+- Title: ${outline.title}
+- Overview: ${outline.overview}
+- Key Phases: ${outline.keyPhases.join(', ')}
+- Timeline: ${outline.estimatedTimeline}
+- Milestones: ${outline.majorMilestones.join(', ')}
+- Resources: ${outline.resourceRequirements.join(', ')}
+
+Please create a comprehensive, well-formatted implementation plan that includes:
+
+1. **Executive Summary** - Brief overview of the plan
+2. **Implementation Phases** - Detailed breakdown of each phase with objectives and timelines
+3. **Action Items** - Specific tasks organized by phase
+4. **90-Day Quick Start** - Immediate next steps for the first 90 days
+5. **Resource Requirements** - Team, tools, and budget needs
+6. **Success Metrics** - How to measure progress
+7. **Risk Mitigation** - Potential challenges and solutions
+
+Format your response in clear, readable markdown with:
+- Headers and subheaders for organization
+- Bullet points for lists
+- Emojis for visual appeal
+- Clear sections that are easy to scan
+- Actionable language throughout
+
+Make it conversational and encouraging - this should feel like a helpful guide, not a dry document.`;
+
+      if (onChunk) {
+        // Streaming generation
+        let accumulatedContent = '';
+        
+        await client.chat({
+          model: state.config.model,
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a helpful business planning expert. Create detailed, actionable implementation plans in clear, conversational markdown format. Be encouraging and practical. Use emojis and clear formatting to make the content engaging and easy to read.'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          temperature: state.config.temperature || 0.7,
+          max_tokens: state.config.maxTokens || 3000
+        }, {
+          stream: true,
+          onChunk: (chunk: string) => {
+            accumulatedContent += chunk;
+            onChunk(chunk);
+          }
+        });
+
+        // For streaming, we'll return the raw content formatted for display
+        const plan = {
+          meta: {
+            ideaId: `plan-${Date.now()}`,
+            title: outline.title,
+            category: 'Business',
+            version: 'v1',
+            createdAt: new Date().toISOString()
+          },
+          formattedContent: accumulatedContent,
+          rawContent: accumulatedContent
+        };
+        
+        console.log('ChatboxProvider: Full plan generated successfully (streaming)', {
+          title: plan.meta.title,
+          contentLength: accumulatedContent.length
+        });
+
+        return plan;
+      } else {
+        // Non-streaming generation
+        const response = await client.chat({
+          model: state.config.model,
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a helpful business planning expert. Create detailed, actionable implementation plans in clear, conversational markdown format. Be encouraging and practical. Use emojis and clear formatting to make the content engaging and easy to read.'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          temperature: state.config.temperature || 0.7,
+          max_tokens: state.config.maxTokens || 3000
+        });
+
+        const content = response?.choices?.[0]?.message?.content || '';
+        
+        // For non-streaming, we'll also return the raw content
+        const plan = {
+          meta: {
+            ideaId: `plan-${Date.now()}`,
+            title: outline.title,
+            category: 'Business',
+            version: 'v1',
+            createdAt: new Date().toISOString()
+          },
+          formattedContent: content,
+          rawContent: content
+        };
+        
+        console.log('ChatboxProvider: Full plan generated successfully', {
+          title: plan.meta.title,
+          contentLength: content.length
+        });
+
+        return plan;
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.error('ChatboxProvider: Failed to generate full plan', error);
+      throw new Error(`Full plan generation failed: ${errorMessage}`);
+    }
+  }, [state.config]);
+
+  // Helper functions for parsing responses
+  const parseOutlineResponse = useCallback((content: string): PlanOutline => {
+    try {
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('No JSON found in response');
+      }
+
+      const parsed = JSON.parse(jsonMatch[0]);
+      
+      return {
+        title: parsed.title || 'Implementation Plan',
+        overview: parsed.overview || 'Implementation plan overview',
+        keyPhases: Array.isArray(parsed.keyPhases) ? parsed.keyPhases : ['Phase 1: Planning'],
+        estimatedTimeline: parsed.estimatedTimeline || '6-12 months',
+        majorMilestones: Array.isArray(parsed.majorMilestones) ? parsed.majorMilestones : ['Milestone 1'],
+        resourceRequirements: Array.isArray(parsed.resourceRequirements) ? parsed.resourceRequirements : ['Team'],
+        approvalRequired: parsed.approvalRequired !== false
+      };
+    } catch (error) {
+      console.error('ChatboxProvider: Failed to parse outline response', error);
+      
+      // Return fallback outline
+      return {
+        title: 'Business Implementation Plan',
+        overview: 'A comprehensive plan to launch and grow your business idea.',
+        keyPhases: [
+          'Phase 1: Market Research & Validation',
+          'Phase 2: Product Development',
+          'Phase 3: Business Setup & Legal',
+          'Phase 4: Marketing & Launch',
+          'Phase 5: Growth & Scaling'
+        ],
+        estimatedTimeline: '6-12 months',
+        majorMilestones: [
+          'Market validation completed',
+          'MVP developed and tested',
+          'Business legally established',
+          'First customers acquired',
+          'Revenue targets achieved'
+        ],
+        resourceRequirements: [
+          'Founding team (2-4 people)',
+          'Initial funding ($10K-50K)',
+          'Development tools and software',
+          'Marketing budget',
+          'Legal and accounting services'
+        ],
+        approvalRequired: true
+      };
+    }
+  }, []);
+
+  const parseFullPlanResponse = useCallback((content: string): ImplementationPlan => {
+    try {
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('No JSON found in response');
+      }
+
+      const parsed = JSON.parse(jsonMatch[0]);
+      
+      // Validate and structure the response according to ImplementationPlan interface
+      return {
+        meta: {
+          ideaId: parsed.meta?.ideaId || `plan-${Date.now()}`,
+          title: parsed.meta?.title || 'Implementation Plan',
+          category: parsed.meta?.category || 'Business',
+          version: parsed.meta?.version || 'v1',
+          createdAt: parsed.meta?.createdAt || new Date().toISOString()
+        },
+        overview: {
+          goals: Array.isArray(parsed.overview?.goals) ? parsed.overview.goals : ['Launch successful business'],
+          successCriteria: Array.isArray(parsed.overview?.successCriteria) ? parsed.overview.successCriteria : undefined,
+          assumptions: Array.isArray(parsed.overview?.assumptions) ? parsed.overview.assumptions : undefined
+        },
+        phases: Array.isArray(parsed.phases) ? parsed.phases.map((phase: any, index: number) => ({
+          id: phase.id || `phase-${index + 1}`,
+          name: phase.name || `Phase ${index + 1}`,
+          objectives: Array.isArray(phase.objectives) ? phase.objectives : [],
+          duration: phase.duration || '1-2 months',
+          milestones: Array.isArray(phase.milestones) ? phase.milestones.map((milestone: any, mIndex: number) => ({
+            id: milestone.id || `milestone-${index}-${mIndex}`,
+            title: milestone.title || `Milestone ${mIndex + 1}`,
+            due: milestone.due,
+            successCriteria: Array.isArray(milestone.successCriteria) ? milestone.successCriteria : undefined
+          })) : []
+        })) : [],
+        tasks: Array.isArray(parsed.tasks) ? parsed.tasks.map((task: any, index: number) => ({
+          id: task.id || `task-${index + 1}`,
+          phaseId: task.phaseId,
+          title: task.title || `Task ${index + 1}`,
+          description: task.description,
+          owner: task.owner,
+          effort: task.effort,
+          dependencies: Array.isArray(task.dependencies) ? task.dependencies : undefined
+        })) : [],
+        timeline: parsed.timeline ? {
+          start: parsed.timeline.start,
+          end: parsed.timeline.end,
+          milestones: Array.isArray(parsed.timeline.milestones) ? parsed.timeline.milestones : undefined
+        } : undefined,
+        resources: parsed.resources ? {
+          team: Array.isArray(parsed.resources.team) ? parsed.resources.team : undefined,
+          vendors: Array.isArray(parsed.resources.vendors) ? parsed.resources.vendors : undefined
+        } : undefined,
+        budget: parsed.budget ? {
+          items: Array.isArray(parsed.budget.items) ? parsed.budget.items : [],
+          total: parsed.budget.total,
+          assumptions: Array.isArray(parsed.budget.assumptions) ? parsed.budget.assumptions : undefined
+        } : undefined,
+        risks: Array.isArray(parsed.risks) ? parsed.risks : undefined,
+        kpis: Array.isArray(parsed.kpis) ? parsed.kpis : undefined,
+        next90Days: parsed.next90Days ? {
+          days30: Array.isArray(parsed.next90Days.days30) ? parsed.next90Days.days30 : [],
+          days60: Array.isArray(parsed.next90Days.days60) ? parsed.next90Days.days60 : [],
+          days90: Array.isArray(parsed.next90Days.days90) ? parsed.next90Days.days90 : []
+        } : undefined
+      };
+    } catch (error) {
+      console.error('ChatboxProvider: Failed to parse full plan response', error);
+      
+      // Return fallback plan
+      return {
+        meta: {
+          ideaId: `fallback-plan-${Date.now()}`,
+          title: 'Business Implementation Plan',
+          category: 'Business',
+          version: 'v1',
+          createdAt: new Date().toISOString()
+        },
+        overview: {
+          goals: ['Launch and establish successful business', 'Achieve market validation', 'Generate sustainable revenue']
+        },
+        phases: [
+          {
+            id: 'phase-1',
+            name: 'Planning & Research',
+            objectives: ['Conduct market research', 'Validate business concept', 'Develop business plan'],
+            duration: '1-2 months',
+            milestones: [
+              {
+                id: 'milestone-1-1',
+                title: 'Market research completed',
+                due: undefined,
+                successCriteria: ['Target market identified', 'Competitive analysis done']
+              }
+            ]
+          }
+        ],
+        tasks: [
+          {
+            id: 'task-1',
+            phaseId: 'phase-1',
+            title: 'Conduct market research',
+            description: 'Research target market, competitors, and industry trends',
+            effort: '2-3 weeks'
+          }
+        ]
+      };
+    }
+  }, []);
+
   const contextValue = {
     ...state,
     profileData,
@@ -579,7 +974,9 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
     loadSession,
     clearStorage,
     generateBusinessSuggestions,
-    clearBusinessSuggestions
+    clearBusinessSuggestions,
+    generatePlanOutline,
+    generateFullPlan
   };
 
   return (
