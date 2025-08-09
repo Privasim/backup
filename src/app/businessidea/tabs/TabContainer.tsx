@@ -10,13 +10,17 @@ import VisualizationContent from './VisualizationContent';
 import ListTab from './ListTab';
 import MobileTab from './MobileTab';
 import { ImplementationPlanProvider } from '@/features/implementation-plan/ImplementationPlanProvider';
+import UserProfileTab from './user-profile';
+import JobRiskAnalysisTab from './job-risk';
 
 const tabComponents = {
   businessplan: BusinessPlanContent,
+  userprofile: UserProfileTab,
   financials: FinancialsContent,
   gotomarket: GoToMarketContent,
   tools: ToolsContent,
   visualization: VisualizationContent,
+  jobrisk: JobRiskAnalysisTab,
   list: ListTab,
   mobile: MobileTab,
 } as const;

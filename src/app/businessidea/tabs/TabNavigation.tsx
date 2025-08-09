@@ -10,6 +10,8 @@ import {
   ChartBarIcon, // For Visualization
   ListBulletIcon, // For List
   DevicePhoneMobileIcon, // For Mobile
+  UserCircleIcon, // For User Profile
+  PresentationChartBarIcon, // For Job Risk
 } from '@heroicons/react/24/outline';
 import { 
   DocumentTextIcon as SolidDocumentTextIcon,
@@ -19,13 +21,30 @@ import {
   ChartBarIcon as SolidChartBarIcon,
   ListBulletIcon as SolidListBulletIcon,
   DevicePhoneMobileIcon as SolidDevicePhoneMobileIcon,
+  UserCircleIcon as SolidUserCircleIcon,
+  PresentationChartBarIcon as SolidPresentationChartBarIcon,
 } from '@heroicons/react/24/solid';
 
 const TabIcons = {
+  userprofile: {
+    outline: UserCircleIcon,
+    solid: SolidUserCircleIcon,
+    label: 'User Profile'
+  },
+  jobrisk: {
+    outline: PresentationChartBarIcon,
+    solid: SolidPresentationChartBarIcon,
+    label: 'Job Risk'
+  },
   businessplan: {
     outline: DocumentTextIcon,
     solid: SolidDocumentTextIcon,
     label: 'Business Plan'
+  },
+  mobile: {
+    outline: DevicePhoneMobileIcon,
+    solid: SolidDevicePhoneMobileIcon,
+    label: 'Mobile'
   },
   financials: {
     outline: CurrencyDollarIcon,
@@ -51,11 +70,6 @@ const TabIcons = {
     outline: ListBulletIcon,
     solid: SolidListBulletIcon,
     label: 'List'
-  },
-  mobile: {
-    outline: DevicePhoneMobileIcon,
-    solid: SolidDevicePhoneMobileIcon,
-    label: 'Mobile'
   },
 } as const;
 
