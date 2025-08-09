@@ -5,10 +5,12 @@ import SettingsTrigger from './settings-panel/SettingsTrigger';
 import SettingsPanel from './settings-panel/SettingsPanel';
 import { useImplementationPlan } from '@/features/implementation-plan/useImplementationPlan';
 import PlanEmpty from '@/features/implementation-plan/components/PlanEmpty';
+import ProgressiveRenderer from '@/features/implementation-plan/components/ProgressiveRenderer';
+import StreamingErrorBoundary from '@/features/implementation-plan/components/StreamingErrorBoundary';
 
 export default function ListTab() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const { status, error, plan, rawStream, regenerate, cancel } = useImplementationPlan();
+  const { status, error, plan, rawStream, regenerate, cancel, streamingState } = useImplementationPlan();
 
   const isLoading = status === 'generating' || status === 'streaming';
   const preview = useMemo(() => {
@@ -69,17 +71,44 @@ export default function ListTab() {
           <PlanEmpty />
         )}
 
-        {/* Streaming Preview */}
+        {/* Progressive Streaming Display */}
         {isLoading && (
-          <div className="space-y-3">
-            <div className="flex items-center text-xs text-slate-600">
-              <span className="inline-block h-2 w-2 rounded-full bg-indigo-500 animate-pulse mr-2" />
-              Streaming implementation plan…
-            </div>
-            <pre className="text-xs bg-slate-50 border border-slate-200 rounded-md p-3 overflow-auto max-h-64 whitespace-pre-wrap">
-{preview}
-            </pre>
-          </div>
+          <StreamingErrorBoundary
+            fallback={
+              <div className="space-y-3">
+                <div className="flex items-center text-xs text-gray-600">
+                  <span className="inline-block h-2 w-2 rounded-full bg-indigo-500 animate-pulse mr-2" />
+                  Streaming implementation plan…
+                </div>
+                <div className="text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-md p-3 overflow-auto max-h-64 whitespace-pre-wrap">
+                  {preview}
+                </div>
+              </div>
+            }
+          >
+            <ProgressiveRenderer
+              sections={streamingState.processedSections}
+              progress={{
+                currentPhase: streamingState.currentPhase,
+                completedPhases: streamingState.processedSections
+                  .filter(s => s.isComplete)
+                  .map(s => s.type),
+                progress: streamingState.progress
+              }}
+              isComplete={false}
+              error={streamingState.error}
+            />
+            
+            {/* Fallback raw display if no processed sections yet */}
+            {streamingState.processedSections.length === 0 && preview && (
+              <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-md">
+                <div className="text-xs text-gray-600 mb-2">Raw content (processing...):</div>
+                <div className="text-sm text-gray-700 whitespace-pre-wrap font-mono max-h-32 overflow-auto">
+                  {preview}
+                </div>
+              </div>
+            )}
+          </StreamingErrorBoundary>
         )}
 
         {/* Success: simple viewer */}

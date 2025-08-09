@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useMemo, useState, useCallback } from 'react';
 import type { ImplementationPlan, PlanSettings, PlanState, PlanStatus } from './types';
+import type { StreamingState, ProcessedSection, GenerationPhase } from './streaming/types';
 import { loadSettings, saveSettings as persistSettings, loadCachedPlan, saveCachedPlan } from './storage';
 
 interface ImplementationPlanContextValue extends PlanState {
@@ -14,6 +15,10 @@ interface ImplementationPlanContextValue extends PlanState {
   saveSettings: (settings: Partial<PlanSettings>) => void;
   cachePlan: (ideaId: string, settingsKey: string, plan: ImplementationPlan) => void;
   getCachedPlan: (ideaId: string, settingsKey: string) => ImplementationPlan | undefined;
+  // Streaming state
+  streamingState: StreamingState;
+  setStreamingState: (state: Partial<StreamingState>) => void;
+  updateStreamingProgress: (sections: ProcessedSection[], currentPhase: GenerationPhase, progress: number) => void;
 }
 
 const ImplementationPlanContext = createContext<ImplementationPlanContextValue | null>(null);
@@ -26,6 +31,15 @@ export const ImplementationPlanProvider: React.FC<{ children: React.ReactNode }>
     plan: undefined,
     selectedSuggestion: undefined,
     settings: loadSettings(),
+  });
+
+  const [streamingState, setStreamingStateInternal] = useState<StreamingState>({
+    rawContent: '',
+    processedSections: [],
+    currentPhase: 'initializing',
+    progress: 0,
+    error: null,
+    isProcessing: false,
   });
 
   const setStatus = useCallback((s: PlanStatus) => setState(prev => ({ ...prev, status: s })), []);
@@ -52,6 +66,20 @@ export const ImplementationPlanProvider: React.FC<{ children: React.ReactNode }>
     return loadCachedPlan(ideaId, settingsKey);
   }, []);
 
+  const setStreamingState = useCallback((updates: Partial<StreamingState>) => {
+    setStreamingStateInternal(prev => ({ ...prev, ...updates }));
+  }, []);
+
+  const updateStreamingProgress = useCallback((sections: ProcessedSection[], currentPhase: GenerationPhase, progress: number) => {
+    setStreamingStateInternal(prev => ({
+      ...prev,
+      processedSections: sections,
+      currentPhase,
+      progress,
+      isProcessing: true
+    }));
+  }, []);
+
   const value = useMemo<ImplementationPlanContextValue>(() => ({
     ...state,
     setStatus,
@@ -63,7 +91,10 @@ export const ImplementationPlanProvider: React.FC<{ children: React.ReactNode }>
     saveSettings,
     cachePlan,
     getCachedPlan,
-  }), [state, setStatus, setError, setPlan, setSelectedSuggestion, appendRaw, clearRaw, saveSettings, cachePlan, getCachedPlan]);
+    streamingState,
+    setStreamingState,
+    updateStreamingProgress,
+  }), [state, setStatus, setError, setPlan, setSelectedSuggestion, appendRaw, clearRaw, saveSettings, cachePlan, getCachedPlan, streamingState, setStreamingState, updateStreamingProgress]);
 
   return (
     <ImplementationPlanContext.Provider value={value}>
