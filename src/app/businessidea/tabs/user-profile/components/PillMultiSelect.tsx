@@ -23,7 +23,7 @@ export default function PillMultiSelect({ label, options, value, onChange, maxSe
 
   return (
     <div>
-      {label && <div className="mb-1 text-xs text-gray-600">{label}</div>}
+      {label && <div className="mb-1 text-[11px] uppercase tracking-wide text-gray-500">{label}</div>}
       <div className="flex flex-wrap gap-2">
         {options.map((opt) => {
           const selected = value.includes(opt);
@@ -32,7 +32,7 @@ export default function PillMultiSelect({ label, options, value, onChange, maxSe
               key={opt}
               type="button"
               onClick={() => toggle(opt)}
-              className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+              className={`px-3 py-1.5 rounded-full text-sm border transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 active:scale-[0.98] ${
                 selected ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
               }`}
               aria-pressed={selected}

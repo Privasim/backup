@@ -28,7 +28,7 @@ export default function RoleStep({ role, onSelect }: Props) {
     <div>
       <h3 className="text-base font-semibold text-gray-900">Tell us about yourself</h3>
       <p className="mt-1 text-sm text-gray-600">Select the option that best describes you.</p>
-      <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3" role="radiogroup" aria-label="Select Role">
         {CARDS.map((c) => {
           const selected = role === c.role;
           return (
@@ -36,7 +36,7 @@ export default function RoleStep({ role, onSelect }: Props) {
               key={c.title}
               type="button"
               onClick={() => onSelect(c.role)}
-              className={`text-left p-3 rounded-lg border transition-all ${
+              className={`text-left p-3 rounded-lg border transition-all shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 active:scale-[0.99] ${
                 selected ? 'border-indigo-400 bg-indigo-50' : 'border-gray-200 bg-white hover:bg-gray-50'
               }`}
               role="radio"
