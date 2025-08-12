@@ -2,6 +2,8 @@
 
 import React from "react";
 import { Role, RoleDetails, UserProfileData } from "../types";
+import { ProfileAnalysisTrigger } from '@/components/chatbox/ProfileAnalysisTrigger';
+import { transformUserProfileToAnalysisData } from '@/components/chatbox/utils/profile-transformation';
 
 type Props = {
   data: UserProfileData;
@@ -146,6 +148,17 @@ export default function ReviewStep({ data }: Props) {
             ))}
           </div>
         </SectionCard>
+
+        {/* Profile Analysis Trigger */}
+        <div className="mt-6">
+          <ProfileAnalysisTrigger 
+            profileData={data} 
+            variant="card" 
+            size="md"
+            onAnalysisStart={() => console.log('Analysis started')}
+            onAnalysisComplete={() => console.log('Analysis completed')}
+          />
+        </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-3 mt-6">
           <button

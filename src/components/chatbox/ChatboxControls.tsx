@@ -21,6 +21,8 @@ import { SystemPromptSection } from './SystemPromptSection';
 import { getMockProfile } from '@/data/mockProfiles';
 import { chatboxDebug } from '@/app/businessidea/utils/logStore';
 import { AnalysisConfig } from './types';
+import { profileIntegrationService } from './services/ProfileIntegrationService';
+import { getAnalysisStatus } from './utils/profile-transformation';
 
 interface ChatboxControlsProps {
   className?: string;
@@ -185,6 +187,30 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
                 Profile: {currentProfileData ? '✓' : '✗'} {useMockData ? '(mock)' : ''}
               </div>
             </div>
+
+            {/* Profile Readiness Hint */}
+            {currentProfileData && (() => {
+              try {
+                // Use the new transformation utility for UserProfileData
+                const profileStatus = getAnalysisStatus(currentProfileData);
+                if (!profileStatus.ready && profileStatus.missing.length > 0) {
+                  return (
+                    <div className="p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <div className="text-xs text-yellow-800">
+                        Profile incomplete: {profileStatus.missing.join(', ')}
+                      </div>
+                      <div className="text-xs text-yellow-600 mt-1">
+                        {profileStatus.completionLevel}% complete
+                      </div>
+                    </div>
+                  );
+                }
+              } catch (error) {
+                // Silently handle transformation errors
+                return null;
+              }
+              return null;
+            })()}
 
             {/* Analyze Button */}
             <button

@@ -46,7 +46,7 @@ interface ChatboxContextType extends ChatboxState {
   clearMessages: () => void;
   
   // Analysis
-  startAnalysis: () => Promise<void>;
+  startAnalysis: (useStreaming?: boolean, data?: any) => Promise<void>;
   retryAnalysis: () => Promise<void>;
   
   // Plugin system
@@ -235,14 +235,18 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   // Analysis with streaming support and caching
-  const startAnalysis = useCallback(async (useStreaming: boolean = true) => {
+  const startAnalysis = useCallback(async (useStreaming: boolean = true, data?: any) => {
     console.log('ChatboxProvider: startAnalysis called', {
       hasApiKey: !!state.config.apiKey,
       hasModel: !!state.config.model,
       hasProfileData: !!profileData,
+      hasPassedData: !!data,
       useMockData,
       config: state.config
     });
+
+    // Use passed data if provided, otherwise fall back to context profileData
+    const analysisData = data || profileData;
 
     if (!state.config.apiKey || !state.config.model) {
       const error = 'API key and model are required';
@@ -320,7 +324,7 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
         // Use streaming analysis
         result = await (provider as any).analyzeStreaming(
           state.config, 
-          profileData,
+          analysisData,
           (chunk: string) => {
             // Update the message content in real-time
             setState(prev => ({
@@ -335,8 +339,8 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
         );
       } else {
         // Use regular analysis
-        console.log('ChatboxProvider: Starting regular analysis with profile data:', profileData);
-        result = await analysisService.analyze(state.config, profileData);
+        console.log('ChatboxProvider: Starting regular analysis with profile data:', analysisData);
+        result = await analysisService.analyze(state.config, analysisData);
         console.log('ChatboxProvider: Analysis completed:', result);
         
         // Update message with complete content

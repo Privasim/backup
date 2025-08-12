@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import StepIndicator from "./components/StepIndicator";
 import StepFooter from "./components/StepFooter";
 import RoleStep from "./steps/RoleStep";
@@ -10,12 +10,27 @@ import SkillsStep from "./steps/SkillsStep";
 import ReviewStep from "./steps/ReviewStep";
 import { useUserProfileForm } from "./hooks/useUserProfileForm";
 import { Role } from "./types";
+import { useChatbox } from '@/components/chatbox/ChatboxProvider';
+import { transformUserProfileToAnalysisData } from '@/components/chatbox/utils/profile-transformation';
 
 export default function UserProfileTab() {
   const { state, actions, isStepComplete } = useUserProfileForm();
+  const { setProfileData } = useChatbox();
 
   const canBack = state.currentStep > 1;
   const canNext = isStepComplete(state.currentStep);
+
+  // Sync profile data to chatbox whenever it changes
+  useEffect(() => {
+    try {
+      if (state.data && Object.keys(state.data).length > 0) {
+        // Pass the UserProfileData directly - transformation will happen in the hook
+        setProfileData(state.data as any);
+      }
+    } catch (error) {
+      console.warn('Failed to sync profile data to chatbox:', error);
+    }
+  }, [state.data, setProfileData]);
 
   const content = useMemo(() => {
     switch (state.currentStep) {

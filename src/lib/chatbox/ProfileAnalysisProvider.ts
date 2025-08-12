@@ -6,6 +6,7 @@ import {
 import { ProfileFormData } from '@/app/businessidea/types/profile.types';
 import { OpenRouterClient, getAvailableModels } from '@/lib/openrouter';
 import { createAnalysisProvider } from '@/components/chatbox/utils/provider-utils';
+import { transformUserProfileToAnalysisData } from '@/components/chatbox/utils/profile-transformation';
 
 /**
  * Transform profile data into analysis-ready format
@@ -33,10 +34,10 @@ export const transformProfileData = (profileData: ProfileFormData) => {
   stats.completionPercentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
   // Extract key skills with proficiency levels
-  const keySkills = skillset?.categories?.flatMap(category => 
+  const keySkills = skillset?.categories?.flatMap((category: any) => 
     category.skills
-      .filter(skill => skill.highlight || skill.proficiency >= 4)
-      .map(skill => ({
+      .filter((skill: any) => skill.highlight || skill.proficiency >= 4)
+      .map((skill: any) => ({
         name: skill.name,
         category: skill.category,
         proficiency: skill.proficiency,
@@ -44,14 +45,19 @@ export const transformProfileData = (profileData: ProfileFormData) => {
       }))
   ) || [];
 
-  // Extract recent experience
+  // Extract recent experience with safe field access
   const recentExperience = experience
-    ?.filter(exp => exp.current || (exp.endDate && new Date(exp.endDate) > new Date(Date.now() - 2 * 365 * 24 * 60 * 60 * 1000)))
+    ?.filter(exp => {
+      // Safe access to current and endDate fields
+      const isCurrent = exp && typeof exp === 'object' && 'current' in exp ? exp.current : false;
+      const endDate = exp && typeof exp === 'object' && 'endDate' in exp ? exp.endDate : null;
+      return isCurrent || (endDate && new Date(endDate) > new Date(Date.now() - 2 * 365 * 24 * 60 * 60 * 1000));
+    })
     ?.map(exp => ({
-      title: exp.title,
-      organization: exp.organization,
-      type: exp.type,
-      current: exp.current,
+      title: exp.title || 'Unknown Position',
+      organization: exp.organization || 'Unknown Organization',
+      type: exp.type || 'Unknown Type',
+      current: exp && typeof exp === 'object' && 'current' in exp ? exp.current : false,
       skills: exp.skills || [],
       achievements: exp.achievements || []
     })) || [];
@@ -59,21 +65,21 @@ export const transformProfileData = (profileData: ProfileFormData) => {
   return {
     profileType: profile.profileType,
     basicInfo: {
-      currentRole: profile.currentRole,
-      industry: profile.industry,
-      yearsOfExperience: profile.yearsOfExperience,
-      educationLevel: profile.educationLevel,
-      fieldOfStudy: profile.fieldOfStudy
+      currentRole: profile.currentRole || 'Not specified',
+      industry: profile.industry || 'Not specified',
+      yearsOfExperience: profile.yearsOfExperience || 'Not specified',
+      educationLevel: profile.educationLevel || 'Not specified',
+      fieldOfStudy: profile.fieldOfStudy || 'Not specified'
     },
     statistics: stats,
     keySkills,
     recentExperience,
-    certifications: skillset?.certificationsDetailed?.map(cert => ({
+    certifications: skillset?.certificationsDetailed?.map((cert: any) => ({
       name: cert.name,
       issuer: cert.issuer,
       dateObtained: cert.dateObtained
     })) || [],
-    languages: skillset?.languageProficiency?.map(lang => ({
+    languages: skillset?.languageProficiency?.map((lang: any) => ({
       language: lang.language,
       proficiency: lang.proficiency
     })) || [],
@@ -85,7 +91,58 @@ export const transformProfileData = (profileData: ProfileFormData) => {
 };
 
 /**
- * Generate analysis prompt for profile data using templates
+ * Generate analysis prompt for ProfileAnalysisData format
+ */
+export const generateProfileAnalysisPrompt = (
+  data: any,
+  customPrompt?: string,
+  customSystemPrompt?: string
+): { systemPrompt: string; userPrompt: string } => {
+  const systemPrompt = customSystemPrompt || 
+    'You are a professional career analyst providing actionable insights based on user profiles. Analyze the provided profile data and give specific, actionable advice for career development, skill improvement, and opportunities.';
+
+  if (customPrompt) {
+    return {
+      systemPrompt,
+      userPrompt: customPrompt.replace('{{PROFILE_DATA}}', JSON.stringify(data, null, 2))
+    };
+  }
+
+  // Generate user prompt from ProfileAnalysisData
+  const userPrompt = `Please analyze this career profile and provide insights:
+
+**Profile Type:** ${data.profileType || 'Unknown'}
+
+**Experience:**
+${data.experience?.map((exp: any) => 
+  `- ${exp.title} at ${exp.company} (${exp.duration})${exp.description ? ': ' + exp.description : ''}`
+).join('\n') || 'No experience listed'}
+
+**Skills:**
+- Technical Skills: ${data.skills?.technical?.join(', ') || 'None listed'}
+- Soft Skills: ${data.skills?.soft?.join(', ') || 'None listed'}
+- Languages: ${data.skills?.languages?.join(', ') || 'None listed'}
+- Certifications: ${data.skills?.certifications?.join(', ') || 'None listed'}
+
+**Profile Completion:** ${data.metadata?.completionLevel || 0}%
+
+Please provide:
+1. **Strengths Analysis** - Key strengths based on experience and skills
+2. **Growth Opportunities** - Areas for improvement and development
+3. **Career Recommendations** - Specific next steps and career paths
+4. **Skill Development** - Recommended skills to learn or improve
+5. **Market Insights** - Industry trends and opportunities
+
+Keep the analysis practical, specific, and actionable.`;
+
+  return {
+    systemPrompt,
+    userPrompt
+  };
+};
+
+/**
+ * Generate analysis prompt for profile data using templates (legacy)
  */
 export const generateProfilePrompt = (
   data: any, 
@@ -218,11 +275,23 @@ export const createProfileAnalysisProvider = (): AnalysisProvider => {
       return prompts.userPrompt; // Return user prompt for compatibility
     },
     
-    analyze: async (config: AnalysisConfig, data: ProfileFormData): Promise<AnalysisResult> => {
+    analyze: async (config: AnalysisConfig, data: any): Promise<AnalysisResult> => {
       const client = new OpenRouterClient(config.apiKey);
       
-      // Transform and format the data
-      const transformedData = transformProfileData(data);
+      // Check if data is already in ProfileAnalysisData format or needs transformation
+      let transformedData;
+      if (data && data.profileType && data.experience && data.skills && data.metadata) {
+        // Data is already in ProfileAnalysisData format
+        transformedData = data;
+      } else {
+        // Data needs transformation from UserProfileData or ProfileFormData
+        try {
+          transformedData = transformUserProfileToAnalysisData(data);
+        } catch (error) {
+          // Fallback to old transformation for ProfileFormData
+          transformedData = transformProfileData(data);
+        }
+      }
       
       // Check if customPrompt is actually a system prompt (starts with "You are")
       const isSystemPrompt = config.customPrompt?.trim().toLowerCase().startsWith('you are');
@@ -233,6 +302,13 @@ export const createProfileAnalysisProvider = (): AnalysisProvider => {
         transformedData, 
         legacyCustomPrompt, 
         'default-profile',
+        customSystemPrompt
+      );
+      
+      // Generate prompts using the ProfileAnalysisData format
+      const prompts = generateProfileAnalysisPrompt(
+        transformedData, 
+        legacyCustomPrompt,
         customSystemPrompt
       );
       
@@ -301,23 +377,35 @@ export const createProfileAnalysisProvider = (): AnalysisProvider => {
      */
     analyzeStreaming: async (
       config: AnalysisConfig, 
-      data: ProfileFormData,
+      data: any,
       onChunk: (chunk: string) => void
     ): Promise<AnalysisResult> => {
       const client = new OpenRouterClient(config.apiKey);
       
-      // Transform and format the data
-      const transformedData = transformProfileData(data);
+      // Check if data is already in ProfileAnalysisData format or needs transformation
+      let transformedData;
+      if (data && data.profileType && data.experience && data.skills && data.metadata) {
+        // Data is already in ProfileAnalysisData format
+        transformedData = data;
+      } else {
+        // Data needs transformation from UserProfileData or ProfileFormData
+        try {
+          transformedData = transformUserProfileToAnalysisData(data);
+        } catch (error) {
+          // Fallback to old transformation for ProfileFormData
+          transformedData = transformProfileData(data);
+        }
+      }
       
       // Check if customPrompt is actually a system prompt (starts with "You are")
       const isSystemPrompt = config.customPrompt?.trim().toLowerCase().startsWith('you are');
       const customSystemPrompt = isSystemPrompt ? config.customPrompt : undefined;
       const legacyCustomPrompt = !isSystemPrompt ? config.customPrompt : undefined;
       
-      const prompts = generateProfilePrompt(
+      // Generate prompts using the ProfileAnalysisData format
+      const prompts = generateProfileAnalysisPrompt(
         transformedData, 
-        legacyCustomPrompt, 
-        'default-profile',
+        legacyCustomPrompt,
         customSystemPrompt
       );
       
