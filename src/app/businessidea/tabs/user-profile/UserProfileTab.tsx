@@ -71,11 +71,11 @@ export default function UserProfileTab() {
   return (
     <div className="w-full flex justify-center">
       <div className="w-full max-w-3xl">
-        <div className="p-4 sm:p-5 rounded-xl border border-gray-200 bg-white shadow-sm">
-          <div className="mb-4">
+        <div className="p-5 sm:p-6 rounded-xl border border-gray-100 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.08)] transition-all">
+          <div className="mb-5">
             <StepIndicator currentStep={state.currentStep} />
           </div>
-          <div className="space-y-4">
+          <div className="space-y-5">
             {content}
           </div>
           <StepFooter

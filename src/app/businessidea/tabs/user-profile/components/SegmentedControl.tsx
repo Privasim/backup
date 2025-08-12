@@ -12,8 +12,10 @@ type Props = {
 export default function SegmentedControl({ label, options, value, onChange }: Props) {
   return (
     <div role="radiogroup" aria-label={label} className="w-full">
-      {label && <div className="mb-1 text-[11px] uppercase tracking-wide text-gray-500">{label}</div>}
-      <div className="inline-flex rounded-md border border-gray-200 bg-white overflow-hidden shadow-xs">
+      {label && (
+        <div className="mb-1.5 text-xs font-medium text-gray-700">{label}</div>
+      )}
+      <div className="inline-flex rounded-lg border border-gray-200 bg-white overflow-hidden shadow-sm">
         {options.map((opt, idx) => {
           const selected = value === opt;
           const divider = idx > 0 ? 'border-l border-gray-200' : '';
@@ -24,11 +26,19 @@ export default function SegmentedControl({ label, options, value, onChange }: Pr
               role="radio"
               aria-checked={selected}
               onClick={() => onChange(opt)}
-              className={`px-3 py-1.5 text-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 active:scale-[0.98] ${divider} ${
-                selected ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
+              className={`relative px-4 py-2 text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:z-10 ${divider} ${
+                selected 
+                  ? 'bg-indigo-500 text-white font-medium shadow-inner' 
+                  : 'bg-white text-gray-600 hover:bg-gray-50'
               }`}
             >
-              {opt}
+              <span className="relative z-10">{opt}</span>
+              {selected && (
+                <span 
+                  className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-indigo-600 opacity-100 transition-opacity duration-200"
+                  aria-hidden="true"
+                ></span>
+              )}
             </button>
           );
         })}

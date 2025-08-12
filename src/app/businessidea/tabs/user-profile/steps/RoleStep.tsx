@@ -26,9 +26,9 @@ const CARDS: { role: Role; title: string; desc: string; icon: React.ReactNode }[
 export default function RoleStep({ role, onSelect }: Props) {
   return (
     <div>
-      <h3 className="text-base font-semibold text-gray-900">Tell us about yourself</h3>
-      <p className="mt-1 text-sm text-gray-600">Select the option that best describes you.</p>
-      <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3" role="radiogroup" aria-label="Select Role">
+      <h3 className="text-lg font-semibold text-gray-900">Tell us about yourself</h3>
+      <p className="mt-1.5 text-sm text-gray-600">Select the option that best describes you.</p>
+      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4" role="radiogroup" aria-label="Select Role">
         {CARDS.map((c) => {
           const selected = role === c.role;
           return (
@@ -36,17 +36,27 @@ export default function RoleStep({ role, onSelect }: Props) {
               key={c.title}
               type="button"
               onClick={() => onSelect(c.role)}
-              className={`text-left p-3 rounded-lg border transition-all shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 active:scale-[0.99] ${
-                selected ? 'border-indigo-400 bg-indigo-50' : 'border-gray-200 bg-white hover:bg-gray-50'
+              className={`group text-left p-4 rounded-xl border transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 active:scale-[0.99] ${
+                selected 
+                  ? 'border-indigo-500 bg-indigo-50 shadow-sm' 
+                  : 'border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50'
               }`}
               role="radio"
               aria-checked={selected}
             >
-              <div className="flex items-start gap-3">
-                <div className={`p-2 rounded-md ${selected ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-600'}`}>{c.icon}</div>
+              <div className="flex items-start gap-4">
+                <div 
+                  className={`p-2.5 rounded-lg transition-all duration-200 ${
+                    selected 
+                      ? 'bg-indigo-100 text-indigo-600 ring-1 ring-indigo-200' 
+                      : 'bg-gray-50 text-gray-500 group-hover:bg-gray-100 group-hover:text-gray-600'
+                  }`}
+                >
+                  {c.icon}
+                </div>
                 <div>
-                  <div className="text-sm font-medium text-gray-900">{c.title}</div>
-                  <div className="text-xs text-gray-600 mt-0.5">{c.desc}</div>
+                  <div className={`text-sm font-medium transition-colors duration-200 ${selected ? 'text-indigo-700' : 'text-gray-900'}`}>{c.title}</div>
+                  <div className="text-xs text-gray-500 mt-1">{c.desc}</div>
                 </div>
               </div>
             </button>
