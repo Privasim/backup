@@ -85,28 +85,48 @@ export default function D3ForecastFan({
       <svg viewBox={`0 0 ${width} ${height}`} width="100%" height="auto" role="img">
         <defs>
           <linearGradient id="fan-band" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.22" />
-            <stop offset="100%" stopColor="#fde68a" stopOpacity="0.08" />
+            <stop offset="0%" stopColor="#dc2626" stopOpacity="0.18" />
+            <stop offset="100%" stopColor="#fecaca" stopOpacity="0.08" />
           </linearGradient>
+          <filter id="danger-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            <feColorMatrix type="matrix" values="1 0 0 0 0.8  0 0 0 0 0  0 0 0 0 0  0 0 0 18 -7" />
+          </filter>
         </defs>
         <g transform={`translate(${margin.left},${margin.top})`}>
           {/* gridlines */}
           {y.ticks(4).map((gy, i) => (
-            <line key={i} x1={0} x2={innerW} y1={y(gy)} y2={y(gy)} stroke="rgba(100,116,139,0.25)" strokeWidth={1} />
+            <line key={i} x1={0} x2={innerW} y1={y(gy)} y2={y(gy)} stroke="rgba(127,29,29,0.15)" strokeWidth={1} />
           ))}
 
           {/* history line */}
-          <path d={lineHist(hist) || undefined} fill="none" stroke="#f59e0b" strokeWidth={2} />
+          <path d={lineHist(hist) || undefined} fill="none" stroke="#dc2626" strokeWidth={2} />
 
           {/* forecast band */}
           {showBand && <path d={areaBand(fc) || undefined} fill="url(#fan-band)" />}
 
           {/* forecast expected line */}
-          <path d={lineExp(fc) || undefined} fill="none" stroke="#ef4444" strokeWidth={2} strokeDasharray="4 3" />
+          <path d={lineExp(fc) || undefined} fill="none" stroke="#ef4444" strokeWidth={2} strokeDasharray="4 3" style={{ filter: 'url(#danger-glow)' }} />
+          
+          {/* warning indicators for high-risk forecast points */}
+          {fc.map((d, i) => {
+            const prevIndex = Math.max(0, i - 1);
+            const delta = i > 0 ? ((d.e - fc[prevIndex].e) / fc[prevIndex].e) * 100 : 0;
+            if (delta > 20) {
+              return (
+                <g key={`warning-${i}`} transform={`translate(${x(d.t)},${y(d.e) - 12})`}>
+                  <path d="M0,-5 L3,3 L-3,3 Z" fill="#b91c1c" />
+                  <circle cx="0" cy="-1" r="0.8" fill="#fff" />
+                </g>
+              );
+            }
+            return null;
+          })}
 
           {/* axes ticks */}
           {x.ticks(4).map((t, i) => (
-            <text key={i} x={x(t)} y={innerH + 16} textAnchor="middle" fontSize={10} fill="#64748b">
+            <text key={i} x={x(t)} y={innerH + 16} textAnchor="middle" fontSize={10} fill="#64748b" fontWeight={i === fc.length - 1 ? "medium" : "normal"}>
               {d3.timeFormat('%b %y')(t as Date)}
             </text>
           ))}
@@ -121,12 +141,12 @@ export default function D3ForecastFan({
         {showThermalStrip && (
           <g transform={`translate(${margin.left},${height - margin.bottom - 14})`}>
             {thermal.map((cell, i) => (
-              <rect key={i} x={cell.x} y={0} width={Math.max(1.5, innerW / Math.max(thermal.length, 24))} height={8} fill={cell.color} opacity={0.85} />
+              <rect key={i} x={cell.x} y={0} width={Math.max(1.5, innerW / Math.max(thermal.length, 24))} height={8} fill={cell.color} opacity={0.9} />
             ))}
           </g>
         )}
       </svg>
-      {showCaption && <figcaption className="mt-2 text-xs text-slate-400">Dashed line indicates forecast; translucent band shows uncertainty.</figcaption>}
+      {showCaption && <figcaption className="mt-2 text-xs text-red-700 font-medium">Dashed line indicates critical forecast; warning triangles show acceleration points.</figcaption>}
     </figure>
   );
 }

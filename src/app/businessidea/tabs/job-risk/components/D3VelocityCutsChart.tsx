@@ -65,21 +65,26 @@ export default function D3VelocityCutsChart({
       <svg viewBox={`0 0 ${width} ${height}`} width="100%" height="auto" role="img">
         <defs>
           <linearGradient id="vel-fill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.22" />
-            <stop offset="100%" stopColor="#fde68a" stopOpacity="0.08" />
+            <stop offset="0%" stopColor="#dc2626" stopOpacity="0.25" />
+            <stop offset="100%" stopColor="#fecaca" stopOpacity="0.08" />
           </linearGradient>
           <filter id="soft-glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="2.5" result="blur" />
+            <feGaussianBlur stdDeviation="3" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
+          <filter id="danger-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            <feColorMatrix type="matrix" values="1 0 0 0 0.8  0 0 0 0 0  0 0 0 0 0  0 0 0 18 -7" />
+          </filter>
         </defs>
         <g transform={`translate(${margin.left},${margin.top})`}>
           {/* gridlines */}
           {gridY.map((gy, i) => (
-            <line key={i} x1={0} x2={innerW} y1={y(gy)} y2={y(gy)} stroke="rgba(100,116,139,0.25)" strokeWidth={1} />
+            <line key={i} x1={0} x2={innerW} y1={y(gy)} y2={y(gy)} stroke="rgba(127,29,29,0.15)" strokeWidth={1} />
           ))}
 
           {/* area fill */}
@@ -89,9 +94,10 @@ export default function D3VelocityCutsChart({
           <path
             d={line(parsed) || undefined}
             fill="none"
-            stroke="#f59e0b"
+            stroke="#dc2626"
             strokeWidth={2}
-            style={reducedMotion ? undefined : { filter: 'url(#soft-glow)' }}
+            style={{ filter: 'url(#soft-glow)' }}
+            className="transition-all duration-300 hover:opacity-90 hover:filter"
           />
 
           {/* highlight last window */}
@@ -99,15 +105,16 @@ export default function D3VelocityCutsChart({
             <path
               d={line(parsed.slice(highlightStartIdx)) || undefined}
               fill="none"
-              stroke="#ef4444"
+              stroke="#b91c1c"
               strokeWidth={2.5}
-              strokeDasharray={reducedMotion ? undefined : '4 3'}
+              strokeDasharray="2 1"
+              style={{ filter: 'url(#danger-glow)' }}
             />
           )}
 
           {/* minimal axes ticks */}
           {x.ticks(4).map((t, i) => (
-            <text key={i} x={x(t)} y={innerH + 16} textAnchor="middle" fontSize={10} fill="#64748b">
+            <text key={i} x={x(t)} y={innerH + 16} textAnchor="middle" fontSize={10} fill="#64748b" fontWeight={i === 0 ? "bold" : "normal"}>
               {d3.timeFormat('%b %y')(t as Date)}
             </text>
           ))}
@@ -119,8 +126,8 @@ export default function D3VelocityCutsChart({
         </g>
       </svg>
       {showCaption && (
-        <figcaption className="mt-2 text-xs text-slate-400">
-          Acceleration emphasized in the last {highlightWindowMonths} months.
+        <figcaption className="mt-2 text-xs text-red-700 font-medium">
+          Critical acceleration in the last {highlightWindowMonths} months.
         </figcaption>
       )}
     </figure>

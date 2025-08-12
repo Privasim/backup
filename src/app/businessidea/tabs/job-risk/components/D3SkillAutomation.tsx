@@ -39,11 +39,30 @@ export default function D3SkillAutomation({
   const angle = useMemo(() => d3.scaleBand<string>().domain(data.map((d) => d.id)).range([0, Math.PI * 2]).padding(0.08), [data]);
   const radius = useMemo(() => d3.scaleLinear().domain([0, 1]).range([r * 0.2, r]), [r]);
   const color = useMemo(
-    () => d3.scaleLinear<string>().domain([0, 0.7, 1]).range(['#fde68a', '#f59e0b', '#ef4444']).clamp(true),
+    () => d3.scaleLinear<string>().domain([0, 0.5, 0.7, 1]).range(['#fef3c7', '#f97316', '#ea580c', '#b91c1c']).clamp(true),
     []
   );
 
   const reducedMotion = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  
+  // Pulse animation keyframes for high-impact skills
+  React.useEffect(() => {
+    if (typeof document !== 'undefined' && !reducedMotion) {
+      const style = document.createElement('style');
+      style.innerHTML = `
+        @keyframes pulse-danger {
+          0% { opacity: 0.95; }
+          50% { opacity: 1; filter: drop-shadow(0 0 3px #dc2626); }
+          100% { opacity: 0.95; }
+        }
+        .danger-pulse {
+          animation: pulse-danger 2s infinite ease-in-out;
+        }
+      `;
+      document.head.appendChild(style);
+      return () => { document.head.removeChild(style); };
+    }
+  }, [reducedMotion]);
 
   return (
     <figure className={className} aria-label="Skill clusters impacted by AI automation">
@@ -60,7 +79,7 @@ export default function D3SkillAutomation({
         <g transform={`translate(${center.x},${center.y})`}>
           {/* radial grid rings */}
           {d3.range(3).map((i) => (
-            <circle key={i} r={r * (0.35 + (i * 0.65) / 2)} fill="none" stroke="var(--viz-grid, rgba(148,163,184,0.18))" strokeWidth={1} />
+            <circle key={i} r={r * (0.35 + (i * 0.65) / 2)} fill="none" stroke="rgba(127,29,29,0.12)" strokeWidth={1} />
           ))}
 
           {/* bars */}
@@ -75,9 +94,12 @@ export default function D3SkillAutomation({
                 d={arc({} as any) || undefined}
                 fill={color(d.v)}
                 opacity={isHL ? 1 : 0.95}
-                stroke={d.v >= 0.7 ? 'rgba(239,68,68,0.6)' : 'transparent'}
-                strokeWidth={d.v >= 0.7 ? 0.75 : 0}
-                style={!reducedMotion && isHL ? { filter: 'url(#soft-glow-2)' } : undefined}
+                stroke={d.v >= 0.7 ? 'rgba(185,28,28,0.8)' : 'transparent'}
+                strokeWidth={d.v >= 0.7 ? 1 : 0}
+                style={{
+                  filter: d.v >= 0.7 ? 'url(#soft-glow-2)' : undefined,
+                }}
+                className={!reducedMotion && d.v >= 0.7 ? 'danger-pulse' : undefined}
               />
             );
           })}
@@ -89,7 +111,7 @@ export default function D3SkillAutomation({
             const ly = Math.sin(a) * (r + 10);
             const anchor = Math.cos(a) > 0 ? 'start' : 'end';
             return (
-              <text key={`lbl-${d.id}`} x={lx} y={ly} textAnchor={anchor} fontSize={10} fill="#64748b">
+              <text key={`lbl-${d.id}`} x={lx} y={ly} textAnchor={anchor} fontSize={10} fill={d.v >= 0.7 ? "#b91c1c" : "#64748b"} fontWeight={d.v >= 0.7 ? "medium" : "normal"}>
                 {d.id}
               </text>
             );
@@ -97,12 +119,13 @@ export default function D3SkillAutomation({
         </g>
       </svg>
       {showLegend && (
-        <div className="mt-2 flex gap-3 text-xs text-slate-400">
+        <div className="mt-2 flex gap-3 text-xs text-red-700">
           <div className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#fef3c7' }}></span>Low</div>
-          <div className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#f59e0b' }}></span>High</div>
+          <div className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#f97316' }}></span>Medium</div>
+          <div className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#b91c1c' }}></span>Critical</div>
         </div>
       )}
-      {showCaption && <figcaption className="mt-2 text-xs text-slate-400">Higher bars indicate higher automation exposure.</figcaption>}
+      {showCaption && <figcaption className="mt-2 text-xs text-red-700 font-medium">Higher bars indicate critical automation exposure risk.</figcaption>}
     </figure>
   );
 }

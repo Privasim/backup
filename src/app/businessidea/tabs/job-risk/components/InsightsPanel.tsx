@@ -12,20 +12,20 @@ export type InsightsPanelProps = {
 export default function InsightsPanel({ insights, loading = false, className }: InsightsPanelProps) {
   return (
     <aside className={className} aria-label="Data-driven insights summarizing chart takeaways">
-      <div className="rounded-xl border border-slate-200 bg-white p-4">
-        <h3 className="text-sm font-semibold text-slate-900">Insights</h3>
+      <div className="rounded-xl border border-red-200 bg-white p-4">
+        <h3 className="text-sm font-semibold text-red-700">Risk Insights</h3>
 
         {/* Global KPIs */}
         <div className="mt-3 grid grid-cols-2 gap-3">
           {loading
             ? Array.from({ length: 2 }).map((_, i) => (
-                <div key={i} className="rounded-lg h-14 bg-slate-100" />
+                <div key={i} className="rounded-lg h-14 bg-red-50" />
               ))
             : insights.global.map((kpi, i) => (
-                <div key={i} className="rounded-lg border border-slate-200 p-3">
-                  <div className="text-[11px] uppercase tracking-wide text-slate-500">{kpi.label}</div>
+                <div key={i} className="rounded-lg border border-red-400/60 bg-red-50/50 p-3">
+                  <div className="text-[11px] uppercase tracking-wide text-red-700 font-medium">{kpi.label}</div>
                   <div className="mt-1 flex items-baseline gap-2">
-                    <div className="text-lg font-semibold text-slate-900">{kpi.value}</div>
+                    <div className="text-lg font-semibold text-red-900">{kpi.value}</div>
                     {kpi.deltaLabel && (
                       <div
                         className={
@@ -58,15 +58,15 @@ export default function InsightsPanel({ insights, loading = false, className }: 
 
 function renderSection(loading: boolean, s: { title: string; bullets: string[] }) {
   if (loading) {
-    return <div className="rounded-lg h-16 bg-slate-100" />;
+    return <div className="rounded-lg h-16 bg-red-50" />;
   }
   return (
     <section>
-      <h4 className="text-xs font-medium text-slate-700">{s.title}</h4>
-      <ul className="mt-1 space-y-1 text-xs text-slate-600">
+      <h4 className="text-xs font-medium text-red-700">{s.title}</h4>
+      <ul className="mt-1 space-y-1 text-xs text-red-900">
         {s.bullets.map((b, i) => (
           <li key={i} className="flex gap-2">
-            <span className="mt-[6px] inline-block h-1.5 w-1.5 rounded-full bg-orange-400/60" />
+            <span className="mt-[5px] inline-block w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[6px] border-b-red-500" />
             <span>{b}</span>
           </li>
         ))}
