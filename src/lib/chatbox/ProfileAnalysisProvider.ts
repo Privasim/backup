@@ -270,8 +270,18 @@ export const createProfileAnalysisProvider = (): AnalysisProvider => {
     },
     
     formatPrompt: (data: any, customPrompt?: string) => {
-      const transformedData = transformProfileData(data);
-      const prompts = generateProfilePrompt(transformedData, customPrompt);
+      // Check if data is already in ProfileAnalysisData format or needs transformation
+      let transformedData;
+      if (data && data.profileType && data.experience && data.skills && data.metadata) {
+        transformedData = data;
+      } else {
+        try {
+          transformedData = transformUserProfileToAnalysisData(data);
+        } catch (error) {
+          transformedData = transformProfileData(data);
+        }
+      }
+      const prompts = generateProfileAnalysisPrompt(transformedData, customPrompt);
       return prompts.userPrompt; // Return user prompt for compatibility
     },
     
@@ -297,13 +307,6 @@ export const createProfileAnalysisProvider = (): AnalysisProvider => {
       const isSystemPrompt = config.customPrompt?.trim().toLowerCase().startsWith('you are');
       const customSystemPrompt = isSystemPrompt ? config.customPrompt : undefined;
       const legacyCustomPrompt = !isSystemPrompt ? config.customPrompt : undefined;
-      
-      const prompts = generateProfilePrompt(
-        transformedData, 
-        legacyCustomPrompt, 
-        'default-profile',
-        customSystemPrompt
-      );
       
       // Generate prompts using the ProfileAnalysisData format
       const prompts = generateProfileAnalysisPrompt(

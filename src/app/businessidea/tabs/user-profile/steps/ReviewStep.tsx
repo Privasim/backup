@@ -1,9 +1,8 @@
 "use client";
 
 import React from "react";
-import { Role, RoleDetails, UserProfileData } from "../types";
+import { Role, UserProfileData } from "../types";
 import { ProfileAnalysisTrigger } from '@/components/chatbox/ProfileAnalysisTrigger';
-import { transformUserProfileToAnalysisData } from '@/components/chatbox/utils/profile-transformation';
 
 type Props = {
   data: UserProfileData;

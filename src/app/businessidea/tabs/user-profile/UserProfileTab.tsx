@@ -11,7 +11,6 @@ import ReviewStep from "./steps/ReviewStep";
 import { useUserProfileForm } from "./hooks/useUserProfileForm";
 import { Role } from "./types";
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
-import { transformUserProfileToAnalysisData } from '@/components/chatbox/utils/profile-transformation';
 
 export default function UserProfileTab() {
   const { state, actions, isStepComplete } = useUserProfileForm();

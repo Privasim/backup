@@ -21,7 +21,6 @@ import { SystemPromptSection } from './SystemPromptSection';
 import { getMockProfile } from '@/data/mockProfiles';
 import { chatboxDebug } from '@/app/businessidea/utils/logStore';
 import { AnalysisConfig } from './types';
-import { profileIntegrationService } from './services/ProfileIntegrationService';
 import { getAnalysisStatus } from './utils/profile-transformation';
 
 interface ChatboxControlsProps {

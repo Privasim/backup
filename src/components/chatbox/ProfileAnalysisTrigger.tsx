@@ -9,8 +9,10 @@ import {
 } from '@heroicons/react/24/outline';
 import { useProfileIntegration } from './hooks/useProfileIntegration';
 
+import { UserProfileData } from '@/app/businessidea/tabs/user-profile/types';
+
 interface ProfileAnalysisTriggerProps {
-  profileData: any;
+  profileData: UserProfileData;
   onAnalysisStart?: () => void;
   onAnalysisComplete?: () => void;
   className?: string;
