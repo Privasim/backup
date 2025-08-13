@@ -269,8 +269,31 @@ export default function ReviewStep({ data, onEditStep }: Props) {
           </SectionCard>
         )}
 
-        {/* Profile Analysis Trigger */}
+        {/* Readiness Status and Analysis Trigger */}
         <div className="mt-6">
+          {!readiness.ready && (
+            <div className="mb-4 p-4 rounded-lg border border-yellow-200 bg-yellow-50">
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-sm font-medium text-yellow-800">Complete Your Profile</h4>
+                  <p className="mt-1 text-sm text-yellow-700">
+                    Your profile is {readiness.completionLevel}% complete. Please fill in the following to enable analysis:
+                  </p>
+                  <ul className="mt-2 text-sm text-yellow-700 list-disc list-inside">
+                    {readiness.missing.map((field) => (
+                      <li key={field} className="capitalize">{field.replace(/([A-Z])/g, ' $1').toLowerCase()}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <ProfileAnalysisTrigger 
             profileData={data} 
             variant="card" 

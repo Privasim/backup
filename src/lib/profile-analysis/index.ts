@@ -27,13 +27,17 @@ export interface ReadinessResult {
  * Converts any supported input to the normalized analysis payload.
  */
 export function toAnalysisData(input: AnalysisInput): ProfileAnalysisData {
+  if (!input) {
+    throw new Error('No input data provided');
+  }
+
   // Already normalized
-  if ('profile' in input && 'metadata' in input) {
+  if (input && typeof input === 'object' && 'profile' in input && 'metadata' in input) {
     return input as ProfileAnalysisData;
   }
 
-  // UserProfileData from ReviewStep
-  if ('roles' in input && !('profile' in input)) {
+  // UserProfileData from ReviewStep (has 'role' property but not 'profile')
+  if (input && typeof input === 'object' && 'role' in input && !('profile' in input)) {
     return transformUserProfileToAnalysisData(input as UserProfileData);
   }
 
@@ -45,19 +49,46 @@ export function toAnalysisData(input: AnalysisInput): ProfileAnalysisData {
  * Returns readiness info for the given profile data.
  */
 export function getReadiness(input: AnalysisInput): ReadinessResult {
-  const data = 'profile' in input ? (input as ProfileAnalysisData) : input;
-  const status = getAnalysisStatus(data as unknown as UserProfileData);
-  const minCompletion = 80; // default threshold
+  try {
+    if (!input) {
+      return {
+        ready: false,
+        completionLevel: 0,
+        missing: ['valid profile data'],
+        requirements: {
+          minCompletion: 80,
+          autoTrigger: false,
+        },
+      };
+    }
 
-  return {
-    ready: status.isReady,
-    completionLevel: status.completionLevel,
-    missing: status.missingFields ?? [],
-    requirements: {
-      minCompletion,
-      autoTrigger: false,
-    },
-  };
+    const data = (input && typeof input === 'object' && 'profile' in input) 
+      ? (input as ProfileAnalysisData) 
+      : input;
+    
+    const status = getAnalysisStatus(data as unknown as UserProfileData);
+    const minCompletion = 80; // default threshold
+
+    return {
+      ready: status.ready,
+      completionLevel: status.completionLevel,
+      missing: status.missing ?? [],
+      requirements: {
+        minCompletion,
+        autoTrigger: false,
+      },
+    };
+  } catch (error) {
+    return {
+      ready: false,
+      completionLevel: 0,
+      missing: ['valid profile data'],
+      requirements: {
+        minCompletion: 80,
+        autoTrigger: false,
+      },
+    };
+  }
 }
 
 export default { toAnalysisData, getReadiness };

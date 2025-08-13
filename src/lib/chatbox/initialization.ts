@@ -127,6 +127,15 @@ class ChatboxInitializer {
         const profileProvider = createProfileAnalysisProvider();
         analysisService.registerProvider(profileProvider, true); // Set as default
         console.debug('Profile analysis provider registered');
+
+        // Configure profile integration service
+        const { profileIntegrationService } = await import('@/components/chatbox/services/ProfileIntegrationService');
+        profileIntegrationService.configure({
+          minProfileCompletion: 80,
+          autoTriggerAnalysis: false, // Disable auto-trigger as per task requirements
+          enableChangeDetection: true
+        });
+        console.debug('Profile integration service configured');
       }
 
       // Future providers can be registered here

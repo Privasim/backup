@@ -4,6 +4,7 @@ import { useEffect, useCallback } from 'react';
 import { useChatbox } from '../ChatboxProvider';
 import { profileIntegrationService, ProfileAnalysisData } from '../services/ProfileIntegrationService';
 import { transformUserProfileToAnalysisData, validateProfileReadiness, getAnalysisStatus } from '../utils/profile-transformation';
+import { toAnalysisData, getReadiness } from '@/lib/profile-analysis';
 
 /**
  * Hook for integrating chatbox with profile system
@@ -42,8 +43,8 @@ export const useProfileIntegration = () => {
    * Transform profile data from business idea format to analysis format
    */
   const transformProfileData = useCallback((profileData: any): ProfileAnalysisData => {
-    // Use our new transformation utility for UserProfileData
-    return transformUserProfileToAnalysisData(profileData);
+    // Use the new adapter facade for unified transformation
+    return toAnalysisData(profileData);
   }, []);
 
   /**
@@ -123,9 +124,9 @@ export const useProfileIntegration = () => {
    * Get analysis readiness status
    */
   const getAnalysisReadiness = useCallback((profileData: any) => {
-    // Use our new validation utility for UserProfileData
+    // Use the new adapter facade for unified readiness checking
     try {
-      return getAnalysisStatus(profileData);
+      return getReadiness(profileData);
     } catch {
       return {
         ready: false,
@@ -133,7 +134,7 @@ export const useProfileIntegration = () => {
         missing: ['valid profile data'],
         requirements: {
           minCompletion: 80,
-          autoTrigger: true
+          autoTrigger: false
         }
       };
     }
