@@ -3,6 +3,7 @@
 import React from "react";
 import { Role, UserProfileData } from "../types";
 import { ProfileAnalysisTrigger } from '@/components/chatbox/ProfileAnalysisTrigger';
+import { useProfileIntegration } from '@/components/chatbox/hooks/useProfileIntegration';
 
 type Props = {
   data: UserProfileData;
@@ -44,6 +45,8 @@ function SectionCard({ title, icon, children, onEdit }: { title: string; icon: R
 export default function ReviewStep({ data, onEditStep }: Props) {
   const role = data.role;
   const rd = data.roleDetails;
+  const { getAnalysisReadiness } = useProfileIntegration();
+  const readiness = getAnalysisReadiness(data);
 
   return (
     <div className="p-1">
