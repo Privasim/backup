@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import StepIndicator from "./components/StepIndicator";
 import StepFooter from "./components/StepFooter";
 import RoleStep from "./steps/RoleStep";
@@ -15,6 +15,8 @@ import { useChatbox } from '@/components/chatbox/ChatboxProvider';
 export default function UserProfileTab() {
   const { state, actions, isStepComplete } = useUserProfileForm();
   const { setProfileData } = useChatbox();
+  const [prunedInterestsBackup, setPrunedInterestsBackup] = useState<string[] | null>(null);
+  const [prunedRemovedCount, setPrunedRemovedCount] = useState<number>(0);
 
   const canBack = state.currentStep > 1;
   const canNext = isStepComplete(state.currentStep);
@@ -70,7 +72,13 @@ export default function UserProfileTab() {
                   newIndustryInterests.includes(interest)
                 );
                 if (validInterests.length !== currentInterests.length) {
+                  // store backup and count for undo UX
+                  setPrunedInterestsBackup(currentInterests);
+                  setPrunedRemovedCount(currentInterests.length - validInterests.length);
                   actions.updateField("interests", validInterests);
+                } else {
+                  setPrunedInterestsBackup(null);
+                  setPrunedRemovedCount(0);
                 }
               }
               if (typeof patch.location !== 'undefined') {
@@ -99,7 +107,7 @@ export default function UserProfileTab() {
           />
         );
       case 5:
-        return <ReviewStep data={state.data} />;
+        return <ReviewStep data={state.data} onEditStep={(step) => actions.setStep(step)} />;
       default:
         return null;
     }
@@ -112,6 +120,36 @@ export default function UserProfileTab() {
           <div className="mb-5">
             <StepIndicator currentStep={state.currentStep} />
           </div>
+          {state.currentStep === 3 && prunedInterestsBackup && prunedRemovedCount > 0 && (
+            <div className="mb-4 px-3 py-2 rounded-md border border-amber-200 bg-amber-50 text-amber-800 flex items-center justify-between">
+              <span className="text-xs">{prunedRemovedCount} interest{prunedRemovedCount > 1 ? 's' : ''} were removed due to industry change.</span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  className="text-xs px-2 py-1 rounded border border-amber-300 hover:bg-amber-100"
+                  onClick={() => {
+                    if (prunedInterestsBackup) {
+                      actions.updateField("interests", prunedInterestsBackup);
+                    }
+                    setPrunedInterestsBackup(null);
+                    setPrunedRemovedCount(0);
+                  }}
+                >
+                  Undo
+                </button>
+                <button
+                  type="button"
+                  className="text-xs px-2 py-1 rounded border border-transparent hover:bg-amber-100"
+                  onClick={() => {
+                    setPrunedInterestsBackup(null);
+                    setPrunedRemovedCount(0);
+                  }}
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          )}
           <div className="space-y-5">
             {content}
           </div>

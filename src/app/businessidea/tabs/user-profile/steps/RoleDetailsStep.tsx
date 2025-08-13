@@ -78,12 +78,26 @@ export default function RoleDetailsStep({ roleDetails, onPatch }: Props) {
             onChange={(v) => onPatch({ status: v })} 
           />
           <div className="col-span-2">
-            <PillMultiSelect
-              label="Goals"
-              options={GOAL_OPTIONS_STUDENT}
-              value={s.studentGoals ?? []}
-              onChange={(v) => onPatch({ studentGoals: v })}
-            />
+            <details className="group">
+              <summary className="flex items-center justify-between cursor-pointer select-none">
+                <span className="text-sm font-medium text-gray-800">Goals (optional)</span>
+                <span className="text-xs text-indigo-600 group-open:hidden">Show</span>
+                <span className="text-xs text-indigo-600 hidden group-open:inline">Hide</span>
+              </summary>
+              <div className="mt-2">
+                <PillMultiSelect
+                  label="Goals"
+                  options={GOAL_OPTIONS_STUDENT}
+                  value={s.studentGoals ?? []}
+                  onChange={(v) => onPatch({ studentGoals: v })}
+                  recommended={GOAL_OPTIONS_STUDENT.slice(0,8)}
+                  initialVisibleCount={8}
+                  showSearch
+                  onSelectAllRecommended={() => onPatch({ studentGoals: Array.from(new Set([...(s.studentGoals ?? []), ...GOAL_OPTIONS_STUDENT.slice(0,8)])) })}
+                />
+                <p className="mt-1 text-[11px] text-gray-500">Tip: Choose a few to guide your experience.</p>
+              </div>
+            </details>
           </div>
         </div>
       </div>
@@ -121,12 +135,26 @@ export default function RoleDetailsStep({ roleDetails, onPatch }: Props) {
             required
           />
           <div className="col-span-2">
-            <PillMultiSelect
-              label="Goals"
-              options={GOAL_OPTIONS_PROFESSIONAL}
-              value={p.professionalGoals ?? []}
-              onChange={(v) => onPatch({ professionalGoals: v })}
-            />
+            <details className="group">
+              <summary className="flex items-center justify-between cursor-pointer select-none">
+                <span className="text-sm font-medium text-gray-800">Goals (optional)</span>
+                <span className="text-xs text-indigo-600 group-open:hidden">Show</span>
+                <span className="text-xs text-indigo-600 hidden group-open:inline">Hide</span>
+              </summary>
+              <div className="mt-2">
+                <PillMultiSelect
+                  label="Goals"
+                  options={GOAL_OPTIONS_PROFESSIONAL}
+                  value={p.professionalGoals ?? []}
+                  onChange={(v) => onPatch({ professionalGoals: v })}
+                  recommended={GOAL_OPTIONS_PROFESSIONAL.slice(0,8)}
+                  initialVisibleCount={8}
+                  showSearch
+                  onSelectAllRecommended={() => onPatch({ professionalGoals: Array.from(new Set([...(p.professionalGoals ?? []), ...GOAL_OPTIONS_PROFESSIONAL.slice(0,8)])) })}
+                />
+                <p className="mt-1 text-[11px] text-gray-500">Tip: Choose a few to guide your experience.</p>
+              </div>
+            </details>
           </div>
         </div>
       </div>
@@ -170,12 +198,26 @@ export default function RoleDetailsStep({ roleDetails, onPatch }: Props) {
             required
           />
           <div className="col-span-2">
-            <PillMultiSelect
-              label="Goals"
-              options={GOAL_OPTIONS_BUSINESS}
-              value={b.businessGoals ?? []}
-              onChange={(v) => onPatch({ businessGoals: v })}
-            />
+            <details className="group">
+              <summary className="flex items-center justify-between cursor-pointer select-none">
+                <span className="text-sm font-medium text-gray-800">Goals (optional)</span>
+                <span className="text-xs text-indigo-600 group-open:hidden">Show</span>
+                <span className="text-xs text-indigo-600 hidden group-open:inline">Hide</span>
+              </summary>
+              <div className="mt-2">
+                <PillMultiSelect
+                  label="Goals"
+                  options={GOAL_OPTIONS_BUSINESS}
+                  value={b.businessGoals ?? []}
+                  onChange={(v) => onPatch({ businessGoals: v })}
+                  recommended={GOAL_OPTIONS_BUSINESS.slice(0,8)}
+                  initialVisibleCount={8}
+                  showSearch
+                  onSelectAllRecommended={() => onPatch({ businessGoals: Array.from(new Set([...(b.businessGoals ?? []), ...GOAL_OPTIONS_BUSINESS.slice(0,8)])) })}
+                />
+                <p className="mt-1 text-[11px] text-gray-500">Tip: Choose a few to guide your experience.</p>
+              </div>
+            </details>
           </div>
         </div>
       </div>
@@ -219,12 +261,26 @@ export default function RoleDetailsStep({ roleDetails, onPatch }: Props) {
             onChange={(v) => onPatch({ workPreference: v })} 
           />
           <div className="col-span-2">
-            <PillMultiSelect
-              label="Goals"
-              options={GOAL_OPTIONS_SHIFTER}
-              value={s.transitionGoals ?? []}
-              onChange={(v) => onPatch({ transitionGoals: v })}
-            />
+            <details className="group">
+              <summary className="flex items-center justify-between cursor-pointer select-none">
+                <span className="text-sm font-medium text-gray-800">Goals (optional)</span>
+                <span className="text-xs text-indigo-600 group-open:hidden">Show</span>
+                <span className="text-xs text-indigo-600 hidden group-open:inline">Hide</span>
+              </summary>
+              <div className="mt-2">
+                <PillMultiSelect
+                  label="Goals"
+                  options={GOAL_OPTIONS_SHIFTER}
+                  value={s.transitionGoals ?? []}
+                  onChange={(v) => onPatch({ transitionGoals: v })}
+                  recommended={GOAL_OPTIONS_SHIFTER.slice(0,8)}
+                  initialVisibleCount={8}
+                  showSearch
+                  onSelectAllRecommended={() => onPatch({ transitionGoals: Array.from(new Set([...(s.transitionGoals ?? []), ...GOAL_OPTIONS_SHIFTER.slice(0,8)])) })}
+                />
+                <p className="mt-1 text-[11px] text-gray-500">Tip: Choose a few to guide your experience.</p>
+              </div>
+            </details>
           </div>
         </div>
       </div>

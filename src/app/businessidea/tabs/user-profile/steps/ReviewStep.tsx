@@ -6,6 +6,7 @@ import { ProfileAnalysisTrigger } from '@/components/chatbox/ProfileAnalysisTrig
 
 type Props = {
   data: UserProfileData;
+  onEditStep?: (step: number) => void;
 };
 
 function SummaryRow({ label, value }: { label: string; value?: string | number }) {
@@ -17,21 +18,30 @@ function SummaryRow({ label, value }: { label: string; value?: string | number }
   );
 }
 
-function SectionCard({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
+function SectionCard({ title, icon, children, onEdit }: { title: string; icon: React.ReactNode; children: React.ReactNode; onEdit?: () => void }) {
   return (
     <div className="p-4 rounded-lg border border-gray-200 bg-white shadow-sm">
       <div className="flex items-center mb-3">
         <div className="h-6 w-6 rounded-full bg-indigo-100 flex items-center justify-center mr-2">
           {icon}
         </div>
-        <h4 className="text-sm font-medium text-gray-800">{title}</h4>
+        <h4 className="text-sm font-medium text-gray-800 mr-auto">{title}</h4>
+        {onEdit && (
+          <button
+            type="button"
+            className="text-xs text-indigo-600 hover:text-indigo-700"
+            onClick={onEdit}
+          >
+            Edit
+          </button>
+        )}
       </div>
       {children}
     </div>
   );
 }
 
-export default function ReviewStep({ data }: Props) {
+export default function ReviewStep({ data, onEditStep }: Props) {
   const role = data.role;
   const rd = data.roleDetails;
 
@@ -50,6 +60,7 @@ export default function ReviewStep({ data }: Props) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           }
+          onEdit={onEditStep ? () => onEditStep(1) : undefined}
         >
           <SummaryRow label="Role" value={role} />
         </SectionCard>
@@ -60,9 +71,10 @@ export default function ReviewStep({ data }: Props) {
             icon={
               <svg className="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01-.665-6.479L12 14z" />
               </svg>
             }
+            onEdit={onEditStep ? () => onEditStep(2) : undefined}
           >
             <SummaryRow label="Education Level" value={rd.student?.educationLevel} />
             <SummaryRow label="Field of Study" value={rd.student?.fieldOfStudy} />
@@ -89,6 +101,7 @@ export default function ReviewStep({ data }: Props) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             }
+            onEdit={onEditStep ? () => onEditStep(2) : undefined}
           >
             <SummaryRow label="Experience" value={rd.professional?.yearsExperience} />
             <SummaryRow label="Function" value={rd.professional?.jobFunction} />
@@ -166,6 +179,7 @@ export default function ReviewStep({ data }: Props) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           }
+          onEdit={onEditStep ? () => onEditStep(3) : undefined}
         >
           <SummaryRow label="Industry" value={data.industry} />
           <SummaryRow label="Location" value={data.location} />
@@ -179,6 +193,7 @@ export default function ReviewStep({ data }: Props) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           }
+          onEdit={onEditStep ? () => onEditStep(4) : undefined}
         >
           <div className="flex flex-wrap gap-2 pt-1">
             {(data.skills || []).length === 0 && <span className="text-sm text-gray-500">No skills selected</span>}
@@ -196,6 +211,7 @@ export default function ReviewStep({ data }: Props) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             }
+            onEdit={onEditStep ? () => onEditStep(3) : undefined}
           >
             {data.hobbies && data.hobbies.length > 0 && (
               <div className="mb-3">
@@ -240,6 +256,7 @@ export default function ReviewStep({ data }: Props) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             }
+            onEdit={onEditStep ? () => onEditStep(2) : undefined}
           >
             <div className="flex flex-wrap gap-2">
               {data.goals.map((g) => (
