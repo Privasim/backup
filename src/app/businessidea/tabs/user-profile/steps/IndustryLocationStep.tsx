@@ -3,16 +3,35 @@
 import React from "react";
 import CompactSelect from "../components/CompactSelect";
 import SegmentedControl from "../components/SegmentedControl";
-import { INDUSTRY_OPTIONS, LOCATION_OPTIONS, WorkPreference } from "../types";
+import PillMultiSelect from "../components/PillMultiSelect";
+import { 
+  INDUSTRY_OPTIONS, 
+  LOCATION_OPTIONS, 
+  WorkPreference, 
+  HOBBY_OPTIONS,
+  INTEREST_OPTIONS,
+  VALUE_OPTIONS,
+  INTEREST_OPTIONS_BY_INDUSTRY
+} from "../types";
 
 type Props = {
   industry?: string;
   location?: string;
   workPreference?: WorkPreference;
-  onChange: (patch: { industry?: string; location?: string; workPreference?: WorkPreference }) => void;
+  hobbies?: string[];
+  interests?: string[];
+  values?: string[];
+  onChange: (patch: { 
+    industry?: string; 
+    location?: string; 
+    workPreference?: WorkPreference;
+    hobbies?: string[];
+    interests?: string[];
+    values?: string[];
+  }) => void;
 };
 
-export default function IndustryLocationStep({ industry, location, workPreference, onChange }: Props) {
+export default function IndustryLocationStep({ industry, location, workPreference, hobbies = [], interests = [], values = [], onChange }: Props) {
   return (
     <div className="p-1">
       <div className="mb-4">
@@ -40,6 +59,33 @@ export default function IndustryLocationStep({ industry, location, workPreferenc
             options={["Remote","Hybrid","On-site"]} 
             value={workPreference} 
             onChange={(v) => onChange({ workPreference: v as WorkPreference })} 
+          />
+        </div>
+        
+        <div className="col-span-2 mt-6">
+          <PillMultiSelect
+            label="Hobbies"
+            options={HOBBY_OPTIONS}
+            value={hobbies}
+            onChange={(v) => onChange({ hobbies: v })}
+          />
+        </div>
+        
+        <div className="col-span-2">
+          <PillMultiSelect
+            label="Interests"
+            options={industry ? (INTEREST_OPTIONS_BY_INDUSTRY[industry] || INTEREST_OPTIONS) : INTEREST_OPTIONS}
+            value={interests}
+            onChange={(v) => onChange({ interests: v })}
+          />
+        </div>
+        
+        <div className="col-span-2">
+          <PillMultiSelect
+            label="Values & Motivators"
+            options={VALUE_OPTIONS}
+            value={values}
+            onChange={(v) => onChange({ values: v })}
           />
         </div>
       </div>

@@ -3,6 +3,7 @@
 import React from "react";
 import CompactSelect from "../components/CompactSelect";
 import SegmentedControl from "../components/SegmentedControl";
+import PillMultiSelect from "../components/PillMultiSelect";
 import {
   Role,
   RoleDetails,
@@ -15,6 +16,10 @@ import {
   COMPANY_SIZE_OPTIONS,
   SECTOR_OPTIONS,
   TEAM_SIZE_OPTIONS,
+  GOAL_OPTIONS_STUDENT,
+  GOAL_OPTIONS_PROFESSIONAL,
+  GOAL_OPTIONS_BUSINESS,
+  GOAL_OPTIONS_SHIFTER,
 } from "../types";
 
 type Props = {
@@ -72,6 +77,14 @@ export default function RoleDetailsStep({ roleDetails, onPatch }: Props) {
             value={s.status} 
             onChange={(v) => onPatch({ status: v })} 
           />
+          <div className="col-span-2">
+            <PillMultiSelect
+              label="Goals"
+              options={GOAL_OPTIONS_STUDENT}
+              value={s.studentGoals ?? []}
+              onChange={(v) => onPatch({ studentGoals: v })}
+            />
+          </div>
         </div>
       </div>
     );
@@ -107,6 +120,14 @@ export default function RoleDetailsStep({ roleDetails, onPatch }: Props) {
             options={SENIORITY_OPTIONS} 
             required
           />
+          <div className="col-span-2">
+            <PillMultiSelect
+              label="Goals"
+              options={GOAL_OPTIONS_PROFESSIONAL}
+              value={p.professionalGoals ?? []}
+              onChange={(v) => onPatch({ professionalGoals: v })}
+            />
+          </div>
         </div>
       </div>
     );
@@ -148,6 +169,14 @@ export default function RoleDetailsStep({ roleDetails, onPatch }: Props) {
             options={TEAM_SIZE_OPTIONS} 
             required
           />
+          <div className="col-span-2">
+            <PillMultiSelect
+              label="Goals"
+              options={GOAL_OPTIONS_BUSINESS}
+              value={b.businessGoals ?? []}
+              onChange={(v) => onPatch({ businessGoals: v })}
+            />
+          </div>
         </div>
       </div>
     );
@@ -189,6 +218,14 @@ export default function RoleDetailsStep({ roleDetails, onPatch }: Props) {
             value={s.workPreference} 
             onChange={(v) => onPatch({ workPreference: v })} 
           />
+          <div className="col-span-2">
+            <PillMultiSelect
+              label="Goals"
+              options={GOAL_OPTIONS_SHIFTER}
+              value={s.transitionGoals ?? []}
+              onChange={(v) => onPatch({ transitionGoals: v })}
+            />
+          </div>
         </div>
       </div>
     );

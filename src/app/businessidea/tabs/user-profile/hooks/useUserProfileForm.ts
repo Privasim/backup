@@ -41,7 +41,7 @@ export function useUserProfileForm() {
 
   const updateRole = useCallback((role: Role) => {
     // Reset roleDetails when role changes
-    const base: UserProfileData = { ...data, role, skills: data.skills };
+    const base: UserProfileData = { ...data, role, skills: data.skills, goals: [] };
     delete (base as any).roleDetails;
 
     let roleDetails: any;
@@ -64,19 +64,46 @@ export function useUserProfileForm() {
     setData((prev) => {
       const rd = prev.roleDetails;
       if (!rd) return prev;
+      
+      let newData: UserProfileData;
       if (rd.role === Role.Student) {
-        return { ...prev, roleDetails: { ...rd, student: { ...rd.student, ...patch } } };
+        newData = { ...prev, roleDetails: { ...rd, student: { ...rd.student, ...patch } } };
       }
-      if (rd.role === Role.Professional) {
-        return { ...prev, roleDetails: { ...rd, professional: { ...rd.professional, ...patch } } };
+      else if (rd.role === Role.Professional) {
+        newData = { ...prev, roleDetails: { ...rd, professional: { ...rd.professional, ...patch } } };
       }
-      if (rd.role === Role.BusinessOwner) {
-        return { ...prev, roleDetails: { ...rd, business: { ...rd.business, ...patch } } };
+      else if (rd.role === Role.BusinessOwner) {
+        newData = { ...prev, roleDetails: { ...rd, business: { ...rd.business, ...patch } } };
       }
-      if (rd.role === Role.CareerShifter) {
-        return { ...prev, roleDetails: { ...rd, shifter: { ...rd.shifter, ...patch } } };
+      else if (rd.role === Role.CareerShifter) {
+        newData = { ...prev, roleDetails: { ...rd, shifter: { ...rd.shifter, ...patch } } };
       }
-      return prev;
+      else {
+        return prev;
+      }
+
+      // Merge role-specific goals into aggregate goals
+      const roleDetails = newData.roleDetails;
+      if (roleDetails) {
+        const goals: string[] = [];
+        if (roleDetails.role === Role.Student && roleDetails.student?.studentGoals) {
+          goals.push(...roleDetails.student.studentGoals);
+        }
+        if (roleDetails.role === Role.Professional && roleDetails.professional?.professionalGoals) {
+          goals.push(...roleDetails.professional.professionalGoals);
+        }
+        if (roleDetails.role === Role.BusinessOwner && roleDetails.business?.businessGoals) {
+          goals.push(...roleDetails.business.businessGoals);
+        }
+        if (roleDetails.role === Role.CareerShifter && roleDetails.shifter?.transitionGoals) {
+          goals.push(...roleDetails.shifter.transitionGoals);
+        }
+        
+        // Remove duplicates and set aggregate goals
+        newData.goals = [...new Set(goals)];
+      }
+      
+      return newData;
     });
   }, []);
 

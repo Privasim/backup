@@ -9,7 +9,7 @@ import IndustryLocationStep from "./steps/IndustryLocationStep";
 import SkillsStep from "./steps/SkillsStep";
 import ReviewStep from "./steps/ReviewStep";
 import { useUserProfileForm } from "./hooks/useUserProfileForm";
-import { Role } from "./types";
+import { Role, INTEREST_OPTIONS_BY_INDUSTRY, INTEREST_OPTIONS } from "./types";
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
 
 export default function UserProfileTab() {
@@ -55,15 +55,38 @@ export default function UserProfileTab() {
             industry={state.data.industry}
             location={state.data.location}
             workPreference={state.data.workPreference}
+            hobbies={state.data.hobbies}
+            interests={state.data.interests}
+            values={state.data.values}
             onChange={(patch) => {
               if (typeof patch.industry !== 'undefined') {
                 actions.updateField("industry", patch.industry);
+                // Prune interests when industry changes
+                const currentInterests = state.data.interests || [];
+                const newIndustryInterests = patch.industry ? 
+                  (INTEREST_OPTIONS_BY_INDUSTRY[patch.industry] || INTEREST_OPTIONS) : 
+                  INTEREST_OPTIONS;
+                const validInterests = currentInterests.filter(interest => 
+                  newIndustryInterests.includes(interest)
+                );
+                if (validInterests.length !== currentInterests.length) {
+                  actions.updateField("interests", validInterests);
+                }
               }
               if (typeof patch.location !== 'undefined') {
                 actions.updateField("location", patch.location);
               }
               if (typeof patch.workPreference !== 'undefined') {
                 actions.updateField("workPreference", patch.workPreference);
+              }
+              if (typeof patch.hobbies !== 'undefined') {
+                actions.updateField("hobbies", patch.hobbies);
+              }
+              if (typeof patch.interests !== 'undefined') {
+                actions.updateField("interests", patch.interests);
+              }
+              if (typeof patch.values !== 'undefined') {
+                actions.updateField("values", patch.values);
               }
             }}
           />

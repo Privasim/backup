@@ -68,6 +68,16 @@ export default function ReviewStep({ data }: Props) {
             <SummaryRow label="Field of Study" value={rd.student?.fieldOfStudy} />
             <SummaryRow label="Graduation Year" value={rd.student?.graduationYear} />
             <SummaryRow label="Status" value={rd.student?.status} />
+            {rd.student?.studentGoals && rd.student.studentGoals.length > 0 && (
+              <div className="mt-3">
+                <span className="text-sm font-medium text-gray-700">Goals</span>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {rd.student.studentGoals.map((g) => (
+                    <span key={g} className="px-2 py-1 rounded-full text-xs bg-teal-50 text-teal-700 border border-teal-100">{g}</span>
+                  ))}
+                </div>
+              </div>
+            )}
           </SectionCard>
         )}
 
@@ -83,6 +93,16 @@ export default function ReviewStep({ data }: Props) {
             <SummaryRow label="Experience" value={rd.professional?.yearsExperience} />
             <SummaryRow label="Function" value={rd.professional?.jobFunction} />
             <SummaryRow label="Seniority" value={rd.professional?.seniority} />
+            {rd.professional?.professionalGoals && rd.professional.professionalGoals.length > 0 && (
+              <div className="mt-3">
+                <span className="text-sm font-medium text-gray-700">Goals</span>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {rd.professional.professionalGoals.map((g) => (
+                    <span key={g} className="px-2 py-1 rounded-full text-xs bg-teal-50 text-teal-700 border border-teal-100">{g}</span>
+                  ))}
+                </div>
+              </div>
+            )}
           </SectionCard>
         )}
 
@@ -99,6 +119,16 @@ export default function ReviewStep({ data }: Props) {
             <SummaryRow label="Sector" value={rd.business?.sector} />
             <SummaryRow label="Stage" value={rd.business?.stage} />
             <SummaryRow label="Team Size" value={rd.business?.teamSize} />
+            {rd.business?.businessGoals && rd.business.businessGoals.length > 0 && (
+              <div className="mt-3">
+                <span className="text-sm font-medium text-gray-700">Goals</span>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {rd.business.businessGoals.map((g) => (
+                    <span key={g} className="px-2 py-1 rounded-full text-xs bg-teal-50 text-teal-700 border border-teal-100">{g}</span>
+                  ))}
+                </div>
+              </div>
+            )}
           </SectionCard>
         )}
 
@@ -115,6 +145,16 @@ export default function ReviewStep({ data }: Props) {
             <SummaryRow label="Desired Field" value={rd.shifter?.desiredField} />
             <SummaryRow label="Timeline" value={rd.shifter?.timeline} />
             <SummaryRow label="Work Preference" value={rd.shifter?.workPreference} />
+            {rd.shifter?.transitionGoals && rd.shifter.transitionGoals.length > 0 && (
+              <div className="mt-3">
+                <span className="text-sm font-medium text-gray-700">Goals</span>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {rd.shifter.transitionGoals.map((g) => (
+                    <span key={g} className="px-2 py-1 rounded-full text-xs bg-teal-50 text-teal-700 border border-teal-100">{g}</span>
+                  ))}
+                </div>
+              </div>
+            )}
           </SectionCard>
         )}
 
@@ -147,6 +187,67 @@ export default function ReviewStep({ data }: Props) {
             ))}
           </div>
         </SectionCard>
+
+        {(data.hobbies || data.interests || data.values) && (
+          <SectionCard 
+            title="Personal Details" 
+            icon={
+              <svg className="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            }
+          >
+            {data.hobbies && data.hobbies.length > 0 && (
+              <div className="mb-3">
+                <span className="text-sm font-medium text-gray-700">Hobbies</span>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {data.hobbies.map((h) => (
+                    <span key={h} className="px-2 py-1 rounded-full text-xs bg-purple-50 text-purple-700 border border-purple-100">{h}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {data.interests && data.interests.length > 0 && (
+              <div className="mb-3">
+                <span className="text-sm font-medium text-gray-700">Interests</span>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {data.interests.map((i) => (
+                    <span key={i} className="px-2 py-1 rounded-full text-xs bg-green-50 text-green-700 border border-green-100">{i}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {data.values && data.values.length > 0 && (
+              <div>
+                <span className="text-sm font-medium text-gray-700">Values & Motivators</span>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {data.values.map((v) => (
+                    <span key={v} className="px-2 py-1 rounded-full text-xs bg-orange-50 text-orange-700 border border-orange-100">{v}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </SectionCard>
+        )}
+
+        {data.goals && data.goals.length > 0 && (
+          <SectionCard 
+            title="Goals" 
+            icon={
+              <svg className="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            }
+          >
+            <div className="flex flex-wrap gap-2">
+              {data.goals.map((g) => (
+                <span key={g} className="px-3 py-1 rounded-full text-xs bg-teal-50 text-teal-700 border border-teal-100">{g}</span>
+              ))}
+            </div>
+          </SectionCard>
+        )}
 
         {/* Profile Analysis Trigger */}
         <div className="mt-6">
