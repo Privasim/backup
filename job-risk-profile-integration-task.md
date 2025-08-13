@@ -1,167 +1,273 @@
-# Job Risk + Profile Analysis Integration — Minimal Implementation Task
+# Job Risk + Profile Analysis Integration — Updated Implementation Task
 
 ## Objective
-- Provide a minimal, robust integration between user profile, job-risk visualizations, and research-backed analysis via chatbox.
-- Enforce defaults for the Job Risk tab per visualization spec and memory.
-- Keep architecture open for future enhancements; avoid intrusive changes.
+- Integrate the existing profile analysis system with job-risk visualizations and research-backed analysis.
+- Wire profile context into job-risk data fetching using the current `UserProfileData` structure.
+- Implement profile-driven analysis executor in ChatboxProvider using existing `ResearchAssessmentIntegration`.
+- Enforce visualization defaults and improve UX consistency.
 
 ## Scope
-- Wire profile context into job-risk data fetching.
-- Enforce defaults in job-risk visualizations.
-- Implement a thin chatbox executor for “profile” analysis using ResearchAssessmentIntegration.
-- Improve readiness gating and statuses for ProfileAnalysisTrigger.
-- Add minimal tests and structured logging for reliability.
+- Connect profile context to job-risk data fetching via `ResearchDataService`.
+- Add profile analysis executor to ChatboxProvider using existing research integration.
+- Make InsightsPanel sticky on desktop for better UX.
+- Ensure consistent readiness states across profile analysis components.
+- Add comprehensive tests for the integration points.
 
 ## Non-goals
-- Refactors of ChatboxControls API key/model selection (respect existing UX).
-- Major redesign of visualizations or research services.
-- Introducing new state management libraries.
+- Refactors of existing profile analysis adapter facade (already implemented).
+- Changes to ChatboxControls API key/model selection UX.
+- Major redesign of visualization components or research services.
+- Breaking changes to existing ProfileAnalysisTrigger functionality.
 
 ---
+
+## Current Architecture Status
+- ✅ Profile analysis adapter facade implemented (`src/lib/profile-analysis/index.ts`)
+- ✅ ProfileAnalysisTrigger with readiness gating implemented
+- ✅ useProfileIntegration hook with adapter integration
+- ✅ ResearchAssessmentIntegration service available
+- ✅ ChatboxProvider with sophisticated analysis capabilities
+- ✅ UserProfileTab syncs data to ChatboxProvider via `setProfileData()`
+- ❌ Job risk data not connected to profile context
+- ❌ Profile analysis executor missing from ChatboxProvider
+- ❌ InsightsPanel not sticky on desktop
+
+## Profile Context Architecture
+The current system has two profile contexts:
+1. **Legacy ProfileContext** (`src/app/businessidea/context/ProfileContext.tsx`) - Uses `ProfileFormData` structure
+2. **UserProfile System** (`src/app/businessidea/tabs/user-profile/`) - Uses `UserProfileData` structure and syncs to ChatboxProvider
+
+The job risk integration should use the **UserProfileData** from ChatboxProvider since:
+- UserProfileTab already syncs profile data to ChatboxProvider
+- ProfileAnalysisTrigger already works with UserProfileData
+- The adapter facade handles UserProfileData → analysis data transformation
 
 ## Files to Modify
 - `src/app/businessidea/tabs/job-risk/JobRiskAnalysisTab.tsx`
-  - Ensure layout supports sticky insights on desktop; pass through hook outputs cleanly.
+  - Access profile data from ChatboxProvider (via useChatbox hook).
+  - Pass profile data to useJobRiskData hook.
+  - Ensure layout supports sticky insights on desktop.
 - `src/app/businessidea/tabs/job-risk/hooks/useJobRiskData.ts`
-  - Read profile context; call `ResearchDataService` with role/industry/location.
-  - Enforce defaults: 24-month velocity history; initial skill clusters set to [Cognitive Routine, Analytical, Creative, Social, Manual Routine].
-  - Return full typed shape and robust loading/error states.
+  - Accept UserProfileData parameter and integrate with ResearchDataService.
+  - Map UserProfileData (role, industry, location, skills) to research service parameters.
+  - Enforce defaults: 24-month velocity history; skill clusters [Cognitive Routine, Analytical, Creative, Social, Manual Routine].
+  - Return profile-driven data with robust loading/error states.
 - `src/app/businessidea/tabs/job-risk/components/InsightsPanel.tsx`
-  - Make insights panel sticky on desktop (non-sticky on mobile).
+  - Add sticky positioning for desktop (responsive behavior).
 - `src/components/chatbox/ChatboxProvider.tsx`
-  - Add executor for `startAnalysis(type="profile")` that calls `ResearchAssessmentIntegration`.
-  - Post structured messages (summary, risks, actions, confidence) and cache by profile signature.
-- `src/components/chatbox/hooks/useProfileIntegration.ts`
-  - Ensure `isReadyForAnalysis` reflects profile completeness; expose consistent statuses.
-- `src/components/chatbox/ProfileAnalysisTrigger.tsx`
-  - Align disabled/loading/success states across variants (button/card/inline) using readiness and chatbox status.
+  - Add profile analysis executor using ResearchAssessmentIntegration.
+  - Handle `startAnalysis(type="profile")` with structured message output.
+  - Cache results by profile signature using existing cache manager.
 
 ## Files to Create
 - `src/app/businessidea/tabs/job-risk/__tests__/useJobRiskData.test.ts`
-  - Tests: default windowing; mapping fallbacks; profile-gated calls; error resilience.
+  - Tests: profile-driven data fetching; default enforcement; error handling.
 - `src/components/chatbox/__tests__/profileAnalysisExecutor.test.ts`
-  - Tests: happy path + failure path for “profile” executor; caching by signature.
-- `src/lib/research/service/__tests__/assessment-mapping.test.ts`
-  - Tests: stable mapping from `ResearchAssessmentIntegration` outputs to chat messages.
-- `job-risk-profile-integration-task.md`
-  - This document.
+  - Tests: profile analysis execution; ResearchAssessmentIntegration integration; caching.
+- `src/lib/research/service/__tests__/profile-integration.test.ts`
+  - Tests: UserProfileData to research service parameter mapping.
 
 ---
 
-## Implementation Units (Minimal, granular)
+## Updated Data Contracts
 
-1) Enforce job-risk defaults
-- Apply 24-month velocity window in `useJobRiskData`.
-- Initialize skill clusters to the specified five categories.
-- Make `InsightsPanel` sticky on desktop only.
-- Acceptance:
-  - Charts render with proper ranges/clusters.
-  - Insights stick on desktop; behave normally on mobile.
-  - No runtime errors with empty profile.
+### Current Profile Data Structure (UserProfileData)
+```typescript
+type UserProfileData = {
+  role?: Role; // Student | Professional | BusinessOwner | CareerShifter
+  roleDetails?: RoleDetails; // Role-specific details
+  industry?: string;
+  location?: string;
+  workPreference?: WorkPreference;
+  skills: string[];
+  hobbies?: string[];
+  interests?: string[];
+  values?: string[];
+  goals?: string[];
+};
+```
 
-2) Wire profile → job-risk data
-- Ensure profile is read from chatbox context/state.
-- Parameterize `ResearchDataService` calls by role/industry/location.
-- Guard against incomplete profile; return loading/safe defaults.
-- Acceptance:
-  - Changing role/industry/location updates charts after load.
-  - No network calls when profile is incomplete.
-  - Hook always returns typed shape with sensible defaults.
+### Profile Context Access Pattern
+```typescript
+// In JobRiskAnalysisTab.tsx
+import { useChatbox } from '@/components/chatbox/ChatboxProvider';
 
-3) Chatbox profile analysis executor
-- In `ChatboxProvider`, implement handler for `startAnalysis("profile")`.
-- Use `ResearchAssessmentIntegration` to generate risk summary + actions.
-- Cache results by profile signature; append structured messages to chat.
-- Acceptance:
-  - Trigger produces analysis reliably; cached on repeat.
-  - Failures yield friendly message; session remains stable.
-  - No changes to API key/model selection UX.
+const { profileData } = useChatbox(); // Gets UserProfileData synced from UserProfileTab
+const { velocity, skills, forecast, insights, loading } = useJobRiskData(profileData);
+```
 
-4) UX gating and statuses
-- `ProfileAnalysisTrigger` variants reflect readiness/loading/success consistently.
-- `useProfileIntegration` centralizes readiness logic and exposes status.
-- Acceptance:
-  - All variants correctly disable, show progress, and success.
-  - No duplicate triggers; no ambiguous states.
+### Profile to Research Service Mapping
+- **Input**: `UserProfileData` from ChatboxProvider
+- **Mapping**: 
+  - `role` + `roleDetails` → occupation identifier for ResearchDataService
+  - `industry` → industry filter for risk analysis
+  - `location` → geographic context for employment data
+  - `skills` → skill-based risk assessment parameters
+- **Output**: Risk metrics, velocity data, skill impacts, forecasts
 
-5) Tests and logging
-- Add minimal unit tests for transforms and executor paths.
-- Add structured logs around analysis start/failure; keep noise low.
-- Acceptance:
-  - Tests pass reliably.
-  - Logs aid debugging without clutter.
-
----
-
-## Data Flow (Mermaid)
+### Job Risk Data Flow (Updated)
 ```mermaid
 sequenceDiagram
   participant U as User
   participant UP as UserProfileTab
   participant CP as ChatboxProvider
-  participant PI as useProfileIntegration
   participant JT as JobRiskAnalysisTab
   participant JD as useJobRiskData
   participant RS as ResearchDataService
   participant RI as ResearchAssessmentIntegration
   participant CB as ChatboxPanel
 
-  U->>UP: Fill profile steps
-  UP->>CP: setProfileData(profile)
-  note over CP: Profile cached in context
-
-  U->>PI: Click “Analyze profile”
-  PI->>CP: startAnalysis(type="profile")
-  CP->>RI: getUserOccupationRisk(profile)
-  RI->>RS: Fetch occupation data, benchmarks, skills
-  RS-->>RI: Risk metrics, insights, references
-  RI-->>CP: Risk summary + actions + confidence
-  CP->>CB: Append analysis result messages
-  CB-->>U: Display findings
-
+  U->>UP: Complete profile steps
+  UP->>CP: setProfileData(UserProfileData)
+  note over CP: Profile cached in ChatboxProvider
+  
   U->>JT: Navigate to Job Risk tab
-  JT->>JD: useJobRiskData(profile)
-  JD->>RS: Fetch velocity (24m), skill impacts, forecast
-  RS-->>JD: Data for charts + insights
-  JD-->>JT: {velocity, skills, forecast, insights, loading:false}
+  JT->>CP: useChatbox() - access profileData
+  JT->>JD: useJobRiskData(profileData)
+  JD->>RS: Query with role/industry/location
+  RS-->>JD: Risk data + velocity + skills + forecast
+  JD-->>JT: Formatted chart data + insights
   JT-->>U: Render charts + sticky insights
+
+  U->>JT: Click "Analyze Profile" (via ProfileAnalysisTrigger)
+  JT->>CP: startAnalysis(type="profile", profileData)
+  CP->>RI: generateRiskReport(profileData)
+  RI->>RS: Comprehensive risk assessment
+  RS-->>RI: Detailed risk analysis + recommendations
+  RI-->>CP: Structured risk report
+  CP->>CB: Display analysis messages
+  CB-->>U: Show risk insights + action items
 ```
 
+## Implementation Units (Updated)
+
+### 1) Profile Context Integration in Job Risk
+- **Files**: `JobRiskAnalysisTab.tsx`, `useJobRiskData.ts`
+- **Changes**:
+  - Access profile data from ChatboxProvider via `useChatbox()` hook
+  - Pass UserProfileData to useJobRiskData hook
+  - Map UserProfileData fields to ResearchDataService parameters
+  - Maintain 24-month velocity window and default skill clusters
+- **Acceptance**:
+  - Job risk charts update when profile changes
+  - No network calls when profile incomplete
+  - Graceful fallback to placeholder data when needed
+
+### 2) Profile Analysis Executor in ChatboxProvider
+- **Files**: `ChatboxProvider.tsx`
+- **Changes**:
+  - Add handler for `startAnalysis(type="profile")` 
+  - Integrate with existing ResearchAssessmentIntegration
+  - Format analysis results as structured chat messages
+  - Use existing cache manager with profile signature
+- **Acceptance**:
+  - Profile analysis produces comprehensive risk report
+  - Results cached and reused for identical profiles
+  - Structured output includes summary, risks, actions, confidence
+
+### 3) Desktop Sticky Insights Panel
+- **Files**: `InsightsPanel.tsx`, `JobRiskAnalysisTab.tsx`
+- **Changes**:
+  - Add responsive sticky positioning (desktop only)
+  - Ensure mobile behavior remains unchanged
+  - Maintain current styling and content structure
+- **Acceptance**:
+  - Insights panel sticks on desktop screens (>768px)
+  - Normal scroll behavior on mobile
+  - No layout shifts or visual regressions
+
+### 4) Enhanced Testing Coverage
+- **Files**: New test files as listed above
+- **Changes**:
+  - Unit tests for profile data mapping
+  - Integration tests for analysis executor
+  - Error handling and fallback scenarios
+- **Acceptance**:
+  - All tests pass reliably
+  - Coverage includes happy path and error cases
+  - Mock data used appropriately for testing
+
+## Updated Error Handling & Validation
+
+### Profile Data Validation
+- Use existing `getReadiness()` from profile analysis adapter
+- Graceful degradation when profile incomplete
+- Clear user feedback via existing ProfileAnalysisTrigger states
+
+### Research Service Integration
+- Leverage existing ResearchDataService error handling
+- Fallback to placeholder data when research service unavailable
+- Structured logging for debugging integration issues
+
+### Caching Strategy
+- Use existing ChatboxProvider cache manager
+- Cache key based on profile signature (role + industry + location + skills hash)
+- Respect existing cache TTL and invalidation logic
+
+## Acceptance Criteria (Updated)
+
+### Core Integration
+- ✅ Job risk tab displays profile-driven data when profile complete
+- ✅ Profile analysis via ChatboxProvider produces structured risk assessment
+- ✅ InsightsPanel sticky behavior works on desktop, normal on mobile
+- ✅ Existing ProfileAnalysisTrigger functionality preserved
+
+### Data Flow
+- ✅ UserProfileData correctly mapped to ResearchDataService parameters
+- ✅ Analysis results cached by profile signature
+- ✅ Profile changes trigger job risk data refresh
+- ✅ Graceful handling of incomplete or invalid profile data
+
+### User Experience
+- ✅ No breaking changes to existing profile analysis workflow
+- ✅ Consistent loading/error states across components
+- ✅ Clear feedback when profile insufficient for analysis
+- ✅ Responsive behavior maintained across device sizes
+
+### Testing & Reliability
+- ✅ Comprehensive test coverage for new integration points
+- ✅ Error scenarios handled gracefully with user feedback
+- ✅ Performance impact minimal (leverage existing caching)
+- ✅ No regressions in existing functionality
+
+## Future Enhancements (Non-blocking)
+
+### Advanced Profile-Risk Correlation
+- Personalized risk scoring based on specific role details
+- Skill gap analysis using profile skills vs. occupation requirements
+- Career transition risk assessment for CareerShifter role
+
+### Enhanced Visualization Integration
+- Profile-specific chart customization
+- Dynamic skill cluster selection based on user skills
+- Comparative analysis against similar profiles
+
+### Intelligent Caching & Prefetching
+- Background data refresh on profile changes
+- Predictive caching for likely analysis requests
+- Smart cache invalidation based on profile change significance
+
 ---
 
-## Data Contracts and Mapping
-- Input profile: `ProfileFormData` (role, roleDetails, industry, location, skills).
-- Job-risk outputs (from `ResearchDataService` → `useJobRiskData` → charts):
-  - `CutSeriesPoint[]` (velocity, 24 months default)
-  - `SkillImpact[]` (initial clusters as specified)
-  - `ForecastPoint[]`
-  - `GlobalKPI`
-  - `VizInsight[]`, `InsightsBundle`
-- Chatbox analysis outputs (from `ResearchAssessmentIntegration` → messages):
-  - Summary, benchmark deltas, top risks, recommended actions, confidence.
+## Technical Notes
 
----
+### Profile Context Access
+The job risk components will access profile data via:
+1. **ChatboxProvider** (recommended) - `const { profileData } = useChatbox()`
+   - UserProfileTab already syncs data here via `setProfileData()`
+   - Consistent with existing ProfileAnalysisTrigger usage
+   - No additional context providers needed
+2. Alternative: useProfileIntegration hook (wraps ChatboxProvider access)
 
-## Error Handling, Validation, Caching
-- Readiness gating via `useProfileIntegration.isReadyForAnalysis`.
-- Always return full typed shapes with safe defaults when data is partial.
-- Friendly user messages on failure; no hard crashes.
-- Cache by profile signature (role + industry + location [+ skills hash if used]).
+### ResearchAssessmentIntegration Usage
+The existing service provides:
+- `generateRiskReport(userResponses)` - comprehensive analysis
+- `getUserOccupationRisk(userResponses)` - basic risk assessment
+- `getRecommendations(occupationRisk)` - actionable advice
 
----
-
-## Acceptance Criteria (Overall)
-- Job-risk tab respects defaults and loads contextual data from the profile.
-- Chatbox “profile” analysis executes, posts structured results, and caches.
-- UI triggers are deterministic across variants.
-- Tests cover core mapping and executor paths.
-- No regressions to API key/model selection UX.
-
----
-
-## Future Enhancements (non-blocking)
-- Expand forecast modeling and alternative baselines.
-- Personalized skill-gap recommendations using profile skill levels.
-- Persist visualization preferences per user.
-- Add telemetry dashboards for analysis outcomes.
-- Optional: background prefetch on profile change.
+### Backward Compatibility
+All changes must maintain compatibility with:
+- Existing ProfileAnalysisTrigger component
+- Current ChatboxProvider API
+- Existing profile analysis adapter facade
+- Current job risk visualization components
