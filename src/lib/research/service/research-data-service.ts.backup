@@ -1,0 +1,860 @@
+import { KnowledgeBase, OccupationData, TableData, VisualizationConfig } from '../types';
+import { ResearchDataCache } from './cache-manager';
+import { 
+  ErrorHandler, 
+  createErrorHandler, 
+  assertInitialized, 
+  assertDataExists,
+  DataNotFoundError,
+  wrapAsyncOperation 
+} from './error-handling';
+
+export interface OccupationRisk {
+  occupation: OccupationData;
+  riskLevel: 'low' | 'medium' | 'high' | 'very_high';
+  percentile: number;
+  similarOccupations: OccupationData[];
+}
+
+export interface OccupationMatch {
+  occupation: OccupationData;
+  matchScore: number;
+  matchReasons: string[];
+}
+
+export interface ChartConfig {
+  type: 'bar' | 'line' | 'scatter';
+  title: string;
+  data: any[];
+  options: Record<string, any>;
+}
+
+export interface SearchFilters {
+  minRiskScore?: number;
+  maxRiskScore?: number;
+  socCodes?: string[];
+  industries?: string[];
+  limit?: number;
+}
+
+export class ResearchDataService {
+  private knowledgeBase: KnowledgeBase | null = null;
+  private occupationIndex: Map<string, OccupationData> = new Map();
+  private socCodeIndex: Map<string, OccupationData> = new Map();
+  private tableIndex: Map<string, TableData> = new Map();
+  private isInitialized = false;
+  private cache: ResearchDataCache;
+  private errorHandler: ErrorHandler;
+
+  constructor(knowledgeBase?: KnowledgeBase) {
+    this.cache = new ResearchDataCache();
+    this.errorHandler = createErrorHandler({
+      enableRetry: true,
+      maxRetries: 3,
+      enableFallback: true,
+      logErrors: true,
+    });
+
+    if (knowledgeBase) {
+      this.initialize(knowledgeBase);
+    }
+  }
+
+  async initialize(knowledgeBase: KnowledgeBase): Promise<void> {
+    this.knowledgeBase = knowledgeBase;
+    this.buildIndexes();
+    this.isInitialized = true;
+    console.log('ResearchDataService initialized with', {
+      occupations: knowledgeBase.occupations.length,
+      tables: knowledgeBase.tables.length,
+    });
+  }
+
+  async loadFromFile(filePath: string): Promise<void> {
+    try {
+      // In a browser environment, this would be a fetch request
+      // For now, we'll assume the data is already loaded
+      const response = await fetch(filePath);
+      if (!response.ok) {
+        throw new Error(`Failed to load knowledge base: ${response.statusText}`);
+      }
+      const knowledgeBase = await response.json() as KnowledgeBase;
+      await this.initialize(knowledgeBase);
+    } catch (error) {
+      console.error('Failed to load knowledge base:', error);
+      throw error;
+    }
+  }
+
+  private buildIndexes(): void {
+    if (!this.knowledgeBase) return;
+
+    // Build occupation indexes
+    this.occupationIndex.clear();
+    this.socCodeIndex.clear();
+    
+    for (const occupation of this.knowledgeBase.occupations) {
+      // Index by normalized name
+      const normalizedName = occupation.name.toLowerCase().trim();
+      this.occupationIndex.set(normalizedName, occupation);
+      
+      // Index by SOC code
+      if (occupation.code) {
+        this.socCodeIndex.set(occupation.code, occupation);
+      }
+    }
+
+    // Build table index
+    this.tableIndex.clear();
+    for (const table of this.knowledgeBase.tables) {
+      this.tableIndex.set(table.id, table);
+    }
+  }
+
+  async getOccupationRisk(occupationIdentifier: string): Promise<OccupationRisk | null> {
+    assertInitialized(this.isInitialized);
+
+    // Check cache first
+    const cached = this.cache.getCachedOccupationRisk(occupationIdentifier);
+    if (cached) {
+      return cached;
+    }
+
+    const occupation = this.findOccupation(occupationIdentifier);
+    if (!occupation) {
+      throw new DataNotFoundError('Occupation', occupationIdentifier);
+    }
+
+    const riskLevel = this.calculateRiskLevel(occupation.riskScore);
+    const percentile = this.calculatePercentile(occupation.riskScore);
+    const similarOccupations = this.findSimilarOccupations(occupation, 5);
+
+    const result: OccupationRisk = {
+      occupation,
+      riskLevel,
+      percentile,
+      similarOccupations,
+    };
+
+    // Cache the result
+    this.cache.cacheOccupationRisk(occupationIdentifier, result);
+
+    return result;
+  }
+
+  async getTableData(tableId: string): Promise<TableData | null> {
+    assertInitialized(this.isInitialized);
+
+    // Check cache first
+    const cached = this.cache.getCachedTableData(tableId);
+    if (cached) {
+      return cached;
+    }
+
+    const table = this.tableIndex.get(tableId);
+    if (!table) {
+      throw new DataNotFoundError('Table', tableId);
+    }
+
+    // Cache the result
+    this.cache.cacheTableData(tableId, table);
+
+    return table;
+  }
+
+  async getAllTables(): Promise<TableData[]> {
+    assertInitialized(this.isInitialized);
+    return this.knowledgeBase?.tables || [];
+  }
+
+  async getVisualizationConfig(chartType: string): Promise<ChartConfig | null> {
+    assertInitialized(this.isInitialized);
+
+    // Check cache first
+    const cached = this.cache.getCachedVisualizationData(chartType);
+    if (cached) {
+      return cached;
+    }
+
+    const visualization = this.knowledgeBase?.visualizations.find(v => 
+      v.title.toLowerCase().includes(chartType.toLowerCase()) || 
+      v.type === chartType
+    );
+
+    if (!visualization) {
+      throw new DataNotFoundError('Visualization', chartType);
+    }
+
+    const result = this.buildChartConfig(visualization);
+
+    // Cache the result
+    this.cache.cacheVisualizationData(chartType, result);
+
+    return result;
+  }
+
+  async searchOccupations(query: string, filters: SearchFilters = {}): Promise<OccupationMatch[]> {
+    assertInitialized(this.isInitialized);
+    assertDataExists(this.knowledgeBase, 'Knowledge base');
+
+    // Check cache first
+    const cached = this.cache.getCachedSearchResults(query, filters);
+    if (cached) {
+      return cached;
+    }
+
+    const normalizedQuery = query.toLowerCase().trim();
+    const matches: OccupationMatch[] = [];
+
+    for (const occupation of this.knowledgeBase.occupations) {
+      // Apply filters
+      if (!this.passesFilters(occupation, filters)) {
+        continue;
+      }
+
+      const matchResult = this.calculateMatchScore(occupation, normalizedQuery);
+      if (matchResult.score > 0) {
+        matches.push({
+          occupation,
+          matchScore: matchResult.score,
+          matchReasons: matchResult.reasons,
+        });
+      }
+    }
+
+    // Sort by match score and apply limit
+    matches.sort((a, b) => b.matchScore - a.matchScore);
+    
+    const result = filters.limit ? matches.slice(0, filters.limit) : matches;
+
+    // Cache the result
+    this.cache.cacheSearchResults(query, filters, result);
+
+    return result;
+  }
+
+  async getOccupationsByRiskLevel(riskLevel: 'low' | 'medium' | 'high' | 'very_high'): Promise<OccupationData[]> {
+    assertInitialized(this.isInitialized);
+
+    if (!this.knowledgeBase) return [];
+
+    return this.knowledgeBase.occupations.filter(occupation => 
+      this.calculateRiskLevel(occupation.riskScore) === riskLevel
+    );
+  }
+
+  async getTopRiskOccupations(limit: number = 10): Promise<OccupationData[]> {
+    assertInitialized(this.isInitialized);
+
+    if (!this.knowledgeBase) return [];
+
+    return [...this.knowledgeBase.occupations]
+      .sort((a, b) => b.riskScore - a.riskScore)
+      .slice(0, limit);
+  }
+
+  async getIndustryData(): Promise<any[]> {
+    assertInitialized(this.isInitialized);
+
+    const industryTable = this.knowledgeBase?.tables.find(t => 
+      t.title.toLowerCase().includes('industry')
+    );
+
+    if (!industryTable) return [];
+
+    return industryTable.rows.map(row => ({
+      industry: row[0],
+      naicsCode: row[1],
+      exposureScore: parseFloat(row[2]) || 0,
+      employment: row[3],
+      share: row[4],
+    }));
+  }
+
+  async getTaskAutomationData(): Promise<any[]> {
+    assertInitialized(this.isInitialized);
+
+    const taskTable = this.knowledgeBase?.tables.find(t => 
+      t.title.toLowerCase().includes('task')
+    );
+
+    if (!taskTable) return [];
+
+    return taskTable.rows.map(row => ({
+      taskCategory: row[0],
+      description: row[1],
+      automationPotential: parseFloat(row[2]) || 0,
+      humanComplementarity: row[3],
+      timeline: row[4],
+    }));
+  }
+
+  async getRiskMatrixData(): Promise<any[]> {
+    assertInitialized(this.isInitialized);
+    if (!this.knowledgeBase) return [];
+
+    const industryData = await this.getIndustryData();
+    const occupations = this.knowledgeBase.occupations.slice(0, 20); // Limit for performance
+
+    return occupations.flatMap(occupation => 
+      industryData.slice(0, 10).map(industry => ({
+        occupation: occupation.name,
+        industry: industry.industry,
+        riskScore: occupation.riskScore * industry.exposureScore,
+        employment: parseFloat(industry.employment) || 0,
+        confidence: occupation.confidence
+      }))
+    );
+  }
+
+  async getIndustryBubbleData(): Promise<any[]> {
+    assertInitialized(this.isInitialized);
+    const industryData = await this.getIndustryData();
+
+    return industryData.map(industry => ({
+      industry: industry.industry,
+      exposureScore: industry.exposureScore,
+      employment: parseFloat(industry.employment) || 0,
+      growthRate: Math.random() * 0.1 - 0.05, // Mock growth rate
+      naicsCode: industry.naicsCode
+    }));
+  }
+
+  async getSkillGapData(occupation: string): Promise<any[]> {
+    assertInitialized(this.isInitialized);
+    const occ = this.findOccupation(occupation);
+    if (!occ) return [];
+
+    const skillCategories = ['Technical Skills', 'Communication', 'Problem Solving', 'Leadership', 'Creativity', 'Data Analysis'];
+    
+    return skillCategories.map(skill => ({
+      skillCategory: skill,
+      currentLevel: Math.random() * 8 + 2, // Mock current level 2-10
+      requiredLevel: Math.random() * 3 + 7, // Mock required level 7-10
+      importance: Math.random() * 3 + 7 // Mock importance 7-10
+    }));
+  }
+
+  async getMetadata() {
+    assertInitialized(this.isInitialized);
+    return this.knowledgeBase?.metadata || null;
+  }
+
+  async getMethodology() {
+    assertInitialized(this.isInitialized);
+    return this.knowledgeBase?.methodology || null;
+  }
+
+  private findOccupation(identifier: string): OccupationData | null {
+    // Try exact SOC code match first
+    if (this.socCodeIndex.has(identifier)) {
+      return this.socCodeIndex.get(identifier)!;
+    }
+
+    // Try normalized name match
+    const normalizedIdentifier = identifier.toLowerCase().trim();
+    if (this.occupationIndex.has(normalizedIdentifier)) {
+      return this.occupationIndex.get(normalizedIdentifier)!;
+    }
+
+    // Try partial name match
+    for (const [name, occupation] of this.occupationIndex.entries()) {
+      if (name.includes(normalizedIdentifier) || normalizedIdentifier.includes(name)) {
+        return occupation;
+      }
+    }
+
+    return null;
+  }
+
+  private calculateRiskLevel(riskScore: number): 'low' | 'medium' | 'high' | 'very_high' {
+    if (riskScore >= 0.8) return 'very_high';
+    if (riskScore >= 0.6) return 'high';
+    if (riskScore >= 0.4) return 'medium';
+    return 'low';
+  }
+
+  private calculatePercentile(riskScore: number): number {
+    if (!this.knowledgeBase) return 0;
+
+    const allScores = this.knowledgeBase.occupations
+      .map(o => o.riskScore)
+      .sort((a, b) => a - b);
+
+    const rank = allScores.filter(score => score <= riskScore).length;
+    return Math.round((rank / allScores.length) * 100);
+  }
+
+  private findSimilarOccupations(targetOccupation: OccupationData, limit: number): OccupationData[] {
+    if (!this.knowledgeBase) return [];
+
+    const similar = this.knowledgeBase.occupations
+      .filter(occ => occ.code !== targetOccupation.code)
+      .map(occ => ({
+        occupation: occ,
+        similarity: this.calculateSimilarity(targetOccupation, occ),
+      }))
+      .filter(item => item.similarity > 0.3)
+      .sort((a, b) => b.similarity - a.similarity)
+      .slice(0, limit)
+      .map(item => item.occupation);
+
+    return similar;
+  }
+
+  private calculateSimilarity(occ1: OccupationData, occ2: OccupationData): number {
+    // Risk score similarity (40% weight)
+    const riskSimilarity = 1 - Math.abs(occ1.riskScore - occ2.riskScore);
+    
+    // SOC code similarity (30% weight) - same major group
+    const soc1Major = occ1.code.split('-')[0];
+    const soc2Major = occ2.code.split('-')[0];
+    const socSimilarity = soc1Major === soc2Major ? 1 : 0;
+    
+    // Task similarity (30% weight)
+    const taskSimilarity = this.calculateTaskSimilarity(occ1.keyTasks, occ2.keyTasks);
+    
+    return (riskSimilarity * 0.4) + (socSimilarity * 0.3) + (taskSimilarity * 0.3);
+  }
+
+  private calculateTaskSimilarity(tasks1: string[], tasks2: string[]): number {
+    if (tasks1.length === 0 || tasks2.length === 0) return 0;
+
+    const words1 = new Set(
+      tasks1.join(' ').toLowerCase().split(/\s+/).filter(w => w.length > 3)
+    );
+    const words2 = new Set(
+      tasks2.join(' ').toLowerCase().split(/\s+/).filter(w => w.length > 3)
+    );
+
+    const intersection = new Set([...words1].filter(w => words2.has(w)));
+    const union = new Set([...words1, ...words2]);
+
+    return intersection.size / union.size;
+  }
+
+  private calculateMatchScore(occupation: OccupationData, query: string): { score: number; reasons: string[] } {
+    const reasons: string[] = [];
+    let score = 0;
+
+    const occupationName = occupation.name.toLowerCase();
+    const socCode = occupation.code.toLowerCase();
+    const keyTasks = occupation.keyTasks.join(' ').toLowerCase();
+
+    // Exact name match
+    if (occupationName === query) {
+      score += 100;
+      reasons.push('Exact name match');
+    }
+    // Partial name match
+    else if (occupationName.includes(query) || query.includes(occupationName)) {
+      score += 80;
+      reasons.push('Name contains search term');
+    }
+
+    // SOC code match
+    if (socCode.includes(query)) {
+      score += 90;
+      reasons.push('SOC code match');
+    }
+
+    // Key tasks match
+    const queryWords = query.split(/\s+/);
+    const taskMatches = queryWords.filter(word => 
+      word.length > 2 && keyTasks.includes(word)
+    ).length;
+    
+    if (taskMatches > 0) {
+      score += taskMatches * 20;
+      reasons.push(`${taskMatches} task keyword matches`);
+    }
+
+    // Fuzzy name matching
+    if (score === 0) {
+      const fuzzyScore = this.calculateFuzzyMatch(occupationName, query);
+      if (fuzzyScore > 0.6) {
+        score += fuzzyScore * 50;
+        reasons.push('Similar name');
+      }
+    }
+
+    return { score: Math.min(100, score), reasons };
+  }
+
+  private calculateFuzzyMatch(str1: string, str2: string): number {
+    const longer = str1.length > str2.length ? str1 : str2;
+    const shorter = str1.length > str2.length ? str2 : str1;
+    
+    if (longer.length === 0) return 1.0;
+    
+    const distance = this.levenshteinDistance(longer, shorter);
+    return (longer.length - distance) / longer.length;
+  }
+
+  private levenshteinDistance(str1: string, str2: string): number {
+    const matrix = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(null));
+    
+    for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
+    for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
+    
+    for (let j = 1; j <= str2.length; j++) {
+      for (let i = 1; i <= str1.length; i++) {
+        const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
+        matrix[j][i] = Math.min(
+          matrix[j][i - 1] + 1,
+          matrix[j - 1][i] + 1,
+          matrix[j - 1][i - 1] + indicator
+        );
+      }
+    }
+    
+    return matrix[str2.length][str1.length];
+  }
+
+  private passesFilters(occupation: OccupationData, filters: SearchFilters): boolean {
+    if (filters.minRiskScore !== undefined && occupation.riskScore < filters.minRiskScore) {
+      return false;
+    }
+    
+    if (filters.maxRiskScore !== undefined && occupation.riskScore > filters.maxRiskScore) {
+      return false;
+    }
+    
+    if (filters.socCodes && filters.socCodes.length > 0) {
+      const majorGroup = occupation.code.split('-')[0];
+      if (!filters.socCodes.includes(occupation.code) && !filters.socCodes.includes(majorGroup)) {
+        return false;
+      }
+    }
+    
+    return true;
+  }
+
+  private buildChartConfig(visualization: VisualizationConfig): ChartConfig {
+    const data = this.getVisualizationData(visualization);
+    
+    return {
+      type: visualization.type,
+      title: visualization.title,
+      data,
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: visualization.title,
+          },
+          legend: {
+            display: false,
+          },
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: visualization.config.xAxis || 'Category',
+            },
+          },
+          y: {
+            title: {
+              display: true,
+              text: visualization.config.yAxis || 'Value',
+            },
+            beginAtZero: true,
+          },
+        },
+        ...visualization.config,
+      },
+    };
+  }
+
+  private getVisualizationData(visualization: VisualizationConfig): any[] {
+    if (!this.knowledgeBase) return [];
+
+    // Handle different data sources
+    if (visualization.dataSource === 'occupations') {
+      return this.knowledgeBase.occupations
+        .slice(0, visualization.config.limit || 10)
+        .map(occ => ({
+          label: occ.name,
+          value: occ.riskScore,
+          backgroundColor: visualization.config.color || '#3498db',
+        }));
+    }
+
+    // Handle table-based data sources
+    const tableId = visualization.dataSource.replace('tables.', '');
+    const table = this.tableIndex.get(tableId);
+    
+    if (table) {
+      const xAxisIndex = table.headers.findIndex(h => 
+        h.toLowerCase().includes(visualization.config.xAxis?.toLowerCase() || '')
+      );
+      const yAxisIndex = table.headers.findIndex(h => 
+        h.toLowerCase().includes(visualization.config.yAxis?.toLowerCase() || '')
+      );
+
+      if (xAxisIndex !== -1 && yAxisIndex !== -1) {
+        return table.rows
+          .slice(0, visualization.config.limit || table.rows.length)
+          .map(row => ({
+            label: row[xAxisIndex],
+            value: parseFloat(row[yAxisIndex]) || 0,
+            backgroundColor: visualization.config.color || '#3498db',
+          }));
+      }
+    }
+
+    return [];
+  }
+
+  // Public methods for cache management
+  getCacheStats() {
+    return this.cache.getStats();
+  }
+
+  clearCache(): void {
+    this.cache.clear();
+  }
+
+  invalidateOccupationCaches(): void {
+    this.cache.invalidateOccupationCaches();
+  }
+
+  // Graceful degradation methods
+  async getOccupationRiskWithFallback(occupationIdentifier: string): Promise<OccupationRisk | null> {
+    return this.errorHandler.withFallback(
+      () => this.getOccupationRisk(occupationIdentifier),
+      () => this.getBasicOccupationInfo(occupationIdentifier),
+      'getOccupationRisk'
+    );
+  }
+
+  private async getBasicOccupationInfo(occupationIdentifier: string): Promise<OccupationRisk | null> {
+    const occupation = this.findOccupation(occupationIdentifier);
+    if (!occupation) {
+      return null;
+    }
+
+  }
+}
+  
+return true;
+}
+
+private buildChartConfig(visualization: VisualizationConfig): ChartConfig {
+const data = this.getVisualizationData(visualization);
+  
+return {
+  type: visualization.type,
+  title: visualization.title,
+  data,
+  options: {
+    responsive: true,
+    plugins: {
+      title: {
+        display: true,
+        text: visualization.title,
+      },
+      legend: {
+        display: false,
+      },
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: visualization.config.xAxis || 'Category',
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: visualization.config.yAxis || 'Value',
+        },
+        beginAtZero: true,
+      },
+    },
+    ...visualization.config,
+  },
+};
+}
+
+private getVisualizationData(visualization: VisualizationConfig): any[] {
+if (!this.knowledgeBase) return [];
+
+// Handle different data sources
+if (visualization.dataSource === 'occupations') {
+  return this.knowledgeBase.occupations
+    .slice(0, visualization.config.limit || 10)
+    .map(occ => ({
+      label: occ.name,
+      value: occ.riskScore,
+      backgroundColor: visualization.config.color || '#3498db',
+    }));
+}
+
+// Handle table-based data sources
+const tableId = visualization.dataSource.replace('tables.', '');
+const table = this.tableIndex.get(tableId);
+  
+if (table) {
+  const xAxisIndex = table.headers.findIndex(h => 
+    h.toLowerCase().includes(visualization.config.xAxis?.toLowerCase() || '')
+  );
+  const yAxisIndex = table.headers.findIndex(h => 
+    h.toLowerCase().includes(visualization.config.yAxis?.toLowerCase() || '')
+  );
+
+  if (xAxisIndex !== -1 && yAxisIndex !== -1) {
+    return table.rows
+      .slice(0, visualization.config.limit || table.rows.length)
+      .map(row => ({
+        label: row[xAxisIndex],
+        value: parseFloat(row[yAxisIndex]) || 0,
+        backgroundColor: visualization.config.color || '#3498db',
+      }));
+  }
+}
+
+return [];
+}
+
+// Public methods for cache management
+getCacheStats() {
+return this.cache.getStats();
+}
+
+clearCache(): void {
+this.cache.clear();
+}
+
+invalidateOccupationCaches(): void {
+this.cache.invalidateOccupationCaches();
+}
+
+// Graceful degradation methods
+async getOccupationRiskWithFallback(occupationIdentifier: string): Promise<OccupationRisk | null> {
+return this.errorHandler.withFallback(
+  () => this.getOccupationRisk(occupationIdentifier),
+  () => this.getBasicOccupationInfo(occupationIdentifier),
+  'getOccupationRisk'
+);
+}
+
+private async getBasicOccupationInfo(occupationIdentifier: string): Promise<OccupationRisk | null> {
+const occupation = this.findOccupation(occupationIdentifier);
+if (!occupation) {
+  return null;
+}
+
+return {
+  occupation,
+  riskLevel: this.calculateRiskLevel(occupation.riskScore),
+  percentile: 50, // Default percentile
+  similarOccupations: [], // Empty array as fallback
+};
+}
+
+async getTaskAutomationData(occupationIdentifier: string): Promise<any[]> {
+assertInitialized(this.isInitialized);
+
+const occupation = this.findOccupation(occupationIdentifier);
+if (!occupation) {
+  throw new DataNotFoundError('Occupation', occupationIdentifier);
+}
+
+const riskScore = occupation.riskScore || 0.5;
+const tasks = [
+  'Data Entry', 'Documentation', 'Analysis', 'Communication', 
+  'Problem Solving', 'Decision Making', 'Creative Work', 'Physical Tasks'
+];
+
+return tasks.map(task => ({
+  task,
+  automationProbability: Math.min(0.95, Math.max(0.1, riskScore + Math.random() * 0.3)),
+  impactScore: Math.min(1.0, Math.max(0.1, riskScore * 0.8 + Math.random() * 0.2)),
+  timeline: Math.floor(Math.random() * 36) + 6,
+}));
+}
+
+async getRiskMatrixData(occupationIdentifier: string): Promise<any> {
+assertInitialized(this.isInitialized);
+
+const occupation = this.findOccupation(occupationIdentifier);
+if (!occupation) {
+  throw new DataNotFoundError('Occupation', occupationIdentifier);
+}
+
+const riskScore = occupation.riskScore || 0.5;
+  
+return {
+  occupation: occupation.title,
+  riskLevel: this.calculateRiskLevel(riskScore),
+  riskScore,
+  factors: {
+    automation: Math.min(1.0, Math.max(0.1, riskScore * 0.9 + Math.random() * 0.1)),
+    outsourcing: Math.min(1.0, Math.max(0.1, riskScore * 0.7 + Math.random() * 0.2)),
+    aiImpact: Math.min(1.0, Math.max(0.1, riskScore * 0.8 + Math.random() * 0.15)),
+    marketDemand: Math.max(0.1, 1 - riskScore * 0.6 + Math.random() * 0.2),
+  },
+  timeline: {
+    shortTerm: Math.floor(Math.random() * 12) + 6,
+    mediumTerm: Math.floor(Math.random() * 24) + 18,
+    longTerm: Math.floor(Math.random() * 36) + 42,
+  }
+};
+}
+
+async getIndustryData(industry?: string): Promise<any> {
+assertInitialized(this.isInitialized);
+
+const industries = ['Technology', 'Healthcare', 'Finance', 'Manufacturing', 
+                   'Retail', 'Education', 'Transportation', 'Construction'];
+  
+const targetIndustry = industry || industries[Math.floor(Math.random() * industries.length)];
+  
+return {
+  industry: targetIndustry,
+  trends: {
+    growth: (Math.random() - 0.3) * 2,
+    automation: Math.random() * 0.8 + 0.2,
+    disruption: Math.random() * 0.7 + 0.1,
+  },
+  riskDistribution: {
+    low: Math.floor(Math.random() * 30) + 10,
+    medium: Math.floor(Math.random() * 40) + 20,
+    high: Math.floor(Math.random() * 30) + 10,
+    very_high: Math.floor(Math.random() * 20) + 5,
+  },
+  timeline: Array.from({ length: 24 }, (_, i) => ({
+    month: new Date(2024, i, 1).toISOString().slice(0, 7),
+    cuts: Math.floor(Math.random() * 1000) + 100,
+    newRoles: Math.floor(Math.random() * 500) + 50,
+  }))
+};
+}
+
+async getSkillGapData(occupationIdentifier: string): Promise<any> {
+assertInitialized(this.isInitialized);
+
+const occupation = this.findOccupation(occupationIdentifier);
+if (!occupation) {
+  throw new DataNotFoundError('Occupation', occupationIdentifier);
+}
+
+const skills = [
+  'Programming', 'Data Analysis', 'Machine Learning', 'Communication',
+  'Leadership', 'Project Management', 'Cloud Computing', 'Cybersecurity',
+  'UX Design', 'Business Strategy', 'Sales', 'Marketing'
+];
+
+return skills.map(skill => ({
+  skill,
+  currentDemand: Math.random() * 0.9 + 0.1,
+  futureDemand: Math.random() * 0.9 + 0.1,
+  gap: Math.random() * 0.4 - 0.2,
+  criticality: Math.random() * 0.8 + 0.2,
+  learningTime: Math.floor(Math.random() * 24) + 1,
+}));
+}
