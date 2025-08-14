@@ -4,6 +4,7 @@ import React from "react";
 import { Role, UserProfileData } from "../types";
 import { ProfileAnalysisTrigger } from '@/components/chatbox/ProfileAnalysisTrigger';
 import { useProfileIntegration } from '@/components/chatbox/hooks/useProfileIntegration';
+import { useTab } from "../../TabContext";
 
 type Props = {
   data: UserProfileData;
@@ -47,6 +48,7 @@ export default function ReviewStep({ data, onEditStep }: Props) {
   const rd = data.roleDetails;
   const { getAnalysisReadiness } = useProfileIntegration();
   const readiness = getAnalysisReadiness(data);
+  const { setActiveTab } = useTab();
 
   return (
     <div className="p-1">
@@ -301,6 +303,20 @@ export default function ReviewStep({ data, onEditStep }: Props) {
             onAnalysisStart={() => console.log('Analysis started')}
             onAnalysisComplete={() => console.log('Analysis completed')}
           />
+
+          {/* Analyze Job Risk navigation button */}
+          <div className="mt-3">
+            <button
+              type="button"
+              onClick={() => setActiveTab('jobrisk')}
+              disabled={!readiness.ready}
+              className="w-full sm:w-auto px-4 py-2.5 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              title={readiness.ready ? "View job risk analysis" : "Complete your profile to enable job risk analysis"}
+              aria-disabled={!readiness.ready}
+            >
+              Analyze Job Risk
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-3 mt-6">
