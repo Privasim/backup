@@ -178,7 +178,7 @@ const JobRiskAnalysisContent = () => {
                 
                 {!profileReadiness.ready && (
                   <div className="text-sm text-amber-600 mb-4">
-                    Profile completion: {Math.round(profileReadiness.completionLevel * 100)}% - 
+                    Profile completion: {Math.round(profileReadiness.completionLevel)}% -
                     {profileReadiness.missing.length > 0 && ` Missing: ${profileReadiness.missing.join(', ')}`}
                   </div>
                 )}

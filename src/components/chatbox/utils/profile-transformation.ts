@@ -4,6 +4,14 @@
 
 import { UserProfileData, Role } from '@/app/businessidea/tabs/user-profile/types';
 import { ProfileAnalysisData } from '../services/ProfileIntegrationService';
+import type {
+  ProfileFormData,
+  ProfileType,
+  EnhancedSkillset,
+  ExperienceEntry,
+  ProfileMetadata,
+  ProfileData as ChatboxProfileData
+} from '@/app/businessidea/types/profile.types';
 
 /**
  * Transform UserProfileData to ProfileAnalysisData format
@@ -203,3 +211,144 @@ export const getAnalysisStatus = (userProfile: UserProfileData) => {
     }
   };
 };
+
+// Adapter: UserProfileData -> ProfileFormData
+function mapRoleToProfileType(role?: Role): ProfileType {
+  if (!role) return 'professional';
+  switch (role) {
+    case Role.Student: return 'student';
+    case Role.Professional: return 'professional';
+    case Role.BusinessOwner: return 'businessOwner';
+    case Role.CareerShifter: return 'unemployed';
+    default: return 'professional';
+  }
+}
+
+function toEnhancedSkillset(skills: string[] | undefined): EnhancedSkillset {
+  const all = Array.isArray(skills) ? skills : [];
+  // Simple partition based on known lists used elsewhere in this file
+  const technicalList = ['JavaScript', 'TypeScript', 'React', 'Python', 'SQL', 'AWS', 'Git', 'Docker'];
+  const softList = ['Communication', 'Leadership', 'Problem Solving', 'Time Management', 'Adaptability'];
+
+  const technical = all.filter(s => technicalList.includes(s));
+  const soft = all.filter(s => softList.includes(s));
+
+  return {
+    technical,
+    soft,
+    languages: [],
+    certifications: [],
+    categories: [],
+    certificationsDetailed: [],
+    languageProficiency: []
+  };
+}
+
+function toExperience(user: UserProfileData): ExperienceEntry[] {
+  const entries: ExperienceEntry[] = [];
+  const rd = user.roleDetails;
+  if (!rd) return entries;
+
+  if (rd.role === Role.Student && rd.student) {
+    entries.push({
+      id: 'exp-1',
+      type: 'education',
+      title: `${rd.student.educationLevel || 'Student'}${rd.student.fieldOfStudy ? ' - ' + rd.student.fieldOfStudy : ''}`,
+      industry: user.industry || 'General',
+      companySize: 'N/A',
+      seniority: 'Junior',
+      description: rd.student.status || undefined,
+      skills: undefined,
+      achievements: undefined,
+    });
+  } else if (rd.role === Role.Professional && rd.professional) {
+    entries.push({
+      id: 'exp-1',
+      type: 'work',
+      title: rd.professional.jobFunction || 'Professional',
+      industry: user.industry || 'General',
+      companySize: 'N/A',
+      seniority: rd.professional.seniority || 'Mid',
+      description: rd.professional.yearsExperience ? `${rd.professional.yearsExperience} years` : undefined,
+      skills: undefined,
+      achievements: undefined,
+    });
+  } else if (rd.role === Role.BusinessOwner && rd.business) {
+    entries.push({
+      id: 'exp-1',
+      type: 'work',
+      title: 'Business Owner',
+      industry: rd.business.sector || user.industry || 'General',
+      companySize: rd.business.companySize || 'N/A',
+      seniority: 'Lead',
+      description: rd.business.stage ? `${rd.business.stage} stage` : undefined,
+      skills: undefined,
+      achievements: undefined,
+    });
+  } else if (rd.role === Role.CareerShifter && rd.shifter) {
+    if (rd.shifter.previousField) {
+      entries.push({
+        id: 'exp-1',
+        type: 'work',
+        title: 'Previous Field',
+        industry: rd.shifter.previousField,
+        companySize: 'N/A',
+        seniority: 'N/A',
+        description: 'Past experience',
+        skills: undefined,
+        achievements: undefined,
+      });
+    }
+  }
+  return entries;
+}
+
+export function adaptUserProfileToFormData(user: UserProfileData): ProfileFormData {
+  if (!user) throw new Error('adaptUserProfileToFormData: user profile is required');
+
+  const profileType = mapRoleToProfileType(user.role);
+
+  const profile: ChatboxProfileData = {
+    profileType,
+    // Common cross-role attributes (best-effort mapping)
+    industry: user.industry,
+    // Student
+    educationLevel: user.roleDetails?.role === Role.Student ? user.roleDetails.student?.educationLevel : undefined,
+    fieldOfStudy: user.roleDetails?.role === Role.Student ? user.roleDetails.student?.fieldOfStudy : undefined,
+    yearLevel: user.roleDetails?.role === Role.Student ? user.roleDetails.student?.graduationYear : undefined,
+    // Professional
+    yearsOfExperience: user.roleDetails?.role === Role.Professional ? user.roleDetails.professional?.yearsExperience : undefined,
+    employmentType: undefined,
+    toolsUsed: undefined,
+    topWorkActivities: undefined,
+    // Business Owner
+    businessType: user.roleDetails?.role === Role.BusinessOwner ? user.roleDetails.business?.sector : undefined,
+    businessStatus: user.roleDetails?.role === Role.BusinessOwner ? user.roleDetails.business?.stage : undefined,
+    teamSize: user.roleDetails?.role === Role.BusinessOwner ? user.roleDetails.business?.teamSize : undefined,
+    salesChannels: undefined,
+    biggestChallenge: undefined,
+    // Career Shifter (mapped to unemployed profile)
+    previousRole: user.roleDetails?.role === Role.CareerShifter ? user.roleDetails.shifter?.previousField : undefined,
+    targetIndustry: user.roleDetails?.role === Role.CareerShifter ? user.roleDetails.shifter?.desiredField : undefined,
+    goal: user.roleDetails?.role === Role.CareerShifter ? (user.roleDetails.shifter?.transitionGoals?.[0] || undefined) : undefined,
+  };
+
+  const experience = toExperience(user);
+  const skillset = toEnhancedSkillset(user.skills);
+
+  const metadata: ProfileMetadata = {
+    lastModified: new Date().toISOString(),
+    version: '1.0.0',
+    isDraft: true,
+    completedAt: undefined,
+  };
+
+  const formData: ProfileFormData = {
+    profile,
+    experience,
+    skillset,
+    metadata,
+  };
+
+  return formData;
+}

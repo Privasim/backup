@@ -11,6 +11,7 @@ import ReviewStep from "./steps/ReviewStep";
 import { useUserProfileForm } from "./hooks/useUserProfileForm";
 import { Role, INTEREST_OPTIONS_BY_INDUSTRY, INTEREST_OPTIONS } from "./types";
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
+import { adaptUserProfileToFormData } from '@/components/chatbox/utils/profile-transformation';
 
 export default function UserProfileTab() {
   const { state, actions, isStepComplete } = useUserProfileForm();
@@ -25,8 +26,9 @@ export default function UserProfileTab() {
   useEffect(() => {
     try {
       if (state.data && Object.keys(state.data).length > 0) {
-        // Pass the UserProfileData directly - transformation will happen in the hook
-        setProfileData(state.data as any);
+        // Adapt UserProfileData -> ProfileFormData before setting
+        const adapted = adaptUserProfileToFormData(state.data);
+        setProfileData(adapted);
       }
     } catch (error) {
       console.warn('Failed to sync profile data to chatbox:', error);

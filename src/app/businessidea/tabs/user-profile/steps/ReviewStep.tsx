@@ -6,6 +6,7 @@ import { ProfileAnalysisTrigger } from '@/components/chatbox/ProfileAnalysisTrig
 import { useProfileIntegration } from '@/components/chatbox/hooks/useProfileIntegration';
 import { useTab } from "../../TabContext";
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
+import { adaptUserProfileToFormData } from '@/components/chatbox/utils/profile-transformation';
 
 type Props = {
   data: UserProfileData;
@@ -54,7 +55,8 @@ export default function ReviewStep({ data, onEditStep }: Props) {
 
   const handleAnalyzeJobRisk = () => {
     // Persist profile data to Chatbox context
-    setProfileData(data as any);
+    const adapted = adaptUserProfileToFormData(data);
+    setProfileData(adapted);
     // Navigate to job risk tab
     setActiveTab('jobrisk');
   };

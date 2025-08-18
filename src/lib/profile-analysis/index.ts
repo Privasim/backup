@@ -8,6 +8,7 @@ import type { ProfileFormData } from '@/app/businessidea/types/profile.types';
 import type { ProfileAnalysisData as BaseProfileAnalysisData } from '@/components/chatbox/services/ProfileIntegrationService';
 import { transformUserProfileToAnalysisData } from '@/components/chatbox/utils/profile-transformation';
 import { getAnalysisStatus } from '@/components/chatbox/utils/profile-transformation';
+import { profileIntegrationService } from '@/components/chatbox/services/ProfileIntegrationService';
 
 export type AnalysisInput = UserProfileData | ProfileFormData | BaseProfileAnalysisData;
 
@@ -31,17 +32,22 @@ export function toAnalysisData(input: AnalysisInput): ProfileAnalysisData {
     throw new Error('No input data provided');
   }
 
-  // Already normalized
-  if (input && typeof input === 'object' && 'profile' in input && 'metadata' in input) {
-    return input as ProfileAnalysisData;
+  // If it's already an analysis payload (has 'profileType' and 'skills')
+  if (input && typeof input === 'object' && 'profileType' in input && 'skills' in input) {
+    return input as BaseProfileAnalysisData;
   }
 
-  // UserProfileData from ReviewStep (has 'role' property but not 'profile')
+  // If it's ProfileFormData (has 'profile' and 'skillset')
+  if (input && typeof input === 'object' && 'profile' in input && 'skillset' in input) {
+    return profileIntegrationService.transformProfileData(input as ProfileFormData);
+  }
+
+  // If it's UserProfileData (has 'role' but not 'profile')
   if (input && typeof input === 'object' && 'role' in input && !('profile' in input)) {
     return transformUserProfileToAnalysisData(input as UserProfileData);
   }
 
-  // Legacy ProfileFormData — treat same as UserProfileData
+  // Fallback: attempt legacy transform
   return transformUserProfileToAnalysisData(input as unknown as UserProfileData);
 }
 
@@ -62,21 +68,40 @@ export function getReadiness(input: AnalysisInput): ReadinessResult {
       };
     }
 
-    const data = (input && typeof input === 'object' && 'profile' in input) 
-      ? (input as ProfileAnalysisData) 
-      : input;
-    
-    const status = getAnalysisStatus(data as unknown as UserProfileData);
-    const minCompletion = 80; // default threshold
+    // If input is ProfileFormData (has 'profile' key), use integration service readiness
+    if (input && typeof input === 'object' && 'profile' in input) {
+      const status = profileIntegrationService.getAnalysisStatus(input as ProfileFormData);
+      return {
+        ready: status.ready,
+        completionLevel: status.completionLevel,
+        missing: status.missing ?? [],
+        requirements: status.requirements,
+      };
+    }
 
+    // If input resembles UserProfileData (has 'role'), use legacy readiness
+    if (input && typeof input === 'object' && 'role' in input) {
+      const status = getAnalysisStatus(input as unknown as UserProfileData);
+      const minCompletion = 80; // default threshold for legacy path
+      return {
+        ready: status.ready,
+        completionLevel: status.completionLevel,
+        missing: status.missing ?? [],
+        requirements: {
+          minCompletion,
+          autoTrigger: false,
+        },
+      };
+    }
+
+    // Fallback: normalize and infer readiness from transformed analysis data
+    const normalized = transformUserProfileToAnalysisData(input as unknown as UserProfileData);
+    const ready = normalized.metadata.completionLevel >= 80 && normalized.profileType !== 'unknown';
     return {
-      ready: status.ready,
-      completionLevel: status.completionLevel,
-      missing: status.missing ?? [],
-      requirements: {
-        minCompletion,
-        autoTrigger: false,
-      },
+      ready,
+      completionLevel: normalized.metadata.completionLevel,
+      missing: ready ? [] : ['insufficient completion'],
+      requirements: { minCompletion: 80, autoTrigger: false },
     };
   } catch (error) {
     return {

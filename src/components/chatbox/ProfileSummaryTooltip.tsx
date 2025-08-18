@@ -21,13 +21,19 @@ export const ProfileSummaryTooltip: React.FC<ProfileSummaryTooltipProps> = ({
     );
   }
 
-  const { profile, experience, skillset } = profileData;
-  
-  const profileType = profile.profileType?.toLowerCase() || 'profile';
-  const experienceCount = experience.length;
-  const skillsCount = (skillset.technical?.length || 0) + (skillset.soft?.length || 0);
-  const certificationsCount = skillset.certifications?.length || 0;
-  const languagesCount = skillset.languages?.length || 0;
+  // Defensive extraction to prevent runtime errors on potentially undefined fields
+  const profile = profileData.profile;
+  const profileType = (profile?.profileType ? String(profile.profileType).toLowerCase() : 'profile');
+  const experienceCount = Array.isArray(profileData.experience) ? profileData.experience.length : 0;
+  const skillsCount =
+    (Array.isArray(profileData.skillset?.technical) ? profileData.skillset!.technical.length : 0) +
+    (Array.isArray(profileData.skillset?.soft) ? profileData.skillset!.soft.length : 0);
+  const certificationsCount = Array.isArray(profileData.skillset?.certifications)
+    ? profileData.skillset!.certifications.length
+    : 0;
+  const languagesCount = Array.isArray(profileData.skillset?.languages)
+    ? profileData.skillset!.languages.length
+    : 0;
 
   return (
     <div className="text-[11px] text-gray-700 p-1.5 max-w-xs">
@@ -64,3 +70,4 @@ export const ProfileSummaryTooltip: React.FC<ProfileSummaryTooltipProps> = ({
     </div>
   );
 };
+
