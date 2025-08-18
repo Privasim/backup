@@ -3,13 +3,27 @@ import { JobRiskInput } from '@/types/job-risk';
 
 export function adaptJobRiskToInsightsVM(
   research: any, // outputs from useJobRiskData/useOccupationRisk/useTaskAutomationData
-  ai?: { summary?: string; mitigation?: MitigationItem[] }
+  ai?: { summary?: string; mitigation?: MitigationItem[]; narratives?: any }
 ): DataDrivenInsightsModel {
   const insights: DataDrivenInsightsModel = {};
 
   // Map AI summary if provided
   if (ai?.summary) {
     insights.summary = ai.summary;
+  }
+  
+  // Map AI narratives if provided
+  if (ai?.narratives) {
+    insights.narratives = {
+      riskNarrative: ai.narratives.riskNarrative || ai.narratives.summary,
+      threatNarrative: ai.narratives.threatNarrative,
+      automationNarrative: ai.narratives.automationNarrative,
+      skillsNarrative: ai.narratives.skillsNarrative,
+      mitigationNarrative: ai.narratives.mitigationNarrative,
+      methodologyNote: ai.narratives.methodologyNote,
+      confidenceNote: ai.narratives.confidenceNote,
+      oneLiner: ai.narratives.oneLiner
+    };
   }
 
   // Map research data

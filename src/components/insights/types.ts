@@ -27,6 +27,16 @@ export interface DataDrivenInsightsModel {
   skillImpacts?: SkillImpactItem[];
   mitigation?: MitigationItem[];
   sources?: InsightSource[];
+  narratives?: {
+    riskNarrative?: string;
+    threatNarrative?: string;
+    automationNarrative?: string;
+    skillsNarrative?: string;
+    mitigationNarrative?: string;
+    methodologyNote?: string;
+    confidenceNote?: string;
+    oneLiner?: string;
+  };
 }
 
 export interface ProfileReadiness {
