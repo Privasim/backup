@@ -38,11 +38,23 @@ export function adaptJobRiskToInsightsVM(
       insights.threatDrivers = research.threatDrivers;
     }
 
-    // Map automation exposure
+    // Map automation exposure (support both taskAutomation and automationExposure shapes)
+    const normalizeExposure = (value: number | undefined): number => {
+      const v = typeof value === 'number' && !Number.isNaN(value) ? value : 0;
+      // If value is in 0–1, scale to 0–100; if already 0–100, clamp and round
+      if (v <= 1) return Math.max(0, Math.min(100, Math.round(v * 100)));
+      return Math.max(0, Math.min(100, Math.round(v)));
+    };
+
     if (research.taskAutomation && Array.isArray(research.taskAutomation)) {
       insights.automationExposure = research.taskAutomation.map((task: any): AutomationExposureItem => ({
         task: task.task || task.name || 'Unknown Task',
-        exposure: Math.round((task.exposure || task.automationRisk || 0) * 100)
+        exposure: normalizeExposure(task.exposure ?? task.automationRisk)
+      }));
+    } else if (research.automationExposure && Array.isArray(research.automationExposure)) {
+      insights.automationExposure = research.automationExposure.map((item: any): AutomationExposureItem => ({
+        task: item.task || item.name || 'Unknown Task',
+        exposure: normalizeExposure(item.exposure ?? item.automationRisk)
       }));
     }
 

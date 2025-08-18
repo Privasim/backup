@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { DataDrivenInsights } from '@/components/insights/DataDrivenInsights';
+import { AutomationExposureCard } from '@/components/visualizations/automation-exposure-card';
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
 import { useProfileIntegration } from '@/components/chatbox/hooks/useProfileIntegration';
 import { useOccupationRisk } from '@/hooks/useOccupationRisk';
@@ -198,6 +199,17 @@ const JobRiskAnalysisContent = () => {
                     }}
                   />
                 </div>
+                
+                {insights && (
+                  <div className="lg:col-span-2">
+                    <AutomationExposureCard 
+                      insights={insights}
+                      title="Automation Exposure Risk"
+                      topN={8}
+                      minExposure={10}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Legacy component for backward compatibility */}
