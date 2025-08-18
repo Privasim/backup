@@ -80,15 +80,15 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
   if (!isOpen) return null;
   
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all duration-300">
+    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-3 transition-all duration-300">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col border border-gray-200 transform transition-all duration-300">
         {/* Header */}
-        <div className="flex justify-between items-center border-b border-gray-100 px-6 py-4 bg-gradient-to-r from-blue-50 to-white">
+        <div className="flex justify-between items-center border-b border-gray-100 px-4 py-3 bg-gradient-to-r from-blue-50 to-white">
           <div className="flex items-center gap-2">
-            <div className="bg-blue-100 p-1.5 rounded-full">
-              <AdjustmentsHorizontalIcon className="h-5 w-5 text-blue-600" />
+            <div className="bg-blue-100 p-1 rounded-full">
+              <AdjustmentsHorizontalIcon className="h-4 w-4 text-blue-600" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">Narrative Settings</h3>
+            <h3 className="text-base font-semibold text-gray-900">Narrative Settings</h3>
           </div>
           <button 
             onClick={onClose}
@@ -100,22 +100,22 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
         </div>
         
         {/* Content */}
-        <div className="overflow-y-auto flex-1 p-6">
-          <div className="space-y-6">
+        <div className="overflow-y-auto flex-1 p-4">
+          <div className="space-y-4">
             {/* Preset Selector */}
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="bg-blue-100 p-1.5 rounded-full">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="bg-blue-100 p-1 rounded-full">
                   <BookmarkIcon className="h-4 w-4 text-blue-600" />
                 </div>
-                <label className="text-base font-medium text-gray-900">Preset Configuration</label>
+                <label className="text-sm font-semibold text-gray-900">Preset Configuration</label>
               </div>
               
               <div className="relative">
                 <select
                   value={getCurrentPresetId()}
                   onChange={(e) => handlePresetChange(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 bg-white py-2.5 px-4 pr-10 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm appearance-none transition-colors duration-200"
+                  className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm appearance-none transition-colors duration-200 text-gray-800"
                 >
                   {getPresets().map(preset => (
                     <option key={preset.id} value={preset.id}>
@@ -130,28 +130,28 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
                 </div>
               </div>
               
-              <p className="mt-2 text-sm text-gray-500 bg-gray-50 p-2 rounded-md border border-gray-100">
+              <p className="mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-md border border-gray-100">
                 Choose a preset to quickly apply a predefined configuration for your narrative generation
               </p>
             </div>
             
             {/* Tone Settings */}
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="bg-purple-100 p-1.5 rounded-full">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="bg-purple-100 p-1 rounded-full">
                   <DocumentTextIcon className="h-4 w-4 text-purple-600" />
                 </div>
-                <h4 className="text-base font-medium text-gray-900">Tone & Style</h4>
+                <h4 className="text-sm font-semibold text-gray-900">Tone & Style</h4>
               </div>
               
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
-                  <label className="block text-sm font-medium text-gray-800 mb-2">Tone</label>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                  <label className="block text-xs font-medium text-gray-800 mb-1">Tone</label>
                   <div className="relative">
                     <select
                       value={localSettings.tone}
                       onChange={(e) => handleInputChange('tone', e.target.value as any)}
-                      className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 pr-8 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm appearance-none transition-colors duration-200"
+                      className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 pr-8 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm appearance-none transition-colors duration-200 text-gray-800"
                     >
                       <option value="neutral">Neutral</option>
                       <option value="professional">Professional</option>
@@ -166,13 +166,13 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
                   </div>
                 </div>
                 
-                <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
-                  <label className="block text-sm font-medium text-gray-800 mb-2">Verbosity</label>
+                <div className="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                  <label className="block text-xs font-medium text-gray-800 mb-1">Verbosity</label>
                   <div className="relative">
                     <select
                       value={localSettings.verbosity}
                       onChange={(e) => handleInputChange('verbosity', e.target.value as any)}
-                      className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 pr-8 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm appearance-none transition-colors duration-200"
+                      className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 pr-8 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm appearance-none transition-colors duration-200 text-gray-800"
                     >
                       <option value="short">Short</option>
                       <option value="medium">Medium</option>
@@ -186,13 +186,13 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
                   </div>
                 </div>
                 
-                <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
-                  <label className="block text-sm font-medium text-gray-800 mb-2">Audience</label>
+                <div className="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                  <label className="block text-xs font-medium text-gray-800 mb-1">Audience</label>
                   <div className="relative">
                     <select
                       value={localSettings.audience}
                       onChange={(e) => handleInputChange('audience', e.target.value as any)}
-                      className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 pr-8 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm appearance-none transition-colors duration-200"
+                      className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 pr-8 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm appearance-none transition-colors duration-200 text-gray-800"
                     >
                       <option value="general">General</option>
                       <option value="executive">Executive</option>
@@ -207,13 +207,13 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
                   </div>
                 </div>
                 
-                <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
-                  <label className="block text-sm font-medium text-gray-800 mb-2">Structure</label>
+                <div className="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                  <label className="block text-xs font-medium text-gray-800 mb-1">Structure</label>
                   <div className="relative">
                     <select
                       value={localSettings.structure}
                       onChange={(e) => handleInputChange('structure', e.target.value as any)}
-                      className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 pr-8 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm appearance-none transition-colors duration-200"
+                      className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 pr-8 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm appearance-none transition-colors duration-200 text-gray-800"
                     >
                       <option value="paragraph">Paragraph</option>
                       <option value="bulleted">Bulleted</option>
@@ -230,15 +230,15 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
             </div>
             
             {/* Sections */}
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="bg-indigo-100 p-1.5 rounded-full">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="bg-indigo-100 p-1 rounded-full">
                   <ShieldCheckIcon className="h-4 w-4 text-indigo-600" />
                 </div>
-                <h4 className="text-base font-medium text-gray-900">Narrative Sections</h4>
+                <h4 className="text-sm font-semibold text-gray-900">Narrative Sections</h4>
               </div>
               
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {Object.entries(localSettings.sections).map(([section, enabled]) => {
                   const sectionName = section.charAt(0).toUpperCase() + section.slice(1).replace(/-/g, ' ');
                   return (
@@ -254,25 +254,25 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
                         onChange={() => handleSectionToggle(section)}
                         className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 transition-colors duration-200"
                       />
-                      <label htmlFor={`section-${section}`} className={`ml-2 text-sm ${enabled ? 'font-medium text-indigo-700' : 'text-gray-700'}`}>
+                      <label htmlFor={`section-${section}`} className="ml-2 text-xs text-gray-800">
                         {sectionName}
                       </label>
                     </div>
                   );
                 })}
               </div>
-              <p className="mt-3 text-xs text-gray-500 bg-gray-50 p-2 rounded-md border border-gray-100">
+              <p className="mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-md border border-gray-100">
                 Select which sections to include in the generated narrative
               </p>
             </div>
             
             {/* Compliance */}
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="bg-green-100 p-1.5 rounded-full">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="bg-green-100 p-1 rounded-full">
                   <ShieldCheckIcon className="h-4 w-4 text-green-600" />
                 </div>
-                <h4 className="text-base font-medium text-gray-900">Compliance Settings</h4>
+                <h4 className="text-sm font-semibold text-gray-900">Compliance Settings</h4>
               </div>
               
               <div className="space-y-3">
@@ -285,21 +285,21 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
                     className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500 transition-colors duration-200"
                   />
                   <div className="ml-3">
-                    <label htmlFor="disclaimer-enabled" className={`text-sm ${localSettings.disclaimer.enabled ? 'font-medium text-green-700' : 'text-gray-700'}`}>
+                    <label htmlFor="disclaimer-enabled" className="text-sm font-medium text-gray-800">
                       Include AI-generated content disclaimer
                     </label>
-                    <p className="text-xs text-gray-500 mt-1">Adds a notice that content was generated with AI assistance</p>
+                    <p className="text-xs text-gray-600 mt-1">Adds a notice that content was generated with AI assistance</p>
                   </div>
                 </div>
                 
                 {localSettings.disclaimer.enabled && (
                   <div className="ml-6 p-3 rounded-lg border border-gray-100 bg-gray-50">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Disclaimer Style</label>
+                    <label className="block text-xs font-medium text-gray-800 mb-2">Disclaimer Style</label>
                     <div className="relative">
                       <select
                         value={localSettings.disclaimer.style}
                         onChange={(e) => handleNestedChange('disclaimer', 'style', e.target.value)}
-                        className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 pr-8 shadow-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 text-sm appearance-none transition-colors duration-200"
+                        className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 pr-8 shadow-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 text-sm appearance-none transition-colors duration-200 text-gray-800"
                       >
                         <option value="standard">Standard</option>
                         <option value="minimal">Minimal</option>
@@ -323,27 +323,27 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
                     className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500 transition-colors duration-200"
                   />
                   <div className="ml-3">
-                    <label htmlFor="compliance-focused" className="text-sm text-gray-700">
+                    <label htmlFor="compliance-focused" className="text-sm text-gray-800">
                       Emphasize compliance with employment regulations
                     </label>
-                    <p className="text-xs text-gray-500 mt-1">Ensures content adheres to relevant employment laws and guidelines</p>
+                    <p className="text-xs text-gray-600 mt-1">Ensures content adheres to relevant employment laws and guidelines</p>
                   </div>
                 </div>
               </div>
             </div>
             
             {/* Advanced */}
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="bg-purple-100 p-1.5 rounded-full">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="bg-purple-100 p-1 rounded-full">
                   <AdjustmentsHorizontalIcon className="h-4 w-4 text-purple-600" />
                 </div>
-                <h4 className="text-base font-medium text-gray-900">Advanced Settings</h4>
+                <h4 className="text-sm font-semibold text-gray-900">Advanced Settings</h4>
               </div>
               
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="p-3 rounded-lg border border-gray-200 bg-white hover:shadow-sm transition-shadow duration-200">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="p-2 rounded-lg border border-gray-200 bg-white hover:shadow-sm transition-shadow duration-200">
+                  <label className="block text-xs font-medium text-gray-800 mb-2">
                     Max Characters
                   </label>
                   <div className="relative">
@@ -351,18 +351,18 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
                       type="number"
                       value={localSettings.constraints.maxChars || ''}
                       onChange={(e) => handleNestedChange('constraints', 'maxChars', e.target.value ? parseInt(e.target.value, 10) : undefined)}
-                      className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 sm:text-sm transition-colors duration-200"
+                      className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 sm:text-sm transition-colors duration-200 text-gray-800"
                       placeholder="2000"
                     />
                   </div>
-                  <p className="mt-2 text-xs text-gray-500">
+                  <p className="mt-2 text-xs text-gray-600">
                     Maximum character limit for the generated narrative
                   </p>
                 </div>
                 
-                <div className="p-3 rounded-lg border border-gray-200 bg-white hover:shadow-sm transition-shadow duration-200">
+                <div className="p-2 rounded-lg border border-gray-200 bg-white hover:shadow-sm transition-shadow duration-200">
                   <div className="flex items-center justify-between mb-2">
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-xs font-medium text-gray-800">
                       Avoid Overclaiming
                     </label>
                     <div className="relative inline-block w-10 align-middle select-none">
@@ -383,7 +383,7 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
                       </label>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-600">
                     Ensures content is factual and avoids exaggerated claims
                   </p>
                 </div>
@@ -393,7 +393,7 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
         </div>
         
         {/* Footer */}
-        <div className="border-t border-gray-200 px-6 py-4 bg-gradient-to-b from-white to-gray-50 flex justify-end space-x-3">
+        <div className="border-t border-gray-200 px-4 py-3 bg-gradient-to-b from-white to-gray-50 flex justify-end space-x-2">
           <button
             type="button"
             onClick={handleReset}
