@@ -5,6 +5,7 @@ import { Role, UserProfileData } from "../types";
 import { ProfileAnalysisTrigger } from '@/components/chatbox/ProfileAnalysisTrigger';
 import { useProfileIntegration } from '@/components/chatbox/hooks/useProfileIntegration';
 import { useTab } from "../../TabContext";
+import { useChatbox } from '@/components/chatbox/ChatboxProvider';
 
 type Props = {
   data: UserProfileData;
@@ -49,6 +50,14 @@ export default function ReviewStep({ data, onEditStep }: Props) {
   const { getAnalysisReadiness } = useProfileIntegration();
   const readiness = getAnalysisReadiness(data);
   const { setActiveTab } = useTab();
+  const { setProfileData } = useChatbox();
+
+  const handleAnalyzeJobRisk = () => {
+    // Persist profile data to Chatbox context
+    setProfileData(data as any);
+    // Navigate to job risk tab
+    setActiveTab('jobrisk');
+  };
 
   return (
     <div className="p-1">
@@ -308,7 +317,7 @@ export default function ReviewStep({ data, onEditStep }: Props) {
           <div className="mt-3">
             <button
               type="button"
-              onClick={() => setActiveTab('jobrisk')}
+              onClick={handleAnalyzeJobRisk}
               disabled={!readiness.ready}
               className="w-full sm:w-auto px-4 py-2.5 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               title={readiness.ready ? "View job risk analysis" : "Complete your profile to enable job risk analysis"}
