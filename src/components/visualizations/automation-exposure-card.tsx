@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useCallback, useId } from 'react';
 import { DataDrivenInsightsModel } from '../insights/types';
 import { AutomationExposureBar } from './automation-exposure-bar';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Info, ChevronDown, ChevronUp, Copy, Check, ExternalLink } from 'lucide-react';
 
 interface AutomationExposureCardProps {
   insights?: DataDrivenInsightsModel;
@@ -18,6 +18,7 @@ export function AutomationExposureCard({
   minExposure = 0,
   className = ''
 }: AutomationExposureCardProps) {
+  const contextHeadingId = useId();
   // Adapter: insights -> dataset mapping with memoization
   const barItems = useMemo(() => {
     if (!insights?.automationExposure || insights.automationExposure.length === 0) {
@@ -35,6 +36,97 @@ export function AutomationExposureCard({
   }, [insights, topN, minExposure]);
   
   const isEmpty = barItems.length === 0;
+
+  // Derived context statistics (based on items after filtering and slicing for display)
+  const contextStats = useMemo(() => {
+    const values = barItems.map(i => i.value);
+    const total = values.length;
+    if (total === 0) {
+      return {
+        topTaskLabel: '',
+        topTaskValue: 0,
+        avg: 0,
+        median: 0,
+        p90: 0,
+        counts: { high: 0, moderate: 0, low: 0, total: 0 },
+        filteredEligible: 0,
+        truncatedFrom: 0
+      };
+    }
+
+    const sortedAsc = [...values].sort((a, b) => a - b);
+    const avg = Math.round(values.reduce((a, b) => a + b, 0) / total);
+    const median = total % 2 === 1
+      ? sortedAsc[(total - 1) / 2]
+      : Math.round((sortedAsc[total / 2 - 1] + sortedAsc[total / 2]) / 2);
+    const p90Index = Math.max(0, Math.ceil(0.9 * total) - 1);
+    const p90 = sortedAsc[p90Index];
+
+    const counts = values.reduce(
+      (acc, v) => {
+        if (v > 70) acc.high += 1;
+        else if (v > 40) acc.moderate += 1;
+        else acc.low += 1;
+        return acc;
+      },
+      { high: 0, moderate: 0, low: 0 }
+    );
+
+    // Determine filtering/truncation based on full dataset
+    const full = insights?.automationExposure ?? [];
+    const eligible = full.filter(i => Math.max(0, Math.min(100, i.exposure)) >= minExposure);
+    const filteredEligible = eligible.length;
+    const truncatedFrom = filteredEligible > topN ? filteredEligible : 0;
+
+    return {
+      topTaskLabel: barItems[0]?.label ?? '',
+      topTaskValue: barItems[0]?.value ?? 0,
+      avg,
+      median,
+      p90,
+      counts: { ...counts, total },
+      filteredEligible,
+      truncatedFrom
+    };
+  }, [barItems, insights, minExposure, topN]);
+
+  // Expand/Collapse and Copy-to-Clipboard
+  const [expanded, setExpanded] = useState<boolean>(true);
+  const [copied, setCopied] = useState<boolean>(false);
+
+  const contextCopyText = useMemo(() => {
+    const parts: string[] = [];
+    if (insights?.narratives?.automationNarrative) {
+      parts.push(`Narrative: ${insights.narratives.automationNarrative}`);
+    }
+    if (contextStats.topTaskLabel) {
+      parts.push(`Top task: ${contextStats.topTaskLabel} (${contextStats.topTaskValue}%)`);
+    }
+    parts.push(
+      `Average exposure: ${contextStats.avg}%`,
+      `Median: ${contextStats.median}%`,
+      `P90: ${contextStats.p90}%`,
+      `Counts — High: ${contextStats.counts.high}, Moderate: ${contextStats.counts.moderate}, Low: ${contextStats.counts.low}, Total: ${contextStats.counts.total}`
+    );
+    if (minExposure > 0) {
+      parts.push(`Filtered by minimum exposure ≥ ${minExposure}%`);
+    }
+    if (contextStats.truncatedFrom > 0) {
+      parts.push(`Showing top ${topN} of ${contextStats.truncatedFrom} eligible tasks`);
+    }
+    return parts.join('\n');
+  }, [contextStats, insights, minExposure, topN]);
+
+  const handleCopy = useCallback(() => {
+    navigator.clipboard?.writeText(contextCopyText)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+      })
+      .catch(() => {
+        // Silently ignore copy failures
+      });
+  }, [contextCopyText]);
   
   return (
     <div className={`bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden ${className}`}>
@@ -55,6 +147,101 @@ export function AutomationExposureCard({
             maxBars={topN}
             ariaLabel={`${title} chart showing automation risk for top ${topN} tasks`}
           />
+        )}
+
+        {/* Contextual Statements */}
+        {!isEmpty && (
+          <div className="mt-4" role="region" aria-labelledby={contextHeadingId}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Info className="h-4 w-4 text-gray-600" />
+                <h4 id={contextHeadingId} className="text-sm font-medium text-gray-900">Context</h4>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="inline-flex items-center gap-1 text-xs text-gray-600 hover:text-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded px-2 py-1"
+                  aria-label="Copy context"
+                >
+                  {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                  <span>{copied ? 'Copied' : 'Copy'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setExpanded(prev => !prev)}
+                  aria-expanded={expanded}
+                  className="inline-flex items-center gap-1 text-xs text-gray-600 hover:text-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded px-2 py-1"
+                >
+                  {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                  <span>{expanded ? 'Collapse' : 'Expand'}</span>
+                </button>
+              </div>
+            </div>
+
+            {expanded && insights?.narratives?.automationNarrative && (
+              <div className="bg-gray-50 rounded-lg p-2 border border-gray-100 mt-2">
+                <p className="text-sm leading-relaxed text-gray-700">{insights.narratives.automationNarrative}</p>
+              </div>
+            )}
+
+            {expanded && (
+              <ul role="list" className="mt-2 space-y-1">
+                {contextStats.topTaskLabel && (
+                  <li role="listitem" className="text-sm text-gray-700">
+                    <span className="font-medium text-gray-800">Top task:</span> {contextStats.topTaskLabel} ({contextStats.topTaskValue}%)
+                  </li>
+                )}
+                <li role="listitem" className="text-sm text-gray-700">
+                  <span className="font-medium text-gray-800">Average exposure:</span> {contextStats.avg}%
+                </li>
+                <li role="listitem" className="text-sm text-gray-700">
+                  <span className="font-medium text-gray-800">Median:</span> {contextStats.median}% · <span className="font-medium text-gray-800">P90:</span> {contextStats.p90}%
+                </li>
+                <li role="listitem" className="text-sm text-gray-700">
+                  <span className="font-medium text-gray-800">Counts:</span> High {contextStats.counts.high}, Moderate {contextStats.counts.moderate}, Low {contextStats.counts.low} (Total {contextStats.counts.total})
+                </li>
+                {(minExposure > 0 || contextStats.truncatedFrom > 0) && (
+                  <li role="listitem" className="text-xs text-gray-600">
+                    {minExposure > 0 && (<span className="mr-2">Filtered by minimum exposure ≥ {minExposure}%.</span>)}
+                    {contextStats.truncatedFrom > 0 && (<span>Showing top {topN} of {contextStats.truncatedFrom} eligible tasks.</span>)}
+                  </li>
+                )}
+              </ul>
+            )}
+
+            {expanded && insights?.sources && insights.sources.length > 0 && (
+              <div className="mt-2">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="bg-gray-100 p-1 rounded-full">
+                    <ExternalLink className="h-3.5 w-3.5 text-gray-600" />
+                  </div>
+                  <span className="text-xs font-medium text-gray-800">Sources</span>
+                </div>
+                <div className="grid gap-1 sm:grid-cols-2" role="list">
+                  {insights.sources.slice(0, 2).map((s, idx) => (
+                    <div key={idx} role="listitem" className="flex items-center gap-2 p-1.5 rounded border border-gray-100 bg-gray-50">
+                      <div className="bg-white p-0.5 rounded-full">
+                        <ExternalLink className="h-3.5 w-3.5 text-blue-500" />
+                      </div>
+                      {s.url ? (
+                        <a
+                          href={s.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-gray-800 hover:text-gray-900 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+                        >
+                          {s.title}
+                        </a>
+                      ) : (
+                        <span className="text-xs text-gray-700">{s.title}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         )}
       </div>
       
