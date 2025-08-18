@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import InsightsPanel from "./components/InsightsPanel";
 import { useJobRiskData } from './hooks/useJobRiskData';
 import { DataDrivenInsights } from '@/components/insights/DataDrivenInsights';
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
@@ -154,9 +153,7 @@ export default function JobRiskAnalysisTab() {
             </div>
 
             {/* Legacy component for backward compatibility */}
-            <div className="mt-6">
-              <InsightsPanel insights={insights} loading={generating} error={errors} />
-            </div>
+            {/* Legacy InsightsPanel removed to prevent duplicate rendering */}
           </div>
         </div>
       </div>
