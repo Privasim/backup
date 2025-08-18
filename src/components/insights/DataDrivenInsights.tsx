@@ -23,20 +23,20 @@ export function DataDrivenInsights({
     return (
       <div
         aria-busy="true"
-        className="rounded-xl border border-gray-200 bg-white shadow-md p-3 sm:p-4 transition-all duration-300"
+        className="rounded-xl border border-gray-200 bg-white shadow-md p-2 sm:p-3 transition-all duration-300"
       >
-        <div className="flex justify-between items-center mb-3">
+        <div className="flex justify-between items-center mb-2">
           <div className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5 text-blue-600" />
-            <h2 className="text-lg font-semibold tracking-tight text-gray-900">Job Risk Insights</h2>
+            <h2 className="text-base font-semibold tracking-tight text-gray-900">Job Risk Insights</h2>
           </div>
           {slots?.headerRight}
         </div>
-        <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg mb-3">
+        <div className="flex items-center gap-2 px-2 py-2 bg-blue-50 rounded-lg mb-2">
           <Info className="h-4 w-4 text-blue-600 animate-pulse" />
           <p className="text-sm text-gray-700 font-medium">Analyzing job risk data...</p>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-2">
           <Skeleton className="h-6 w-2/3 rounded-md" />
           <Skeleton className="h-4 w-full rounded-md" />
           <Skeleton className="h-28 w-full rounded-md" />
@@ -48,8 +48,8 @@ export function DataDrivenInsights({
 
   if (errors.length > 0) {
     return (
-      <div className="rounded-xl border border-red-100 bg-white shadow-md p-3 sm:p-4 transition-all duration-300">
-        <div className="flex items-center gap-2 mb-3">
+      <div className="rounded-xl border border-red-100 bg-white shadow-md p-2 sm:p-3 transition-all duration-300">
+        <div className="flex items-center gap-2 mb-2">
           <AlertCircle className="h-5 w-5 text-red-600" />
           <h3 className="text-base font-medium text-gray-900">Analysis Error</h3>
         </div>
@@ -69,9 +69,9 @@ export function DataDrivenInsights({
 
   if (!insights) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white shadow-md p-4 sm:p-5 transition-all duration-300">
-        <div className="flex flex-col items-center justify-center py-8 text-center">
-          <div className="bg-gray-100 p-3 rounded-full mb-3">
+      <div className="rounded-xl border border-gray-200 bg-white shadow-md p-3 sm:p-4 transition-all duration-300">
+        <div className="flex flex-col items-center justify-center py-6 text-center">
+          <div className="bg-gray-100 p-3 rounded-full mb-2">
             <Zap className="h-6 w-6 text-gray-500" />
           </div>
           <h3 className="text-base font-medium text-gray-700 mb-1">No insights available</h3>
@@ -93,38 +93,38 @@ export function DataDrivenInsights({
   } = insights;
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white shadow-md p-3 sm:p-4 transition-all duration-300">
-      <div className="flex justify-between items-center mb-3">
+    <div className="rounded-xl border border-gray-200 bg-white shadow-md p-2 sm:p-3 transition-all duration-300">
+      <div className="flex justify-between items-center mb-2">
         <div className="flex items-center gap-2">
           <BarChart3 className="h-5 w-5 text-blue-600" />
-          <h2 className="text-lg font-semibold tracking-tight text-gray-900">Job Risk Insights</h2>
+          <h2 className="text-base font-semibold tracking-tight text-gray-900">Job Risk Insights</h2>
         </div>
         {slots?.headerRight}
       </div>
-      <div className="space-y-4">
+      <div className="space-y-2">
 
       {/* Summary Section */}
       {(summary || narratives?.riskNarrative) && (
-        <div className="bg-gradient-to-r from-blue-50 to-white p-3 rounded-xl border border-blue-100">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="bg-gradient-to-r from-blue-50 to-white p-2 rounded-xl border border-blue-100">
+          <div className="flex items-center gap-2 mb-1">
             <div className="bg-blue-100 p-1.5 rounded-full">
               <Shield className="h-5 w-5 text-blue-600" />
             </div>
             <h3 className="text-base font-medium text-gray-900">Executive Summary</h3>
           </div>
-          <p className="text-sm leading-relaxed text-gray-700 mb-3">{summary || narratives?.riskNarrative}</p>
+          <p className="text-sm leading-relaxed text-gray-700 mb-2">{summary || narratives?.riskNarrative}</p>
           {riskScore !== undefined && (
-            <div className="bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
-              <div className="flex items-center justify-between mb-2">
+            <div className="bg-white p-2 rounded-lg border border-gray-100 shadow-sm">
+              <div className="flex items-center justify-between mb-1">
                 <span className="text-sm font-medium text-gray-700">Overall Risk Score</span>
                 <div className="flex items-center gap-1">
                   <span className="text-2xl font-bold text-red-600">{riskScore}</span>
                   <span className="text-sm text-red-600">/100</span>
                 </div>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2.5" role="progressbar" aria-label="Overall risk score" aria-valuenow={riskScore} aria-valuemin={0} aria-valuemax={100}>
+              <div className="w-full bg-gray-200 rounded-full h-2" role="progressbar" aria-label="Overall risk score" aria-valuenow={riskScore} aria-valuemin={0} aria-valuemax={100}>
                 <div 
-                  className="bg-red-600 h-2.5 rounded-full transition-all duration-500"
+                  className="bg-red-600 h-2 rounded-full transition-all duration-500"
                   style={{ width: `${riskScore}%` }}
                 />
               </div>
@@ -139,19 +139,19 @@ export function DataDrivenInsights({
 
       {/* Threat Drivers */}
       {(threatDrivers && threatDrivers.length > 0) || narratives?.threatNarrative ? (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-2">
+          <div className="flex items-center gap-2 mb-1">
             <div className="bg-red-100 p-1.5 rounded-full">
               <TrendingDown className="h-5 w-5 text-red-600" />
             </div>
             <h3 className="text-base font-medium text-gray-900">Threat Drivers</h3>
           </div>
           {narratives?.threatNarrative ? (
-            <div className="bg-gray-50 rounded-lg p-2.5 border border-gray-100">
+            <div className="bg-gray-50 rounded-lg p-2 border border-gray-100">
               <p className="text-sm leading-relaxed text-gray-700">{narratives.threatNarrative}</p>
             </div>
           ) : threatDrivers && threatDrivers.length > 0 ? (
-            <div className="grid gap-2 sm:grid-cols-2" role="list">
+            <div className="grid gap-1 sm:grid-cols-2" role="list">
               {threatDrivers.map((driver: string, index: number) => (
                 <div 
                   key={index} 
@@ -171,28 +171,28 @@ export function DataDrivenInsights({
 
       {/* Automation Exposure */}
       {(automationExposure && automationExposure.length > 0) || narratives?.automationNarrative ? (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-2">
+          <div className="flex items-center gap-2 mb-1">
             <div className="bg-purple-100 p-1.5 rounded-full">
               <Zap className="h-5 w-5 text-purple-600" />
             </div>
             <h3 className="text-base font-medium text-gray-900">Automation Exposure</h3>
           </div>
           {narratives?.automationNarrative ? (
-            <div className="bg-gray-50 rounded-lg p-2.5 border border-gray-100 mb-2.5">
+            <div className="bg-gray-50 rounded-lg p-2 border border-gray-100 mb-2">
               <p className="text-sm leading-relaxed text-gray-700">{narratives.automationNarrative}</p>
             </div>
           ) : null}
           
           {automationExposure && automationExposure.length > 0 ? (
-            <div className="space-y-2.5 mt-2" role="list">
+            <div className="space-y-2 mt-1" role="list">
               {automationExposure.map((item: AutomationExposureItem, index: number) => (
                 <div 
                   key={index} 
                   role="listitem" 
-                  className="p-3 rounded-lg border border-gray-100 bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
+                  className="p-2 rounded-lg border border-gray-100 bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
                 >
-                  <div className="flex justify-between items-center mb-2">
+                  <div className="flex justify-between items-center mb-1">
                     <span className="text-sm font-medium text-gray-800">{item.task}</span>
                     <span 
                       className={`text-xs font-medium px-2 py-1 rounded-full ${
@@ -203,9 +203,9 @@ export function DataDrivenInsights({
                       {item.exposure}% Exposure
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div className="w-full bg-gray-200 rounded-full h-2">
                     <div 
-                      className={`h-2.5 rounded-full transition-all duration-500 ${
+                      className={`h-2 rounded-full transition-all duration-500 ${
                         item.exposure > 70 ? 'bg-red-600' : 
                         item.exposure > 40 ? 'bg-yellow-500' : 'bg-green-500'
                       }`}
@@ -221,8 +221,8 @@ export function DataDrivenInsights({
 
       {/* Skill Impacts */}
       {(skillImpacts && skillImpacts.length > 0) || narratives?.skillsNarrative ? (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-2">
+          <div className="flex items-center gap-2 mb-1">
             <div className="bg-blue-100 p-1.5 rounded-full">
               <BarChart3 className="h-5 w-5 text-blue-600" />
             </div>
@@ -230,20 +230,20 @@ export function DataDrivenInsights({
           </div>
           
           {narratives?.skillsNarrative ? (
-            <div className="bg-gray-50 rounded-lg p-2.5 border border-gray-100 mb-2.5">
+            <div className="bg-gray-50 rounded-lg p-2 border border-gray-100 mb-2">
               <p className="text-sm leading-relaxed text-gray-700">{narratives.skillsNarrative}</p>
             </div>
           ) : null}
           
           {skillImpacts && skillImpacts.length > 0 ? (
-            <div className="grid gap-2.5 sm:grid-cols-2 mt-2" role="list">
+            <div className="grid gap-2 sm:grid-cols-2 mt-1" role="list">
               {skillImpacts.map((item: SkillImpactItem, index: number) => (
                 <div 
                   key={index} 
                   role="listitem" 
-                  className="p-3 rounded-lg border shadow-sm bg-gradient-to-br from-white to-gray-50 hover:shadow-md transition-all duration-200"
+                  className="p-2 rounded-lg border shadow-sm bg-gradient-to-br from-white to-gray-50 hover:shadow-md transition-all duration-200"
                 >
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium text-gray-900">{item.skill}</span>
                     <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
                       item.impact === 'high' ? 'bg-red-100 text-gray-800' :
@@ -267,8 +267,8 @@ export function DataDrivenInsights({
 
       {/* Mitigation Strategies */}
       {(mitigation && mitigation.length > 0) || narratives?.mitigationNarrative ? (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-2">
+          <div className="flex items-center gap-2 mb-1">
             <div className="bg-green-100 p-1.5 rounded-full">
               <TrendingUp className="h-5 w-5 text-green-600" />
             </div>
@@ -276,18 +276,18 @@ export function DataDrivenInsights({
           </div>
           
           {narratives?.mitigationNarrative ? (
-            <div className="bg-gray-50 rounded-lg p-2.5 border border-gray-100 mb-2.5">
+            <div className="bg-gray-50 rounded-lg p-2 border border-gray-100 mb-2">
               <p className="text-sm leading-relaxed text-gray-700">{narratives.mitigationNarrative}</p>
             </div>
           ) : null}
           
           {mitigation && mitigation.length > 0 ? (
-            <div className="grid gap-2.5 sm:grid-cols-2 mt-2" role="list">
+            <div className="grid gap-2 sm:grid-cols-2 mt-1" role="list">
               {mitigation.map((item: MitigationItem, index: number) => (
                 <div 
                   key={index} 
                   role="listitem" 
-                  className="p-3 rounded-lg border shadow-sm bg-gradient-to-br from-green-50 to-white hover:shadow-md transition-all duration-200"
+                  className="p-2 rounded-lg border shadow-sm bg-gradient-to-br from-green-50 to-white hover:shadow-md transition-all duration-200"
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
@@ -313,15 +313,15 @@ export function DataDrivenInsights({
 
       {/* Sources */}
       {sources && sources.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-2">
+          <div className="flex items-center gap-2 mb-1">
             <div className="bg-gray-100 p-1.5 rounded-full">
               <ExternalLink className="h-5 w-5 text-gray-600" />
             </div>
             <h3 className="text-base font-medium text-gray-900">Sources</h3>
           </div>
           
-          <div className="grid gap-2 sm:grid-cols-2" role="list">
+          <div className="grid gap-1 sm:grid-cols-2" role="list">
             {sources.map((source: InsightSource, index: number) => (
               <div 
                 key={index} 
@@ -350,7 +350,7 @@ export function DataDrivenInsights({
       )}
 
       {slots?.footer && (
-        <div className="border-t border-gray-100 pt-3 mt-3">
+        <div className="border-t border-gray-100 pt-2 mt-2">
           {slots.footer}
         </div>
       )}

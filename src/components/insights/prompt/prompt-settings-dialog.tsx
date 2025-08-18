@@ -80,10 +80,10 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
   if (!isOpen) return null;
   
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-3 transition-all duration-300">
+    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-2 transition-all duration-300">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col border border-gray-200 transform transition-all duration-300">
         {/* Header */}
-        <div className="flex justify-between items-center border-b border-gray-100 px-4 py-3 bg-gradient-to-r from-blue-50 to-white">
+        <div className="flex justify-between items-center border-b border-gray-100 px-3 py-2 bg-gradient-to-r from-blue-50 to-white">
           <div className="flex items-center gap-2">
             <div className="bg-blue-100 p-1 rounded-full">
               <AdjustmentsHorizontalIcon className="h-4 w-4 text-blue-600" />
@@ -100,11 +100,11 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
         </div>
         
         {/* Content */}
-        <div className="overflow-y-auto flex-1 p-4">
-          <div className="space-y-4">
+        <div className="overflow-y-auto flex-1 p-2">
+          <div className="space-y-2">
             {/* Preset Selector */}
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-3">
-              <div className="flex items-center gap-2 mb-2">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-2">
+              <div className="flex items-center gap-2 mb-1">
                 <div className="bg-blue-100 p-1 rounded-full">
                   <BookmarkIcon className="h-4 w-4 text-blue-600" />
                 </div>
@@ -115,7 +115,7 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
                 <select
                   value={getCurrentPresetId()}
                   onChange={(e) => handlePresetChange(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm appearance-none transition-colors duration-200 text-gray-800"
+                  className="w-full rounded-lg border border-gray-300 bg-white py-1.5 px-2.5 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm appearance-none transition-colors duration-200 text-gray-800"
                 >
                   {getPresets().map(preset => (
                     <option key={preset.id} value={preset.id}>
@@ -130,28 +130,28 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
                 </div>
               </div>
               
-              <p className="mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-md border border-gray-100">
+              <p className="mt-1 text-xs text-gray-600 bg-gray-50 p-2 rounded-md border border-gray-100">
                 Choose a preset to quickly apply a predefined configuration for your narrative generation
               </p>
             </div>
             
             {/* Tone Settings */}
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-3">
-              <div className="flex items-center gap-2 mb-2">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-2">
+              <div className="flex items-center gap-2 mb-1">
                 <div className="bg-purple-100 p-1 rounded-full">
                   <DocumentTextIcon className="h-4 w-4 text-purple-600" />
                 </div>
                 <h4 className="text-sm font-semibold text-gray-900">Tone & Style</h4>
               </div>
               
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <div className="bg-gray-50 p-2 rounded-lg border border-gray-100">
                   <label className="block text-xs font-medium text-gray-800 mb-1">Tone</label>
                   <div className="relative">
                     <select
                       value={localSettings.tone}
                       onChange={(e) => handleInputChange('tone', e.target.value as any)}
-                      className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 pr-8 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm appearance-none transition-colors duration-200 text-gray-800"
+                      className="w-full rounded-lg border border-gray-300 bg-white py-1.5 px-2.5 pr-8 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm appearance-none transition-colors duration-200 text-gray-800"
                     >
                       <option value="neutral">Neutral</option>
                       <option value="professional">Professional</option>
@@ -172,7 +172,7 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
                     <select
                       value={localSettings.verbosity}
                       onChange={(e) => handleInputChange('verbosity', e.target.value as any)}
-                      className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 pr-8 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm appearance-none transition-colors duration-200 text-gray-800"
+                      className="w-full rounded-lg border border-gray-300 bg-white py-1.5 px-2.5 pr-8 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm appearance-none transition-colors duration-200 text-gray-800"
                     >
                       <option value="short">Short</option>
                       <option value="medium">Medium</option>
@@ -192,7 +192,7 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
                     <select
                       value={localSettings.audience}
                       onChange={(e) => handleInputChange('audience', e.target.value as any)}
-                      className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 pr-8 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm appearance-none transition-colors duration-200 text-gray-800"
+                      className="w-full rounded-lg border border-gray-300 bg-white py-1.5 px-2.5 pr-8 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm appearance-none transition-colors duration-200 text-gray-800"
                     >
                       <option value="general">General</option>
                       <option value="executive">Executive</option>
@@ -213,7 +213,7 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
                     <select
                       value={localSettings.structure}
                       onChange={(e) => handleInputChange('structure', e.target.value as any)}
-                      className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 pr-8 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm appearance-none transition-colors duration-200 text-gray-800"
+                      className="w-full rounded-lg border border-gray-300 bg-white py-1.5 px-2.5 pr-8 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm appearance-none transition-colors duration-200 text-gray-800"
                     >
                       <option value="paragraph">Paragraph</option>
                       <option value="bulleted">Bulleted</option>
@@ -230,15 +230,15 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
             </div>
             
             {/* Sections */}
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-3">
-              <div className="flex items-center gap-2 mb-2">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-2">
+              <div className="flex items-center gap-2 mb-1">
                 <div className="bg-indigo-100 p-1 rounded-full">
                   <ShieldCheckIcon className="h-4 w-4 text-indigo-600" />
                 </div>
                 <h4 className="text-sm font-semibold text-gray-900">Narrative Sections</h4>
               </div>
               
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              <div className="grid grid-cols-2 gap-1 sm:grid-cols-3">
                 {Object.entries(localSettings.sections).map(([section, enabled]) => {
                   const sectionName = section.charAt(0).toUpperCase() + section.slice(1).replace(/-/g, ' ');
                   return (
@@ -261,22 +261,22 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
                   );
                 })}
               </div>
-              <p className="mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-md border border-gray-100">
+              <p className="mt-1 text-xs text-gray-600 bg-gray-50 p-2 rounded-md border border-gray-100">
                 Select which sections to include in the generated narrative
               </p>
             </div>
             
             {/* Compliance */}
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-3">
-              <div className="flex items-center gap-2 mb-2">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-2">
+              <div className="flex items-center gap-2 mb-1">
                 <div className="bg-green-100 p-1 rounded-full">
                   <ShieldCheckIcon className="h-4 w-4 text-green-600" />
                 </div>
                 <h4 className="text-sm font-semibold text-gray-900">Compliance Settings</h4>
               </div>
               
-              <div className="space-y-3">
-                <div className={`flex items-center p-3 rounded-lg border ${localSettings.disclaimer.enabled ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'} transition-colors duration-200`}>
+              <div className="space-y-2">
+                <div className={`flex items-center p-2 rounded-lg border ${localSettings.disclaimer.enabled ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'} transition-colors duration-200`}>
                   <input
                     id="disclaimer-enabled"
                     type="checkbox"
@@ -284,7 +284,7 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
                     onChange={(e) => handleNestedChange('disclaimer', 'enabled', e.target.checked)}
                     className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500 transition-colors duration-200"
                   />
-                  <div className="ml-3">
+                  <div className="ml-2">
                     <label htmlFor="disclaimer-enabled" className="text-sm font-medium text-gray-800">
                       Include AI-generated content disclaimer
                     </label>
@@ -293,13 +293,13 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
                 </div>
                 
                 {localSettings.disclaimer.enabled && (
-                  <div className="ml-6 p-3 rounded-lg border border-gray-100 bg-gray-50">
+                  <div className="ml-5 p-2 rounded-lg border border-gray-100 bg-gray-50">
                     <label className="block text-xs font-medium text-gray-800 mb-2">Disclaimer Style</label>
                     <div className="relative">
                       <select
                         value={localSettings.disclaimer.style}
                         onChange={(e) => handleNestedChange('disclaimer', 'style', e.target.value)}
-                        className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 pr-8 shadow-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 text-sm appearance-none transition-colors duration-200 text-gray-800"
+                        className="w-full rounded-lg border border-gray-300 bg-white py-1.5 px-2.5 pr-8 shadow-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 text-sm appearance-none transition-colors duration-200 text-gray-800"
                       >
                         <option value="standard">Standard</option>
                         <option value="minimal">Minimal</option>
@@ -314,7 +314,7 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
                   </div>
                 )}
                 
-                <div className={`flex items-center p-3 rounded-lg border bg-gray-50 border-gray-200 transition-colors duration-200`}>
+                <div className={`flex items-center p-2 rounded-lg border bg-gray-50 border-gray-200 transition-colors duration-200`}>
                   <input
                     id="compliance-focused"
                     type="checkbox"
@@ -322,7 +322,7 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
                     onChange={(e) => handleNestedChange('compliance', 'focused', e.target.checked)}
                     className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500 transition-colors duration-200"
                   />
-                  <div className="ml-3">
+                  <div className="ml-2">
                     <label htmlFor="compliance-focused" className="text-sm text-gray-800">
                       Emphasize compliance with employment regulations
                     </label>
@@ -333,17 +333,17 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
             </div>
             
             {/* Advanced */}
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-3">
-              <div className="flex items-center gap-2 mb-2">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-2">
+              <div className="flex items-center gap-2 mb-1">
                 <div className="bg-purple-100 p-1 rounded-full">
                   <AdjustmentsHorizontalIcon className="h-4 w-4 text-purple-600" />
                 </div>
                 <h4 className="text-sm font-semibold text-gray-900">Advanced Settings</h4>
               </div>
               
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <div className="p-2 rounded-lg border border-gray-200 bg-white hover:shadow-sm transition-shadow duration-200">
-                  <label className="block text-xs font-medium text-gray-800 mb-2">
+                  <label className="block text-xs font-medium text-gray-800 mb-1">
                     Max Characters
                   </label>
                   <div className="relative">
@@ -351,17 +351,17 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
                       type="number"
                       value={localSettings.constraints.maxChars || ''}
                       onChange={(e) => handleNestedChange('constraints', 'maxChars', e.target.value ? parseInt(e.target.value, 10) : undefined)}
-                      className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 sm:text-sm transition-colors duration-200 text-gray-800"
+                      className="w-full rounded-lg border border-gray-300 bg-white py-1.5 px-2.5 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 sm:text-sm transition-colors duration-200 text-gray-800"
                       placeholder="2000"
                     />
                   </div>
-                  <p className="mt-2 text-xs text-gray-600">
+                  <p className="mt-1 text-xs text-gray-600">
                     Maximum character limit for the generated narrative
                   </p>
                 </div>
                 
                 <div className="p-2 rounded-lg border border-gray-200 bg-white hover:shadow-sm transition-shadow duration-200">
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between mb-1">
                     <label className="block text-xs font-medium text-gray-800">
                       Avoid Overclaiming
                     </label>
@@ -393,25 +393,25 @@ export const PromptSettingsDialog: React.FC<PromptSettingsDialogProps> = ({ isOp
         </div>
         
         {/* Footer */}
-        <div className="border-t border-gray-200 px-4 py-3 bg-gradient-to-b from-white to-gray-50 flex justify-end space-x-2">
+        <div className="border-t border-gray-200 px-3 py-2 bg-gradient-to-b from-white to-gray-50 flex justify-end space-x-2">
           <button
             type="button"
             onClick={handleReset}
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
+            className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
           >
             Reset
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
+            className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleApply}
-            className="rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-2 text-sm font-medium text-white shadow-sm hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
+            className="rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
           >
             Apply Changes
           </button>
