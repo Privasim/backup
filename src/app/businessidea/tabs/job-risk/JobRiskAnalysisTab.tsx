@@ -5,8 +5,9 @@ import { DataDrivenInsights } from '@/components/insights/DataDrivenInsights';
 import { AutomationExposureCard } from '@/components/visualizations/automation-exposure-card';
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
 import { useProfileIntegration } from '@/components/chatbox/hooks/useProfileIntegration';
-import { useOccupationRisk } from '@/hooks/useOccupationRisk';
-import { useTaskAutomationData } from '@/hooks/useTaskAutomationData';
+import { useRealOccupationRisk } from '@/hooks/useRealOccupationRisk';
+import { useRealTaskAutomationData } from '@/hooks/useRealTaskAutomationData';
+import { ResearchServiceProvider } from '@/lib/research/ResearchServiceProvider';
 import { adaptJobRiskToInsightsVM } from './utils/adaptJobRiskToInsightsVM';
 import { chatboxDebug } from '@/app/businessidea/utils/logStore';
 import { Cog6ToothIcon } from '@heroicons/react/24/outline';
@@ -41,8 +42,8 @@ interface Insights {
 const JobRiskAnalysisContent = () => {
   const { profileData, startAnalysis, config } = useChatbox();
   const { getAnalysisReadiness } = useProfileIntegration();
-  const { data: occupationRisk, loading: occupationLoading } = useOccupationRisk();
-  const { data: taskAutomation, loading: taskLoading } = useTaskAutomationData();
+  const { data: occupationRisk, loading: occupationLoading } = useRealOccupationRisk();
+  const { data: taskAutomation, loading: taskLoading } = useRealTaskAutomationData();
   const { settings: promptSettings } = useInsightsPrompt();
   const [insights, setInsights] = useState<any>(null);
   const [generating, setGenerating] = useState(false);
@@ -72,7 +73,7 @@ const JobRiskAnalysisContent = () => {
         threatDrivers: occupationRisk?.threatDrivers,
         automationExposure: taskAutomation?.automationExposure,
         skillImpacts: occupationRisk?.skillImpacts,
-        mitigation: occupationRisk?.mitigation,
+        mitigation: (occupationRisk?.mitigation || []).map((action: string) => ({ action, priority: 'medium' as const })),
         sources: [
           ...(occupationRisk?.sources || []), 
           ...(taskAutomation?.sources || [])
@@ -224,8 +225,10 @@ const JobRiskAnalysisContent = () => {
 
 export default function JobRiskAnalysisTab() {
   return (
-    <InsightsPromptProvider>
-      <JobRiskAnalysisContent />
-    </InsightsPromptProvider>
+    <ResearchServiceProvider>
+      <InsightsPromptProvider>
+        <JobRiskAnalysisContent />
+      </InsightsPromptProvider>
+    </ResearchServiceProvider>
   );
 }
