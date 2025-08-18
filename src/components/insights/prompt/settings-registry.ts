@@ -20,6 +20,9 @@ export interface PromptSettings {
     enabled: boolean;
     style: 'soft' | 'strong';
   };
+  compliance: {
+    focused: boolean;
+  };
   constraints: {
     avoidOverclaiming: boolean;
     citeSources: boolean;
@@ -45,6 +48,9 @@ export const DEFAULT_PROMPT_SETTINGS: PromptSettings = {
   disclaimer: {
     enabled: true,
     style: 'soft',
+  },
+  compliance: {
+    focused: false,
   },
   constraints: {
     avoidOverclaiming: true,
