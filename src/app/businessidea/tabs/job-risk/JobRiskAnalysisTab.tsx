@@ -9,6 +9,7 @@ import { useProfileIntegration } from '@/components/chatbox/hooks/useProfileInte
 import { useOccupationRisk } from '@/hooks/useOccupationRisk';
 import { useTaskAutomationData } from '@/hooks/useTaskAutomationData';
 import { adaptJobRiskToInsightsVM } from './utils/adaptJobRiskToInsightsVM';
+import { chatboxDebug } from '@/app/businessidea/utils/logStore';
 
 interface ProfileReadiness {
   ready: boolean;
@@ -46,8 +47,13 @@ export default function JobRiskAnalysisTab() {
   const profileReadiness = profileData ? getAnalysisReadiness(profileData) : { ready: false, completionLevel: 0, missing: [], requirements: { minCompletion: 0.8, autoTrigger: false } };
 
   const handleGenerateInsights = async () => {
+    chatboxDebug.info('backend-analysis', 'Generate Insights clicked');
     if (!profileReadiness.ready) {
       setErrors(['Please complete your profile before generating insights']);
+      chatboxDebug.warn('backend-analysis', 'Profile not ready for analysis', {
+        completionLevel: profileReadiness.completionLevel,
+        missing: profileReadiness.missing
+      });
       return;
     }
 
@@ -67,14 +73,28 @@ export default function JobRiskAnalysisTab() {
         sources: [...(occupationRisk?.sources || []), ...(taskAutomation?.sources || [])]
       };
 
+      chatboxDebug.debug('backend-analysis', 'Prepared research data', {
+        riskScore: researchData.riskScore,
+        threatDrivers: researchData.threatDrivers?.length || 0,
+        automationExposure: researchData.automationExposure?.length || 0,
+        skillImpacts: researchData.skillImpacts?.length || 0,
+        mitigation: researchData.mitigation?.length || 0,
+        sources: researchData.sources?.length || 0
+      });
+
       // Use chatbox to trigger AI analysis
+      chatboxDebug.info('backend-analysis', 'Starting backend analysis');
       await startAnalysis(true, researchData);
+      chatboxDebug.success('backend-analysis', 'Backend analysis started');
       
       // Adapt the results to insights view model
       const adaptedInsights = adaptJobRiskToInsightsVM(researchData);
       setInsights(adaptedInsights);
     } catch (error) {
       setErrors([error instanceof Error ? error.message : 'Failed to generate insights']);
+      chatboxDebug.error('backend-analysis', 'Failed to generate insights', {
+        message: error instanceof Error ? error.message : String(error)
+      });
     } finally {
       setGenerating(false);
     }

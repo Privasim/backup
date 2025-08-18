@@ -20,6 +20,7 @@ import { useStorageManager } from './hooks/useStorageManager';
 import { useCacheManager } from './hooks/useCacheManager';
 import { ImplementationPlan } from '@/features/implementation-plan/types';
 import { OpenRouterClient } from '@/lib/openrouter/client';
+import { chatboxDebug } from '@/app/businessidea/utils/logStore';
 
 interface PlanOutline {
   title: string;
@@ -245,6 +246,15 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
       config: state.config
     });
 
+    chatboxDebug.info('backend-analysis', 'startAnalysis called', {
+      hasApiKey: !!state.config.apiKey,
+      hasModel: !!state.config.model,
+      hasProfileData: !!profileData,
+      hasPassedData: !!data,
+      streaming: !!useStreaming,
+      model: state.config.model
+    });
+
     // Use passed data if provided, otherwise fall back to context profileData
     const analysisData = data || profileData;
 
@@ -256,13 +266,16 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
         status: 'error', 
         error 
       }));
+      chatboxDebug.error('backend-analysis', 'Missing API key or model', { hasApiKey: !!state.config.apiKey, hasModel: !!state.config.model });
       return;
     }
 
     // Check cache first
+    chatboxDebug.debug('backend-analysis', 'Checking cache for previous analysis result');
     const cachedResult = await cacheManager.getCachedResult(state.config, profileDataHash);
     if (cachedResult) {
       console.log('Using cached analysis result');
+      chatboxDebug.success('backend-analysis', 'Using cached analysis result', { cached: true });
       
       // Add cached result as message
       const cachedMessage: ChatboxMessageData = {
@@ -284,7 +297,10 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
+    chatboxDebug.debug('backend-analysis', 'Cache miss; proceeding to analysis');
+
     setState(prev => ({ ...prev, status: 'analyzing', error: undefined }));
+    chatboxDebug.info('backend-analysis', 'Analysis started', { streaming: !!useStreaming, model: state.config.model });
     
     // Add initial message to show analysis is starting
     const analysisMessageId = generateId();
@@ -308,6 +324,9 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
       
       const provider = analysisService.findProviderForModel(state.config.model);
       console.log('ChatboxProvider: Provider found:', !!provider, provider?.id);
+      if (provider) {
+        chatboxDebug.info('backend-analysis', 'Provider selected', { providerId: provider.id, model: state.config.model });
+      }
       
       if (!provider) {
         const availableProviders = analysisService.getAllProviders();
@@ -315,6 +334,7 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
           model: state.config.model,
           availableProviders: availableProviders.map(p => ({ id: p.id, supportedModels: p.supportedModels }))
         });
+        chatboxDebug.error('backend-analysis', 'No provider found for model', { model: state.config.model });
         throw new Error(`No provider found for model: ${state.config.model}`);
       }
 
@@ -322,6 +342,7 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
       
       if (useStreaming && (provider as any).analyzeStreaming) {
         // Use streaming analysis
+        chatboxDebug.debug('backend-analysis', 'Streaming analysis started', { providerId: provider.id });
         result = await (provider as any).analyzeStreaming(
           state.config, 
           analysisData,
@@ -340,6 +361,7 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
       } else {
         // Use regular analysis
         console.log('ChatboxProvider: Starting regular analysis with profile data:', analysisData);
+        chatboxDebug.debug('backend-analysis', 'Regular analysis started', { providerId: provider.id });
         result = await analysisService.analyze(state.config, analysisData);
         console.log('ChatboxProvider: Analysis completed:', result);
         
@@ -363,19 +385,23 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
         status: 'completed',
         currentAnalysis: result
       }));
+      chatboxDebug.success('backend-analysis', 'Analysis completed', { status: result.status });
 
       try {
         // Cache the result
         await cacheManager.cacheResult(state.config, profileDataHash, result);
+        chatboxDebug.info('backend-analysis', 'Result cached', { model: state.config.model });
         
         // Add to history
         storageManager.addToHistory(result);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         console.error('Failed to cache or save analysis result:', errorMessage);
+        chatboxDebug.warn('backend-analysis', 'Failed to cache or save analysis result', { message: errorMessage });
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      chatboxDebug.error('backend-analysis', 'Analysis failed', { message: errorMessage });
       
       setState(prev => ({
         ...prev,
