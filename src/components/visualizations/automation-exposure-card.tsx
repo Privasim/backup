@@ -127,6 +127,20 @@ export function AutomationExposureCard({
         // Silently ignore copy failures
       });
   }, [contextCopyText]);
+ 
+  // Derived severity and top-3 tasks for additional context
+  const severityLabel = useMemo<'Low' | 'Moderate' | 'High'>(() => {
+    const a = contextStats.avg;
+    return a > 70 ? 'High' : a > 40 ? 'Moderate' : 'Low';
+  }, [contextStats.avg]);
+  const severityColor = useMemo(() => (
+    severityLabel === 'High'
+      ? 'text-red-700 bg-red-50 ring-red-600/20'
+      : severityLabel === 'Moderate'
+      ? 'text-amber-700 bg-amber-50 ring-amber-600/20'
+      : 'text-emerald-700 bg-emerald-50 ring-emerald-600/20'
+  ), [severityLabel]);
+  const topThree = useMemo(() => barItems.slice(0, Math.min(3, barItems.length)), [barItems]);
   
   return (
     <div className={`bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden ${className}`}>
@@ -156,6 +170,9 @@ export function AutomationExposureCard({
               <div className="flex items-center gap-2">
                 <Info className="h-4 w-4 text-gray-600" />
                 <h4 id={contextHeadingId} className="text-sm font-medium text-gray-900">Context</h4>
+                <span className={`ml-2 inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${severityColor}`} aria-label={`Overall exposure: ${severityLabel}`}>
+                  Overall: {severityLabel}
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <button
@@ -190,6 +207,11 @@ export function AutomationExposureCard({
                 {contextStats.topTaskLabel && (
                   <li role="listitem" className="text-sm text-gray-700">
                     <span className="font-medium text-gray-800">Top task:</span> {contextStats.topTaskLabel} ({contextStats.topTaskValue}%)
+                  </li>
+                )}
+                {topThree.length > 0 && (
+                  <li role="listitem" className="text-sm text-gray-700">
+                    <span className="font-medium text-gray-800">Top tasks:</span> {topThree.map(t => `${t.label} (${t.value}%)`).join(', ')}
                   </li>
                 )}
                 <li role="listitem" className="text-sm text-gray-700">
