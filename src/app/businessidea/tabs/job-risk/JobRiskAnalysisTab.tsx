@@ -33,7 +33,7 @@ interface Insights {
   // Add properties for insights
 }
 
-export function JobRiskAnalysisTab() {
+export default function JobRiskAnalysisTab() {
   const { data: jobRiskData, loading: jobRiskLoading, error: jobRiskError } = useJobRiskData();
   const { profileData, startAnalysis } = useChatbox();
   const { getAnalysisReadiness } = useProfileIntegration();

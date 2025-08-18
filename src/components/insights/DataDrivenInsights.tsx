@@ -1,7 +1,17 @@
 import React from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '../ui/skeleton';
 import { AlertCircle, ExternalLink, TrendingDown, TrendingUp, Shield, Zap } from 'lucide-react';
-import { DataDrivenInsightsProps, AutomationExposureItem, SkillImpactItem, MitigationItem } from './types';
+import type { DataDrivenInsightsModel, AutomationExposureItem, SkillImpactItem, MitigationItem, InsightSource } from './types';
+
+interface DataDrivenInsightsProps {
+  insights?: DataDrivenInsightsModel;
+  loading?: boolean;
+  errors?: string[];
+  slots?: {
+    headerRight?: React.ReactNode;
+    footer?: React.ReactNode;
+  };
+}
 
 export function DataDrivenInsights({ 
   insights, 
@@ -28,7 +38,7 @@ export function DataDrivenInsights({
           <h3 className="text-sm font-medium text-red-800">Analysis Error</h3>
         </div>
         <ul className="mt-2 text-sm text-red-700">
-          {errors.map((error, index) => (
+          {errors.map((error: string, index: number) => (
             <li key={index}>{error}</li>
           ))}
         </ul>
@@ -95,7 +105,7 @@ export function DataDrivenInsights({
         <div>
           <h3 className="text-sm font-medium mb-3">Key Threat Drivers</h3>
           <div className="space-y-2">
-            {threatDrivers.map((driver, index) => (
+            {threatDrivers.map((driver: string, index: number) => (
               <div key={index} className="flex items-center space-x-2">
                 <TrendingDown className="h-4 w-4 text-red-500" />
                 <span className="text-sm text-gray-700">{driver}</span>
@@ -110,7 +120,7 @@ export function DataDrivenInsights({
         <div>
           <h3 className="text-sm font-medium mb-3">Automation Exposure</h3>
           <div className="space-y-3">
-            {automationExposure.map((item, index) => (
+            {automationExposure.map((item: AutomationExposureItem, index: number) => (
               <div key={index} className="flex justify-between items-center">
                 <span className="text-sm text-gray-700">{item.task}</span>
                 <div className="flex items-center space-x-2">
@@ -136,7 +146,7 @@ export function DataDrivenInsights({
         <div>
           <h3 className="text-sm font-medium mb-3">Skill Impact Analysis</h3>
           <div className="space-y-3">
-            {skillImpacts.map((item, index) => (
+            {skillImpacts.map((item: SkillImpactItem, index: number) => (
               <div key={index} className="p-3 rounded-lg border bg-gray-50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium">{item.skill}</span>
@@ -162,7 +172,7 @@ export function DataDrivenInsights({
         <div>
           <h3 className="text-sm font-medium mb-3">Mitigation Strategies</h3>
           <div className="space-y-3">
-            {mitigation.map((item, index) => (
+            {mitigation.map((item: MitigationItem, index: number) => (
               <div key={index} className="p-3 rounded-lg border bg-blue-50">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
@@ -188,7 +198,7 @@ export function DataDrivenInsights({
         <div>
           <h3 className="text-sm font-medium mb-3">Sources</h3>
           <div className="space-y-2">
-            {sources.map((source, index) => (
+            {sources.map((source: InsightSource, index: number) => (
               <div key={index} className="flex items-center space-x-2">
                 <ExternalLink className="h-4 w-4 text-gray-400" />
                 <a 
