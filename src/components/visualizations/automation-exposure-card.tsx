@@ -9,6 +9,8 @@ interface AutomationExposureCardProps {
   topN?: number;
   minExposure?: number;
   className?: string;
+  loading?: boolean;
+  error?: string;
 }
 
 export function AutomationExposureCard({
@@ -16,7 +18,9 @@ export function AutomationExposureCard({
   title = 'Automation Exposure',
   topN = 8,
   minExposure = 0,
-  className = ''
+  className = '',
+  loading = false,
+  error
 }: AutomationExposureCardProps) {
   const contextHeadingId = useId();
   // Adapter: insights -> dataset mapping with memoization
@@ -141,6 +145,38 @@ export function AutomationExposureCard({
       : 'text-emerald-700 bg-emerald-50 ring-emerald-600/20'
   ), [severityLabel]);
   const topThree = useMemo(() => barItems.slice(0, Math.min(3, barItems.length)), [barItems]);
+  
+  // Import the CardSkeletonLoader component
+  const { CardSkeletonLoader } = require('@/components/ui/SkeletonLoader');
+  
+  if (loading) {
+    return (
+      <div className={`bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden ${className}`}>
+        <div className="px-4 py-3 border-b border-gray-100">
+          <h3 className="text-base font-semibold text-gray-800">{title}</h3>
+        </div>
+        <div className="p-4">
+          <CardSkeletonLoader />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden ${className}`}>
+        <div className="px-4 py-3 border-b border-gray-100">
+          <h3 className="text-base font-semibold text-gray-800">{title}</h3>
+        </div>
+        <div className="p-4">
+          <div className="p-4 rounded-md bg-red-50 border border-red-200">
+            <p className="text-red-700">{error}</p>
+            <p className="text-sm text-red-600 mt-2">Please try again or contact support if the issue persists.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className={`bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden ${className}`}>

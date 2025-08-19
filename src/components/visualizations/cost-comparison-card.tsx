@@ -13,6 +13,8 @@ export interface CostComparisonCardProps {
   profileLocation?: string;
   title?: string;
   className?: string;
+  loading?: boolean;
+  error?: string;
 }
 
 function LabeledNumberInput({
@@ -63,7 +65,7 @@ function LabeledNumberInput({
   );
 }
 
-export function CostComparisonCard({ insights, profileLocation, title = 'Human vs AI Cost Comparison', className }: CostComparisonCardProps) {
+export function CostComparisonCard({ insights, profileLocation, title = 'Human vs AI Cost Comparison', className, loading = false, error }: CostComparisonCardProps) {
   const loc = useMemo(() => resolveCurrencyAndLocale(profileLocation), [profileLocation]);
 
   const [persist, setPersist] = useState<boolean>(false);
@@ -73,11 +75,30 @@ export function CostComparisonCard({ insights, profileLocation, title = 'Human v
 
   // Initialize config from profile location and (optionally) localStorage
   useEffect(() => {
+    // Provide sensible defaults for the cost model configuration
     const baseCfg: CostModelConfig = {
       currency: loc.currency,
       locale: loc.locale,
-      human: {},
-      ai: {},
+      human: {
+        baseMonthly: 5000, // Default monthly salary
+        benefitsRate: 0.3, // 30% benefits
+        overheadRate: 0.2, // 20% overhead
+        toolingMonthly: 100,
+        trainingMonthly: 200,
+        managementOversightHours: 10,
+        hourlyRate: 50
+      },
+      ai: {
+        modelUsagePer1kTokens: 0.002, // Default token cost
+        estTokensPerTask: 1000,
+        tasksPerMonth: 500,
+        subscriptionsMonthly: 50,
+        infraMonthly: 100,
+        orchestrationMonthly: 50,
+        oversightHours: 5,
+        oversightHourlyRate: 50,
+        oneOffSetupCost: 2000
+      },
       analysis: { automationWeighting: 'mean' },
     };
     if (persist) {
@@ -103,6 +124,18 @@ export function CostComparisonCard({ insights, profileLocation, title = 'Human v
   }, [persist, cfg, storageKey]);
 
   const { state, result } = useCostComparison(insights, cfg);
+  
+  // Debug logging to help identify issues
+  useEffect(() => {
+    if (!state.ok && state.errors.length > 0) {
+      console.debug('CostComparisonCard: Errors in cost comparison calculation', {
+        errors: state.errors,
+        warnings: state.warnings,
+        insights: !!insights,
+        cfg: cfg
+      });
+    }
+  }, [state, insights, cfg]);
 
   const copySummary = () => {
     if (!result) return;
@@ -120,6 +153,34 @@ export function CostComparisonCard({ insights, profileLocation, title = 'Human v
   };
 
   const ready = state.ok && !!result;
+
+  // Import the CardSkeletonLoader component
+  const { CardSkeletonLoader } = require('@/components/ui/SkeletonLoader');
+
+  if (loading) {
+    return (
+      <section className={`rounded-lg border border-gray-200 bg-white p-4 shadow-sm ${className ?? ''}`} aria-labelledby="cost-card-title">
+        <div className="flex items-center justify-between mb-4">
+          <h3 id="cost-card-title" className="text-lg font-semibold text-gray-900">{title}</h3>
+        </div>
+        <CardSkeletonLoader />
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className={`rounded-lg border border-gray-200 bg-white p-4 shadow-sm ${className ?? ''}`} aria-labelledby="cost-card-title">
+        <div className="flex items-center justify-between mb-4">
+          <h3 id="cost-card-title" className="text-lg font-semibold text-gray-900">{title}</h3>
+        </div>
+        <div className="p-4 rounded-md bg-red-50 border border-red-200">
+          <p className="text-red-700">{error}</p>
+          <p className="text-sm text-red-600 mt-2">Please try again or contact support if the issue persists.</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className={`rounded-lg border border-gray-200 bg-white p-4 shadow-sm ${className ?? ''}`} aria-labelledby="cost-card-title">

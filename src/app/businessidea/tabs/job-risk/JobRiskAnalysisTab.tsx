@@ -16,6 +16,7 @@ import { InsightsPromptProvider, useInsightsPrompt } from '@/components/insights
 import { PromptSettingsDialog } from '@/components/insights/prompt/prompt-settings-dialog';
 import { generateNarratives } from '@/components/insights/prompt/narrative-service';
 import { MitigationItem } from '@/components/insights/types';
+import { ConfirmDialog, VisualizationOption } from '@/components/ui/ConfirmDialog';
 
 interface ProfileReadiness {
   ready: boolean;
@@ -36,6 +37,16 @@ interface ResearchData {
   sources?: { title: string; url?: string }[];
 }
 
+interface VisualizationLoadState {
+  costComparison: 'idle' | 'loading' | 'success' | 'error';
+  automationExposure: 'idle' | 'loading' | 'success' | 'error';
+}
+
+interface VisualizationSelections {
+  costComparison: boolean;
+  automationExposure: boolean;
+}
+
 interface Insights {
   // Add properties for insights
 }
@@ -50,6 +61,18 @@ const JobRiskAnalysisContent = () => {
   const [generating, setGenerating] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [lastResearchData, setLastResearchData] = useState<ResearchData | null>(null);
+  const [visualizationSelections, setVisualizationSelections] = useState<VisualizationSelections>({
+    costComparison: true,
+    automationExposure: true
+  });
+  const [visualizationLoadStates, setVisualizationLoadStates] = useState<VisualizationLoadState>({
+    costComparison: 'idle',
+    automationExposure: 'idle'
+  });
+  const [visualizationErrors, setVisualizationErrors] = useState<Record<string, string>>({});
+  const [analysisStarted, setAnalysisStarted] = useState(false);
 
   const profileReadiness = profileData ? getAnalysisReadiness(profileData) : { ready: false, completionLevel: 0, missing: [], requirements: { minCompletion: 0.8, autoTrigger: false } };
 
@@ -66,6 +89,12 @@ const JobRiskAnalysisContent = () => {
 
     setGenerating(true);
     setErrors([]);
+    // Reset visualization states
+    setVisualizationLoadStates({
+      costComparison: 'idle',
+      automationExposure: 'idle'
+    });
+    setVisualizationErrors({});
 
     try {
       // Combine research data from hooks
@@ -120,15 +149,16 @@ const JobRiskAnalysisContent = () => {
       } else {
         chatboxDebug.warn('backend-analysis', 'No model or API key available for narrative generation');
       }
-
-      // Use chatbox to trigger AI analysis
-      chatboxDebug.info('backend-analysis', 'Starting backend analysis');
-      await startAnalysis(true, researchData);
-      chatboxDebug.success('backend-analysis', 'Backend analysis started');
       
       // Adapt the results to insights view model, including AI data if available
       const adaptedInsights = adaptJobRiskToInsightsVM(researchData, aiData);
       setInsights(adaptedInsights);
+      
+      // Store research data for later use in visualizations
+      setLastResearchData(researchData);
+      
+      // Show confirmation modal for visualizations
+      setShowConfirmModal(true);
     } catch (error) {
       setErrors([error instanceof Error ? error.message : 'Failed to generate insights']);
       chatboxDebug.error('backend-analysis', 'Failed to generate insights', {
@@ -138,10 +168,133 @@ const JobRiskAnalysisContent = () => {
       setGenerating(false);
     }
   };
+  
+  const handleVisualizationConfirm = (selections: Record<string, boolean>) => {
+    setVisualizationSelections({
+      costComparison: !!selections.costComparison,
+      automationExposure: !!selections.automationExposure
+    });
+    
+    // Start loading selected visualizations
+    loadSelectedVisualizations(selections);
+  };
+  
+  const loadSelectedVisualizations = async (selections: Record<string, boolean>) => {
+    // Only proceed if we have research data
+    if (!lastResearchData) {
+      chatboxDebug.error('visualization-loading', 'No research data available');
+      return;
+    }
+    
+    // Update load states for selected visualizations
+    const newLoadStates = { ...visualizationLoadStates };
+    if (selections.costComparison) {
+      newLoadStates.costComparison = 'loading';
+    }
+    if (selections.automationExposure) {
+      newLoadStates.automationExposure = 'loading';
+    }
+    setVisualizationLoadStates(newLoadStates);
+    
+    // Start backend analysis if not already started
+    if (!analysisStarted) {
+      try {
+        chatboxDebug.info('backend-analysis', 'Starting backend analysis for visualizations');
+        await startAnalysis(true, lastResearchData);
+        chatboxDebug.success('backend-analysis', 'Backend analysis started');
+        setAnalysisStarted(true);
+      } catch (error) {
+        chatboxDebug.error('backend-analysis', 'Failed to start backend analysis', {
+          message: error instanceof Error ? error.message : String(error)
+        });
+        // Set errors for all selected visualizations
+        const newErrors = { ...visualizationErrors };
+        if (selections.costComparison) {
+          newErrors.costComparison = 'Failed to start analysis';
+          newLoadStates.costComparison = 'error';
+        }
+        if (selections.automationExposure) {
+          newErrors.automationExposure = 'Failed to start analysis';
+          newLoadStates.automationExposure = 'error';
+        }
+        setVisualizationErrors(newErrors);
+        setVisualizationLoadStates(newLoadStates);
+        return;
+      }
+    }
+    
+    // Load cost comparison data if selected
+    if (selections.costComparison) {
+      try {
+        // Simulate API call with timeout
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        newLoadStates.costComparison = 'success';
+      } catch (error) {
+        chatboxDebug.error('visualization-loading', 'Failed to load cost comparison', {
+          message: error instanceof Error ? error.message : String(error)
+        });
+        newLoadStates.costComparison = 'error';
+        setVisualizationErrors(prev => ({
+          ...prev,
+          costComparison: 'Failed to load cost comparison data'
+        }));
+      }
+    }
+    
+    // Load automation exposure data if selected
+    if (selections.automationExposure) {
+      try {
+        // Simulate API call with timeout
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        newLoadStates.automationExposure = 'success';
+      } catch (error) {
+        chatboxDebug.error('visualization-loading', 'Failed to load automation exposure', {
+          message: error instanceof Error ? error.message : String(error)
+        });
+        newLoadStates.automationExposure = 'error';
+        setVisualizationErrors(prev => ({
+          ...prev,
+          automationExposure: 'Failed to load automation exposure data'
+        }));
+      }
+    }
+    
+    setVisualizationLoadStates(newLoadStates);
+  };
+  
+  const handleResumeAnalysis = () => {
+    setShowConfirmModal(true);
+  };
+
+  // Define visualization options for the confirmation modal
+  const visualizationOptions: VisualizationOption[] = [
+    {
+      id: 'costComparison',
+      label: 'Human vs AI Cost Comparison',
+      description: 'Compare the cost of human labor vs AI automation for your job role',
+      selected: visualizationSelections.costComparison
+    },
+    {
+      id: 'automationExposure',
+      label: 'Automation Exposure Risk',
+      description: 'Analyze which tasks in your job are most susceptible to automation',
+      selected: visualizationSelections.automationExposure
+    }
+  ];
 
   return (
     <>
       <PromptSettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <ConfirmDialog
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={handleVisualizationConfirm}
+        title="Generate Advanced Visualizations"
+        description="Select which visualizations you'd like to generate. This will perform additional analysis and may take a moment."
+        confirmLabel="Generate Selected"
+        cancelLabel="Skip for Now"
+        visualizationOptions={visualizationOptions}
+      />
       <div className="w-full h-full">
         <div className="space-y-6 pb-12">
           <div className="flex items-center gap-2">
@@ -197,35 +350,47 @@ const JobRiskAnalysisContent = () => {
                         <div className="text-sm text-gray-500">
                           {profileReadiness.ready ? `Preset: ${promptSettings.name}` : 'Complete profile to unlock'}
                         </div>
-                      )
+                      ),
+                      footer: insights && !analysisStarted ? (
+                        <div className="mt-4 p-3 bg-gray-50 rounded-md border border-gray-200">
+                          <p className="text-sm text-gray-700">Want to see more detailed visualizations?</p>
+                          <button
+                            onClick={handleResumeAnalysis}
+                            className="mt-2 px-4 py-1.5 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-all"
+                          >
+                            Generate Visualizations
+                          </button>
+                        </div>
+                      ) : null
                     }}
                   />
                 </div>
                 
-                {insights && (
+                {insights && visualizationSelections.costComparison && (
                   <div className="lg:col-span-2">
                     <CostComparisonCard 
                       insights={insights}
                       profileLocation={profileData?.profile?.location}
                       title="Human vs AI Cost Comparison"
+                      loading={visualizationLoadStates.costComparison === 'loading'}
+                      error={visualizationErrors.costComparison}
                     />
                   </div>
                 )}
 
-                {insights && (
+                {insights && visualizationSelections.automationExposure && (
                   <div className="lg:col-span-2">
                     <AutomationExposureCard 
                       insights={insights}
                       title="Automation Exposure Risk"
                       topN={8}
                       minExposure={10}
+                      loading={visualizationLoadStates.automationExposure === 'loading'}
+                      error={visualizationErrors.automationExposure}
                     />
                   </div>
                 )}
               </div>
-
-              {/* Legacy component for backward compatibility */}
-              {/* Legacy InsightsPanel removed to prevent duplicate rendering */}
             </div>
           </div>
         </div>
