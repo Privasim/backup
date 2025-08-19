@@ -24,6 +24,7 @@ export interface ProfileData {
   
   // Professional fields
   industry?: string;
+  location?: string;
   employmentType?: string;
   yearsOfExperience?: string;
   toolsUsed?: string[];

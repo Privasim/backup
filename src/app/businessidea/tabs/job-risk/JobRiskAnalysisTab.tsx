@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { DataDrivenInsights } from '@/components/insights/DataDrivenInsights';
 import { AutomationExposureCard } from '@/components/visualizations/automation-exposure-card';
+import { CostComparisonCard } from '@/components/visualizations/cost-comparison-card';
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
 import { useProfileIntegration } from '@/components/chatbox/hooks/useProfileIntegration';
 import { useRealOccupationRisk } from '@/hooks/useRealOccupationRisk';
@@ -201,6 +202,16 @@ const JobRiskAnalysisContent = () => {
                   />
                 </div>
                 
+                {insights && (
+                  <div className="lg:col-span-2">
+                    <CostComparisonCard 
+                      insights={insights}
+                      profileLocation={profileData?.profile?.location}
+                      title="Human vs AI Cost Comparison"
+                    />
+                  </div>
+                )}
+
                 {insights && (
                   <div className="lg:col-span-2">
                     <AutomationExposureCard 

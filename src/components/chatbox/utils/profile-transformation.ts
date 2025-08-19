@@ -312,6 +312,7 @@ export function adaptUserProfileToFormData(user: UserProfileData): ProfileFormDa
     profileType,
     // Common cross-role attributes (best-effort mapping)
     industry: user.industry,
+    location: user.location,
     // Student
     educationLevel: user.roleDetails?.role === Role.Student ? user.roleDetails.student?.educationLevel : undefined,
     fieldOfStudy: user.roleDetails?.role === Role.Student ? user.roleDetails.student?.fieldOfStudy : undefined,
