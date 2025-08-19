@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useMemo, useState, useCallback, useId, useEffect } from 'react';
 import { DataDrivenInsightsModel } from '../insights/types';
 import { AutomationExposureBar } from './automation-exposure-bar';

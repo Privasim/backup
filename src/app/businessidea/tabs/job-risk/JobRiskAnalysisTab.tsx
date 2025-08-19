@@ -38,13 +38,13 @@ interface ResearchData {
 }
 
 interface VisualizationLoadState {
-  costComparison: 'idle' | 'loading' | 'success' | 'error';
-  automationExposure: 'idle' | 'loading' | 'success' | 'error';
+  // Only track heavy visuals that need backend analysis
+  [key: string]: 'idle' | 'loading' | 'success' | 'error';
 }
 
 interface VisualizationSelections {
-  costComparison: boolean;
-  automationExposure: boolean;
+  // Only track heavy visuals that need backend analysis
+  [key: string]: boolean;
 }
 
 interface Insights {
@@ -63,14 +63,8 @@ const JobRiskAnalysisContent = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [lastResearchData, setLastResearchData] = useState<ResearchData | null>(null);
-  const [visualizationSelections, setVisualizationSelections] = useState<VisualizationSelections>({
-    costComparison: true,
-    automationExposure: true
-  });
-  const [visualizationLoadStates, setVisualizationLoadStates] = useState<VisualizationLoadState>({
-    costComparison: 'idle',
-    automationExposure: 'idle'
-  });
+  const [visualizationSelections, setVisualizationSelections] = useState<VisualizationSelections>({});
+  const [visualizationLoadStates, setVisualizationLoadStates] = useState<VisualizationLoadState>({});
   const [visualizationErrors, setVisualizationErrors] = useState<Record<string, string>>({});
   const [analysisStarted, setAnalysisStarted] = useState(false);
 
@@ -89,11 +83,8 @@ const JobRiskAnalysisContent = () => {
 
     setGenerating(true);
     setErrors([]);
-    // Reset visualization states
-    setVisualizationLoadStates({
-      costComparison: 'idle',
-      automationExposure: 'idle'
-    });
+    // Reset visualization states for heavy visuals
+    setVisualizationLoadStates({});
     setVisualizationErrors({});
 
     try {
@@ -170,12 +161,9 @@ const JobRiskAnalysisContent = () => {
   };
   
   const handleVisualizationConfirm = (selections: Record<string, boolean>) => {
-    setVisualizationSelections({
-      costComparison: !!selections.costComparison,
-      automationExposure: !!selections.automationExposure
-    });
+    setVisualizationSelections(selections);
     
-    // Start loading selected visualizations
+    // Start loading selected visualizations for heavy visuals only
     loadSelectedVisualizations(selections);
   };
   
@@ -186,15 +174,20 @@ const JobRiskAnalysisContent = () => {
       return;
     }
     
-    // Update load states for selected visualizations
-    const newLoadStates = { ...visualizationLoadStates };
-    if (selections.costComparison) {
-      newLoadStates.costComparison = 'loading';
+    // Get only the heavy visual keys that are selected
+    const selectedHeavyVisuals = Object.keys(selections).filter(key => selections[key]);
+    if (selectedHeavyVisuals.length === 0) {
+      return;
     }
-    if (selections.automationExposure) {
-      newLoadStates.automationExposure = 'loading';
-    }
-    setVisualizationLoadStates(newLoadStates);
+    
+    // Update load states for selected heavy visualizations using immutable updates
+    setVisualizationLoadStates(prev => {
+      const newStates = { ...prev };
+      selectedHeavyVisuals.forEach(key => {
+        newStates[key] = 'loading';
+      });
+      return newStates;
+    });
     
     // Start backend analysis if not already started
     if (!analysisStarted) {
@@ -207,79 +200,69 @@ const JobRiskAnalysisContent = () => {
         chatboxDebug.error('backend-analysis', 'Failed to start backend analysis', {
           message: error instanceof Error ? error.message : String(error)
         });
-        // Set errors for all selected visualizations
-        const newErrors = { ...visualizationErrors };
-        if (selections.costComparison) {
-          newErrors.costComparison = 'Failed to start analysis';
-          newLoadStates.costComparison = 'error';
-        }
-        if (selections.automationExposure) {
-          newErrors.automationExposure = 'Failed to start analysis';
-          newLoadStates.automationExposure = 'error';
-        }
-        setVisualizationErrors(newErrors);
-        setVisualizationLoadStates(newLoadStates);
+        
+        // Set errors for all selected heavy visualizations using immutable updates
+        setVisualizationLoadStates(prev => {
+          const newStates = { ...prev };
+          selectedHeavyVisuals.forEach(key => {
+            newStates[key] = 'error';
+          });
+          return newStates;
+        });
+        
+        setVisualizationErrors(prev => {
+          const newErrors = { ...prev };
+          selectedHeavyVisuals.forEach(key => {
+            newErrors[key] = 'Failed to start analysis';
+          });
+          return newErrors;
+        });
         return;
       }
     }
     
-    // Load cost comparison data if selected
-    if (selections.costComparison) {
+    // Process each heavy visualization with proper error handling and immutable updates
+    for (const key of selectedHeavyVisuals) {
       try {
-        // Simulate API call with timeout
+        // Simulate API call with timeout for heavy visuals
         await new Promise(resolve => setTimeout(resolve, 1500));
-        newLoadStates.costComparison = 'success';
+        
+        setVisualizationLoadStates(prev => ({
+          ...prev,
+          [key]: 'success'
+        }));
       } catch (error) {
-        chatboxDebug.error('visualization-loading', 'Failed to load cost comparison', {
+        chatboxDebug.error('visualization-loading', `Failed to load visualization: ${key}`, {
           message: error instanceof Error ? error.message : String(error)
         });
-        newLoadStates.costComparison = 'error';
+        
+        setVisualizationLoadStates(prev => ({
+          ...prev,
+          [key]: 'error'
+        }));
+        
         setVisualizationErrors(prev => ({
           ...prev,
-          costComparison: 'Failed to load cost comparison data'
+          [key]: `Failed to load ${key} data`
         }));
       }
     }
-    
-    // Load automation exposure data if selected
-    if (selections.automationExposure) {
-      try {
-        // Simulate API call with timeout
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        newLoadStates.automationExposure = 'success';
-      } catch (error) {
-        chatboxDebug.error('visualization-loading', 'Failed to load automation exposure', {
-          message: error instanceof Error ? error.message : String(error)
-        });
-        newLoadStates.automationExposure = 'error';
-        setVisualizationErrors(prev => ({
-          ...prev,
-          automationExposure: 'Failed to load automation exposure data'
-        }));
-      }
-    }
-    
-    setVisualizationLoadStates(newLoadStates);
   };
   
   const handleResumeAnalysis = () => {
     setShowConfirmModal(true);
   };
 
-  // Define visualization options for the confirmation modal
+  // Define visualization options for the confirmation modal (heavy visuals only)
   const visualizationOptions: VisualizationOption[] = [
-    {
-      id: 'costComparison',
-      label: 'Human vs AI Cost Comparison',
-      description: 'Compare the cost of human labor vs AI automation for your job role',
-      selected: visualizationSelections.costComparison
-    },
-    {
-      id: 'automationExposure',
-      label: 'Automation Exposure Risk',
-      description: 'Analyze which tasks in your job are most susceptible to automation',
-      selected: visualizationSelections.automationExposure
-    }
+    // Add heavy visual options here when available
+    // Example:
+    // {
+    //   id: 'marketTrends',
+    //   label: 'Market Trends Analysis',
+    //   description: 'Deep analysis of market trends and future projections',
+    //   selected: visualizationSelections.marketTrends || false
+    // }
   ];
 
   return (
@@ -366,27 +349,27 @@ const JobRiskAnalysisContent = () => {
                   />
                 </div>
                 
-                {insights && visualizationSelections.costComparison && (
+                {insights && (
                   <div className="lg:col-span-2">
                     <CostComparisonCard 
                       insights={insights}
                       profileLocation={profileData?.profile?.location}
                       title="Human vs AI Cost Comparison"
-                      loading={visualizationLoadStates.costComparison === 'loading'}
-                      error={visualizationErrors.costComparison}
+                      loading={false}
+                      error={undefined}
                     />
                   </div>
                 )}
 
-                {insights && visualizationSelections.automationExposure && (
+                {insights && (
                   <div className="lg:col-span-2">
                     <AutomationExposureCard 
                       insights={insights}
                       title="Automation Exposure Risk"
                       topN={8}
                       minExposure={10}
-                      loading={visualizationLoadStates.automationExposure === 'loading'}
-                      error={visualizationErrors.automationExposure}
+                      loading={false}
+                      error={undefined}
                     />
                   </div>
                 )}
