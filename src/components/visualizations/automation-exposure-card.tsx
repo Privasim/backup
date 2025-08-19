@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useId } from 'react';
+import React, { useMemo, useState, useCallback, useId, useEffect } from 'react';
 import { DataDrivenInsightsModel } from '../insights/types';
 import { AutomationExposureBar } from './automation-exposure-bar';
 import { AlertCircle, Info, ChevronDown, ChevronUp, Copy, Check, ExternalLink } from 'lucide-react';
@@ -40,6 +40,27 @@ export function AutomationExposureCard({
   }, [insights, topN, minExposure]);
   
   const isEmpty = barItems.length === 0;
+
+  // Debug logging to help identify data/filters issues mirroring CostComparisonCard's approach
+  useEffect(() => {
+    if (!insights) {
+      console.debug('AutomationExposureCard: insights are missing');
+      return;
+    }
+    const raw = insights.automationExposure ?? [];
+    if (raw.length === 0) {
+      console.debug('AutomationExposureCard: no automationExposure data found in insights');
+    }
+    if (barItems.length === 0 && raw.length > 0) {
+      const sample = raw.slice(0, 5).map(i => ({ task: i.task, exposure: i.exposure }));
+      console.debug('AutomationExposureCard: items filtered out or below threshold', {
+        minExposure,
+        topN,
+        rawCount: raw.length,
+        sample,
+      });
+    }
+  }, [insights, barItems, minExposure, topN]);
 
   // Derived context statistics (based on items after filtering and slicing for display)
   const contextStats = useMemo(() => {
