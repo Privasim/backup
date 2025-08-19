@@ -17,6 +17,7 @@ import { PromptSettingsDialog } from '@/components/insights/prompt/prompt-settin
 import { generateNarratives } from '@/components/insights/prompt/narrative-service';
 import { MitigationItem } from '@/components/insights/types';
 import { ConfirmDialog, VisualizationOption } from '@/components/ui/ConfirmDialog';
+import QuickActionBar from '@/components/chatbox/QuickActionBar';
 
 interface ProfileReadiness {
   ready: boolean;
@@ -374,6 +375,7 @@ const JobRiskAnalysisContent = () => {
                   </div>
                 )}
               </div>
+              <QuickActionBar className="mt-6" />
             </div>
           </div>
         </div>
