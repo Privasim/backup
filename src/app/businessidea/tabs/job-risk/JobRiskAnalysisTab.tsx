@@ -6,6 +6,7 @@ import { AutomationExposureCard } from '@/components/visualizations/automation-e
 import { CostComparisonCard } from '@/components/visualizations/cost-comparison-card';
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
 import { useProfileIntegration } from '@/components/chatbox/hooks/useProfileIntegration';
+import { adaptFormDataToUserProfile } from '@/components/chatbox/utils/profile-transformation';
 import { useRealOccupationRisk } from '@/hooks/useRealOccupationRisk';
 import { useRealTaskAutomationData } from '@/hooks/useRealTaskAutomationData';
 import { ResearchServiceProvider } from '@/lib/research/ResearchServiceProvider';
@@ -18,6 +19,7 @@ import { generateNarratives } from '@/components/insights/prompt/narrative-servi
 import { MitigationItem } from '@/components/insights/types';
 import { ConfirmDialog, VisualizationOption } from '@/components/ui/ConfirmDialog';
 import QuickActionBar from '@/components/chatbox/QuickActionBar';
+import ProfileAnalysisTrigger from '@/components/chatbox/ProfileAnalysisTrigger';
 
 interface ProfileReadiness {
   ready: boolean;
@@ -375,6 +377,15 @@ const JobRiskAnalysisContent = () => {
                   </div>
                 )}
               </div>
+              {/* Only render ProfileAnalysisTrigger when we have valid profile data */}
+              {profileData && (
+                <ProfileAnalysisTrigger 
+                  profileData={adaptFormDataToUserProfile(profileData)!}
+                  variant="button"
+                  size="md"
+                  className="mb-4"
+                />
+              )}
               <QuickActionBar className="mt-6" />
             </div>
           </div>

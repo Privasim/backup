@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   ChatBubbleLeftRightIcon, 
   SparklesIcon,
@@ -8,6 +8,7 @@ import {
   CheckCircleIcon 
 } from '@heroicons/react/24/outline';
 import { useProfileIntegration } from './hooks/useProfileIntegration';
+import { useAnalysisTrigger } from './hooks/useAnalysisTrigger';
 
 import { UserProfileData } from '@/app/businessidea/tabs/user-profile/types';
 
@@ -32,13 +33,12 @@ export const ProfileAnalysisTrigger: React.FC<ProfileAnalysisTriggerProps> = ({
   size = 'md'
 }) => {
   const {
-    triggerProfileAnalysis,
     isAnalysisAvailable,
     getAnalysisReadiness,
     analysisStatus
   } = useProfileIntegration();
-
-  const [isTriggering, setIsTriggering] = useState(false);
+  
+  const { isTriggering, triggerAnalysis } = useAnalysisTrigger<UserProfileData>();
 
   const readiness = getAnalysisReadiness(profileData);
   const canAnalyze = isAnalysisAvailable(profileData);
@@ -48,24 +48,15 @@ export const ProfileAnalysisTrigger: React.FC<ProfileAnalysisTriggerProps> = ({
       return;
     }
 
-    setIsTriggering(true);
-    onAnalysisStart?.();
-
-    try {
-      const success = await triggerProfileAnalysis(profileData, {
-        autoOpen: true,
-        clearPrevious: true,
-        useStreaming: true
-      });
-
-      if (success) {
-        onAnalysisComplete?.();
-      }
-    } catch (error) {
-      console.error('Analysis trigger failed:', error);
-    } finally {
-      setIsTriggering(false);
-    }
+    await triggerAnalysis(profileData, {
+      autoOpen: true,
+      clearPrevious: true,
+      useStreaming: true
+    }, {
+      onStart: onAnalysisStart,
+      onComplete: onAnalysisComplete,
+      onError: (error) => console.error('Analysis trigger failed:', error)
+    });
   };
 
   // Size classes

@@ -2,7 +2,7 @@
  * Utility functions for transforming UserProfileData to ProfileAnalysisData
  */
 
-import { UserProfileData, Role } from '@/app/businessidea/tabs/user-profile/types';
+import { UserProfileData, Role, RoleDetails, WorkPreference } from '@/app/businessidea/tabs/user-profile/types';
 import { ProfileAnalysisData } from '../services/ProfileIntegrationService';
 import type {
   ProfileFormData,
@@ -352,4 +352,103 @@ export function adaptUserProfileToFormData(user: UserProfileData): ProfileFormDa
   };
 
   return formData;
+}
+
+/**
+ * Convert ProfileFormData back to UserProfileData
+ * This function is the reverse of adaptUserProfileToFormData
+ */
+export function adaptFormDataToUserProfile(formData: ProfileFormData | undefined): UserProfileData | undefined {
+  if (!formData) return undefined;
+  
+  // Map profileType back to Role
+  const role = mapProfileTypeToRole(formData.profile.profileType);
+  
+  // Extract skills from skillset
+  const skills = [
+    ...formData.skillset.technical || [],
+    ...formData.skillset.soft || []
+  ];
+  
+  // Build role details based on profile type
+  const roleDetails = buildRoleDetailsTyped(formData.profile, role);
+  
+  const userProfile: UserProfileData = {
+    role,
+    roleDetails,
+    industry: formData.profile.industry,
+    location: formData.profile.location,
+    workPreference: 'Remote', // Fixed to match WorkPreference type
+    skills
+  };
+  
+  return userProfile;
+}
+
+/**
+ * Map ProfileType back to Role enum
+ */
+function mapProfileTypeToRole(profileType?: ProfileType): Role {
+  if (!profileType) return Role.Professional;
+  
+  switch (profileType) {
+    case 'student': return Role.Student;
+    case 'professional': return Role.Professional;
+    case 'businessOwner': return Role.BusinessOwner;
+    case 'unemployed': return Role.CareerShifter;
+    default: return Role.Professional;
+  }
+}
+
+/**
+ * Build role-specific details from profile data with proper typing
+ */
+function buildRoleDetailsTyped(profile: ChatboxProfileData, role: Role): RoleDetails | undefined {
+  switch (role) {
+    case Role.Student:
+      return {
+        role: Role.Student,
+        student: {
+          educationLevel: profile.educationLevel,
+          fieldOfStudy: profile.fieldOfStudy,
+          graduationYear: profile.yearLevel,
+          status: 'Full-time' // Default value
+        }
+      };
+      
+    case Role.Professional:
+      return {
+        role: Role.Professional,
+        professional: {
+          jobFunction: profile.topWorkActivities?.[0],
+          seniority: 'Mid', // Default value
+          yearsExperience: profile.yearsOfExperience
+        }
+      };
+      
+    case Role.BusinessOwner:
+      return {
+        role: Role.BusinessOwner,
+        business: {
+          sector: profile.businessType,
+          stage: profile.businessStatus as any, // Type casting as the exact enum might not match
+          companySize: 'Small', // Default value
+          teamSize: profile.teamSize
+        }
+      };
+      
+    case Role.CareerShifter:
+      return {
+        role: Role.CareerShifter,
+        shifter: {
+          previousField: profile.previousRole,
+          desiredField: profile.targetIndustry,
+          timeline: '3–6 months', // Match the enum value
+          transitionGoals: profile.goal ? [profile.goal] : []
+        }
+      };
+      
+    default:
+      return undefined;
+  }
 }
