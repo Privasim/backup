@@ -12,7 +12,7 @@ import ConversationsCard from "./ConversationsCard";
 
 export default function ProfileSidebar() {
   return (
-    <aside className="relative w-80 shrink-0" aria-label="Profile sidebar">
+    <aside className="relative w-64 shrink-0" aria-label="Profile sidebar">
       <div className="sticky top-0 mt-4 h-[calc(100vh-2rem)]">
         <div className="flex h-full flex-col gap-4">
           <ProfileSettingsCard />
