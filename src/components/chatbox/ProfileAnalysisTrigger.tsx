@@ -19,6 +19,11 @@ interface ProfileAnalysisTriggerProps {
   className?: string;
   variant?: 'button' | 'card' | 'inline';
   size?: 'sm' | 'md' | 'lg';
+  contextText?: {
+    idle: string;
+    analyzing: string;
+    complete: string;
+  };
 }
 
 /**
@@ -30,7 +35,12 @@ export const ProfileAnalysisTrigger: React.FC<ProfileAnalysisTriggerProps> = ({
   onAnalysisComplete,
   className = '',
   variant = 'button',
-  size = 'md'
+  size = 'md',
+  contextText = {
+    idle: 'Analyze Profile',
+    analyzing: 'Analyzing...',
+    complete: 'Analysis Complete'
+  }
 }) => {
   const {
     isAnalysisAvailable,
@@ -103,12 +113,12 @@ export const ProfileAnalysisTrigger: React.FC<ProfileAnalysisTriggerProps> = ({
         {isActive ? (
           <>
             <SparklesIcon className={`${currentSize.icon} animate-spin`} />
-            <span>Analyzing...</span>
+            <span>{contextText.analyzing}</span>
           </>
         ) : canAnalyze ? (
           <>
             <ChatBubbleLeftRightIcon className={currentSize.icon} />
-            <span>Analyze Profile</span>
+            <span>{contextText.idle}</span>
           </>
         ) : (
           <>

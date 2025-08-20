@@ -70,6 +70,7 @@ const JobRiskAnalysisContent = () => {
   const [visualizationLoadStates, setVisualizationLoadStates] = useState<VisualizationLoadState>({});
   const [visualizationErrors, setVisualizationErrors] = useState<Record<string, string>>({});
   const [analysisStarted, setAnalysisStarted] = useState(false);
+  const [analysisComplete, setAnalysisComplete] = useState(false);
 
   const profileReadiness = profileData ? getAnalysisReadiness(profileData) : { ready: false, completionLevel: 0, missing: [], requirements: { minCompletion: 0.8, autoTrigger: false } };
 
@@ -377,16 +378,28 @@ const JobRiskAnalysisContent = () => {
                   </div>
                 )}
               </div>
-              {/* Only render ProfileAnalysisTrigger when we have valid profile data */}
-              {profileData && (
-                <ProfileAnalysisTrigger 
-                  profileData={adaptFormDataToUserProfile(profileData)!}
-                  variant="button"
-                  size="md"
-                  className="mb-4"
-                />
-              )}
-              <QuickActionBar className="mt-6" />
+              {/* Analysis trigger integrated with quick actions */}
+              <div className="space-y-2">
+                {profileData && (
+                  <ProfileAnalysisTrigger 
+                    profileData={adaptFormDataToUserProfile(profileData)!}
+                    variant="button"
+                    size="md"
+                    className={`w-full transition-all duration-300 ${analysisComplete ? 'opacity-60' : ''}`}
+                    contextText={{
+                      idle: 'Analyze Job Risk',
+                      analyzing: 'Analyzing Industry Trends...',
+                      complete: 'Explore Business Ideas'
+                    }}
+                    onAnalysisComplete={() => setAnalysisComplete(true)}
+                  />
+                )}
+                <div className={`transition-all duration-500 ${analysisComplete ? 'border-t border-gray-200 pt-4' : ''}`}>
+                  <QuickActionBar 
+                    className={`${analysisComplete ? 'animate-fade-in' : ''}`}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
