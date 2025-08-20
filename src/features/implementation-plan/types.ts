@@ -26,6 +26,8 @@ export interface ImplementationPlan {
   risks?: Risk[];
   kpis?: KPI[];
   next90Days?: { days30: string[]; days60: string[]; days90: string[] };
+  formattedContent?: string; // Markdown-formatted content for display
+  rawContent?: string; // Raw content from the API response
 }
 
 export interface PlanSettings {

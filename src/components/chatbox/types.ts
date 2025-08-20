@@ -119,6 +119,14 @@ export interface ChatboxEvent {
 export type ChatboxEventHandler = (event: ChatboxEvent) => void;
 
 // Export utility types
+export interface Conversation {
+  id: string;
+  title: string;
+  messages: ChatboxMessageData[];
+  unread?: number;
+  metadata?: Record<string, any>;
+}
+
 export type ChatboxState = {
   status: ChatboxStatus;
   config: AnalysisConfig;
@@ -127,4 +135,6 @@ export type ChatboxState = {
   error?: string;
   isVisible: boolean;
   businessSuggestions: BusinessSuggestionState;
+  conversations: Conversation[];
+  activeConversationId?: string;
 };

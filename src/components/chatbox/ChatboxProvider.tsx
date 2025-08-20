@@ -12,7 +12,8 @@ import {
   ChatboxStorage,
   ChatboxPreferences,
   BusinessSuggestion,
-  BusinessSuggestionState
+  BusinessSuggestionState,
+  Conversation
 } from './types';
 import type { ChatboxContext } from './types';
 import { ProfileFormData } from '@/app/businessidea/types/profile.types';
@@ -80,6 +81,13 @@ interface ChatboxContextType extends ChatboxState {
   // Implementation plan methods
   generatePlanOutline: (suggestion: BusinessSuggestion) => Promise<PlanOutline>;
   generateFullPlan: (outline: PlanOutline, onChunk?: (chunk: string) => void) => Promise<ImplementationPlan>;
+  
+  // Conversations
+  openConversation: (id: string) => void;
+  createConversation: (title: string) => string;
+  addMessageToConversation: (conversationId: string, message: Omit<ChatboxMessageData, 'id' | 'timestamp'>) => string;
+  appendToConversationMessage: (conversationId: string, messageId: string, chunk: string) => void;
+  createPlanConversation: (suggestion: BusinessSuggestion) => Promise<string>;
 }
 
 const ChatboxReactContext = createContext<ChatboxContextType | undefined>(undefined);
@@ -119,6 +127,8 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
     error: undefined,
     currentAnalysis: undefined,
     businessSuggestions: defaultBusinessSuggestionState,
+    conversations: [],
+    activeConversationId: undefined,
     plugins: [],
     providers: []
   });
@@ -226,12 +236,9 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
   }, [generateId]);
 
   const clearMessages = useCallback(() => {
-    setState(prev => ({ 
-      ...prev, 
-      messages: [],
-      status: 'idle',
-      currentAnalysis: undefined,
-      error: undefined
+    setState(prev => ({
+      ...prev,
+      messages: []
     }));
   }, []);
 
@@ -753,7 +760,7 @@ Make it conversational and encouraging - this should feel like a helpful guide, 
         });
 
         // For streaming, we'll return the raw content formatted for display
-        const plan = {
+        const plan: ImplementationPlan = {
           meta: {
             ideaId: `plan-${Date.now()}`,
             title: outline.title,
@@ -761,6 +768,33 @@ Make it conversational and encouraging - this should feel like a helpful guide, 
             version: 'v1',
             createdAt: new Date().toISOString()
           },
+          overview: {
+            goals: ['Launch successful business based on the outlined plan'],
+            successCriteria: ['Business launch', 'Initial customer acquisition', 'Revenue generation'],
+            assumptions: ['Market conditions remain stable', 'Resources are available as planned']
+          },
+          phases: [
+            {
+              id: 'phase-1',
+              name: 'Implementation Phase',
+              objectives: ['Execute the business plan successfully'],
+              duration: outline.estimatedTimeline,
+              milestones: outline.majorMilestones.map((milestone, index) => ({
+                id: `milestone-${index}`,
+                title: milestone,
+                due: 'As per timeline',
+                successCriteria: ['Completion of milestone']
+              }))
+            }
+          ],
+          tasks: outline.keyPhases.map((phase, index) => ({
+            id: `task-${index}`,
+            phaseId: 'phase-1',
+            title: phase,
+            description: `Complete ${phase}`,
+            owner: 'Business owner',
+            effort: 'Medium'
+          })),
           formattedContent: accumulatedContent,
           rawContent: accumulatedContent
         };
@@ -792,7 +826,7 @@ Make it conversational and encouraging - this should feel like a helpful guide, 
         const content = response?.choices?.[0]?.message?.content || '';
         
         // For non-streaming, we'll also return the raw content
-        const plan = {
+        const plan: ImplementationPlan = {
           meta: {
             ideaId: `plan-${Date.now()}`,
             title: outline.title,
@@ -800,6 +834,33 @@ Make it conversational and encouraging - this should feel like a helpful guide, 
             version: 'v1',
             createdAt: new Date().toISOString()
           },
+          overview: {
+            goals: ['Launch successful business based on the outlined plan'],
+            successCriteria: ['Business launch', 'Initial customer acquisition', 'Revenue generation'],
+            assumptions: ['Market conditions remain stable', 'Resources are available as planned']
+          },
+          phases: [
+            {
+              id: 'phase-1',
+              name: 'Implementation Phase',
+              objectives: ['Execute the business plan successfully'],
+              duration: outline.estimatedTimeline,
+              milestones: outline.majorMilestones.map((milestone, index) => ({
+                id: `milestone-${index}`,
+                title: milestone,
+                due: 'As per timeline',
+                successCriteria: ['Completion of milestone']
+              }))
+            }
+          ],
+          tasks: outline.keyPhases.map((phase, index) => ({
+            id: `task-${index}`,
+            phaseId: 'phase-1',
+            title: phase,
+            description: `Complete ${phase}`,
+            owner: 'Business owner',
+            effort: 'Medium'
+          })),
           formattedContent: content,
           rawContent: content
         };
@@ -981,6 +1042,90 @@ Make it conversational and encouraging - this should feel like a helpful guide, 
     }
   }, []);
 
+  // Conversation management
+  const openConversation = useCallback((id: string) => {
+    setState(prev => ({
+      ...prev,
+      isVisible: true,
+      activeConversationId: id
+    }));
+  }, []);
+
+  const createConversation = useCallback((title: string) => {
+    const id = generateId();
+    const conversation: Conversation = {
+      id,
+      title,
+      messages: [],
+      unread: 0
+    };
+    setState(prev => ({
+      ...prev,
+      conversations: [...prev.conversations, conversation],
+      activeConversationId: id,
+      isVisible: true
+    }));
+    return id;
+  }, [generateId]);
+
+  const addMessageToConversation = useCallback((conversationId: string, message: Omit<ChatboxMessageData, 'id' | 'timestamp'>) => {
+    const msgId = generateId();
+    const newMessage: ChatboxMessageData = {
+      ...message,
+      id: msgId,
+      timestamp: new Date().toISOString()
+    };
+    setState(prev => ({
+      ...prev,
+      conversations: prev.conversations.map(c => 
+        c.id === conversationId 
+          ? { ...c, messages: [...c.messages, newMessage] } 
+          : c
+      )
+    }));
+    return msgId;
+  }, [generateId]);
+
+  const appendToConversationMessage = useCallback((conversationId: string, messageId: string, chunk: string) => {
+    setState(prev => ({
+      ...prev,
+      conversations: prev.conversations.map(c => {
+        if (c.id !== conversationId) return c;
+        return {
+          ...c,
+          messages: c.messages.map(m => 
+            m.id === messageId 
+              ? { ...m, content: (m.content || '') + chunk } 
+              : m
+          )
+        };
+      })
+    }));
+  }, []);
+
+  const createPlanConversation = useCallback(async (suggestion: BusinessSuggestion) => {
+    try {
+      setState(prev => ({ ...prev, status: 'analyzing', error: undefined }));
+      const outline = await generatePlanOutline(suggestion);
+      const convTitle = outline.title || `${suggestion.title} Plan`;
+      const conversationId = createConversation(convTitle);
+      const messageId = addMessageToConversation(conversationId, {
+        type: 'assistant',
+        content: '',
+        analysisType: 'business-suggestion'
+      });
+      await generateFullPlan(outline, (chunk: string) => {
+        appendToConversationMessage(conversationId, messageId, chunk);
+      });
+      setState(prev => ({ ...prev, status: 'completed' }));
+      return conversationId;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setState(prev => ({ ...prev, status: 'error', error: errorMessage }));
+      throw error;
+    }
+  }, [generatePlanOutline, generateFullPlan, createConversation, addMessageToConversation, appendToConversationMessage]);
+
   const contextValue = {
     ...state,
     profileData,
@@ -1006,7 +1151,13 @@ Make it conversational and encouraging - this should feel like a helpful guide, 
     generateBusinessSuggestions,
     clearBusinessSuggestions,
     generatePlanOutline,
-    generateFullPlan
+    generateFullPlan,
+    // Conversation actions
+    openConversation,
+    createConversation,
+    addMessageToConversation,
+    appendToConversationMessage,
+    createPlanConversation
   };
 
   return (

@@ -9,14 +9,32 @@ import {
   ArrowLeftOnRectangleIcon,
 } from "@heroicons/react/24/outline";
 import ConversationsCard from "./ConversationsCard";
+import { useChatbox } from "@/components/chatbox/ChatboxProvider";
 
 export default function ProfileSidebar() {
+  const { conversations, createConversation, openConversation } = useChatbox();
+  
+  // Map conversations to the format expected by ConversationsCard
+  const conversationItems = conversations?.map(conv => ({
+    id: conv.id,
+    title: conv.title,
+    unread: conv.unread || 0
+  })) || [];
+  
+  const handleNewChat = () => {
+    createConversation('New Business Plan');
+  };
+  
   return (
     <aside className="relative w-64 shrink-0" aria-label="Profile sidebar">
       <div className="sticky top-0 mt-4 h-[calc(100vh-2rem)]">
         <div className="flex h-full flex-col gap-4">
           <ProfileSettingsCard />
-          <ConversationsCard />
+          <ConversationsCard 
+            conversations={conversationItems}
+            onNewChat={handleNewChat}
+            onOpenConversation={openConversation}
+          />
         </div>
       </div>
     </aside>

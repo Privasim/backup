@@ -36,17 +36,31 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
     getActivePlugins,
     useMockData,
     toggleMockData,
-    profileData
+    profileData,
+    conversations,
+    activeConversationId
   } = useChatbox();
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
   const activePlugins = getActivePlugins();
 
+  // Get active conversation if one is selected
+  const activeConversation = useMemo(() => (
+    conversations?.find(c => c.id === activeConversationId)
+  ), [conversations, activeConversationId]);
+
+  // Use active conversation messages if available, otherwise fallback to legacy messages
+  const displayMessages = useMemo(() => (
+    activeConversation ? activeConversation.messages : messages
+  ), [activeConversation, messages]);
+  
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [displayMessages]);
 
   // Get current profile data for display
   const currentProfileData = useMemo(() => {
@@ -69,7 +83,7 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
             <ChatBubbleLeftRightIcon className="h-4 w-4 text-blue-600" />
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-gray-900">AI Analysis</h2>
+            <h2 className="text-sm font-semibold text-gray-900">{activeConversation?.title || 'AI Analysis'}</h2>
             <div className="flex items-center space-x-1">
               <div className={`w-1.5 h-1.5 rounded-full ${
                 status === 'analyzing' ? 'bg-blue-500 animate-pulse' :
@@ -124,35 +138,20 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
       {/* Messages Area - Maximized */}
       <div className="flex-1 overflow-y-auto bg-gray-50">
         <div className="p-4 space-y-4 min-h-full">
-          {messages.length === 0 && status === 'idle' && (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-              <div className="p-4 bg-white rounded-xl shadow-sm">
-                <div className="p-3 bg-blue-50 rounded-lg mb-3">
-                  <SparklesIcon className="h-8 w-8 text-blue-500 mx-auto" />
-                </div>
-                <h3 className="text-sm font-medium text-gray-900 mb-1">Ready to Analyze</h3>
-                <p className="text-xs text-gray-500">Configure your settings below and start your profile analysis</p>
-                <button
-                  onClick={() => { if (typeof window !== 'undefined') { window.dispatchEvent(new Event('profile-panel:open')); } }}
-                  className="mt-3 inline-flex items-center px-3 py-2 rounded-md bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >
-                  <UserIcon className="h-4 w-4 mr-1" />
-                  Edit Profile
-                </button>
+          {displayMessages.length === 0 && status === 'idle' && (
+            <div className="flex h-full flex-col items-center justify-center p-6 text-center">
+              <div className="rounded-full bg-indigo-50 p-3">
+                <SparklesIcon className="h-6 w-6 text-indigo-500" />
               </div>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">No messages yet</h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Start a conversation or analyze your profile to get insights.
+              </p>
             </div>
           )}
 
-          {messages.map((message) => (
-            <ChatboxMessage
-              key={message.id}
-              message={message}
-              isStreaming={status === 'analyzing' && message.type === 'assistant' && !message.content.trim()}
-              showTimestamp={true}
-              onCopy={(content) => {
-                navigator.clipboard.writeText(content);
-              }}
-            />
+          {displayMessages.map((message) => (
+            <ChatboxMessage key={message.id} message={message} />
           ))}
 
           {/* Quick Action Bar */}
