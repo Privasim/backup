@@ -1,6 +1,6 @@
 import React from 'react';
 import BusinessHeader from './components/BusinessHeader';
-import TabContainer from './tabs/TabContainer';
+import ConversationTabs from './tabs/ConversationTabs';
 import DebugButton from './components/DebugButton';
 import ProfileSidebar from './profile-settings/ProfileSidebar';
 
@@ -19,7 +19,7 @@ const BusinessIdeaPage = () => {
               description="Discover and explore innovative business opportunities"
             />
             <div className="py-4">
-              <TabContainer />
+              <ConversationTabs />
             </div>
           </div>
         </div>

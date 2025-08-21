@@ -1,6 +1,7 @@
 'use client';
 
-import { TabProvider, useTab } from './TabContext';
+import { useEffect } from 'react';
+import { TabProvider, useTab, type TabId } from './TabContext';
 import TabNavigation from './TabNavigation';
 import BusinessPlanContent from './BusinessPlanContent';
 import FinancialsContent from './FinancialsContent';
@@ -25,9 +26,13 @@ const tabComponents = {
   mobile: MobileTab,
 } as const;
 
-function TabContent() {
+function TabContent({ onTabChange }: { onTabChange?: (tab: TabId) => void }) {
   const { activeTab } = useTab();
   const ActiveComponent = tabComponents[activeTab as keyof typeof tabComponents];
+
+  useEffect(() => {
+    if (onTabChange) onTabChange(activeTab);
+  }, [activeTab, onTabChange]);
 
   return (
     <div className="max-w-4xl mx-auto h-[500px] overflow-y-auto">
@@ -38,13 +43,13 @@ function TabContent() {
   );
 }
 
-export default function TabContainer() {
+export default function TabContainer({ initialTab, onTabChange }: { initialTab?: string; onTabChange?: (tab: TabId) => void }) {
   return (
-    <TabProvider>
+    <TabProvider initialTab={initialTab}>
       <ImplementationPlanProvider>
         <div className="space-y-4">
           <TabNavigation />
-          <TabContent />
+          <TabContent onTabChange={onTabChange} />
         </div>
       </ImplementationPlanProvider>
     </TabProvider>
