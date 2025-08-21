@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   UserIcon,
   Cog6ToothIcon,
@@ -14,6 +15,7 @@ import { useChatbox } from "@/components/chatbox/ChatboxProvider";
 
 export default function ProfileSidebar() {
   const { conversations, createConversation, openConversation } = useChatbox();
+  const router = useRouter();
   
   // Map conversations to the format expected by ConversationsCard
   const conversationItems = conversations?.map(conv => ({
@@ -23,7 +25,15 @@ export default function ProfileSidebar() {
   })) || [];
   
   const handleNewChat = () => {
-    createConversation('New Business Plan');
+    const id = createConversation('New Business Plan');
+    // Ensure the newly created conversation becomes active, then navigate
+    openConversation(id);
+    router.push('/businessidea');
+  };
+
+  const handleOpenConversation = (id: string) => {
+    openConversation(id);
+    router.push('/businessidea');
   };
   
   return (
@@ -34,7 +44,7 @@ export default function ProfileSidebar() {
           <ConversationsCard 
             conversations={conversationItems}
             onNewChat={handleNewChat}
-            onOpenConversation={openConversation}
+            onOpenConversation={handleOpenConversation}
           />
         </div>
       </div>
