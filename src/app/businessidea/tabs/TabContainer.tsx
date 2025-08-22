@@ -10,7 +10,10 @@ import ToolsContent from './ToolsContent';
 import VisualizationContent from './VisualizationContent';
 import ListTab from './ListTab';
 import MobileTab from './MobileTab';
-import { ImplementationPlanProvider } from '@/features/implementation-plan/ImplementationPlanProvider';
+import { ImplementationPlanProvider, useImplementationPlanContext } from '@/features/implementation-plan/ImplementationPlanProvider';
+import { useChatbox } from '@/components/chatbox/ChatboxProvider';
+import { getPlanStreamBridge } from '@/features/implementation-plan/bridge/PlanStreamBridge';
+import BridgeConnector from './BridgeConnector';
 import UserProfileTab from './user-profile';
 import JobRiskAnalysisTab from './job-risk';
 
@@ -43,15 +46,22 @@ function TabContent({ onTabChange }: { onTabChange?: (tab: TabId) => void }) {
   );
 }
 
+function TabContainerContent({ onTabChange }: { onTabChange?: (tab: TabId) => void }) {
+  return (
+    <ImplementationPlanProvider>
+      <BridgeConnector />
+      <div className="space-y-4">
+        <TabNavigation />
+        <TabContent onTabChange={onTabChange} />
+      </div>
+    </ImplementationPlanProvider>
+  );
+}
+
 export default function TabContainer({ initialTab, onTabChange }: { initialTab?: string; onTabChange?: (tab: TabId) => void }) {
   return (
     <TabProvider initialTab={initialTab}>
-      <ImplementationPlanProvider>
-        <div className="space-y-4">
-          <TabNavigation />
-          <TabContent onTabChange={onTabChange} />
-        </div>
-      </ImplementationPlanProvider>
+      <TabContainerContent onTabChange={onTabChange} />
     </TabProvider>
   );
 }

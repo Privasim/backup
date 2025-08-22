@@ -31,7 +31,17 @@ export const useImplementationPlan = () => {
     sources: Array.isArray(ctx.settings.sources) ? ctx.settings.sources : []
   }), [ctx.settings]);
 
+  // Check if externally driven
+  const isExternallyDriven = useMemo(() => {
+    return ctx.external?.isActive && ctx.external?.source === 'chatbox';
+  }, [ctx.external]);
+
   const cancel = useCallback(() => {
+    // If externally driven, don't cancel internal generation
+    if (isExternallyDriven) {
+      return;
+    }
+    
     abortRef.current?.abort();
     ctx.setStatus('idle');
     ctx.setStreamingState({
@@ -40,9 +50,14 @@ export const useImplementationPlan = () => {
       progress: 0
     });
     streamingProcessorRef.current?.reset();
-  }, [ctx]);
+  }, [ctx, isExternallyDriven]);
 
   const generate = useCallback(async (suggestion: any) => {
+    // If externally driven, don't start internal generation
+    if (isExternallyDriven) {
+      return;
+    }
+    
     ctx.setSelectedSuggestion(suggestion);
 
     // Try cache first
@@ -150,13 +165,18 @@ export const useImplementationPlan = () => {
         isProcessing: false
       });
     }
-  }, [ctx, config, currentSettingsKey]);
+  }, [ctx, config, currentSettingsKey, isExternallyDriven]);
 
   const regenerate = useCallback(async () => {
+    // If externally driven, don't regenerate internal generation
+    if (isExternallyDriven) {
+      return;
+    }
+    
     if (!ctx.selectedSuggestion) return;
     // Invalidate cache by modifying override slightly? Keep simple: just rerun.
     await generate(ctx.selectedSuggestion);
-  }, [ctx.selectedSuggestion, generate]);
+  }, [ctx.selectedSuggestion, generate, isExternallyDriven]);
 
   const setSettings = useCallback((s: Partial<typeof ctx.settings>) => {
     ctx.saveSettings(s);
@@ -169,5 +189,6 @@ export const useImplementationPlan = () => {
     cancel,
     regenerate,
     setSettings,
+    isExternallyDriven,
   };
 };

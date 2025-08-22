@@ -20,6 +20,7 @@ import { ProfileFormData } from '@/app/businessidea/types/profile.types';
 import { useStorageManager } from './hooks/useStorageManager';
 import { useCacheManager } from './hooks/useCacheManager';
 import { ImplementationPlan } from '@/features/implementation-plan/types';
+import { PlanStreamBridge, getPlanStreamBridge } from '@/features/implementation-plan/bridge/PlanStreamBridge';
 import { OpenRouterClient } from '@/lib/openrouter/client';
 import { chatboxDebug } from '@/app/businessidea/utils/logStore';
 
@@ -81,6 +82,7 @@ interface ChatboxContextType extends ChatboxState {
   // Implementation plan methods
   generatePlanOutline: (suggestion: BusinessSuggestion) => Promise<PlanOutline>;
   generateFullPlan: (outline: PlanOutline, onChunk?: (chunk: string) => void) => Promise<ImplementationPlan>;
+  setPlanStreamBridge: (bridge: PlanStreamBridge | null) => void;
   
   // Conversations
   openConversation: (id: string) => void;
@@ -155,6 +157,7 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
   const [plugins, setPlugins] = useState<ChatboxPlugin[]>([]);
   const [providers, setProviders] = useState<AnalysisProvider[]>([]);
   const [useMockData, setUseMockData] = useState(process.env.NODE_ENV === 'development');
+  const [planStreamBridge, setPlanStreamBridgeState] = useState<PlanStreamBridge | null>(null);
   
   // Storage hooks
   const storageManager = useStorageManager();
@@ -516,6 +519,10 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
 
   const toggleMockData = useCallback(() => {
     setUseMockData(prev => !prev);
+  }, []);
+
+  const setPlanStreamBridge = useCallback((bridge: PlanStreamBridge | null) => {
+    setPlanStreamBridgeState(bridge);
   }, []);
 
   // Business suggestions
@@ -1075,27 +1082,57 @@ Outline:
   }, []);
 
   const createPlanConversation = useCallback(async (suggestion: BusinessSuggestion) => {
+    let conversationId = '';
+    let messageId = '';
+    
     try {
       setState(prev => ({ ...prev, status: 'analyzing', error: undefined }));
       const outline = await generatePlanOutline(suggestion);
       const convTitle = outline.title || `${suggestion.title} Plan`;
-      const conversationId = createConversation(convTitle);
-      const messageId = addMessageToConversation(conversationId, {
+      conversationId = createConversation(convTitle);
+      messageId = addMessageToConversation(conversationId, {
         type: 'assistant',
         content: '',
         analysisType: 'business-suggestion'
       });
+      
+      // Notify bridge of stream start
+      if (planStreamBridge) {
+        planStreamBridge.start(conversationId, suggestion);
+      }
+      
       await generateFullPlan(outline, (chunk: string) => {
         appendToConversationMessage(conversationId, messageId, chunk);
+        // Notify bridge of chunk
+        if (planStreamBridge) {
+          planStreamBridge.chunk(conversationId, chunk);
+        }
       });
+      
+      // Get the final content to send to bridge
+      const conversation = state.conversations.find(c => c.id === conversationId);
+      const message = conversation?.messages.find(m => m.id === messageId);
+      const finalContent = message?.content || '';
+      
+      // Notify bridge of completion
+      if (planStreamBridge) {
+        planStreamBridge.complete(conversationId, finalContent);
+      }
+      
       setState(prev => ({ ...prev, status: 'completed' }));
       return conversationId;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setState(prev => ({ ...prev, status: 'error', error: errorMessage }));
+      
+      // Notify bridge of error
+      if (planStreamBridge && conversationId) {
+        planStreamBridge.error(conversationId, errorMessage);
+      }
+      
       throw error;
     }
-  }, [generatePlanOutline, generateFullPlan, createConversation, addMessageToConversation, appendToConversationMessage]);
+  }, [generatePlanOutline, generateFullPlan, createConversation, addMessageToConversation, appendToConversationMessage, planStreamBridge, state.conversations]);
 
   const contextValue = {
     ...state,
@@ -1123,6 +1160,7 @@ Outline:
     clearBusinessSuggestions,
     generatePlanOutline,
     generateFullPlan,
+    setPlanStreamBridge,
     // Conversation actions
     openConversation,
     createConversation,

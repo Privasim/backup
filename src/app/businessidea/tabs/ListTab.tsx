@@ -10,7 +10,7 @@ import StreamingErrorBoundary from '@/features/implementation-plan/components/St
 
 export default function ListTab() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const { status, error, plan, rawStream, regenerate, cancel, streamingState } = useImplementationPlan();
+  const { status, error, plan, rawStream, regenerate, cancel, streamingState, isExternallyDriven } = useImplementationPlan();
 
   const isLoading = status === 'generating' || status === 'streaming';
   const preview = useMemo(() => {
@@ -49,11 +49,25 @@ export default function ListTab() {
               <>
                 <button onClick={copyJson} className="text-xs px-2 py-1 rounded-md border border-slate-200 hover:bg-slate-50">Copy JSON</button>
                 <button onClick={downloadJson} className="text-xs px-2 py-1 rounded-md border border-slate-200 hover:bg-slate-50">Download</button>
-                <button onClick={regenerate} className="text-xs px-2 py-1 rounded-md bg-slate-900 text-white hover:bg-black">Regenerate</button>
+                <button 
+                  onClick={regenerate} 
+                  disabled={isExternallyDriven}
+                  className={`text-xs px-2 py-1 rounded-md ${isExternallyDriven ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-black'}`}
+                  title={isExternallyDriven ? 'Regeneration disabled while plan is streaming from Chatbox' : 'Regenerate plan'}
+                >
+                  Regenerate
+                </button>
               </>
             )}
             {isLoading && (
-              <button onClick={cancel} className="text-xs px-2 py-1 rounded-md border border-slate-200 hover:bg-slate-50">Cancel</button>
+              <button 
+                onClick={cancel} 
+                disabled={isExternallyDriven}
+                className={`text-xs px-2 py-1 rounded-md ${isExternallyDriven ? 'border border-gray-300 text-gray-400 cursor-not-allowed' : 'border border-slate-200 hover:bg-slate-50'}`}
+                title={isExternallyDriven ? 'Cancellation disabled while plan is streaming from Chatbox' : 'Cancel generation'}
+              >
+                Cancel
+              </button>
             )}
           </div>
         </div>
@@ -62,7 +76,14 @@ export default function ListTab() {
         {status === 'error' && (
           <div className="mb-4 p-3 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm flex items-center justify-between">
             <span>{error || 'Generation failed'}</span>
-            <button onClick={regenerate} className="text-xs px-2 py-1 rounded-md bg-red-600 text-white hover:bg-red-700">Retry</button>
+            <button 
+              onClick={regenerate} 
+              disabled={isExternallyDriven}
+              className={`text-xs px-2 py-1 rounded-md ${isExternallyDriven ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-red-600 text-white hover:bg-red-700'}`}
+              title={isExternallyDriven ? 'Retry disabled while plan is streaming from Chatbox' : 'Retry generation'}
+            >
+              Retry
+            </button>
           </div>
         )}
 
