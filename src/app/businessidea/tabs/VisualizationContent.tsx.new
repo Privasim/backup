@@ -6,6 +6,7 @@ import { DonutCard } from '../../../components/dashboard/DonutCard';
 import { LineCard } from '../../../components/dashboard/LineCard';
 import { BarCard } from '../../../components/dashboard/BarCard';
 import { buildChartContext } from './visualization/chat-bridge';
+
 // Mock ChatboxContext until the real one is implemented
 const ChatboxContext = React.createContext<{
   actions: {
@@ -31,7 +32,19 @@ function DashboardContent() {
     actions.setActiveCard(cardId);
     
     // Build context payload for the chatbox
-    const contextPayload = buildChartContextPayload(cardId, state);
+    const contextPayload = buildChartContext({
+      cardId,
+      metric: cardId.includes('impressions') ? 'impressions' : 
+             cardId.includes('spend') ? 'spend' : 
+             cardId.includes('creative') ? 'resonance' : 'metric',
+      filters: state.filters,
+      series: cardId.includes('line') ? state.series['impressions'] : undefined,
+      breakdown: cardId.includes('contextual') ? state.breakdowns['contextual'] :
+                cardId.includes('device') ? state.breakdowns['device'] :
+                cardId.includes('channel') ? state.breakdowns['channel'] :
+                cardId.includes('creative') ? state.breakdowns['creative'] : undefined,
+      title: cardId
+    });
     
     // Send to chatbox if available
     if (chatActions && contextPayload) {
@@ -49,7 +62,19 @@ function DashboardContent() {
     actions.setActiveCard(cardId);
     
     // Build context payload for the chatbox
-    const contextPayload = buildChartContextPayload(cardId, state);
+    const contextPayload = buildChartContext({
+      cardId,
+      metric: cardId.includes('impressions') ? 'impressions' : 
+             cardId.includes('spend') ? 'spend' : 
+             cardId.includes('creative') ? 'resonance' : 'metric',
+      filters: state.filters,
+      series: cardId.includes('line') ? state.series['impressions'] : undefined,
+      breakdown: cardId.includes('contextual') ? state.breakdowns['contextual'] :
+                cardId.includes('device') ? state.breakdowns['device'] :
+                cardId.includes('channel') ? state.breakdowns['channel'] :
+                cardId.includes('creative') ? state.breakdowns['creative'] : undefined,
+      title: cardId
+    });
     
     // Send to chatbox if available
     if (chatActions && contextPayload) {
