@@ -15,8 +15,8 @@ const createInitialWorkbook = (): Workbook => ({
     sheet1: {
       id: 'sheet1',
       name: 'Sheet 1',
-      rows: 50,
-      cols: 26, // A-Z
+      rows: 10,
+      cols: 20,
       cells: {},
       formats: {},
       frozen: { rows: 1, cols: 1 }
@@ -196,8 +196,8 @@ function workbookReducer(state: Workbook, action: Action): Workbook {
       const newSheet: Sheet = {
         id: action.id,
         name: action.name,
-        rows: 50,
-        cols: 26,
+        rows: 10,
+        cols: 20,
         cells: {},
         formats: {}
       };
