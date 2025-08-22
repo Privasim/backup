@@ -109,7 +109,7 @@ export function FinancialsGrid({
       if (col === 1) {
         return (
           <div 
-            className={`flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 border border-slate-300 font-semibold text-slate-700 ${density === 'compact' ? 'p-0.5 text-xs' : 'p-1 text-sm'}`}
+            className={`flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 border border-slate-300 font-semibold text-slate-700 ${density === 'compact' ? 'p-1 text-xs' : 'p-1.5 text-sm'}`}
           >
             
           </div>
@@ -159,7 +159,7 @@ export function FinancialsGrid({
             onChange={(e) => setEditValue(e.target.value)}
             onKeyDown={handleKeyDown}
             onBlur={handleSaveEdit}
-            className={`w-full h-full outline-none bg-transparent font-mono ${density === 'compact' ? 'px-0.5 text-xs' : 'px-1 text-sm'}`}
+            className={`w-full h-full outline-none bg-transparent font-mono ${density === 'compact' ? 'px-1 text-xs' : 'px-1.5 text-sm'}`}
           />
         </div>
       );
@@ -188,7 +188,7 @@ export function FinancialsGrid({
     
     const cellClasses = `
       border border-slate-200 cursor-pointer transition-all duration-200
-      ${density === 'compact' ? 'p-0.5 text-xs' : 'p-1 text-sm'}
+      ${density === 'compact' ? 'p-1 text-xs' : 'p-1.5 text-sm'}
       ${isSelected ? 'ring-2 ring-indigo-400 ring-inset shadow-md bg-indigo-50' : ''}
       ${isHovered && !isSelected ? 'bg-indigo-25 border-indigo-300' : ''}
       ${hasError ? 'bg-red-50 border-red-200 shadow-sm' : ''}
