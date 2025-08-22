@@ -627,33 +627,19 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
     try {
       const client = new OpenRouterClient(state.config.apiKey);
       
-      const prompt = `Create a high-level implementation plan outline for this business idea:
+      // REPLACED: verbose outline prompt with streamlined 3–4 line version for concise context
+      const prompt = `Provide a concise JSON outline for this idea:
+- Include: title, 2–3 sentence overview, 4–6 keyPhases, estimatedTimeline, 3–5 majorMilestones, resourceRequirements, approvalRequired.
+- Base it strictly on the fields below (no extra commentary).
+- Respond with valid JSON only.
 
-**Business Idea:** ${suggestion.title}
-**Description:** ${suggestion.description}
-**Category:** ${suggestion.category}
-**Target Market:** ${suggestion.targetMarket}
-**Estimated Startup Cost:** ${suggestion.estimatedStartupCost}
-**Key Features:** ${suggestion.keyFeatures.join(', ')}
-
-Please provide a concise outline that includes:
-1. A clear title for the implementation plan
-2. A brief overview (2-3 sentences)
-3. 4-6 key phases of implementation
-4. Estimated timeline for completion
-5. 3-5 major milestones
-6. Key resource requirements
-
-Respond with valid JSON in this format:
-{
-  "title": "Implementation Plan Title",
-  "overview": "Brief overview of the plan...",
-  "keyPhases": ["Phase 1: ...", "Phase 2: ...", ...],
-  "estimatedTimeline": "6-12 months",
-  "majorMilestones": ["Milestone 1", "Milestone 2", ...],
-  "resourceRequirements": ["Resource 1", "Resource 2", ...],
-  "approvalRequired": true
-}`;
+Idea:
+title=${suggestion.title}
+desc=${suggestion.description}
+category=${suggestion.category}
+target=${suggestion.targetMarket}
+cost=${suggestion.estimatedStartupCost}
+features=${suggestion.keyFeatures.join(', ')}`;
 
       const response = await client.chat({
         model: state.config.model,
@@ -704,34 +690,19 @@ Respond with valid JSON in this format:
     try {
       const client = new OpenRouterClient(state.config.apiKey);
       
-      const prompt = `Based on this approved outline, create a detailed implementation plan in a conversational, easy-to-read format:
+      // REPLACED: verbose full-plan prompt with streamlined version for concise generation
+      const prompt = `Create a clear, actionable implementation plan (markdown):
+- Cover: executive summary, phases with objectives/timelines, 90-day quick start, resources/budget, KPIs, risks.
+- Use concise headers and bullet points; be practical and to the point.
+- Base strictly on the outline provided below.
 
-**Outline:**
+Outline:
 - Title: ${outline.title}
 - Overview: ${outline.overview}
-- Key Phases: ${outline.keyPhases.join(', ')}
+- Phases: ${outline.keyPhases.join(', ')}
 - Timeline: ${outline.estimatedTimeline}
 - Milestones: ${outline.majorMilestones.join(', ')}
-- Resources: ${outline.resourceRequirements.join(', ')}
-
-Please create a comprehensive, well-formatted implementation plan that includes:
-
-1. **Executive Summary** - Brief overview of the plan
-2. **Implementation Phases** - Detailed breakdown of each phase with objectives and timelines
-3. **Action Items** - Specific tasks organized by phase
-4. **90-Day Quick Start** - Immediate next steps for the first 90 days
-5. **Resource Requirements** - Team, tools, and budget needs
-6. **Success Metrics** - How to measure progress
-7. **Risk Mitigation** - Potential challenges and solutions
-
-Format your response in clear, readable markdown with:
-- Headers and subheaders for organization
-- Bullet points for lists
-- Emojis for visual appeal
-- Clear sections that are easy to scan
-- Actionable language throughout
-
-Make it conversational and encouraging - this should feel like a helpful guide, not a dry document.`;
+- Resources: ${outline.resourceRequirements.join(', ')}`;
 
       if (onChunk) {
         // Streaming generation
