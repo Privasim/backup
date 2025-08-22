@@ -3,6 +3,13 @@
 import React from 'react';
 import { useFinancials } from './FinancialsContext';
 import { getFinancialsSystemPrompt } from './ai/financials-tooling';
+import { 
+  Plus, 
+  RefreshCw, 
+  Download, 
+  Lock, 
+  Bot
+} from 'lucide-react';
 
 export function FinancialsToolbar() {
   const { 
@@ -44,46 +51,74 @@ export function FinancialsToolbar() {
   };
   
   return (
-    <div className="flex flex-wrap gap-2 p-2 bg-gray-100 border-b border-gray-300">
-      <button 
-        onClick={handleAddSheet}
-        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        Add Sheet
-      </button>
-      
-      <button 
-        onClick={recalc}
-        className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-      >
-        Recalculate
-      </button>
-      
-      <button 
-        onClick={handleExportCSV}
-        className="px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600"
-      >
-        Export CSV
-      </button>
-      
-      <button 
-        onClick={handleFreezeHeaders}
-        className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-      >
-        Freeze Headers
-      </button>
-      
-      <button 
-        onClick={handleAIAssist}
-        className="px-3 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600"
-      >
-        AI Assist
-      </button>
-      
-      <div className="ml-auto flex items-center">
-        <span className="text-sm text-gray-600">
-          {workbook.sheets[workbook.activeSheetId]?.name || 'Sheet 1'}
-        </span>
+    <div className="bg-gradient-to-r from-indigo-50 to-blue-50 border-b border-indigo-100 p-3">
+      <div className="flex items-center justify-between">
+        {/* Left side - Primary actions */}
+        <div className="flex items-center gap-1">
+          {/* Sheet Management Group */}
+          <div className="flex items-center gap-1 mr-3">
+            <button 
+              onClick={handleAddSheet}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors duration-200 shadow-sm"
+              title="Add new sheet"
+            >
+              <Plus size={14} />
+              <span className="hidden sm:inline">Add Sheet</span>
+            </button>
+          </div>
+
+          {/* Calculation Group */}
+          <div className="flex items-center gap-1 mr-3">
+            <button 
+              onClick={recalc}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors duration-200 shadow-sm"
+              title="Recalculate all formulas"
+            >
+              <RefreshCw size={14} />
+              <span className="hidden sm:inline">Recalc</span>
+            </button>
+          </div>
+
+          {/* Utilities Group */}
+          <div className="flex items-center gap-1">
+            <button 
+              onClick={handleExportCSV}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200 shadow-sm"
+              title="Export as CSV file"
+            >
+              <Download size={14} />
+              <span className="hidden sm:inline">Export</span>
+            </button>
+            
+            <button 
+              onClick={handleFreezeHeaders}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-600 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-colors duration-200 shadow-sm"
+              title="Freeze headers for scrolling"
+            >
+              <Lock size={14} />
+              <span className="hidden md:inline">Freeze</span>
+            </button>
+          </div>
+        </div>
+        
+        {/* Right side - AI assist and sheet info */}
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={handleAIAssist}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-sm"
+            title="Get AI assistance for financial modeling"
+          >
+            <Bot size={14} />
+            <span className="hidden sm:inline">AI Assist</span>
+          </button>
+          
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/60 backdrop-blur-sm rounded-lg border border-indigo-200">
+            <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+            <span className="text-sm font-medium text-indigo-900">
+              {workbook.sheets[workbook.activeSheetId]?.name || 'Sheet 1'}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );

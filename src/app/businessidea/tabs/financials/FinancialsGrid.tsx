@@ -98,13 +98,15 @@ export function FinancialsGrid({
     const cell = sheet.cells[addr];
     const isEditing = editingCell === addr;
     const isSelected = selectedCell === addr;
+    const hasError = cell?.error;
+    const hasValue = cell?.value !== null && cell?.value !== undefined;
     
     // Header row
     if (row === 1) {
       if (col === 1) {
         return (
           <div 
-            className={`flex items-center justify-center border border-gray-300 bg-gray-100 font-bold ${density === 'compact' ? 'p-1' : 'p-2'}`}
+            className={`flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 border border-slate-300 font-semibold text-slate-700 ${density === 'compact' ? 'p-1 text-xs' : 'p-2 text-sm'}`}
           >
             
           </div>
@@ -115,7 +117,7 @@ export function FinancialsGrid({
       const colLabel = toA1({ row: 1, col });
       return (
         <div 
-          className={`flex items-center justify-center border border-gray-300 bg-gray-100 font-bold ${density === 'compact' ? 'p-1' : 'p-2'}`}
+          className={`flex items-center justify-center bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200 font-semibold text-indigo-800 ${density === 'compact' ? 'p-1 text-xs' : 'p-2 text-sm'} hover:bg-indigo-100 transition-colors`}
         >
           {colLabel.substring(0, colLabel.length - 1)}
         </div>
@@ -126,17 +128,17 @@ export function FinancialsGrid({
     if (col === 1) {
       return (
         <div 
-          className={`flex items-center justify-center border border-gray-300 bg-gray-100 font-bold ${density === 'compact' ? 'p-1' : 'p-2'}`}
+          className={`flex items-center justify-center bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200 font-semibold text-indigo-800 ${density === 'compact' ? 'p-1 text-xs' : 'p-2 text-sm'} hover:bg-indigo-100 transition-colors`}
         >
           {row - 1}
         </div>
       );
     }
     
-    // Regular cell
+    // Regular cell editing state
     if (isEditing) {
       return (
-        <div className="border border-blue-500 relative">
+        <div className="border-2 border-indigo-500 bg-white shadow-md relative">
           <input
             ref={inputRef}
             type="text"
@@ -144,7 +146,7 @@ export function FinancialsGrid({
             onChange={(e) => setEditValue(e.target.value)}
             onKeyDown={handleKeyDown}
             onBlur={handleSaveEdit}
-            className="w-full h-full px-1 outline-none"
+            className={`w-full h-full outline-none bg-transparent font-mono ${density === 'compact' ? 'px-1 text-xs' : 'px-2 text-sm'}`}
           />
         </div>
       );
@@ -152,29 +154,42 @@ export function FinancialsGrid({
     
     // Display cell content
     let displayValue = '';
+    let cellTextColor = 'text-slate-700';
+    
     if (cell) {
       if (cell.error) {
-        displayValue = `#ERROR: ${cell.error}`;
+        displayValue = `#ERROR`;
+        cellTextColor = 'text-red-600';
       } else if (cell.value !== null) {
         displayValue = String(cell.value);
+        cellTextColor = typeof cell.value === 'number' ? 'text-indigo-700' : 'text-slate-700';
       } else {
         displayValue = cell.input;
+        cellTextColor = 'text-slate-600';
       }
     }
     
     const cellClasses = `
-      border border-gray-300 
-      ${density === 'compact' ? 'p-1' : 'p-2'}
-      ${isSelected ? 'ring-2 ring-blue-500' : ''}
-      ${row % 2 === 0 && col > 1 ? 'bg-gray-50' : 'bg-white'}
+      border border-slate-200 cursor-pointer transition-all duration-150
+      ${density === 'compact' ? 'p-1 text-xs' : 'p-2 text-sm'}
+      ${isSelected ? 'ring-2 ring-indigo-400 ring-inset shadow-sm' : ''}
+      ${hasError ? 'bg-red-50 border-red-200' : ''}
+      ${hasValue && !hasError ? 'bg-indigo-50/30' : ''}
+      ${!hasValue && !hasError ? 'bg-white hover:bg-slate-50' : ''}
+      ${row % 2 === 0 && col > 1 && !isSelected && !hasError ? 'bg-slate-25' : ''}
+      font-mono
+      ${cellTextColor}
     `;
     
     return (
       <div 
         className={cellClasses}
         onClick={() => handleCellClick(addr)}
+        title={hasError ? cell?.error : displayValue}
       >
-        {displayValue}
+        <div className="truncate">
+          {displayValue}
+        </div>
       </div>
     );
   };
@@ -183,7 +198,7 @@ export function FinancialsGrid({
   const visibleRows = Math.min(sheet.rows, Math.floor(height / rowHeight));
   
   return (
-    <div className="overflow-auto border border-gray-300" style={{ height }}>
+    <div className="overflow-auto border border-slate-200 rounded-lg shadow-inner bg-white" style={{ height }}>
       <div 
         className="grid"
         style={{
