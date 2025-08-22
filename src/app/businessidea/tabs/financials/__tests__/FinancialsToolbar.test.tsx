@@ -11,11 +11,11 @@ describe('FinancialsToolbar', () => {
     
     const { getByText } = render(<FinancialsToolbar />, { wrapper });
     
-    expect(getByText('Add Sheet')).toBeInTheDocument();
-    expect(getByText('Recalc')).toBeInTheDocument();
-    expect(getByText('Export')).toBeInTheDocument();
-    expect(getByText('Freeze')).toBeInTheDocument();
-    expect(getByText('AI Assist')).toBeInTheDocument();
+    expect(getByText('Add')).toBeInTheDocument();
+    expect(getByText('Calc')).toBeInTheDocument();
+    expect(getByText('CSV')).toBeInTheDocument();
+    expect(getByText('Lock')).toBeInTheDocument();
+    expect(getByText('AI')).toBeInTheDocument();
   });
 
   it('should call the appropriate functions when buttons are clicked', () => {
@@ -26,8 +26,8 @@ describe('FinancialsToolbar', () => {
     const { getByText } = render(<FinancialsToolbar />, { wrapper });
     
     // Test that buttons can be clicked without errors
-    fireEvent.click(getByText('Recalc'));
-    fireEvent.click(getByText('Freeze'));
+    fireEvent.click(getByText('Calc'));
+    fireEvent.click(getByText('Lock'));
     
     // Note: Add Sheet and Export CSV would require additional mocking
     // AI Assist would require mocking the alert function
