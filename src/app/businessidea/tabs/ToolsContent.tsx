@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useCallback, memo } from 'react';
 import { cn } from '@/lib/utils';
-import { useToolsRegistry } from "@/components/tools-registry/useToolsRegistry";
-import { ToolsProvider } from "@/components/tools-registry/ToolsProvider";
-import { CategorySidebar } from "@/components/tools-registry/CategorySidebar";
-import { FiltersPanel } from "@/components/tools-registry/FiltersPanel";
-import { SortMenu } from "@/components/tools-registry/SortMenu";
-import { ToolList } from "@/components/tools-registry/ToolList";
+import { useToolsRegistry } from "../../../components/tools-registry/useToolsRegistry";
+import { ToolsProvider } from "../../../components/tools-registry/ToolsProvider";
+import { CategorySidebar } from "../../../components/tools-registry/CategorySidebar";
+import { FiltersPanel } from "../../../components/tools-registry/FiltersPanel";
+import { SortMenu } from "../../../components/tools-registry/SortMenu";
+import { ToolList } from "../../../components/tools-registry/ToolList";
 
 // Add animation keyframes for fade-in effect
 const animationStyles = `
@@ -92,10 +92,10 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
 
   return (
     <div className={cn("flex h-full overflow-hidden", className)}>
-      {/* Desktop Sidebar */}
-      <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:bg-white lg:dark:bg-gray-900 lg:border-r lg:border-gray-200 lg:dark:border-gray-700">
-        <div className="flex-1 flex flex-col min-h-0 pt-20 pb-4 overflow-y-auto">
-          <div className="px-4">
+      {/* Desktop Sidebar - removed fixed positioning to keep it inside parent container */}
+      <div className="hidden lg:block lg:w-64 lg:flex-shrink-0 lg:bg-white lg:dark:bg-gray-900 lg:border-r lg:border-gray-200 lg:dark:border-gray-700">
+        <div className="h-full flex flex-col overflow-y-auto">
+          <div className="px-4 py-4">
             <CategorySidebar
               categories={liveCategories}
               active={selectedCategory}
@@ -105,8 +105,8 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 lg:pl-64 flex flex-col min-w-0">
+      {/* Main Content - removed left padding since sidebar is now properly contained */}
+      <div className="flex-1 flex flex-col min-w-0">
         {/* App Store Style Header */}
         <div className="bg-gradient-to-r from-sky-500 to-cyan-400 dark:from-sky-600 dark:to-cyan-500 rounded-b-2xl pb-4 pt-6 px-4 sm:px-6 relative overflow-hidden">
           {/* Header Content */}
@@ -363,10 +363,13 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
 });  // Close the memo wrapper
 
 // Memoize the main export component for better performance
-export const ToolsContent = memo(function ToolsContent({ className }: ToolsContentProps) {
+const ToolsContent = memo(function ToolsContent({ className }: ToolsContentProps) {
   return (
     <ToolsProvider>
       <ToolsContentInner className={className} />
     </ToolsProvider>
   );
 });
+
+// Export as default to match TabContainer.tsx import
+export default ToolsContent;
