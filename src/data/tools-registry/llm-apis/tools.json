@@ -1,0 +1,27 @@
+[
+  {
+    "id": "openrouter-llm-api",
+    "name": "OpenRouter",
+    "vendor": "OpenRouter",
+    "category": "llm-apis",
+    "website": "https://openrouter.ai",
+    "description": "Unified API that gives you access to hundreds of AI models through a single endpoint, while automatically handling fallbacks and selecting the most cost-effective options.",
+    "pricing": {
+      "model": "usage"
+    },
+    "capabilities": [
+      "llm-text-generation-api",
+      "multi-provider-routing",
+      "provider-failover",
+      "rate-limiting"
+    ],
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T10:55:00+08:00",
+      "sourceRefs": [
+        "https://openrouter.ai",
+        "https://openrouter.ai/docs/quickstart",
+        "https://openrouter.ai/docs/faq"
+      ]
+    }
+  }
+]

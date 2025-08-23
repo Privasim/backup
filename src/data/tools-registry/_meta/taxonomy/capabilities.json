@@ -151,6 +151,66 @@
     {
       "slug": "user-provisioning",
       "name": "User Provisioning"
+    },
+    {
+      "slug": "static-site-hosting",
+      "name": "Static Site Hosting"
+    },
+    {
+      "slug": "serverless-functions",
+      "name": "Serverless Functions"
+    },
+    {
+      "slug": "edge-functions",
+      "name": "Edge Functions"
+    },
+    {
+      "slug": "preview-deployments",
+      "name": "Preview Deployments"
+    },
+    {
+      "slug": "ci-cd-integration",
+      "name": "CI/CD Integration"
+    },
+    {
+      "slug": "custom-domains",
+      "name": "Custom Domains"
+    },
+    {
+      "slug": "environment-management",
+      "name": "Environment Management"
+    },
+    {
+      "slug": "logs-observability",
+      "name": "Logs & Observability"
+    },
+    {
+      "slug": "llm-text-generation-api",
+      "name": "LLM Text Generation API"
+    },
+    {
+      "slug": "llm-embeddings-api",
+      "name": "LLM Embeddings API"
+    },
+    {
+      "slug": "llm-image-generation-api",
+      "name": "LLM Image Generation API"
+    },
+    {
+      "slug": "multi-provider-routing",
+      "name": "Multi‑provider Routing"
+    },
+    {
+      "slug": "provider-failover",
+      "name": "Provider Failover"
+    },
+    {
+      "slug": "rate-limiting",
+      "name": "Rate Limiting"
+    },
+    {
+      "slug": "api-key-management",
+      "name": "API Key Management"
     }
   ]
 }

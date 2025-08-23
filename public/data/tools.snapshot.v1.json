@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "schemaVersion": "1.0.0",
-  "generatedAt": "2025-08-23T02:41:21.655Z",
+  "generatedAt": "2025-08-23T03:01:27.557Z",
   "categories": {
     "no-code-apps": {
       "name": "No-Code Apps",
@@ -45,6 +45,14 @@
     },
     "identity-and-access-management": {
       "name": "Identity & Access Management",
+      "status": "draft"
+    },
+    "deployment-platforms": {
+      "name": "Deployment Platforms",
+      "status": "draft"
+    },
+    "llm-apis": {
+      "name": "LLM APIs",
       "status": "draft"
     }
   },
@@ -713,6 +721,60 @@
       }
     },
     {
+      "id": "netlify-deployment",
+      "name": "Netlify",
+      "vendor": "Netlify",
+      "category": "deployment-platforms",
+      "website": "https://www.netlify.com",
+      "description": "Deploy any modern frontend stack, from marketing sites to AI apps. Turn every Git push into a production-ready release with instant deploy previews and collaborative workflows.",
+      "pricing": {
+        "model": "freemium"
+      },
+      "capabilities": [
+        "static-site-hosting",
+        "serverless-functions",
+        "preview-deployments",
+        "ci-cd-integration"
+      ],
+      "compliance": {
+        "soc2": true,
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T10:55:00+08:00",
+        "sourceRefs": [
+          "https://www.netlify.com",
+          "https://www.netlify.com/pricing/",
+          "https://www.netlify.com/security/"
+        ]
+      }
+    },
+    {
+      "id": "openrouter-llm-api",
+      "name": "OpenRouter",
+      "vendor": "OpenRouter",
+      "category": "llm-apis",
+      "website": "https://openrouter.ai",
+      "description": "Unified API that gives you access to hundreds of AI models through a single endpoint, while automatically handling fallbacks and selecting the most cost-effective options.",
+      "pricing": {
+        "model": "usage"
+      },
+      "capabilities": [
+        "llm-text-generation-api",
+        "multi-provider-routing",
+        "provider-failover",
+        "rate-limiting"
+      ],
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T10:55:00+08:00",
+        "sourceRefs": [
+          "https://openrouter.ai",
+          "https://openrouter.ai/docs/quickstart",
+          "https://openrouter.ai/docs/faq"
+        ]
+      }
+    },
+    {
       "id": "planetscale",
       "name": "PlanetScale",
       "vendor": "PlanetScale",
@@ -759,6 +821,30 @@
       },
       "metadata": {
         "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "railway-deployment",
+      "name": "Railway",
+      "vendor": "Railway",
+      "category": "deployment-platforms",
+      "website": "https://railway.app",
+      "description": "Infrastructure platform where you can provision infrastructure, develop with that infrastructure locally, and then deploy to the cloud.",
+      "pricing": {
+        "model": "freemium"
+      },
+      "capabilities": [
+        "static-site-hosting",
+        "serverless-functions",
+        "environment-management"
+      ],
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T10:55:00+08:00",
+        "sourceRefs": [
+          "https://railway.app",
+          "https://docs.railway.app/reference/pricing",
+          "https://help.railway.app/discuss/thread/using-serverless-e3666dfe"
+        ]
       }
     },
     {
@@ -930,6 +1016,35 @@
       }
     },
     {
+      "id": "vercel-deployment",
+      "name": "Vercel",
+      "vendor": "Vercel",
+      "category": "deployment-platforms",
+      "website": "https://vercel.com",
+      "description": "Build and deploy the best web experiences with the AI Cloud. Deploy from Git or your CLI with instant deployments and global edge network.",
+      "pricing": {
+        "model": "freemium"
+      },
+      "capabilities": [
+        "static-site-hosting",
+        "serverless-functions",
+        "preview-deployments",
+        "ci-cd-integration"
+      ],
+      "compliance": {
+        "soc2": true,
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T10:55:00+08:00",
+        "sourceRefs": [
+          "https://vercel.com",
+          "https://vercel.com/pricing",
+          "https://vercel.com/docs/security"
+        ]
+      }
+    },
+    {
       "id": "weebly",
       "name": "Weebly",
       "vendor": "Weebly",
@@ -1082,6 +1197,14 @@
         "n8n",
         "zapier"
       ],
+      "deployment-platforms": [
+        "netlify-deployment",
+        "railway-deployment",
+        "vercel-deployment"
+      ],
+      "llm-apis": [
+        "openrouter-llm-api"
+      ],
       "payment-processing": [
         "stripe-payments"
       ]
@@ -1213,10 +1336,43 @@
       "data-warehousing": [
         "mongodb-atlas"
       ],
+      "static-site-hosting": [
+        "netlify-deployment",
+        "railway-deployment",
+        "vercel-deployment"
+      ],
+      "serverless-functions": [
+        "netlify-deployment",
+        "railway-deployment",
+        "vercel-deployment"
+      ],
+      "preview-deployments": [
+        "netlify-deployment",
+        "vercel-deployment"
+      ],
+      "ci-cd-integration": [
+        "netlify-deployment",
+        "vercel-deployment"
+      ],
+      "llm-text-generation-api": [
+        "openrouter-llm-api"
+      ],
+      "multi-provider-routing": [
+        "openrouter-llm-api"
+      ],
+      "provider-failover": [
+        "openrouter-llm-api"
+      ],
+      "rate-limiting": [
+        "openrouter-llm-api"
+      ],
       "sql-database": [
         "planetscale",
         "supabase",
         "xata"
+      ],
+      "environment-management": [
+        "railway-deployment"
       ],
       "payment-processing": [
         "stripe-payments"
@@ -1230,11 +1386,11 @@
     }
   },
   "integrity": {
-    "hash": "1dfe3bf53a8b92591c5dabca55fccb14d92b32015df0bd8c2410e5a9681a5849",
+    "hash": "851fce49864ffda1749a70d62649c8cdc5e1c5b081bdd05063952a67a43c39d0",
     "counts": {
-      "tools": 41,
-      "categories": 11,
-      "capabilities": 28
+      "tools": 45,
+      "categories": 13,
+      "capabilities": 37
     }
   }
 }

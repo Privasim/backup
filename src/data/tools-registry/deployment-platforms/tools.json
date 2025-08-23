@@ -1,0 +1,84 @@
+[
+  {
+    "id": "netlify-deployment",
+    "name": "Netlify",
+    "vendor": "Netlify",
+    "category": "deployment-platforms",
+    "website": "https://www.netlify.com",
+    "description": "Deploy any modern frontend stack, from marketing sites to AI apps. Turn every Git push into a production-ready release with instant deploy previews and collaborative workflows.",
+    "pricing": {
+      "model": "freemium"
+    },
+    "capabilities": [
+      "static-site-hosting",
+      "serverless-functions",
+      "preview-deployments",
+      "ci-cd-integration"
+    ],
+    "compliance": {
+      "soc2": true,
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T10:55:00+08:00",
+      "sourceRefs": [
+        "https://www.netlify.com",
+        "https://www.netlify.com/pricing/",
+        "https://www.netlify.com/security/"
+      ]
+    }
+  },
+  {
+    "id": "vercel-deployment",
+    "name": "Vercel",
+    "vendor": "Vercel",
+    "category": "deployment-platforms",
+    "website": "https://vercel.com",
+    "description": "Build and deploy the best web experiences with the AI Cloud. Deploy from Git or your CLI with instant deployments and global edge network.",
+    "pricing": {
+      "model": "freemium"
+    },
+    "capabilities": [
+      "static-site-hosting",
+      "serverless-functions",
+      "preview-deployments",
+      "ci-cd-integration"
+    ],
+    "compliance": {
+      "soc2": true,
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T10:55:00+08:00",
+      "sourceRefs": [
+        "https://vercel.com",
+        "https://vercel.com/pricing",
+        "https://vercel.com/docs/security"
+      ]
+    }
+  },
+  {
+    "id": "railway-deployment",
+    "name": "Railway",
+    "vendor": "Railway",
+    "category": "deployment-platforms",
+    "website": "https://railway.app",
+    "description": "Infrastructure platform where you can provision infrastructure, develop with that infrastructure locally, and then deploy to the cloud.",
+    "pricing": {
+      "model": "freemium"
+    },
+    "capabilities": [
+      "static-site-hosting",
+      "serverless-functions",
+      "environment-management"
+    ],
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T10:55:00+08:00",
+      "sourceRefs": [
+        "https://railway.app",
+        "https://docs.railway.app/reference/pricing",
+        "https://help.railway.app/discuss/thread/using-serverless-e3666dfe"
+      ]
+    }
+  }
+]

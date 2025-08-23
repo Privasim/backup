@@ -46,6 +46,14 @@
     "identity-and-access-management": {
       "name": "Identity & Access Management",
       "status": "draft"
+    },
+    "deployment-platforms": {
+      "name": "Deployment Platforms",
+      "status": "draft"
+    },
+    "llm-apis": {
+      "name": "LLM APIs",
+      "status": "draft"
     }
   }
 }
