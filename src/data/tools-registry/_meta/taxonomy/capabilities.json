@@ -1,0 +1,84 @@
+{
+  "capabilities": [
+    {
+      "slug": "automation",
+      "name": "Automation"
+    },
+    {
+      "slug": "analytics",
+      "name": "Analytics"
+    },
+    {
+      "slug": "ai-assistant",
+      "name": "AI Assistant"
+    },
+    {
+      "slug": "collaboration",
+      "name": "Collaboration"
+    },
+    {
+      "slug": "data-visualization",
+      "name": "Data Visualization"
+    },
+    {
+      "slug": "workflow-management",
+      "name": "Workflow Management"
+    },
+    {
+      "slug": "project-management",
+      "name": "Project Management"
+    },
+    {
+      "slug": "crm",
+      "name": "CRM"
+    },
+    {
+      "slug": "email-marketing",
+      "name": "Email Marketing"
+    },
+    {
+      "slug": "social-media-management",
+      "name": "Social Media Management"
+    },
+    {
+      "slug": "ecommerce",
+      "name": "E-commerce"
+    },
+    {
+      "slug": "content-management",
+      "name": "Content Management"
+    },
+    {
+      "slug": "form-building",
+      "name": "Form Building"
+    },
+    {
+      "slug": "survey-tools",
+      "name": "Survey Tools"
+    },
+    {
+      "slug": "payment-processing",
+      "name": "Payment Processing"
+    },
+    {
+      "slug": "api-integration",
+      "name": "API Integration"
+    },
+    {
+      "slug": "database-management",
+      "name": "Database Management"
+    },
+    {
+      "slug": "file-storage",
+      "name": "File Storage"
+    },
+    {
+      "slug": "identity-management",
+      "name": "Identity Management"
+    },
+    {
+      "slug": "monitoring",
+      "name": "Monitoring"
+    }
+  ]
+}

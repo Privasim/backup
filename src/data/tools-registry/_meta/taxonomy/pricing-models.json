@@ -1,0 +1,9 @@
+{
+  "models": [
+    "free",
+    "freemium",
+    "subscription",
+    "enterprise",
+    "usage"
+  ]
+}

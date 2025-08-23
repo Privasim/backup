@@ -1,0 +1,63 @@
+[
+  {
+    "id": "google-analytics",
+    "name": "Google Analytics",
+    "vendor": "Google",
+    "category": "analytics",
+    "website": "https://analytics.google.com",
+    "description": "Track and analyze website traffic and user behavior.",
+    "pricing": {
+      "model": "free",
+      "minMonthlyUSD": 0
+    },
+    "capabilities": ["analytics", "data-visualization"],
+    "compliance": {
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "mixpanel",
+    "name": "Mixpanel",
+    "vendor": "Mixpanel",
+    "category": "analytics",
+    "website": "https://mixpanel.com",
+    "description": "Product analytics for understanding user behavior.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 99
+    },
+    "capabilities": ["analytics", "data-visualization"],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "amplitude",
+    "name": "Amplitude",
+    "vendor": "Amplitude",
+    "category": "analytics",
+    "website": "https://amplitude.com",
+    "description": "Digital analytics platform for product teams.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 99
+    },
+    "capabilities": ["analytics", "data-visualization"],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  }
+]

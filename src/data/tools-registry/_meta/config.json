@@ -1,0 +1,27 @@
+{
+  "version": "1.0.0",
+  "schemaVersion": "1.0.0",
+  "minToolsPerLiveCategory": 3,
+  "categories": {
+    "no-code-apps": {
+      "name": "No-Code Apps",
+      "status": "live"
+    },
+    "automation": {
+      "name": "Automation",
+      "status": "live"
+    },
+    "analytics": {
+      "name": "Analytics",
+      "status": "live"
+    },
+    "ai-assistants": {
+      "name": "AI Assistants",
+      "status": "live"
+    },
+    "developer-tools": {
+      "name": "Developer Tools",
+      "status": "draft"
+    }
+  }
+}

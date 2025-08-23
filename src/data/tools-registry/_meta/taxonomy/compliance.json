@@ -1,0 +1,19 @@
+{
+  "flags": [
+    {
+      "key": "gdpr",
+      "name": "GDPR Compliance",
+      "description": "General Data Protection Regulation (EU)"
+    },
+    {
+      "key": "soc2",
+      "name": "SOC 2 Compliance",
+      "description": "Service Organization Control 2"
+    },
+    {
+      "key": "hipaa",
+      "name": "HIPAA Compliance",
+      "description": "Health Insurance Portability and Accountability Act (US)"
+    }
+  ]
+}

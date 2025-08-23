@@ -1,0 +1,64 @@
+[
+  {
+    "id": "zapier",
+    "name": "Zapier",
+    "vendor": "Zapier",
+    "category": "automation",
+    "website": "https://zapier.com",
+    "description": "Connect your apps and automate workflows.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 99
+    },
+    "capabilities": ["automation", "api-integration"],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "make",
+    "name": "Make",
+    "vendor": "Make",
+    "category": "automation",
+    "website": "https://make.com",
+    "description": "Connect apps and automate workflows with scenario-based approach.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 99
+    },
+    "capabilities": ["automation", "api-integration"],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "n8n",
+    "name": "n8n",
+    "vendor": "n8n",
+    "category": "automation",
+    "website": "https://n8n.io",
+    "description": "Workflow automation tool with lots of integrations.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 99
+    },
+    "capabilities": ["automation", "api-integration"],
+    "compliance": {
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  }
+]
