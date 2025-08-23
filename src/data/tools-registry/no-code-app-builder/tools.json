@@ -1,0 +1,262 @@
+[
+  {
+    "id": "lovable",
+    "name": "Lovable",
+    "vendor": "Lovable",
+    "category": "no-code-app-builder",
+    "website": "https://lovable.ai",
+    "description": "AI-powered no-code platform for building web applications with natural language.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 99
+    },
+    "capabilities": ["ai-assistant", "content-management"],
+    "compliance": {
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "bolt-new",
+    "name": "Bolt.new",
+    "vendor": "StackBlitz",
+    "category": "no-code-app-builder",
+    "website": "https://bolt.new",
+    "description": "AI-powered no-code tool for building full-stack web applications with natural language prompts.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 20
+    },
+    "capabilities": ["ai-assistant", "content-management"],
+    "compliance": {
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "v0-dev",
+    "name": "v0.dev",
+    "vendor": "Vercel",
+    "category": "no-code-app-builder",
+    "website": "https://v0.dev",
+    "description": "AI-powered UI generator that creates React components from text prompts.",
+    "pricing": {
+      "model": "free",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 0
+    },
+    "capabilities": ["ai-assistant", "content-management"],
+    "compliance": {
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "glide",
+    "name": "Glide",
+    "vendor": "Glide",
+    "category": "no-code-app-builder",
+    "website": "https://www.glideapps.com",
+    "description": "Create custom apps powered by AI with no code. Build and deploy powerful custom apps with Glide.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 99
+    },
+    "capabilities": ["ai-assistant", "content-management"],
+    "compliance": {
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "thunkable",
+    "name": "Thunkable",
+    "vendor": "Thunkable",
+    "category": "no-code-app-builder",
+    "website": "https://thunkable.com",
+    "description": "The most powerful mobile app development platform that allows anyone to create an app without needing to know how to code.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 99
+    },
+    "capabilities": ["content-management"],
+    "compliance": {
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "bubble",
+    "name": "Bubble",
+    "vendor": "Bubble",
+    "category": "no-code-app-builder",
+    "website": "https://bubble.io",
+    "description": "A platform for beginners and experts alike to build and launch web applications without code.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 99
+    },
+    "capabilities": ["content-management"],
+    "compliance": {
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "adalo",
+    "name": "Adalo",
+    "vendor": "Adalo",
+    "category": "no-code-app-builder",
+    "website": "https://www.adalo.com",
+    "description": "Easily build free, fully-custom no-code apps for iOS, Android or the Web with drag and drop platform.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 99
+    },
+    "capabilities": ["content-management"],
+    "compliance": {
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "flutterflow",
+    "name": "FlutterFlow",
+    "vendor": "FlutterFlow",
+    "category": "no-code-app-builder",
+    "website": "https://www.flutterflow.io",
+    "description": "Build high quality cross-platform apps incredibly fast with Firebase integration, API support, animations, and more.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 70
+    },
+    "capabilities": ["content-management"],
+    "compliance": {
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "xano",
+    "name": "Xano",
+    "vendor": "Xano",
+    "category": "no-code-app-builder",
+    "website": "https://www.xano.com",
+    "description": "Scalable no-code backend platform for building APIs, databases, and server logic without coding.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 99
+    },
+    "capabilities": ["content-management"],
+    "compliance": {
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "softr",
+    "name": "Softr",
+    "vendor": "Softr",
+    "category": "no-code-app-builder",
+    "website": "https://www.softr.io",
+    "description": "No-code app builder for AI business apps, portals, and internal tools with drag and drop interface.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 99
+    },
+    "capabilities": ["ai-assistant", "content-management"],
+    "compliance": {
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "bildr",
+    "name": "Bildr",
+    "vendor": "Bildr",
+    "category": "no-code-app-builder",
+    "website": "https://www.bildr.com",
+    "description": "Visual web development platform for building SaaS products, Chrome extensions, and web3 dApps.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 99
+    },
+    "capabilities": ["content-management"],
+    "compliance": {
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "appgyver",
+    "name": "AppGyver",
+    "vendor": "SAP",
+    "category": "no-code-app-builder",
+    "website": "https://www.appgyver.com",
+    "description": "Full-stack visual development platform for building pixel-perfect web and mobile apps without code.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 99
+    },
+    "capabilities": ["content-management"],
+    "compliance": {
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "weebly",
+    "name": "Weebly",
+    "vendor": "Weebly",
+    "category": "no-code-app-builder",
+    "website": "https://www.weebly.com",
+    "description": "Free website builder that makes it easy to build a website, blog, or online store with customizable designs.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 26
+    },
+    "capabilities": ["content-management"],
+    "compliance": {
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  }
+]
