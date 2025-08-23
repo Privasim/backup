@@ -1,0 +1,28 @@
+[
+  {
+    "id": "cloudflare-waf",
+    "name": "Cloudflare WAF",
+    "vendor": "Cloudflare",
+    "category": "application-security",
+    "website": "https://www.cloudflare.com/waf/",
+    "description": "Cloudflare's Web Application Firewall (WAF) protects web applications by inspecting incoming HTTP traffic and blocking malicious requests.",
+    "pricing": {
+      "model": "subscription"
+    },
+    "capabilities": [
+      "web-application-firewall",
+      "monitoring"
+    ],
+    "compliance": {
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T10:30:59+08:00",
+      "sourceRefs": [
+        "https://www.cloudflare.com/waf/",
+        "https://www.cloudflare.com/plans/",
+        "https://www.cloudflare.com/trust-center/"
+      ]
+    }
+  }
+]

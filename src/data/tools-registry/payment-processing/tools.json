@@ -1,0 +1,27 @@
+[
+  {
+    "id": "stripe-payments",
+    "name": "Stripe Payments",
+    "vendor": "Stripe",
+    "category": "payment-processing",
+    "website": "https://stripe.com",
+    "description": "Online payment processing for internet businesses. Stripe is a suite of payment APIs that powers commerce for online businesses of all sizes.",
+    "pricing": {
+      "model": "usage"
+    },
+    "capabilities": [
+      "payment-processing"
+    ],
+    "compliance": {
+      "pci-dss": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T10:30:59+08:00",
+      "sourceRefs": [
+        "https://stripe.com",
+        "https://stripe.com/pricing",
+        "https://stripe.com/security"
+      ]
+    }
+  }
+]

@@ -111,6 +111,46 @@
     {
       "slug": "campaign-management",
       "name": "Campaign Management"
+    },
+    {
+      "slug": "vulnerability-scanning",
+      "name": "Vulnerability Scanning"
+    },
+    {
+      "slug": "web-application-firewall",
+      "name": "Web Application Firewall"
+    },
+    {
+      "slug": "secrets-management",
+      "name": "Secrets Management"
+    },
+    {
+      "slug": "dependency-scanning",
+      "name": "Dependency Scanning"
+    },
+    {
+      "slug": "runtime-application-protection",
+      "name": "Runtime Application Protection"
+    },
+    {
+      "slug": "sso",
+      "name": "Single Sign-On (SSO)"
+    },
+    {
+      "slug": "mfa",
+      "name": "Multi-Factor Authentication (MFA)"
+    },
+    {
+      "slug": "oauth-oidc",
+      "name": "OAuth/OIDC"
+    },
+    {
+      "slug": "access-control-policy",
+      "name": "Access Control Policy"
+    },
+    {
+      "slug": "user-provisioning",
+      "name": "User Provisioning"
     }
   ]
 }

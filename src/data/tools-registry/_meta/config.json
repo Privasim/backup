@@ -34,6 +34,18 @@
     "developer-tools": {
       "name": "Developer Tools",
       "status": "draft"
+    },
+    "payment-processing": {
+      "name": "Payment Processing",
+      "status": "draft"
+    },
+    "application-security": {
+      "name": "Application Security",
+      "status": "draft"
+    },
+    "identity-and-access-management": {
+      "name": "Identity & Access Management",
+      "status": "draft"
     }
   }
 }

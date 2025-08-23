@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "schemaVersion": "1.0.0",
-  "generatedAt": "2025-08-23T02:03:16.451Z",
+  "generatedAt": "2025-08-23T02:41:21.655Z",
   "categories": {
     "no-code-apps": {
       "name": "No-Code Apps",
@@ -33,6 +33,18 @@
     },
     "developer-tools": {
       "name": "Developer Tools",
+      "status": "draft"
+    },
+    "payment-processing": {
+      "name": "Payment Processing",
+      "status": "draft"
+    },
+    "application-security": {
+      "name": "Application Security",
+      "status": "draft"
+    },
+    "identity-and-access-management": {
+      "name": "Identity & Access Management",
       "status": "draft"
     }
   },
@@ -172,6 +184,35 @@
       },
       "metadata": {
         "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "auth0-iam",
+      "name": "Auth0",
+      "vendor": "Auth0",
+      "category": "identity-and-access-management",
+      "website": "https://auth0.com",
+      "description": "Identity platform for developers to secure and manage access to applications and APIs with authentication and authorization services.",
+      "pricing": {
+        "model": "freemium"
+      },
+      "capabilities": [
+        "identity-management",
+        "sso",
+        "mfa",
+        "oauth-oidc"
+      ],
+      "compliance": {
+        "soc2": true,
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T10:30:59+08:00",
+        "sourceRefs": [
+          "https://auth0.com",
+          "https://auth0.com/pricing",
+          "https://auth0.com/security"
+        ]
       }
     },
     {
@@ -331,6 +372,32 @@
       },
       "metadata": {
         "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "cloudflare-waf",
+      "name": "Cloudflare WAF",
+      "vendor": "Cloudflare",
+      "category": "application-security",
+      "website": "https://www.cloudflare.com/waf/",
+      "description": "Cloudflare's Web Application Firewall (WAF) protects web applications by inspecting incoming HTTP traffic and blocking malicious requests.",
+      "pricing": {
+        "model": "subscription"
+      },
+      "capabilities": [
+        "web-application-firewall",
+        "monitoring"
+      ],
+      "compliance": {
+        "soc2": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T10:30:59+08:00",
+        "sourceRefs": [
+          "https://www.cloudflare.com/waf/",
+          "https://www.cloudflare.com/plans/",
+          "https://www.cloudflare.com/trust-center/"
+        ]
       }
     },
     {
@@ -742,6 +809,31 @@
       }
     },
     {
+      "id": "stripe-payments",
+      "name": "Stripe Payments",
+      "vendor": "Stripe",
+      "category": "payment-processing",
+      "website": "https://stripe.com",
+      "description": "Online payment processing for internet businesses. Stripe is a suite of payment APIs that powers commerce for online businesses of all sizes.",
+      "pricing": {
+        "model": "usage"
+      },
+      "capabilities": [
+        "payment-processing"
+      ],
+      "compliance": {
+        "pci-dss": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T10:30:59+08:00",
+        "sourceRefs": [
+          "https://stripe.com",
+          "https://stripe.com/pricing",
+          "https://stripe.com/security"
+        ]
+      }
+    },
+    {
       "id": "supabase",
       "name": "Supabase",
       "vendor": "Supabase",
@@ -962,6 +1054,9 @@
         "power-bi",
         "tableau"
       ],
+      "identity-and-access-management": [
+        "auth0-iam"
+      ],
       "no-code-apps": [
         "bubble",
         "coda",
@@ -971,6 +1066,9 @@
         "openai-chatgpt",
         "anthropic-claude",
         "microsoft-copilot"
+      ],
+      "application-security": [
+        "cloudflare-waf"
       ],
       "marketing": [
         "hubspot",
@@ -983,6 +1081,9 @@
         "make",
         "n8n",
         "zapier"
+      ],
+      "payment-processing": [
+        "stripe-payments"
       ]
     },
     "byCapability": {
@@ -1037,12 +1138,30 @@
         "typeform",
         "xata"
       ],
+      "identity-management": [
+        "auth0-iam"
+      ],
+      "sso": [
+        "auth0-iam"
+      ],
+      "mfa": [
+        "auth0-iam"
+      ],
+      "oauth-oidc": [
+        "auth0-iam"
+      ],
       "ai-assistant": [
         "bolt-new",
         "openai-chatgpt",
         "anthropic-claude",
         "microsoft-copilot",
         "softr"
+      ],
+      "web-application-firewall": [
+        "cloudflare-waf"
+      ],
+      "monitoring": [
+        "cloudflare-waf"
       ],
       "project-management": [
         "coda"
@@ -1099,6 +1218,9 @@
         "supabase",
         "xata"
       ],
+      "payment-processing": [
+        "stripe-payments"
+      ],
       "form-building": [
         "typeform"
       ],
@@ -1108,11 +1230,11 @@
     }
   },
   "integrity": {
-    "hash": "53aeee4b3f99b05c18afc5df582faa042ecf3985120cba0e5412a0056a6f8302",
+    "hash": "1dfe3bf53a8b92591c5dabca55fccb14d92b32015df0bd8c2410e5a9681a5849",
     "counts": {
-      "tools": 38,
-      "categories": 8,
-      "capabilities": 21
+      "tools": 41,
+      "categories": 11,
+      "capabilities": 28
     }
   }
 }

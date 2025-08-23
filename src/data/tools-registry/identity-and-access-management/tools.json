@@ -1,0 +1,31 @@
+[
+  {
+    "id": "auth0-iam",
+    "name": "Auth0",
+    "vendor": "Auth0",
+    "category": "identity-and-access-management",
+    "website": "https://auth0.com",
+    "description": "Identity platform for developers to secure and manage access to applications and APIs with authentication and authorization services.",
+    "pricing": {
+      "model": "freemium"
+    },
+    "capabilities": [
+      "identity-management",
+      "sso",
+      "mfa",
+      "oauth-oidc"
+    ],
+    "compliance": {
+      "soc2": true,
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T10:30:59+08:00",
+      "sourceRefs": [
+        "https://auth0.com",
+        "https://auth0.com/pricing",
+        "https://auth0.com/security"
+      ]
+    }
+  }
+]
