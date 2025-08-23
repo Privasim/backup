@@ -91,11 +91,12 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
   const totalToolsCount = liveCategories.reduce((sum: number, cat: { count: number }) => sum + cat.count, 0);
 
   return (
-    <div className={cn("flex h-full overflow-hidden", className)}>
-      {/* Desktop Sidebar - removed fixed positioning to keep it inside parent container */}
-      <div className="hidden lg:block lg:w-64 lg:flex-shrink-0 lg:bg-white lg:dark:bg-gray-900 lg:border-r lg:border-gray-200 lg:dark:border-gray-700">
-        <div className="h-full flex flex-col overflow-y-auto">
-          <div className="px-4 py-4">
+    <div className={cn("flex h-full overflow-hidden bg-slate-50", className)}>
+      {/* Desktop Sidebar (contained) */}
+      <div className="hidden lg:block lg:w-64 lg:flex-shrink-0">
+        <div className="h-full p-3">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-3">
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Categories</h3>
             <CategorySidebar
               categories={liveCategories}
               active={selectedCategory}
@@ -105,64 +106,87 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
         </div>
       </div>
 
-      {/* Main Content - removed left padding since sidebar is now properly contained */}
+      {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* App Store Style Header */}
-        <div className="bg-gradient-to-r from-sky-500 to-cyan-400 dark:from-sky-600 dark:to-cyan-500 rounded-b-2xl pb-4 pt-6 px-4 sm:px-6 relative overflow-hidden">
-          {/* Header Content */}
+        {/* Search Panel */}
+        <div className="px-4 sm:px-6 py-4">
           <div className="max-w-7xl mx-auto">
-            <div className="flex justify-between items-start mb-6">
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-white">Tools & Resources</h1>
-                <p className="text-sky-100 mt-1">Discover tools for your business</p>
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
+              <div className="px-4 sm:px-6 py-4 border-b border-slate-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h1 className="text-xl sm:text-2xl font-semibold text-slate-800">Tools & Resources</h1>
+                    <p className="text-sm text-slate-500 mt-1">Find the right tools for your business</p>
+                  </div>
+                  <div className="hidden sm:flex gap-2">
+                    <button
+                      onClick={toggleSearch}
+                      className="inline-flex items-center justify-center h-9 w-9 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                      aria-label="Search"
+                      aria-expanded={showSearch}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={toggleFilterPanel}
+                      className="inline-flex items-center justify-center h-9 w-9 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                      aria-label="Filters"
+                      aria-expanded={showFilters}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div className="flex space-x-2 mt-1">
-                {/* Search Icon Button */}
-                <button 
-                  onClick={toggleSearch}
-                  className="bg-white/20 backdrop-blur-sm p-2 rounded-full text-white hover:bg-white/30 transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-sky-500"
-                  aria-label="Search tools"
-                  aria-expanded={showSearch}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                  </svg>
-                </button>
-                {/* Filter Icon Button */}
-                <button 
-                  onClick={toggleFilterPanel}
-                  className="bg-white/20 backdrop-blur-sm p-2 rounded-full text-white hover:bg-white/30 transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-sky-500"
-                  aria-label="Filter tools"
-                  aria-expanded={showFilters}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clipRule="evenodd" />
-                  </svg>
-                </button>
-              </div>
-            </div>
 
-            {/* Embedded Search Pill */}
-            <div className="relative max-w-2xl">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                </svg>
+              {/* Search row */}
+              <div className="px-4 sm:px-6 py-4">
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+                  <div className="sm:col-span-7">
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <input
+                        type="text"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        placeholder="Search tools by name, vendor, or description"
+                        className="block w-full pl-9 pr-3 h-11 rounded-full border border-slate-200 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                        aria-label="Search tools"
+                      />
+                    </div>
+                  </div>
+                  <div className="sm:col-span-3">
+                    <div className="h-11 rounded-full border border-slate-200 bg-white px-3 text-sm text-slate-600 flex items-center justify-between">
+                      <span className="truncate">{selectedCategory ? (liveCategories.find((c: { slug: string; name: string }) => c.slug === selectedCategory)?.name ?? 'Category') : 'All Categories'}</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.292l3.71-4.06a.75.75 0 111.08 1.04l-4.24 4.63a.75.75 0 01-1.08 0l-4.24-4.63a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <button
+                      onClick={handleSearch}
+                      className="w-full h-11 inline-flex items-center justify-center rounded-full bg-sky-600 text-white text-sm font-medium hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
+                    >
+                      Find Tools
+                    </button>
+                  </div>
+                </div>
               </div>
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search tools by name, vendor, or description..."
-                className="block w-full pl-10 pr-3 py-3 rounded-full border border-transparent bg-white/90 backdrop-blur-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white focus:border-white transition-all duration-200 shadow-sm hover:shadow-md"
-                aria-label="Search tools"
-              />
             </div>
           </div>
         </div>
 
         {/* Category Chips - Mobile Only */}
-        <div className="lg:hidden px-4 pt-4">
+        <div className="lg:hidden px-4">
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
             <button
               onClick={() => setCategory(undefined)}
@@ -288,10 +312,10 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
 
             {/* Filters Summary */}
             {(selectedCategory || query || selectedCapabilities.length > 0) && (
-              <div className="mb-6">
-                <div className="flex flex-wrap items-center gap-2">
+              <div className="mb-4">
+                <div className="flex flex-wrap items-center gap-2 text-sm">
                   {selectedCategory && (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 shadow-sm transition-all duration-200 animate-fadeIn">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full border border-sky-200 text-sky-700 bg-sky-50">
                       {liveCategories.find((c: { slug: string; name: string }) => c.slug === selectedCategory)?.name}
                       <button 
                         onClick={() => setCategory(undefined)}
@@ -305,7 +329,7 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
                     </span>
                   )}
                   {query && (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100 shadow-sm transition-all duration-200 animate-fadeIn">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full border border-emerald-200 text-emerald-700 bg-emerald-50">
                       Search: {query}
                       <button 
                         onClick={() => {
@@ -322,7 +346,7 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
                     </span>
                   )}
                   {selectedCapabilities.map((capability: string) => (
-                    <span key={capability} className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100 shadow-sm transition-all duration-200 animate-fadeIn">
+                    <span key={capability} className="inline-flex items-center px-3 py-1 rounded-full border border-violet-200 text-violet-700 bg-violet-50">
                       {capability}
                       <button 
                         onClick={() => toggleCapability(capability)}
@@ -337,7 +361,7 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
                   ))}
                   <button
                     onClick={clearFilters}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors shadow-sm"
+                    className="inline-flex items-center px-3 py-1 rounded-full border border-slate-200 text-slate-600 bg-white hover:bg-slate-50"
                     aria-label="Clear all filters"
                   >
                     Clear all
