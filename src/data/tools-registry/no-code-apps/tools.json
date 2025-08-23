@@ -1,26 +1,5 @@
 [
   {
-    "id": "airtable-makerpad",
-    "name": "Makerpad",
-    "vendor": "Airtable",
-    "category": "no-code-apps",
-    "website": "https://makerpad.co",
-    "description": "Build workflows and automations with no-code tools.",
-    "pricing": {
-      "model": "freemium",
-      "minMonthlyUSD": 0,
-      "maxMonthlyUSD": 99
-    },
-    "capabilities": ["automation", "workflow-management"],
-    "compliance": {
-      "gdpr": true,
-      "soc2": true
-    },
-    "metadata": {
-      "lastVerifiedAt": "2025-08-23T00:00:00Z"
-    }
-  },
-  {
     "id": "bubble",
     "name": "Bubble",
     "vendor": "Bubble",
@@ -53,6 +32,27 @@
       "maxMonthlyUSD": 99
     },
     "capabilities": ["collaboration", "project-management"],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "airtable-makerpad",
+    "name": "Makerpad",
+    "vendor": "Airtable",
+    "category": "no-code-apps",
+    "website": "https://makerpad.co",
+    "description": "Build workflows and automations with no-code tools.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 99
+    },
+    "capabilities": ["automation", "workflow-management"],
     "compliance": {
       "gdpr": true,
       "soc2": true

@@ -1,26 +1,5 @@
 [
   {
-    "id": "zapier",
-    "name": "Zapier",
-    "vendor": "Zapier",
-    "category": "automation",
-    "website": "https://zapier.com",
-    "description": "Connect your apps and automate workflows.",
-    "pricing": {
-      "model": "freemium",
-      "minMonthlyUSD": 0,
-      "maxMonthlyUSD": 99
-    },
-    "capabilities": ["automation", "api-integration"],
-    "compliance": {
-      "gdpr": true,
-      "soc2": true
-    },
-    "metadata": {
-      "lastVerifiedAt": "2025-08-23T00:00:00Z"
-    }
-  },
-  {
     "id": "make",
     "name": "Make",
     "vendor": "Make",
@@ -56,6 +35,27 @@
     "capabilities": ["automation", "api-integration"],
     "compliance": {
       "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "zapier",
+    "name": "Zapier",
+    "vendor": "Zapier",
+    "category": "automation",
+    "website": "https://zapier.com",
+    "description": "Connect your apps and automate workflows.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 99
+    },
+    "capabilities": ["automation", "api-integration"],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
     },
     "metadata": {
       "lastVerifiedAt": "2025-08-23T00:00:00Z"

@@ -1,0 +1,106 @@
+[
+  {
+    "id": "airtable",
+    "name": "Airtable",
+    "vendor": "Airtable",
+    "category": "database",
+    "website": "https://airtable.com",
+    "description": "Cloud collaboration service with database, spreadsheet, and automation features.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 24
+    },
+    "capabilities": ["database-management", "collaboration", "data-visualization"],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "mongodb-atlas",
+    "name": "MongoDB Atlas",
+    "vendor": "MongoDB",
+    "category": "database",
+    "website": "https://www.mongodb.com/atlas",
+    "description": "Cloud database service for modern applications with global clusters.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 57
+    },
+    "capabilities": ["nosql-database", "database-management", "data-warehousing"],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "planetscale",
+    "name": "PlanetScale",
+    "vendor": "PlanetScale",
+    "category": "database",
+    "website": "https://planetscale.com",
+    "description": "MySQL-compatible serverless database platform with branching workflows.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 39
+    },
+    "capabilities": ["sql-database", "database-management"],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "supabase",
+    "name": "Supabase",
+    "vendor": "Supabase",
+    "category": "database",
+    "website": "https://supabase.com",
+    "description": "Open source Firebase alternative with PostgreSQL database and real-time features.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 25
+    },
+    "capabilities": ["sql-database", "database-management", "api-integration"],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "xata",
+    "name": "Xata",
+    "vendor": "Xata",
+    "category": "database",
+    "website": "https://xata.io",
+    "description": "Serverless database with built-in search, analytics, and file attachments.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 20
+    },
+    "capabilities": ["sql-database", "database-management", "analytics"],
+    "compliance": {
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  }
+]

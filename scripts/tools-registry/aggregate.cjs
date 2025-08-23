@@ -5,12 +5,12 @@ const path = require('path');
 const crypto = require('crypto');
 
 // Load configuration
-const config = require('../src/data/tools-registry/_meta/config.json');
+const config = require('../../src/data/tools-registry/_meta/config.json');
 
 // Function to read all tools from categories
 function readAllTools() {
   const tools = [];
-  const categoriesDir = path.join(__dirname, '../src/data/tools-registry');
+  const categoriesDir = path.join(__dirname, '../../src/data/tools-registry');
   
   // Read each category directory
   for (const categorySlug in config.categories) {

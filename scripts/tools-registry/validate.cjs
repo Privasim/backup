@@ -2,18 +2,43 @@
 
 const fs = require('fs');
 const path = require('path');
-const { toolSchema } = require('../src/data/tools-registry/_meta/schemas/tool.schema');
+const { z } = require('zod');
 
 // Load configuration and taxonomy
-const config = require('../src/data/tools-registry/_meta/config.json');
-const capabilitiesData = require('../src/data/tools-registry/_meta/taxonomy/capabilities.json');
-const pricingModelsData = require('../src/data/tools-registry/_meta/taxonomy/pricing-models.json');
-const complianceData = require('../src/data/tools-registry/_meta/taxonomy/compliance.json');
+const config = require('../../src/data/tools-registry/_meta/config.json');
+const capabilitiesData = require('../../src/data/tools-registry/_meta/taxonomy/capabilities.json');
+const pricingModelsData = require('../../src/data/tools-registry/_meta/taxonomy/pricing-models.json');
+const complianceData = require('../../src/data/tools-registry/_meta/taxonomy/compliance.json');
 
 // Extract valid values from taxonomy
-const validCapabilities = new Set(capabilitiesData.capabilities.map(cap => cap.slug));
-const validPricingModels = new Set(pricingModelsData.models);
-const validComplianceFlags = new Set(complianceData.flags.map(flag => flag.key));
+const validCapabilities = capabilitiesData.capabilities.map(cap => cap.slug);
+const validPricingModels = pricingModelsData.models;
+const validComplianceFlags = complianceData.flags.map(flag => flag.key);
+
+// Define tool schema directly in CommonJS
+const toolSchema = z.object({
+  id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), // kebab-case
+  name: z.string().min(1),
+  vendor: z.string().min(1),
+  category: z.string().min(1),
+  website: z.string().url().startsWith('https://'),
+  description: z.string().min(1),
+  pricing: z.object({
+    model: z.enum(validPricingModels),
+    minMonthlyUSD: z.number().optional(),
+    maxMonthlyUSD: z.number().optional()
+  }),
+  capabilities: z.array(z.enum(validCapabilities)),
+  compliance: z.object({
+    gdpr: z.boolean().optional(),
+    soc2: z.boolean().optional(),
+    hipaa: z.boolean().optional()
+  }).optional(),
+  metadata: z.object({
+    lastVerifiedAt: z.string().datetime().optional(),
+    sourceRefs: z.array(z.string().url()).optional()
+  }).optional()
+});
 
 // Track validation errors
 let hasErrors = false;
@@ -42,20 +67,20 @@ function validateTool(tool, category) {
 
   // Check capabilities
   for (const capability of tool.capabilities) {
-    if (!validCapabilities.has(capability)) {
+    if (!validCapabilities.includes(capability)) {
       reportError(category, tool.name, `Unknown capability: ${capability}`);
     }
   }
 
   // Check pricing model
-  if (!validPricingModels.has(tool.pricing.model)) {
+  if (!validPricingModels.includes(tool.pricing.model)) {
     reportError(category, tool.name, `Unknown pricing model: ${tool.pricing.model}`);
   }
 
   // Check compliance flags
   if (tool.compliance) {
     for (const flag in tool.compliance) {
-      if (!validComplianceFlags.has(flag)) {
+      if (!validComplianceFlags.includes(flag)) {
         reportError(category, tool.name, `Unknown compliance flag: ${flag}`);
       }
     }
@@ -71,7 +96,7 @@ function validateTool(tool, category) {
 
 // Function to validate a category
 function validateCategory(category) {
-  const categoryPath = path.join(__dirname, `../src/data/tools-registry/${category}/tools.json`);
+  const categoryPath = path.join(__dirname, `../../src/data/tools-registry/${category}/tools.json`);
   
   if (!fs.existsSync(categoryPath)) {
     reportError(category, '', `Category file not found: ${categoryPath}`);

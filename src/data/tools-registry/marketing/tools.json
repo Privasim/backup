@@ -1,0 +1,106 @@
+[
+  {
+    "id": "hubspot",
+    "name": "HubSpot",
+    "vendor": "HubSpot",
+    "category": "marketing",
+    "website": "https://www.hubspot.com",
+    "description": "All-in-one marketing, sales, and customer service platform with CRM integration.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 3200
+    },
+    "capabilities": ["marketing-automation", "crm", "email-marketing", "campaign-management"],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "klaviyo",
+    "name": "Klaviyo",
+    "vendor": "Klaviyo",
+    "category": "marketing",
+    "website": "https://www.klaviyo.com",
+    "description": "Email and SMS marketing platform with advanced segmentation and automation.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 150
+    },
+    "capabilities": ["email-marketing", "marketing-automation", "customer-segmentation"],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "mailchimp",
+    "name": "Mailchimp",
+    "vendor": "Intuit",
+    "category": "marketing",
+    "website": "https://mailchimp.com",
+    "description": "Email marketing and automation platform for small to medium businesses.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 350
+    },
+    "capabilities": ["email-marketing", "marketing-automation", "analytics"],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "sendgrid",
+    "name": "SendGrid",
+    "vendor": "Twilio",
+    "category": "marketing",
+    "website": "https://sendgrid.com",
+    "description": "Cloud-based email delivery platform for transactional and marketing emails.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 89
+    },
+    "capabilities": ["email-marketing", "api-integration"],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "typeform",
+    "name": "Typeform",
+    "vendor": "Typeform",
+    "category": "marketing",
+    "website": "https://www.typeform.com",
+    "description": "Interactive forms and surveys for lead generation and customer feedback.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 83
+    },
+    "capabilities": ["form-building", "survey-tools", "analytics"],
+    "compliance": {
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  }
+]

@@ -1,0 +1,1118 @@
+{
+  "version": "1.0.0",
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2025-08-23T02:03:16.451Z",
+  "categories": {
+    "no-code-apps": {
+      "name": "No-Code Apps",
+      "status": "live"
+    },
+    "no-code-app-builder": {
+      "name": "No-Code App Builders",
+      "status": "live"
+    },
+    "automation": {
+      "name": "Automation",
+      "status": "live"
+    },
+    "analytics": {
+      "name": "Analytics",
+      "status": "live"
+    },
+    "ai-assistants": {
+      "name": "AI Assistants",
+      "status": "live"
+    },
+    "database": {
+      "name": "Database",
+      "status": "live"
+    },
+    "marketing": {
+      "name": "Marketing",
+      "status": "live"
+    },
+    "developer-tools": {
+      "name": "Developer Tools",
+      "status": "draft"
+    }
+  },
+  "tools": [
+    {
+      "id": "adalo",
+      "name": "Adalo",
+      "vendor": "Adalo",
+      "category": "no-code-app-builder",
+      "website": "https://www.adalo.com",
+      "description": "Easily build free, fully-custom no-code apps for iOS, Android or the Web with drag and drop platform.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 99
+      },
+      "capabilities": [
+        "content-management"
+      ],
+      "compliance": {
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "adalo",
+      "name": "Adalo",
+      "vendor": "Adalo",
+      "category": "no-code-app-builder",
+      "website": "https://www.adalo.com",
+      "description": "Easily build free, fully-custom no-code apps for iOS, Android or the Web with drag and drop platform.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 99
+      },
+      "capabilities": [
+        "content-management"
+      ],
+      "compliance": {
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "airtable",
+      "name": "Airtable",
+      "vendor": "Airtable",
+      "category": "database",
+      "website": "https://airtable.com",
+      "description": "Cloud collaboration service with database, spreadsheet, and automation features.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 24
+      },
+      "capabilities": [
+        "database-management",
+        "collaboration",
+        "data-visualization"
+      ],
+      "compliance": {
+        "gdpr": true,
+        "soc2": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "amplitude",
+      "name": "Amplitude",
+      "vendor": "Amplitude",
+      "category": "analytics",
+      "website": "https://amplitude.com",
+      "description": "Digital analytics platform for product teams.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 99
+      },
+      "capabilities": [
+        "analytics",
+        "data-visualization"
+      ],
+      "compliance": {
+        "gdpr": true,
+        "soc2": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "appgyver",
+      "name": "AppGyver",
+      "vendor": "SAP",
+      "category": "no-code-app-builder",
+      "website": "https://www.appgyver.com",
+      "description": "Full-stack visual development platform for building pixel-perfect web and mobile apps without code.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 99
+      },
+      "capabilities": [
+        "content-management"
+      ],
+      "compliance": {
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "appgyver",
+      "name": "AppGyver",
+      "vendor": "SAP",
+      "category": "no-code-app-builder",
+      "website": "https://www.appgyver.com",
+      "description": "Full-stack visual development platform for building pixel-perfect web and mobile apps without code.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 99
+      },
+      "capabilities": [
+        "content-management"
+      ],
+      "compliance": {
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "bildr",
+      "name": "Bildr",
+      "vendor": "Bildr",
+      "category": "no-code-app-builder",
+      "website": "https://www.bildr.com",
+      "description": "Visual web development platform for building SaaS products, Chrome extensions, and web3 dApps.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 99
+      },
+      "capabilities": [
+        "content-management"
+      ],
+      "compliance": {
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "bildr",
+      "name": "Bildr",
+      "vendor": "Bildr",
+      "category": "no-code-app-builder",
+      "website": "https://www.bildr.com",
+      "description": "Visual web development platform for building SaaS products, Chrome extensions, and web3 dApps.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 99
+      },
+      "capabilities": [
+        "content-management"
+      ],
+      "compliance": {
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "bolt-new",
+      "name": "Bolt.new",
+      "vendor": "StackBlitz",
+      "category": "no-code-app-builder",
+      "website": "https://bolt.new",
+      "description": "AI-powered no-code tool for building full-stack web applications with natural language prompts.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 20
+      },
+      "capabilities": [
+        "ai-assistant",
+        "content-management"
+      ],
+      "compliance": {
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "bubble",
+      "name": "Bubble",
+      "vendor": "Bubble",
+      "category": "no-code-apps",
+      "website": "https://bubble.io",
+      "description": "Build web applications without code.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 119
+      },
+      "capabilities": [
+        "content-management",
+        "database-management"
+      ],
+      "compliance": {
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "bubble",
+      "name": "Bubble",
+      "vendor": "Bubble",
+      "category": "no-code-app-builder",
+      "website": "https://bubble.io",
+      "description": "A platform for beginners and experts alike to build and launch web applications without code.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 99
+      },
+      "capabilities": [
+        "content-management"
+      ],
+      "compliance": {
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "openai-chatgpt",
+      "name": "ChatGPT",
+      "vendor": "OpenAI",
+      "category": "ai-assistants",
+      "website": "https://chat.openai.com",
+      "description": "Conversational AI assistant for various tasks.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 20
+      },
+      "capabilities": [
+        "ai-assistant",
+        "content-management"
+      ],
+      "compliance": {
+        "gdpr": true,
+        "soc2": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "anthropic-claude",
+      "name": "Claude",
+      "vendor": "Anthropic",
+      "category": "ai-assistants",
+      "website": "https://claude.ai",
+      "description": "AI assistant focused on being helpful, harmless, and honest.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 20
+      },
+      "capabilities": [
+        "ai-assistant",
+        "content-management"
+      ],
+      "compliance": {
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "coda",
+      "name": "Coda",
+      "vendor": "Coda",
+      "category": "no-code-apps",
+      "website": "https://coda.io",
+      "description": "Combine documents, databases, and apps in one place.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 99
+      },
+      "capabilities": [
+        "collaboration",
+        "project-management"
+      ],
+      "compliance": {
+        "gdpr": true,
+        "soc2": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "flutterflow",
+      "name": "FlutterFlow",
+      "vendor": "FlutterFlow",
+      "category": "no-code-app-builder",
+      "website": "https://www.flutterflow.io",
+      "description": "Build high quality cross-platform apps incredibly fast with Firebase integration, API support, animations, and more.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 70
+      },
+      "capabilities": [
+        "content-management"
+      ],
+      "compliance": {
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "google-analytics",
+      "name": "Google Analytics",
+      "vendor": "Google",
+      "category": "analytics",
+      "website": "https://analytics.google.com",
+      "description": "Track and analyze website traffic and user behavior.",
+      "pricing": {
+        "model": "free",
+        "minMonthlyUSD": 0
+      },
+      "capabilities": [
+        "analytics",
+        "data-visualization"
+      ],
+      "compliance": {
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "hubspot",
+      "name": "HubSpot",
+      "vendor": "HubSpot",
+      "category": "marketing",
+      "website": "https://www.hubspot.com",
+      "description": "All-in-one marketing, sales, and customer service platform with CRM integration.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 3200
+      },
+      "capabilities": [
+        "marketing-automation",
+        "crm",
+        "email-marketing",
+        "campaign-management"
+      ],
+      "compliance": {
+        "gdpr": true,
+        "soc2": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "klaviyo",
+      "name": "Klaviyo",
+      "vendor": "Klaviyo",
+      "category": "marketing",
+      "website": "https://www.klaviyo.com",
+      "description": "Email and SMS marketing platform with advanced segmentation and automation.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 150
+      },
+      "capabilities": [
+        "email-marketing",
+        "marketing-automation",
+        "customer-segmentation"
+      ],
+      "compliance": {
+        "gdpr": true,
+        "soc2": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "looker",
+      "name": "Looker",
+      "vendor": "Google Cloud",
+      "category": "analytics",
+      "website": "https://cloud.google.com/looker",
+      "description": "Modern business intelligence platform for data-driven organizations.",
+      "pricing": {
+        "model": "enterprise",
+        "minMonthlyUSD": 5000
+      },
+      "capabilities": [
+        "business-intelligence",
+        "data-visualization",
+        "analytics"
+      ],
+      "compliance": {
+        "gdpr": true,
+        "soc2": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "mailchimp",
+      "name": "Mailchimp",
+      "vendor": "Intuit",
+      "category": "marketing",
+      "website": "https://mailchimp.com",
+      "description": "Email marketing and automation platform for small to medium businesses.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 350
+      },
+      "capabilities": [
+        "email-marketing",
+        "marketing-automation",
+        "analytics"
+      ],
+      "compliance": {
+        "gdpr": true,
+        "soc2": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "make",
+      "name": "Make",
+      "vendor": "Make",
+      "category": "automation",
+      "website": "https://make.com",
+      "description": "Connect apps and automate workflows with scenario-based approach.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 99
+      },
+      "capabilities": [
+        "automation",
+        "api-integration"
+      ],
+      "compliance": {
+        "gdpr": true,
+        "soc2": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "airtable-makerpad",
+      "name": "Makerpad",
+      "vendor": "Airtable",
+      "category": "no-code-apps",
+      "website": "https://makerpad.co",
+      "description": "Build workflows and automations with no-code tools.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 99
+      },
+      "capabilities": [
+        "automation",
+        "workflow-management"
+      ],
+      "compliance": {
+        "gdpr": true,
+        "soc2": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "microsoft-copilot",
+      "name": "Microsoft Copilot",
+      "vendor": "Microsoft",
+      "category": "ai-assistants",
+      "website": "https://copilot.microsoft.com",
+      "description": "AI assistant integrated with Microsoft 365.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 99
+      },
+      "capabilities": [
+        "ai-assistant",
+        "content-management"
+      ],
+      "compliance": {
+        "gdpr": true,
+        "soc2": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "mixpanel",
+      "name": "Mixpanel",
+      "vendor": "Mixpanel",
+      "category": "analytics",
+      "website": "https://mixpanel.com",
+      "description": "Product analytics for understanding user behavior.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 99
+      },
+      "capabilities": [
+        "analytics",
+        "data-visualization"
+      ],
+      "compliance": {
+        "gdpr": true,
+        "soc2": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "mongodb-atlas",
+      "name": "MongoDB Atlas",
+      "vendor": "MongoDB",
+      "category": "database",
+      "website": "https://www.mongodb.com/atlas",
+      "description": "Cloud database service for modern applications with global clusters.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 57
+      },
+      "capabilities": [
+        "nosql-database",
+        "database-management",
+        "data-warehousing"
+      ],
+      "compliance": {
+        "gdpr": true,
+        "soc2": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "n8n",
+      "name": "n8n",
+      "vendor": "n8n",
+      "category": "automation",
+      "website": "https://n8n.io",
+      "description": "Workflow automation tool with lots of integrations.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 99
+      },
+      "capabilities": [
+        "automation",
+        "api-integration"
+      ],
+      "compliance": {
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "planetscale",
+      "name": "PlanetScale",
+      "vendor": "PlanetScale",
+      "category": "database",
+      "website": "https://planetscale.com",
+      "description": "MySQL-compatible serverless database platform with branching workflows.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 39
+      },
+      "capabilities": [
+        "sql-database",
+        "database-management"
+      ],
+      "compliance": {
+        "gdpr": true,
+        "soc2": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "power-bi",
+      "name": "Power BI",
+      "vendor": "Microsoft",
+      "category": "analytics",
+      "website": "https://powerbi.microsoft.com",
+      "description": "Business analytics solution for analyzing data and creating visualizations.",
+      "pricing": {
+        "model": "subscription",
+        "minMonthlyUSD": 10,
+        "maxMonthlyUSD": 20
+      },
+      "capabilities": [
+        "business-intelligence",
+        "data-visualization",
+        "analytics"
+      ],
+      "compliance": {
+        "gdpr": true,
+        "soc2": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "sendgrid",
+      "name": "SendGrid",
+      "vendor": "Twilio",
+      "category": "marketing",
+      "website": "https://sendgrid.com",
+      "description": "Cloud-based email delivery platform for transactional and marketing emails.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 89
+      },
+      "capabilities": [
+        "email-marketing",
+        "api-integration"
+      ],
+      "compliance": {
+        "gdpr": true,
+        "soc2": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "softr",
+      "name": "Softr",
+      "vendor": "Softr",
+      "category": "no-code-app-builder",
+      "website": "https://www.softr.io",
+      "description": "No-code app builder for AI business apps, portals, and internal tools with drag and drop interface.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 99
+      },
+      "capabilities": [
+        "ai-assistant",
+        "content-management"
+      ],
+      "compliance": {
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "supabase",
+      "name": "Supabase",
+      "vendor": "Supabase",
+      "category": "database",
+      "website": "https://supabase.com",
+      "description": "Open source Firebase alternative with PostgreSQL database and real-time features.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 25
+      },
+      "capabilities": [
+        "sql-database",
+        "database-management",
+        "api-integration"
+      ],
+      "compliance": {
+        "gdpr": true,
+        "soc2": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "tableau",
+      "name": "Tableau",
+      "vendor": "Salesforce",
+      "category": "analytics",
+      "website": "https://www.tableau.com",
+      "description": "Visual analytics platform for business intelligence and data visualization.",
+      "pricing": {
+        "model": "subscription",
+        "minMonthlyUSD": 70,
+        "maxMonthlyUSD": 170
+      },
+      "capabilities": [
+        "business-intelligence",
+        "data-visualization",
+        "analytics"
+      ],
+      "compliance": {
+        "gdpr": true,
+        "soc2": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "thunkable",
+      "name": "Thunkable",
+      "vendor": "Thunkable",
+      "category": "no-code-app-builder",
+      "website": "https://thunkable.com",
+      "description": "The most powerful mobile app development platform that allows anyone to create an app without needing to know how to code.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 99
+      },
+      "capabilities": [
+        "content-management"
+      ],
+      "compliance": {
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "typeform",
+      "name": "Typeform",
+      "vendor": "Typeform",
+      "category": "marketing",
+      "website": "https://www.typeform.com",
+      "description": "Interactive forms and surveys for lead generation and customer feedback.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 83
+      },
+      "capabilities": [
+        "form-building",
+        "survey-tools",
+        "analytics"
+      ],
+      "compliance": {
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "weebly",
+      "name": "Weebly",
+      "vendor": "Weebly",
+      "category": "no-code-app-builder",
+      "website": "https://www.weebly.com",
+      "description": "Free website builder that makes it easy to build a website, blog, or online store with customizable designs.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 26
+      },
+      "capabilities": [
+        "content-management"
+      ],
+      "compliance": {
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "xano",
+      "name": "Xano",
+      "vendor": "Xano",
+      "category": "no-code-app-builder",
+      "website": "https://www.xano.com",
+      "description": "Scalable no-code backend platform for building APIs, databases, and server logic without coding.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 99
+      },
+      "capabilities": [
+        "content-management"
+      ],
+      "compliance": {
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "xata",
+      "name": "Xata",
+      "vendor": "Xata",
+      "category": "database",
+      "website": "https://xata.io",
+      "description": "Serverless database with built-in search, analytics, and file attachments.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 20
+      },
+      "capabilities": [
+        "sql-database",
+        "database-management",
+        "analytics"
+      ],
+      "compliance": {
+        "gdpr": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    },
+    {
+      "id": "zapier",
+      "name": "Zapier",
+      "vendor": "Zapier",
+      "category": "automation",
+      "website": "https://zapier.com",
+      "description": "Connect your apps and automate workflows.",
+      "pricing": {
+        "model": "freemium",
+        "minMonthlyUSD": 0,
+        "maxMonthlyUSD": 99
+      },
+      "capabilities": [
+        "automation",
+        "api-integration"
+      ],
+      "compliance": {
+        "gdpr": true,
+        "soc2": true
+      },
+      "metadata": {
+        "lastVerifiedAt": "2025-08-23T00:00:00Z"
+      }
+    }
+  ],
+  "indexes": {
+    "byCategory": {
+      "no-code-app-builder": [
+        "adalo",
+        "adalo",
+        "appgyver",
+        "appgyver",
+        "bildr",
+        "bildr",
+        "bolt-new",
+        "bubble",
+        "flutterflow",
+        "softr",
+        "thunkable",
+        "weebly",
+        "xano"
+      ],
+      "database": [
+        "airtable",
+        "mongodb-atlas",
+        "planetscale",
+        "supabase",
+        "xata"
+      ],
+      "analytics": [
+        "amplitude",
+        "google-analytics",
+        "looker",
+        "mixpanel",
+        "power-bi",
+        "tableau"
+      ],
+      "no-code-apps": [
+        "bubble",
+        "coda",
+        "airtable-makerpad"
+      ],
+      "ai-assistants": [
+        "openai-chatgpt",
+        "anthropic-claude",
+        "microsoft-copilot"
+      ],
+      "marketing": [
+        "hubspot",
+        "klaviyo",
+        "mailchimp",
+        "sendgrid",
+        "typeform"
+      ],
+      "automation": [
+        "make",
+        "n8n",
+        "zapier"
+      ]
+    },
+    "byCapability": {
+      "content-management": [
+        "adalo",
+        "adalo",
+        "appgyver",
+        "appgyver",
+        "bildr",
+        "bildr",
+        "bolt-new",
+        "bubble",
+        "bubble",
+        "openai-chatgpt",
+        "anthropic-claude",
+        "flutterflow",
+        "microsoft-copilot",
+        "softr",
+        "thunkable",
+        "weebly",
+        "xano"
+      ],
+      "database-management": [
+        "airtable",
+        "bubble",
+        "mongodb-atlas",
+        "planetscale",
+        "supabase",
+        "xata"
+      ],
+      "collaboration": [
+        "airtable",
+        "coda"
+      ],
+      "data-visualization": [
+        "airtable",
+        "amplitude",
+        "google-analytics",
+        "looker",
+        "mixpanel",
+        "power-bi",
+        "tableau"
+      ],
+      "analytics": [
+        "amplitude",
+        "google-analytics",
+        "looker",
+        "mailchimp",
+        "mixpanel",
+        "power-bi",
+        "tableau",
+        "typeform",
+        "xata"
+      ],
+      "ai-assistant": [
+        "bolt-new",
+        "openai-chatgpt",
+        "anthropic-claude",
+        "microsoft-copilot",
+        "softr"
+      ],
+      "project-management": [
+        "coda"
+      ],
+      "marketing-automation": [
+        "hubspot",
+        "klaviyo",
+        "mailchimp"
+      ],
+      "crm": [
+        "hubspot"
+      ],
+      "email-marketing": [
+        "hubspot",
+        "klaviyo",
+        "mailchimp",
+        "sendgrid"
+      ],
+      "campaign-management": [
+        "hubspot"
+      ],
+      "customer-segmentation": [
+        "klaviyo"
+      ],
+      "business-intelligence": [
+        "looker",
+        "power-bi",
+        "tableau"
+      ],
+      "automation": [
+        "make",
+        "airtable-makerpad",
+        "n8n",
+        "zapier"
+      ],
+      "api-integration": [
+        "make",
+        "n8n",
+        "sendgrid",
+        "supabase",
+        "zapier"
+      ],
+      "workflow-management": [
+        "airtable-makerpad"
+      ],
+      "nosql-database": [
+        "mongodb-atlas"
+      ],
+      "data-warehousing": [
+        "mongodb-atlas"
+      ],
+      "sql-database": [
+        "planetscale",
+        "supabase",
+        "xata"
+      ],
+      "form-building": [
+        "typeform"
+      ],
+      "survey-tools": [
+        "typeform"
+      ]
+    }
+  },
+  "integrity": {
+    "hash": "53aeee4b3f99b05c18afc5df582faa042ecf3985120cba0e5412a0056a6f8302",
+    "counts": {
+      "tools": 38,
+      "categories": 8,
+      "capabilities": 21
+    }
+  }
+}

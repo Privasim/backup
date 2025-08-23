@@ -1,5 +1,26 @@
 [
   {
+    "id": "amplitude",
+    "name": "Amplitude",
+    "vendor": "Amplitude",
+    "category": "analytics",
+    "website": "https://amplitude.com",
+    "description": "Digital analytics platform for product teams.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 99
+    },
+    "capabilities": ["analytics", "data-visualization"],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
     "id": "google-analytics",
     "name": "Google Analytics",
     "vendor": "Google",
@@ -13,6 +34,26 @@
     "capabilities": ["analytics", "data-visualization"],
     "compliance": {
       "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "looker",
+    "name": "Looker",
+    "vendor": "Google Cloud",
+    "category": "analytics",
+    "website": "https://cloud.google.com/looker",
+    "description": "Modern business intelligence platform for data-driven organizations.",
+    "pricing": {
+      "model": "enterprise",
+      "minMonthlyUSD": 5000
+    },
+    "capabilities": ["business-intelligence", "data-visualization", "analytics"],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
     },
     "metadata": {
       "lastVerifiedAt": "2025-08-23T00:00:00Z"
@@ -40,18 +81,39 @@
     }
   },
   {
-    "id": "amplitude",
-    "name": "Amplitude",
-    "vendor": "Amplitude",
+    "id": "power-bi",
+    "name": "Power BI",
+    "vendor": "Microsoft",
     "category": "analytics",
-    "website": "https://amplitude.com",
-    "description": "Digital analytics platform for product teams.",
+    "website": "https://powerbi.microsoft.com",
+    "description": "Business analytics solution for analyzing data and creating visualizations.",
     "pricing": {
-      "model": "freemium",
-      "minMonthlyUSD": 0,
-      "maxMonthlyUSD": 99
+      "model": "subscription",
+      "minMonthlyUSD": 10,
+      "maxMonthlyUSD": 20
     },
-    "capabilities": ["analytics", "data-visualization"],
+    "capabilities": ["business-intelligence", "data-visualization", "analytics"],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-23T00:00:00Z"
+    }
+  },
+  {
+    "id": "tableau",
+    "name": "Tableau",
+    "vendor": "Salesforce",
+    "category": "analytics",
+    "website": "https://www.tableau.com",
+    "description": "Visual analytics platform for business intelligence and data visualization.",
+    "pricing": {
+      "model": "subscription",
+      "minMonthlyUSD": 70,
+      "maxMonthlyUSD": 170
+    },
+    "capabilities": ["business-intelligence", "data-visualization", "analytics"],
     "compliance": {
       "gdpr": true,
       "soc2": true

@@ -79,6 +79,38 @@
     {
       "slug": "monitoring",
       "name": "Monitoring"
+    },
+    {
+      "slug": "business-intelligence",
+      "name": "Business Intelligence"
+    },
+    {
+      "slug": "data-warehousing",
+      "name": "Data Warehousing"
+    },
+    {
+      "slug": "marketing-automation",
+      "name": "Marketing Automation"
+    },
+    {
+      "slug": "customer-segmentation",
+      "name": "Customer Segmentation"
+    },
+    {
+      "slug": "sql-database",
+      "name": "SQL Database"
+    },
+    {
+      "slug": "nosql-database",
+      "name": "NoSQL Database"
+    },
+    {
+      "slug": "data-modeling",
+      "name": "Data Modeling"
+    },
+    {
+      "slug": "campaign-management",
+      "name": "Campaign Management"
     }
   ]
 }

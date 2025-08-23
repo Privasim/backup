@@ -23,6 +23,14 @@
       "name": "AI Assistants",
       "status": "live"
     },
+    "database": {
+      "name": "Database",
+      "status": "live"
+    },
+    "marketing": {
+      "name": "Marketing",
+      "status": "live"
+    },
     "developer-tools": {
       "name": "Developer Tools",
       "status": "draft"
