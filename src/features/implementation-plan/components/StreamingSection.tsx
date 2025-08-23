@@ -128,19 +128,21 @@ export const StreamingSection: React.FC<StreamingSectionProps> = ({
 };
 
 // Add CSS animation keyframes
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-`;
-document.head.appendChild(style);
+  `;
+  document.head.appendChild(style);
+}
 
 export default StreamingSection;
