@@ -73,18 +73,36 @@ This document specifies the end-to-end architecture, UX, data contracts, and tes
       - Development-only validation: `registrySchema.parseAsync(snapshot)`; on validation error, display developer-focused details and block rendering of the list.
       - Maintain local state `ToolsState`; compute derived data via helper functions; memoize derived results.
       - Respect `useTab()`; if `activeTab !== 'tools'`, avoid recomputation or heavy effects; optionally reset state on tab exit.
-    - UI composition (all inside this file)
-      - Category rail (sticky on desktop; collapsible header on mobile) listing live categories with counts.
-      - Header with Search (rounded input, icon) and Sort (segmented control: Name, Recent, $↑, $↓).
-      - Capability pills row (scrollable horizontally on mobile). Multi-select with clear-all.
-      - Tool list as cards (vertical list on mobile; responsive grid on larger screens).
-        - Card content: tool name, vendor, category pill, capability chips (truncate +X overflow), price range, compliance chips (GDPR/SOC2/HIPAA), last verified date.
-        - Card actions: Discuss (opens chat seeded with tool context via `useChatbox()`), Add to Plan (calls `useImplementationPlan()` add-resource when available; otherwise show non-blocking note and direct to List tab).
-      - States: loading skeleton (card shimmer), empty state (reset filters CTA), error state (retry button; show technical details in dev only).
+    - UI composition (mobile app store style, all inside this file and container-bound)
+      - Containment & overflow rules
+        - Root container uses `className={cn("flex h-full overflow-hidden", className)}` to guarantee no bleed outside `ToolsContent`.
+        - Main scroll area uses `overflow-y-auto` within the content column only. No global/body scroll manipulation.
+        - Apply `min-w-0` to scrollable columns, and keep a `max-w-7xl mx-auto w-full` content width.
+      - Top Toolbar (app-store style header)
+        - Visuals: 88–120px tall hero header with rounded bottom corners and a fluid gradient (e.g., `bg-gradient-to-r from-sky-500 to-cyan-400 dark:from-sky-600 dark:to-cyan-500`). Optional subtle wave shape can be achieved via a background SVG inside the header container.
+        - Left: large title line with friendly salutation (e.g., “Tools & Resources”) and a 2nd line subtitle.
+        - Right cluster: two circular icon buttons aligned to the top bar: Search and Filter, matching the reference screenshot. Buttons are 40–44px, ghost/white with subtle shadow.
+        - Search: a pill input sits at the bottom of the header (inside the header container) with an inset search icon. No negative margins; keep within header bounds to avoid overflow.
+        - Safe area: include bottom padding inside the header to prevent visual clipping on small screens.
+      - Category browsing
+        - Desktop: sticky left rail listing live categories with counts.
+        - Mobile: a horizontally scrollable chip row directly under the header. Chips reflect the selected category; include an “All” chip with total count.
+      - Sorting controls
+        - Segmented control with four options: Name, Recent, $↑, $↓. Keep it to the right of the search bar on larger screens, or below the search on small screens.
+      - Capability filters
+        - Scrollable horizontal pill row. Multi-select; a clear-all button appears when any capability is active.
+      - Tool list (contained grid)
+        - Vertical list on mobile, responsive grid on larger screens; rounded cards with light elevation.
+        - Card content: name, vendor, category pill, capability chips (truncate and show +X), price range, compliance chips (GDPR/SOC2/HIPAA), last verified date.
+        - Card actions: Discuss (opens chat via `useChatbox()`), Add to Plan (integrates with `useImplementationPlan()` when available; otherwise non-blocking in-app notice).
+      - UI states
+        - Loading skeletons for cards.
+        - Empty state with reset filters CTA.
+        - Error state with retry button; show detailed validation errors only in development.
     - Accessibility & theming
       - Semantic roles, ARIA labels, focus outlines; minimum 44px tap targets.
       - Dark mode support; consistent spacing, contrast, and hierarchy.
-      - Keyboard navigation for search, pills, cards, and actions.
+      - Keyboard navigation for search, segment, pills, cards, and actions.
     - Performance & resilience
       - Memoize derived datasets; debounce search input; avoid heavy work off-tab.
       - Use indexes for O(1) lookups; dedupe tool IDs robustly.
@@ -155,6 +173,8 @@ flowchart TD
   - Only live categories displayed; counts match snapshot indexes.
   - No mock data used anywhere; all data originates from the snapshot.
   - Discuss and Add-to-Plan actions present on each card; behavior consistent with app contexts.
+  - Top Toolbar matches the mobile app store reference: gradient hero header, right-aligned Search and Filter icon buttons, search pill embedded within the header, no overflow beyond the `ToolsContent` container.
+  - The root `ToolsContent` container does not overflow the page; internal scroll is confined to the main content area.
 
 
 6) Security & Compliance
