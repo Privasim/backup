@@ -3,6 +3,7 @@ import { useChatbox } from '@/components/chatbox/ChatboxProvider';
 import { GoToMarketStrategies, GoToMarketStatus, GenerationOptions, StreamingState, MarketingStrategy, SalesChannel, PricingStrategy } from '../types';
 import { GoToMarketV2Service } from '../services/GoToMarketV2Service';
 import { useImplementationContext } from './useImplementationContext';
+import { useStrategyPersistence } from './useStrategyPersistence';
 
 interface UseGoToMarketV2Return {
   // State
@@ -12,11 +13,17 @@ interface UseGoToMarketV2Return {
   error: string | null;
   streamingState: StreamingState;
   
+  // Markdown support
+  rawMarkdown: string;
+  preferMarkdownView: boolean;
+  
   // Actions
   generateStrategies: (options?: GenerationOptions) => Promise<void>;
   regenerateStrategies: (options?: GenerationOptions) => Promise<void>;
   cancelGeneration: () => void;
   updateStrategy: (type: 'marketing' | 'sales' | 'pricing', id: string, updates: Partial<MarketingStrategy | SalesChannel | PricingStrategy>) => void;
+  updateMarkdown: (markdown: string) => void;
+  setPreferMarkdownView: (prefer: boolean) => void;
   
   // Export/Import
   exportStrategies: (format: 'json' | 'markdown') => void;
@@ -31,6 +38,7 @@ interface UseGoToMarketV2Return {
 export const useGoToMarketV2 = (): UseGoToMarketV2Return => {
   const { config } = useChatbox();
   const implementationContext = useImplementationContext();
+  const persistence = useStrategyPersistence();
   
   const [strategies, setStrategies] = useState<GoToMarketStrategies | null>(null);
   const [status, setStatus] = useState<GoToMarketStatus>('idle');
@@ -41,6 +49,10 @@ export const useGoToMarketV2 = (): UseGoToMarketV2Return => {
     progress: 0,
     isProcessing: false
   });
+  
+  // Markdown support
+  const [rawMarkdown, setRawMarkdown] = useState<string>('');
+  const [preferMarkdownView, setPreferMarkdownView] = useState<boolean>(true);
 
   const serviceRef = useRef<GoToMarketV2Service | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -48,7 +60,7 @@ export const useGoToMarketV2 = (): UseGoToMarketV2Return => {
   // Initialize service when config changes
   const initializeService = useCallback(() => {
     if (config.apiKey && config.model) {
-      serviceRef.current = new GoToMarketV2Service(config.apiKey, config.model);
+      serviceRef.current = new GoToMarketV2Service(config.apiKey, config.model, true); // Enable markdown by default
     }
   }, [config.apiKey, config.model]);
 
@@ -98,12 +110,17 @@ export const useGoToMarketV2 = (): UseGoToMarketV2Return => {
         implementationContext.implementationPlan,
         (chunk: string) => {
           setStatus('streaming');
-          setStreamingState(prev => ({
-            ...prev,
-            rawContent: prev.rawContent + chunk,
-            currentSection: 'Generating strategies...',
-            progress: Math.min(90, prev.progress + 1)
-          }));
+          setStreamingState(prev => {
+            const newContent = prev.rawContent + chunk;
+            // Update raw markdown as we stream
+            setRawMarkdown(newContent);
+            return {
+              ...prev,
+              rawContent: newContent,
+              currentSection: 'Generating strategies...',
+              progress: Math.min(90, prev.progress + 1)
+            };
+          });
         },
         options
       );
@@ -219,6 +236,16 @@ export const useGoToMarketV2 = (): UseGoToMarketV2Return => {
     }
   }, []);
 
+  const updateMarkdown = useCallback((markdown: string) => {
+    setRawMarkdown(markdown);
+    // Optionally re-process the markdown to update strategies
+    // This would require implementing markdown-to-strategies conversion
+  }, []);
+
+  const toggleMarkdownView = useCallback((prefer: boolean) => {
+    setPreferMarkdownView(prefer);
+  }, []);
+
   return {
     // State
     strategies,
@@ -227,11 +254,17 @@ export const useGoToMarketV2 = (): UseGoToMarketV2Return => {
     error,
     streamingState,
     
+    // Markdown support
+    rawMarkdown,
+    preferMarkdownView,
+    
     // Actions
     generateStrategies,
     regenerateStrategies,
     cancelGeneration,
     updateStrategy,
+    updateMarkdown,
+    setPreferMarkdownView: toggleMarkdownView,
     
     // Export/Import
     exportStrategies,

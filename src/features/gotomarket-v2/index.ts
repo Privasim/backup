@@ -14,6 +14,7 @@ export { GoToMarketErrorBoundary } from './components/ErrorBoundary';
 
 export { GoToMarketV2Service } from './services/GoToMarketV2Service';
 export { PromptBuilder } from './services/PromptBuilder';
+export { MarkdownPromptBuilder } from './services/MarkdownPromptBuilder';
 export { StrategyProcessor } from './services/StrategyProcessor';
 
 export { 
@@ -63,5 +64,9 @@ export type {
   CostStructure,
   PricePoint,
   BudgetEstimate,
-  ImplementationPhase
+  ImplementationPhase,
+  ContentLength,
+  ContentLengthConfig
 } from './types';
+
+export { CONTENT_LENGTH_CONFIG } from './types';

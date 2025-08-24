@@ -2,6 +2,44 @@ import { ImplementationPlan } from '@/features/implementation-plan/types';
 
 export type GoToMarketStatus = 'idle' | 'generating' | 'streaming' | 'success' | 'error';
 
+export type ContentLength = 'brief' | 'standard' | 'detailed';
+
+export interface ContentLengthConfig {
+  brief: {
+    sentenceRange: [number, number];
+    maxSections: number;
+    focusOnEssentials: boolean;
+  };
+  standard: {
+    sentenceRange: [number, number];
+    maxSections: number;
+    includeDetails: boolean;
+  };
+  detailed: {
+    sentenceRange: [number, number];
+    maxSections: number;
+    comprehensiveAnalysis: boolean;
+  };
+}
+
+export const CONTENT_LENGTH_CONFIG: ContentLengthConfig = {
+  brief: {
+    sentenceRange: [3, 5],
+    maxSections: 3,
+    focusOnEssentials: true,
+  },
+  standard: {
+    sentenceRange: [6, 9],
+    maxSections: 5,
+    includeDetails: true,
+  },
+  detailed: {
+    sentenceRange: [10, 12],
+    maxSections: 8,
+    comprehensiveAnalysis: true,
+  },
+};
+
 export interface BusinessContext {
   businessIdea: string;
   targetMarket: string;
@@ -137,6 +175,7 @@ export interface GenerationOptions {
   budgetRange?: 'low' | 'medium' | 'high';
   timeframe?: 'immediate' | 'short-term' | 'long-term';
   customPrompt?: string;
+  contentLength?: ContentLength;
 }
 
 export interface GoToMarketV2State {
@@ -160,4 +199,36 @@ export interface ValidationResult {
   isValid: boolean;
   errors: string[];
   warnings?: string[];
+}
+
+// Markdown-specific types
+export interface MarkdownSection {
+  id: string;
+  type: 'marketing' | 'sales' | 'pricing' | 'distribution' | 'timeline' | 'tools';
+  title: string;
+  content: string;
+  subsections: MarkdownSubsection[];
+  completed: boolean;
+  editable: boolean;
+}
+
+export interface MarkdownSubsection {
+  id: string;
+  heading: string;
+  content: string;
+  actionItems: string[];
+  keyMetrics: string[];
+}
+
+export interface MarkdownGoToMarketStrategies {
+  id: string;
+  businessContext: BusinessContext;
+  rawMarkdown: string;
+  sections: MarkdownSection[];
+  metadata: {
+    contentLength: ContentLength;
+    generatedAt: string;
+    wordCount: number;
+    estimatedReadTime: number;
+  };
 }

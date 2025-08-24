@@ -6,11 +6,15 @@ import { MarketingStrategyCard } from './MarketingStrategyCard';
 import { SalesChannelCard } from './SalesChannelCard';
 import { PricingStrategyCard } from './PricingStrategyCard';
 import { ExportControls } from './ExportControls';
+import { MarkdownStrategyDisplay } from './MarkdownStrategyDisplay';
 
 interface StrategyDisplayProps {
   strategies: GoToMarketStrategies;
   onUpdateStrategy: (type: 'marketing' | 'sales' | 'pricing', id: string, updates: any) => void;
   className?: string;
+  rawMarkdown?: string;
+  onUpdateMarkdown?: (markdown: string) => void;
+  preferMarkdownView?: boolean;
 }
 
 type TabType = 'overview' | 'marketing' | 'sales' | 'pricing' | 'distribution' | 'timeline' | 'tools';
@@ -18,9 +22,24 @@ type TabType = 'overview' | 'marketing' | 'sales' | 'pricing' | 'distribution' |
 export const StrategyDisplay: React.FC<StrategyDisplayProps> = React.memo(({
   strategies,
   onUpdateStrategy,
-  className = ''
+  className = '',
+  rawMarkdown,
+  onUpdateMarkdown,
+  preferMarkdownView = false
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
+
+  // Use markdown view if raw markdown is provided and preferred
+  if (preferMarkdownView && rawMarkdown) {
+    return (
+      <MarkdownStrategyDisplay
+        strategies={strategies}
+        rawMarkdown={rawMarkdown}
+        onUpdateMarkdown={onUpdateMarkdown}
+        className={className}
+      />
+    );
+  }
 
   const tabs = [
     { id: 'overview' as TabType, label: 'Overview', count: null },

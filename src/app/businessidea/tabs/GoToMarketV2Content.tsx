@@ -11,7 +11,10 @@ export default function GoToMarketV2Content() {
     strategies,
     status,
     updateStrategy,
-    importStrategies
+    importStrategies,
+    rawMarkdown,
+    preferMarkdownView,
+    updateMarkdown
   } = useGoToMarketV2();
 
   return (
@@ -34,6 +37,9 @@ export default function GoToMarketV2Content() {
           <StrategyDisplay
             strategies={strategies}
             onUpdateStrategy={updateStrategy}
+            rawMarkdown={rawMarkdown}
+            onUpdateMarkdown={updateMarkdown}
+            preferMarkdownView={preferMarkdownView}
           />
         )}
       </div>

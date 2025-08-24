@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import { useGoToMarketV2 } from '../hooks/useGoToMarketV2';
 import { ProgressIndicator } from './ProgressIndicator';
-import { GenerationOptions } from '../types';
+import { ContentLengthSelector, useContentLengthPreference } from './ContentLengthSelector';
+import { GenerationOptions, ContentLength } from '../types';
 import { PlayIcon, CogIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 interface GoToMarketV2GeneratorProps {
@@ -25,15 +26,23 @@ export const GoToMarketV2Generator: React.FC<GoToMarketV2GeneratorProps> = React
     canGenerate
   } = useGoToMarketV2();
 
+  const { contentLength, setContentLength } = useContentLengthPreference();
   const [showOptions, setShowOptions] = useState(false);
   const [options, setOptions] = useState<GenerationOptions>({
     focusAreas: ['marketing', 'sales', 'pricing'],
     budgetRange: 'medium',
-    timeframe: 'short-term'
+    timeframe: 'short-term',
+    contentLength: contentLength
   });
 
   const handleGenerate = async () => {
-    await generateStrategies(options);
+    const updatedOptions = { ...options, contentLength };
+    await generateStrategies(updatedOptions);
+  };
+
+  const handleContentLengthChange = (length: ContentLength) => {
+    setContentLength(length);
+    setOptions(prev => ({ ...prev, contentLength: length }));
   };
 
   const handleCancel = () => {
@@ -119,6 +128,16 @@ export const GoToMarketV2Generator: React.FC<GoToMarketV2GeneratorProps> = React
         </div>
       </div>
 
+      {/* Quick Content Length Selector */}
+      <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <ContentLengthSelector
+          value={contentLength}
+          onChange={handleContentLengthChange}
+          disabled={status === 'generating' || status === 'streaming'}
+          className="compact"
+        />
+      </div>
+
       {/* Generation Options */}
       <div className="bg-white border border-gray-200 rounded-lg p-4">
         <div className="flex items-center justify-between mb-4">
@@ -133,7 +152,14 @@ export const GoToMarketV2Generator: React.FC<GoToMarketV2GeneratorProps> = React
         </div>
 
         {showOptions && (
-          <div className="space-y-4 border-t border-gray-200 pt-4">
+          <div className="space-y-6 border-t border-gray-200 pt-4">
+            {/* Content Length Selector */}
+            <ContentLengthSelector
+              value={contentLength}
+              onChange={handleContentLengthChange}
+              disabled={status === 'generating' || status === 'streaming'}
+            />
+
             {/* Focus Areas */}
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-2">
