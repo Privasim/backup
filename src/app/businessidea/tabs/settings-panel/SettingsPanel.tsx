@@ -51,8 +51,12 @@ export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
   return (
     <>
       <div className={styles.overlay} onClick={onClose} />
-      <div className={styles.panel}>
-        <button className={styles.closeButton} onClick={onClose}>
+      <div className={styles.panel} role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <div className={styles.handle} aria-hidden="true" />
+        <div className={styles.header}>
+          <div className={styles.title} id="settings-title">Settings</div>
+        </div>
+        <button className={styles.closeButton} onClick={onClose} aria-label="Close settings">
           &times;
         </button>
         <div className={styles.section}>
@@ -64,8 +68,9 @@ export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             rows={6}
-            className="mt-2 w-full rounded-md border border-slate-200 p-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
+            className="mt-2 w-full rounded-lg border border-slate-200 p-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
             placeholder="Provide instructions specific to implementation plans..."
+            aria-label="System prompt override"
           />
         </div>
         <div className={styles.section}>
@@ -77,8 +82,9 @@ export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
             value={sourcesText}
             onChange={(e) => setSourcesText(e.target.value)}
             rows={5}
-            className="mt-2 w-full rounded-md border border-slate-200 p-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
+            className="mt-2 w-full rounded-lg border border-slate-200 p-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
             placeholder="https://...\nhttps://..."
+            aria-label="Sources list"
           />
           {parsedSources.length > 0 && (
             <p className="mt-1 text-xs text-slate-500">{parsedSources.length} source(s) configured</p>
@@ -86,39 +92,58 @@ export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
         </div>
         <div className={styles.section}>
           <h3 className={styles.heading}>Placeholder Settings</h3>
-          <div className="flex items-center gap-2">
-            <label>
-              <input 
-                type="checkbox" 
-                checked={usePlaceholder} 
-                onChange={(e) => setUsePlaceholder(e.target.checked)} 
-              />
-              Use placeholder
+          <div className="flex flex-col gap-2">
+            <label className="flex items-center justify-between">
+              <span className="text-sm text-slate-800">Use placeholder</span>
+              <span className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  className="peer sr-only"
+                  checked={usePlaceholder}
+                  onChange={(e) => setUsePlaceholder(e.target.checked)}
+                  aria-label="Toggle use placeholder"
+                />
+                <span className="relative h-6 w-11 rounded-full bg-slate-300 transition-colors peer-checked:bg-indigo-600">
+                  <span className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5" />
+                </span>
+              </span>
             </label>
-            <label>
-              <input 
-                type="checkbox" 
-                checked={simulateStreaming} 
-                onChange={(e) => setSimulateStreaming(e.target.checked)} 
-              />
-              Simulate streaming
+            <label className="flex items-center justify-between">
+              <span className="text-sm text-slate-800">Simulate streaming</span>
+              <span className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  className="peer sr-only"
+                  checked={simulateStreaming}
+                  onChange={(e) => setSimulateStreaming(e.target.checked)}
+                  aria-label="Toggle simulate streaming"
+                />
+                <span className="relative h-6 w-11 rounded-full bg-slate-300 transition-colors peer-checked:bg-indigo-600">
+                  <span className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5" />
+                </span>
+              </span>
             </label>
           </div>
         </div>
         <div className={styles.section}>
           <h3 className={styles.heading}>Output Settings</h3>
-          <div className="flex items-center gap-2">
-            <label>
-              <input 
-                type="checkbox" 
-                checked={compactMode} 
-                onChange={(e) => setCompactMode(e.target.checked)} 
+          <label className="flex items-center justify-between">
+            <span className="text-sm text-slate-800">Compact output (limit cards and concise prompt)</span>
+            <span className="inline-flex items-center">
+              <input
+                type="checkbox"
+                className="peer sr-only"
+                checked={compactMode}
+                onChange={(e) => setCompactMode(e.target.checked)}
+                aria-label="Toggle compact output"
               />
-              Compact output (limit cards and concise prompt)
-            </label>
-          </div>
+              <span className="relative h-6 w-11 rounded-full bg-slate-300 transition-colors peer-checked:bg-indigo-600">
+                <span className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5" />
+              </span>
+            </span>
+          </label>
         </div>
-        <div className="flex items-center justify-end gap-2">
+        <div className={`${styles.actions} flex items-center justify-end gap-2`}>
           <button onClick={onClose} className="px-3 py-2 text-sm rounded-md border border-slate-200 hover:bg-slate-50">Cancel</button>
           <button onClick={onSave} className="px-3 py-2 text-sm rounded-md bg-indigo-600 text-white hover:bg-indigo-700">Save</button>
         </div>
