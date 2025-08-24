@@ -18,7 +18,7 @@ export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
   const [sourcesText, setSourcesText] = useState('');
   const [usePlaceholder, setUsePlaceholder] = useState(settings.usePlaceholder || false);
   const [simulateStreaming, setSimulateStreaming] = useState(settings.simulateStreaming !== false); // default to true
-  const [compactMode, setCompactMode] = useState(settings.compactMode || false);
+  const [lengthPreset, setLengthPreset] = useState(settings.lengthPreset || 'long');
 
   useEffect(() => {
     if (isOpen) {
@@ -26,9 +26,9 @@ export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
       setSourcesText((settings.sources || []).join('\n'));
       setUsePlaceholder(settings.usePlaceholder || false);
       setSimulateStreaming(settings.simulateStreaming !== false);
-      setCompactMode(settings.compactMode || false);
+      setLengthPreset(settings.lengthPreset || 'long');
     }
-  }, [isOpen, settings.systemPromptOverride, settings.sources, settings.usePlaceholder, settings.simulateStreaming]);
+  }, [isOpen, settings.systemPromptOverride, settings.sources, settings.usePlaceholder, settings.simulateStreaming, settings.lengthPreset]);
 
   const parsedSources = useMemo(() => {
     return sourcesText
@@ -43,7 +43,7 @@ export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
       sources: parsedSources,
       usePlaceholder,
       simulateStreaming,
-      compactMode
+      lengthPreset
     });
     onClose();
   };
@@ -188,24 +188,53 @@ export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                 </p>
               </div>
             </div>
-            <label className={styles.toggleItem}>
-              <div className={styles.toggleLabel}>
-                <span className={styles.toggleTitle}>Compact output</span>
-                <span className={styles.toggleDesc}>Limit cards and use concise prompts</span>
-              </div>
-              <div className={styles.toggle}>
+            <div className={styles.radioGroup}>
+              <div className={styles.radioOption}>
                 <input
-                  type="checkbox"
-                  className={styles.toggleInput}
-                  checked={compactMode}
-                  onChange={(e) => setCompactMode(e.target.checked)}
-                  aria-label="Toggle compact output"
+                  type="radio"
+                  id="length-brief"
+                  name="lengthPreset"
+                  value="brief"
+                  checked={lengthPreset === 'brief'}
+                  onChange={(e) => setLengthPreset(e.target.value as 'brief' | 'standard' | 'long')}
+                  className={styles.radioInput}
                 />
-                <span className={styles.toggleSlider}>
-                  <span className={styles.toggleThumb} />
-                </span>
+                <label htmlFor="length-brief" className={styles.radioLabel}>
+                  <span className={styles.radioTitle}>Brief</span>
+                  <span className={styles.radioDesc}>4-5 sentences, 1 card</span>
+                </label>
               </div>
-            </label>
+              <div className={styles.radioOption}>
+                <input
+                  type="radio"
+                  id="length-standard"
+                  name="lengthPreset"
+                  value="standard"
+                  checked={lengthPreset === 'standard'}
+                  onChange={(e) => setLengthPreset(e.target.value as 'brief' | 'standard' | 'long')}
+                  className={styles.radioInput}
+                />
+                <label htmlFor="length-standard" className={styles.radioLabel}>
+                  <span className={styles.radioTitle}>Standard</span>
+                  <span className={styles.radioDesc}>2 cards</span>
+                </label>
+              </div>
+              <div className={styles.radioOption}>
+                <input
+                  type="radio"
+                  id="length-long"
+                  name="lengthPreset"
+                  value="long"
+                  checked={lengthPreset === 'long'}
+                  onChange={(e) => setLengthPreset(e.target.value as 'brief' | 'standard' | 'long')}
+                  className={styles.radioInput}
+                />
+                <label htmlFor="length-long" className={styles.radioLabel}>
+                  <span className={styles.radioTitle}>Long</span>
+                  <span className={styles.radioDesc}>Full plan</span>
+                </label>
+              </div>
+            </div>
           </div>
         </div>
 

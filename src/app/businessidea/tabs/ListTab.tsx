@@ -12,11 +12,15 @@ export default function ListTab() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { status, error, plan, rawStream, regenerate, cancel, streamingState, isExternallyDriven, settings } = useImplementationPlan();
   
-  // Get compact mode settings with defaults
-  const compactMode = settings.compactMode || false;
-  const compactMaxPhaseCards = settings.compactMaxPhaseCards && settings.compactMaxPhaseCards > 0 
-    ? settings.compactMaxPhaseCards 
-    : 4;
+  // Get length preset settings
+  const lengthPreset = settings.lengthPreset || 'long';
+  
+  // Derive compact mode and max phase cards from length preset
+  const compactMode = lengthPreset === 'brief' || lengthPreset === 'standard';
+  const compactMaxPhaseCards = 
+    lengthPreset === 'brief' ? 1 : 
+    lengthPreset === 'standard' ? 2 : 
+    (settings.compactMaxPhaseCards && settings.compactMaxPhaseCards > 0 ? settings.compactMaxPhaseCards : 4);
 
   const isLoading = status === 'generating' || status === 'streaming';
   const preview = useMemo(() => {
@@ -175,7 +179,7 @@ export default function ListTab() {
                 ))}
               </div>
               {compactMode && plan.phases.length > compactMaxPhaseCards && (
-                <p className="text-xs text-slate-500 mt-2">+{plan.phases.length - compactMaxPhaseCards} more phases hidden in compact mode</p>
+                <p className="text-xs text-slate-500 mt-2">+{plan.phases.length - compactMaxPhaseCards} more phases hidden in {lengthPreset} mode</p>
               )}
             </section>
             <section>

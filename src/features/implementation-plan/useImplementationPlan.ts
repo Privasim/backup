@@ -30,7 +30,8 @@ export const useImplementationPlan = () => {
     systemPromptOverride: ctx.settings.systemPromptOverride || '',
     sources: Array.isArray(ctx.settings.sources) ? ctx.settings.sources : [],
     compactMode: ctx.settings.compactMode || false,
-    compactMaxPhaseCards: ctx.settings.compactMaxPhaseCards || 4
+    compactMaxPhaseCards: ctx.settings.compactMaxPhaseCards || 4,
+    lengthPreset: ctx.settings.lengthPreset || 'long'
   }), [ctx.settings]);
 
   // Check if externally driven
@@ -95,7 +96,8 @@ export const useImplementationPlan = () => {
       sources: ctx.settings.sources,
       suggestion,
       compactMode: ctx.settings.compactMode,
-      compactMaxPhaseCards: ctx.settings.compactMaxPhaseCards
+      compactMaxPhaseCards: ctx.settings.compactMaxPhaseCards,
+      lengthPreset: ctx.settings.lengthPreset
     });
 
     // Prepare client

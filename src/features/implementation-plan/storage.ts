@@ -1,32 +1,42 @@
 const SETTINGS_KEY = 'implPlan:settings:v1';
 const CACHE_PREFIX = 'implPlan:cache:v1:';
 
-export interface StoredSettings {
+export interface PlanSettings {
   systemPromptOverride: string;
   sources: string[];
   usePlaceholder?: boolean;
   simulateStreaming?: boolean;
   compactMode?: boolean;
   compactMaxPhaseCards?: number;
+  lengthPreset?: 'brief' | 'standard' | 'long';
 }
 
-export const loadSettings = (): StoredSettings => {
-  try {
-    const raw = localStorage.getItem(SETTINGS_KEY);
-    if (!raw) return { systemPromptOverride: '', sources: [], usePlaceholder: false, simulateStreaming: true, compactMode: false, compactMaxPhaseCards: 4 };
-    const parsed = JSON.parse(raw);
-    return {
-      systemPromptOverride: parsed.systemPromptOverride || '',
-      sources: Array.isArray(parsed.sources) ? parsed.sources : [],
-      usePlaceholder: typeof parsed.usePlaceholder === 'boolean' ? parsed.usePlaceholder : false,
-      simulateStreaming: typeof parsed.simulateStreaming === 'boolean' ? parsed.simulateStreaming : true,
-      compactMode: typeof parsed.compactMode === 'boolean' ? parsed.compactMode : false,
-      compactMaxPhaseCards: typeof parsed.compactMaxPhaseCards === 'number' ? parsed.compactMaxPhaseCards : 4
-    };
-  } catch {
-    return { systemPromptOverride: '', sources: [], usePlaceholder: false, simulateStreaming: true, compactMode: false, compactMaxPhaseCards: 4 };
-  }
+export interface StoredSettings extends PlanSettings {
+  // Same as PlanSettings but all fields are optional for storage
+}
+
+export const DEFAULT_SETTINGS: PlanSettings = {
+  systemPromptOverride: '',
+  sources: [],
+  usePlaceholder: false,
+  simulateStreaming: false,
+  compactMode: false,
+  compactMaxPhaseCards: 4,
+  lengthPreset: 'long'
 };
+
+export function loadSettings(): PlanSettings {
+  try {
+    const stored = localStorage.getItem(SETTINGS_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return { ...DEFAULT_SETTINGS, ...parsed };
+    }
+  } catch (error) {
+    console.warn('Failed to load implementation plan settings, using defaults', error);
+  }
+  return DEFAULT_SETTINGS;
+}
 
 export const saveSettings = (settings: StoredSettings) => {
   try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch {}

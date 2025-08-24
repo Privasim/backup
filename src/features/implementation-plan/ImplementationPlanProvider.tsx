@@ -76,13 +76,50 @@ export const ImplementationPlanProvider: React.FC<{ children: React.ReactNode }>
   const appendRaw = useCallback((chunk: string) => setState(prev => ({ ...prev, rawStream: (prev.rawStream || '') + chunk })), []);
   const clearRaw = useCallback(() => setState(prev => ({ ...prev, rawStream: '' })), []);
 
+  const getDerivedSettings = useCallback((settings: PlanSettings): PlanSettings => {
+    // Preserve existing behavior: if compactMode is explicitly set, use it
+    // Otherwise derive from lengthPreset if available
+    if (settings.lengthPreset) {
+      switch (settings.lengthPreset) {
+        case 'brief':
+          return {
+            ...settings,
+            compactMode: true,
+            compactMaxPhaseCards: 1
+          };
+        case 'standard':
+          return {
+            ...settings,
+            compactMode: true,
+            compactMaxPhaseCards: 2
+          };
+        case 'long':
+        default:
+          return {
+            ...settings,
+            compactMode: false,
+            compactMaxPhaseCards: 4
+          };
+      }
+    }
+    
+    // Fallback to existing behavior
+    return {
+      ...settings,
+      compactMode: settings.compactMode ?? false,
+      compactMaxPhaseCards: settings.compactMaxPhaseCards ?? 4
+    };
+  }, []);
+
   const saveSettings = useCallback((settings: Partial<PlanSettings>) => {
     setState(prev => {
-      const next = { ...prev, settings: { ...prev.settings, ...settings } };
-      persistSettings(next.settings);
+      const updatedSettings = { ...prev.settings, ...settings };
+      const derivedSettings = getDerivedSettings(updatedSettings);
+      const next = { ...prev, settings: derivedSettings };
+      persistSettings(derivedSettings);
       return next;
     });
-  }, []);
+  }, [getDerivedSettings]);
 
   const cachePlan = useCallback((ideaId: string, settingsKey: string, plan: ImplementationPlan) => {
     saveCachedPlan(ideaId, settingsKey, plan);

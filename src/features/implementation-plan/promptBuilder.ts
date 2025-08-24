@@ -7,9 +7,10 @@ interface BuildParams {
   suggestion: any; // BusinessSuggestion shape
   compactMode?: boolean;
   compactMaxPhaseCards?: number;
+  lengthPreset?: 'brief' | 'standard' | 'long';
 }
 
-export function buildMessages({ baseSystemPrompt = '', systemPromptOverride = '', sources = [], suggestion, compactMode = false, compactMaxPhaseCards = 4 }: BuildParams) {
+export function buildMessages({ baseSystemPrompt = '', systemPromptOverride = '', sources = [], suggestion, compactMode = false, compactMaxPhaseCards = 4, lengthPreset }: BuildParams) {
   const systemParts: string[] = [];
 
   if (baseSystemPrompt) systemParts.push(baseSystemPrompt.trim());
@@ -23,7 +24,20 @@ export function buildMessages({ baseSystemPrompt = '', systemPromptOverride = ''
 - Return a single JSON object matching the agreed schema
 - If unsure, make reasonable assumptions and state them in 'overview.assumptions'`;
     
-    if (compactMode) {
+    // Add length preset constraints
+    if (lengthPreset === 'brief') {
+      systemParts.push(`Implementation Plan Requirements:
+${baseRequirements}
+- Keep the entire response to 4-5 sentences maximum
+- Produce exactly 1 phase with key tasks only
+- Focus on core execution steps only`);
+    } else if (lengthPreset === 'standard') {
+      systemParts.push(`Implementation Plan Requirements:
+${baseRequirements}
+- Produce at most 2 clearly separated phases
+- Keep content concise and focused
+- Include key tasks, milestones, and risks`);
+    } else if (compactMode) {
       systemParts.push(`Implementation Plan Requirements:
 ${baseRequirements}
 - Produce at most ${compactMaxPhaseCards} clearly separated phases

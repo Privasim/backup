@@ -37,6 +37,7 @@ export interface PlanSettings {
   simulateStreaming?: boolean;
   compactMode?: boolean;
   compactMaxPhaseCards?: number;
+  lengthPreset?: 'brief' | 'standard' | 'long';
 }
 
 export interface PlanState {

@@ -2,18 +2,21 @@
 
 import React, { useState } from 'react';
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
+import { useImplementationPlanContext } from '@/features/implementation-plan/ImplementationPlanProvider';
 import SuggestionCard from '@/components/business/SuggestionCard';
 import BusinessPlanSettings from '@/components/business/BusinessPlanSettings';
 import { SparklesIcon, LightBulbIcon, CogIcon } from '@heroicons/react/24/outline';
 
 export default function BusinessPlanContent() {
   const { businessSuggestions, createPlanConversation, openChatbox } = useChatbox();
+  const implementationPlanContext = useImplementationPlanContext();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   const { suggestions, suggestionStatus, suggestionError } = businessSuggestions;
   const isLoading = suggestionStatus === 'generating';
   const hasError = suggestionStatus === 'error';
   const hasSuggestions = suggestions.length > 0;
+  const lengthPreset = implementationPlanContext?.settings?.lengthPreset || 'long';
 
   // Loading skeleton component
   const LoadingSkeleton = () => (
@@ -131,9 +134,10 @@ export default function BusinessPlanContent() {
             <div key={suggestion.id} className="w-full">
               <SuggestionCard
                 suggestion={suggestion}
-                onCreatePlan={(suggestion) => {
+                onCreatePlan={(suggestion, _lengthPreset) => {
                   // Create a new conversation with the plan and open the chatbox
-                  createPlanConversation(suggestion);
+                  // Use the lengthPreset from the context
+                  createPlanConversation(suggestion, lengthPreset);
                   openChatbox();
                 }}
               />

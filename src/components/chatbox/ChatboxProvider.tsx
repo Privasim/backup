@@ -81,7 +81,7 @@ interface ChatboxContextType extends ChatboxState {
   
   // Implementation plan methods
   generatePlanOutline: (suggestion: BusinessSuggestion) => Promise<PlanOutline>;
-  generateFullPlan: (outline: PlanOutline, onChunk?: (chunk: string) => void) => Promise<ImplementationPlan>;
+  generateFullPlan: (outline: PlanOutline, onChunk?: (chunk: string) => void, lengthPreset?: 'brief' | 'standard' | 'long') => Promise<ImplementationPlan>;
   setPlanStreamBridge: (bridge: PlanStreamBridge | null) => void;
   
   // Conversations
@@ -89,7 +89,7 @@ interface ChatboxContextType extends ChatboxState {
   createConversation: (title: string) => string;
   addMessageToConversation: (conversationId: string, message: Omit<ChatboxMessageData, 'id' | 'timestamp'>) => string;
   appendToConversationMessage: (conversationId: string, messageId: string, chunk: string) => void;
-  createPlanConversation: (suggestion: BusinessSuggestion) => Promise<string>;
+  createPlanConversation: (suggestion: BusinessSuggestion, lengthPreset?: 'brief' | 'standard' | 'long') => Promise<string>;
 }
 
 const ChatboxReactContext = createContext<ChatboxContextType | undefined>(undefined);
@@ -682,7 +682,8 @@ features=${suggestion.keyFeatures.join(', ')}`;
 
   const generateFullPlan = useCallback(async (
     outline: PlanOutline,
-    onChunk?: (chunk: string) => void
+    onChunk?: (chunk: string) => void,
+    lengthPreset?: 'brief' | 'standard' | 'long'
   ): Promise<ImplementationPlan> => {
     if (!state.config.apiKey || !state.config.model) {
       throw new Error('API key and model are required');
@@ -698,10 +699,17 @@ features=${suggestion.keyFeatures.join(', ')}`;
       const client = new OpenRouterClient(state.config.apiKey);
       
       // REPLACED: verbose full-plan prompt with streamlined version for concise generation
+      const lengthInstructions = lengthPreset === 'brief' 
+        ? '- Keep the entire response to 4-5 sentences maximum\n- Produce exactly 1 phase with key tasks only\n- Focus on core execution steps only'
+        : lengthPreset === 'standard'
+        ? '- Produce at most 2 clearly separated phases\n- Keep content concise and focused\n- Include key tasks, milestones, and risks'
+        : '- Provide a complete implementation plan with all relevant details';
+      
       const prompt = `Create a clear, actionable implementation plan (markdown):
 - Cover: executive summary, phases with objectives/timelines, 90-day quick start, resources/budget, KPIs, risks.
 - Use concise headers and bullet points; be practical and to the point.
 - Base strictly on the outline provided below.
+${lengthInstructions}
 
 Outline:
 - Title: ${outline.title}
@@ -1081,7 +1089,7 @@ Outline:
     }));
   }, []);
 
-  const createPlanConversation = useCallback(async (suggestion: BusinessSuggestion) => {
+  const createPlanConversation = useCallback(async (suggestion: BusinessSuggestion, lengthPreset?: 'brief' | 'standard' | 'long') => {
     let conversationId = '';
     let messageId = '';
     
@@ -1107,7 +1115,7 @@ Outline:
         if (planStreamBridge) {
           planStreamBridge.chunk(conversationId, chunk);
         }
-      });
+      }, lengthPreset);
       
       // Get the final content to send to bridge
       const conversation = state.conversations.find(c => c.id === conversationId);
