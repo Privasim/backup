@@ -44,7 +44,7 @@ const customJestConfig = {
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   transformIgnorePatterns: [
-    'node_modules/(?!(chart.js|react-chartjs-2)/)',
+    'node_modules/(?!(chart.js|react-chartjs-2|react-markdown|d3)/)',
   ],
   globals: {
     'ts-jest': {

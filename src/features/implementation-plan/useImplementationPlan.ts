@@ -3,28 +3,15 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { useImplementationPlanContext } from './ImplementationPlanProvider';
 import { settingsHash } from './storage';
-import { buildMessages } from './promptBuilder';
-import { generatePlanStream } from './implementationPlanService';
-import { parsePlanFromString } from './streamingParser';
-import { StreamingContentProcessor } from './streaming/StreamingContentProcessor';
-import { throttle } from './streaming/utils';
+// Legacy import kept for potential backward compatibility
+import { TextGenerationService } from './textGenerationService';
 import type { ImplementationPlan } from './types';
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
-import { OpenRouterClient } from '@/lib/openrouter';
 
 export const useImplementationPlan = () => {
   const ctx = useImplementationPlanContext();
   const { config } = useChatbox();
   const abortRef = useRef<AbortController | null>(null);
-  const streamingProcessorRef = useRef<StreamingContentProcessor | null>(null);
-  
-  // Throttled update function to prevent excessive re-renders
-  const throttledUpdate = useRef(
-    throttle((sections: any[], currentPhase: any, progress: number, rawContent: string) => {
-      ctx.updateStreamingProgress(sections, currentPhase, progress);
-      ctx.setStreamingState({ rawContent });
-    }, 100) // Update max every 100ms
-  );
 
   const currentSettingsKey = useMemo(() => settingsHash({
     systemPromptOverride: ctx.settings.systemPromptOverride || '',
@@ -52,7 +39,6 @@ export const useImplementationPlan = () => {
       currentPhase: 'initializing',
       progress: 0
     });
-    streamingProcessorRef.current?.reset();
   }, [ctx, isExternallyDriven]);
 
   const generate = useCallback(async (suggestion: any) => {
@@ -72,12 +58,6 @@ export const useImplementationPlan = () => {
       return;
     }
 
-    // Initialize streaming processor
-    if (!streamingProcessorRef.current) {
-      streamingProcessorRef.current = new StreamingContentProcessor();
-    }
-    streamingProcessorRef.current.reset();
-
     // Reset streaming state
     ctx.setStreamingState({
       rawContent: '',
@@ -88,19 +68,7 @@ export const useImplementationPlan = () => {
       isProcessing: true
     });
 
-    // Build messages
-    const sysPrompt = config.customPrompt || '';
-    const { systemMessage, userMessage } = buildMessages({
-      baseSystemPrompt: sysPrompt,
-      systemPromptOverride: ctx.settings.systemPromptOverride,
-      sources: ctx.settings.sources,
-      suggestion,
-      compactMode: ctx.settings.compactMode,
-      compactMaxPhaseCards: ctx.settings.compactMaxPhaseCards,
-      lengthPreset: ctx.settings.lengthPreset
-    });
-
-    // Prepare client
+    // Prepare API credentials
     const apiKey = config.apiKey || '';
     const model = config.model || 'qwen/qwen3-coder:free';
     if (!apiKey) {
@@ -109,7 +77,6 @@ export const useImplementationPlan = () => {
       ctx.setStreamingState({ error: 'Missing API key', isProcessing: false });
       return;
     }
-    const client = new OpenRouterClient(apiKey);
 
     // Abort controller
     abortRef.current?.abort();
@@ -121,36 +88,25 @@ export const useImplementationPlan = () => {
     ctx.setStatus('generating');
 
     try {
-      let localRaw = '';
-      await generatePlanStream({
-        client,
+      // Use new text generation service
+      const textService = new TextGenerationService(apiKey);
+      
+      const planSettings = {
+        ...ctx.settings,
         model,
-        messages: [systemMessage, userMessage],
-        onChunk: (chunk: string) => {
-          localRaw += chunk;
+        apiKey
+      };
+      
+      const plan = await textService.generatePlan(
+        suggestion,
+        planSettings,
+        (chunk: string) => {
           ctx.appendRaw(chunk);
-          
-          // Process chunk with streaming processor
-          if (streamingProcessorRef.current) {
-            const result = streamingProcessorRef.current.processChunk(chunk);
-            
-            // Use throttled update to prevent excessive re-renders
-            throttledUpdate.current(
-              result.sections,
-              result.progress.currentPhase,
-              result.progress.progress,
-              streamingProcessorRef.current.getRawContent()
-            );
-          }
-          
           if (ctx.status !== 'streaming') ctx.setStatus('streaming');
-        },
-        signal: abortRef.current.signal
-      });
-
-      // Parse accumulated output
-      const plan = parsePlanFromString(localRaw || ctx.rawStream || '', suggestion);
-      if (!plan) throw new Error('Failed to parse implementation plan.');
+        }
+      );
+      
+      if (!plan) throw new Error('Failed to generate implementation plan.');
 
       ctx.setPlan(plan);
       ctx.cachePlan(ideaId, currentSettingsKey, plan);
