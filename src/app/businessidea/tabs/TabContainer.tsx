@@ -5,7 +5,6 @@ import { TabProvider, useTab, type TabId } from './TabContext';
 import TabNavigation from './TabNavigation';
 import BusinessPlanContent from './BusinessPlanContent';
 import FinancialsContent from './FinancialsContent';
-import GoToMarketContent from './GoToMarketContent';
 import ToolsContent from './ToolsContent';
 import VisualizationContent from './VisualizationContent';
 import ListTab from './ListTab';
@@ -16,17 +15,18 @@ import { getPlanStreamBridge } from '@/features/implementation-plan/bridge/PlanS
 import BridgeConnector from './BridgeConnector';
 import UserProfileTab from './user-profile';
 import JobRiskAnalysisTab from './job-risk';
+import GoToMarketV2Content from './GoToMarketV2Content';
 
 const tabComponents = {
   businessplan: BusinessPlanContent,
   userprofile: UserProfileTab,
   financials: FinancialsContent,
-  gotomarket: GoToMarketContent,
   tools: ToolsContent,
   visualization: VisualizationContent,
   jobrisk: JobRiskAnalysisTab,
   list: ListTab,
   mobile: MobileTab,
+  'gotomarket-v2': GoToMarketV2Content,
 } as const;
 
 function TabContent({ onTabChange }: { onTabChange?: (tab: TabId) => void }) {

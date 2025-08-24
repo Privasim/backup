@@ -35,11 +35,6 @@ const TabIcons = {
     solid: SolidCurrencyDollarIcon,
     label: 'Financials'
   },
-  gotomarket: {
-    outline: RocketLaunchIcon,
-    solid: SolidRocketLaunchIcon,
-    label: 'Go-to-Market'
-  },
   tools: {
     outline: WrenchScrewdriverIcon,
     solid: SolidWrenchScrewdriverIcon,
@@ -49,6 +44,11 @@ const TabIcons = {
     outline: ChartBarIcon,
     solid: SolidChartBarIcon,
     label: 'Visualization'
+  },
+  'gotomarket-v2': {
+    outline: RocketLaunchIcon,
+    solid: SolidRocketLaunchIcon,
+    label: 'Go-to-Market'
   },
 } as const;
 

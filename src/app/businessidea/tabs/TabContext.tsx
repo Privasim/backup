@@ -15,7 +15,7 @@ type TabProviderProps = {
 };
 
 // List of all valid tab IDs for type safety
-export const validTabs = ['businessplan', 'userprofile', 'financials', 'gotomarket', 'tools', 'visualization', 'jobrisk', 'list', 'mobile'] as const;
+export const validTabs = ['businessplan', 'userprofile', 'financials', 'tools', 'visualization', 'jobrisk', 'list', 'mobile', 'gotomarket-v2'] as const;
 export type TabId = typeof validTabs[number];
 
 export function TabProvider({ children, initialTab = 'businessplan' }: TabProviderProps) {
