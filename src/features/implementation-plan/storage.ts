@@ -6,21 +6,25 @@ export interface StoredSettings {
   sources: string[];
   usePlaceholder?: boolean;
   simulateStreaming?: boolean;
+  compactMode?: boolean;
+  compactMaxPhaseCards?: number;
 }
 
 export const loadSettings = (): StoredSettings => {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
-    if (!raw) return { systemPromptOverride: '', sources: [], usePlaceholder: false, simulateStreaming: true };
+    if (!raw) return { systemPromptOverride: '', sources: [], usePlaceholder: false, simulateStreaming: true, compactMode: false, compactMaxPhaseCards: 4 };
     const parsed = JSON.parse(raw);
     return {
       systemPromptOverride: parsed.systemPromptOverride || '',
       sources: Array.isArray(parsed.sources) ? parsed.sources : [],
       usePlaceholder: typeof parsed.usePlaceholder === 'boolean' ? parsed.usePlaceholder : false,
-      simulateStreaming: typeof parsed.simulateStreaming === 'boolean' ? parsed.simulateStreaming : true
+      simulateStreaming: typeof parsed.simulateStreaming === 'boolean' ? parsed.simulateStreaming : true,
+      compactMode: typeof parsed.compactMode === 'boolean' ? parsed.compactMode : false,
+      compactMaxPhaseCards: typeof parsed.compactMaxPhaseCards === 'number' ? parsed.compactMaxPhaseCards : 4
     };
   } catch {
-    return { systemPromptOverride: '', sources: [], usePlaceholder: false, simulateStreaming: true };
+    return { systemPromptOverride: '', sources: [], usePlaceholder: false, simulateStreaming: true, compactMode: false, compactMaxPhaseCards: 4 };
   }
 };
 

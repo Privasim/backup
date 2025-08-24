@@ -5,9 +5,11 @@ interface BuildParams {
   systemPromptOverride?: string;
   sources?: string[];
   suggestion: any; // BusinessSuggestion shape
+  compactMode?: boolean;
+  compactMaxPhaseCards?: number;
 }
 
-export function buildMessages({ baseSystemPrompt = '', systemPromptOverride = '', sources = [], suggestion }: BuildParams) {
+export function buildMessages({ baseSystemPrompt = '', systemPromptOverride = '', sources = [], suggestion, compactMode = false, compactMaxPhaseCards = 4 }: BuildParams) {
   const systemParts: string[] = [];
 
   if (baseSystemPrompt) systemParts.push(baseSystemPrompt.trim());
@@ -15,7 +17,21 @@ export function buildMessages({ baseSystemPrompt = '', systemPromptOverride = ''
   if (systemPromptOverride?.trim()) {
     systemParts.push(`Implementation Plan Requirements (Override):\n${systemPromptOverride.trim()}`);
   } else {
-    systemParts.push(`Implementation Plan Requirements:\n- Provide a streamlined but complete plan\n- Include phases, key tasks, milestones, risks, resources, budget, KPIs, and 30/60/90-day actions\n- Prefer concise bullet points with clear ownership and effort\n- Return a single JSON object matching the agreed schema\n- If unsure, make reasonable assumptions and state them in 'overview.assumptions'`);
+    const baseRequirements = `- Provide a streamlined but complete plan
+- Include phases, key tasks, milestones, risks, resources, budget, KPIs, and 30/60/90-day actions
+- Prefer concise bullet points with clear ownership and effort
+- Return a single JSON object matching the agreed schema
+- If unsure, make reasonable assumptions and state them in 'overview.assumptions'`;
+    
+    if (compactMode) {
+      systemParts.push(`Implementation Plan Requirements:
+${baseRequirements}
+- Produce at most ${compactMaxPhaseCards} clearly separated phases
+- Keep content concise and focused`);
+    } else {
+      systemParts.push(`Implementation Plan Requirements:
+${baseRequirements}`);
+    }
   }
 
   if (sources.length > 0) {

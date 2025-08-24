@@ -18,6 +18,7 @@ export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
   const [sourcesText, setSourcesText] = useState('');
   const [usePlaceholder, setUsePlaceholder] = useState(settings.usePlaceholder || false);
   const [simulateStreaming, setSimulateStreaming] = useState(settings.simulateStreaming !== false); // default to true
+  const [compactMode, setCompactMode] = useState(settings.compactMode || false);
 
   useEffect(() => {
     if (isOpen) {
@@ -25,6 +26,7 @@ export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
       setSourcesText((settings.sources || []).join('\n'));
       setUsePlaceholder(settings.usePlaceholder || false);
       setSimulateStreaming(settings.simulateStreaming !== false);
+      setCompactMode(settings.compactMode || false);
     }
   }, [isOpen, settings.systemPromptOverride, settings.sources, settings.usePlaceholder, settings.simulateStreaming]);
 
@@ -40,7 +42,8 @@ export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
       systemPromptOverride: prompt, 
       sources: parsedSources,
       usePlaceholder,
-      simulateStreaming
+      simulateStreaming,
+      compactMode
     });
     onClose();
   };
@@ -99,6 +102,19 @@ export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                 onChange={(e) => setSimulateStreaming(e.target.checked)} 
               />
               Simulate streaming
+            </label>
+          </div>
+        </div>
+        <div className={styles.section}>
+          <h3 className={styles.heading}>Output Settings</h3>
+          <div className="flex items-center gap-2">
+            <label>
+              <input 
+                type="checkbox" 
+                checked={compactMode} 
+                onChange={(e) => setCompactMode(e.target.checked)} 
+              />
+              Compact output (limit cards and concise prompt)
             </label>
           </div>
         </div>

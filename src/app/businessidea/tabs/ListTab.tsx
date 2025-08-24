@@ -10,7 +10,13 @@ import StreamingErrorBoundary from '@/features/implementation-plan/components/St
 
 export default function ListTab() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const { status, error, plan, rawStream, regenerate, cancel, streamingState, isExternallyDriven } = useImplementationPlan();
+  const { status, error, plan, rawStream, regenerate, cancel, streamingState, isExternallyDriven, settings } = useImplementationPlan();
+  
+  // Get compact mode settings with defaults
+  const compactMode = settings.compactMode || false;
+  const compactMaxPhaseCards = settings.compactMaxPhaseCards && settings.compactMaxPhaseCards > 0 
+    ? settings.compactMaxPhaseCards 
+    : 4;
 
   const isLoading = status === 'generating' || status === 'streaming';
   const preview = useMemo(() => {
@@ -108,10 +114,10 @@ export default function ListTab() {
             }
           >
             <ProgressiveRenderer
-              sections={streamingState.processedSections}
+              sections={compactMode ? streamingState.processedSections.slice(0, compactMaxPhaseCards) : streamingState.processedSections}
               progress={{
                 currentPhase: streamingState.currentPhase,
-                completedPhases: streamingState.processedSections
+                completedPhases: (compactMode ? streamingState.processedSections.slice(0, compactMaxPhaseCards) : streamingState.processedSections)
                   .filter(s => s.isComplete)
                   .map(s => s.type),
                 progress: streamingState.progress
@@ -156,7 +162,7 @@ export default function ListTab() {
             <section>
               <h4 className="text-sm font-semibold text-slate-900 mb-2">Phases</h4>
               <div className="space-y-2">
-                {plan.phases.map(ph => (
+                {(compactMode ? plan.phases.slice(0, compactMaxPhaseCards) : plan.phases).map(ph => (
                   <div key={ph.id} className="p-3 rounded-lg border border-slate-200">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-slate-900">{ph.name}</span>
@@ -168,6 +174,9 @@ export default function ListTab() {
                   </div>
                 ))}
               </div>
+              {compactMode && plan.phases.length > compactMaxPhaseCards && (
+                <p className="text-xs text-slate-500 mt-2">+{plan.phases.length - compactMaxPhaseCards} more phases hidden in compact mode</p>
+              )}
             </section>
             <section>
               <h4 className="text-sm font-semibold text-slate-900 mb-2">Top Tasks</h4>

@@ -28,7 +28,9 @@ export const useImplementationPlan = () => {
 
   const currentSettingsKey = useMemo(() => settingsHash({
     systemPromptOverride: ctx.settings.systemPromptOverride || '',
-    sources: Array.isArray(ctx.settings.sources) ? ctx.settings.sources : []
+    sources: Array.isArray(ctx.settings.sources) ? ctx.settings.sources : [],
+    compactMode: ctx.settings.compactMode || false,
+    compactMaxPhaseCards: ctx.settings.compactMaxPhaseCards || 4
   }), [ctx.settings]);
 
   // Check if externally driven
@@ -92,6 +94,8 @@ export const useImplementationPlan = () => {
       systemPromptOverride: ctx.settings.systemPromptOverride,
       sources: ctx.settings.sources,
       suggestion,
+      compactMode: ctx.settings.compactMode,
+      compactMaxPhaseCards: ctx.settings.compactMaxPhaseCards
     });
 
     // Prepare client

@@ -35,6 +35,8 @@ export interface PlanSettings {
   sources: string[];
   usePlaceholder?: boolean;
   simulateStreaming?: boolean;
+  compactMode?: boolean;
+  compactMaxPhaseCards?: number;
 }
 
 export interface PlanState {
