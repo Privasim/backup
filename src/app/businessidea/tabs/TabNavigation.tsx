@@ -7,7 +7,7 @@ import {
   RocketLaunchIcon, // For Go-to-Market
   WrenchScrewdriverIcon, // For Tools
   ChartBarIcon, // For Visualization
-  ListBulletIcon, // For List
+  DocumentTextIcon, // For List (changed from ListBulletIcon)
   DevicePhoneMobileIcon, // For Mobile
 } from '@heroicons/react/24/outline';
 import { 
@@ -15,11 +15,16 @@ import {
   RocketLaunchIcon as SolidRocketLaunchIcon,
   WrenchScrewdriverIcon as SolidWrenchScrewdriverIcon,
   ChartBarIcon as SolidChartBarIcon,
-  ListBulletIcon as SolidListBulletIcon,
+  DocumentTextIcon as SolidDocumentTextIcon,
   DevicePhoneMobileIcon as SolidDevicePhoneMobileIcon,
 } from '@heroicons/react/24/solid';
 
 const TabIcons = {
+  list: {
+    outline: DocumentTextIcon,
+    solid: SolidDocumentTextIcon,
+    label: 'List'
+  },
   mobile: {
     outline: DevicePhoneMobileIcon,
     solid: SolidDevicePhoneMobileIcon,
@@ -44,11 +49,6 @@ const TabIcons = {
     outline: ChartBarIcon,
     solid: SolidChartBarIcon,
     label: 'Visualization'
-  },
-  list: {
-    outline: ListBulletIcon,
-    solid: SolidListBulletIcon,
-    label: 'List'
   },
 } as const;
 
