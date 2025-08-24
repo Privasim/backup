@@ -16,14 +16,17 @@ export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
   const { settings, setSettings } = useImplementationPlan();
   const [prompt, setPrompt] = useState(settings.systemPromptOverride || '');
   const [sourcesText, setSourcesText] = useState('');
+  const [usePlaceholder, setUsePlaceholder] = useState(settings.usePlaceholder || false);
+  const [simulateStreaming, setSimulateStreaming] = useState(settings.simulateStreaming !== false); // default to true
 
-  // Sync local form state with context when opened
   useEffect(() => {
     if (isOpen) {
       setPrompt(settings.systemPromptOverride || '');
       setSourcesText((settings.sources || []).join('\n'));
+      setUsePlaceholder(settings.usePlaceholder || false);
+      setSimulateStreaming(settings.simulateStreaming !== false);
     }
-  }, [isOpen, settings.systemPromptOverride, settings.sources]);
+  }, [isOpen, settings.systemPromptOverride, settings.sources, settings.usePlaceholder, settings.simulateStreaming]);
 
   const parsedSources = useMemo(() => {
     return sourcesText
@@ -33,7 +36,12 @@ export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
   }, [sourcesText]);
 
   const onSave = () => {
-    setSettings({ systemPromptOverride: prompt, sources: parsedSources });
+    setSettings({ 
+      systemPromptOverride: prompt, 
+      sources: parsedSources,
+      usePlaceholder,
+      simulateStreaming
+    });
     onClose();
   };
 
@@ -72,6 +80,27 @@ export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
           {parsedSources.length > 0 && (
             <p className="mt-1 text-xs text-slate-500">{parsedSources.length} source(s) configured</p>
           )}
+        </div>
+        <div className={styles.section}>
+          <h3 className={styles.heading}>Placeholder Settings</h3>
+          <div className="flex items-center gap-2">
+            <label>
+              <input 
+                type="checkbox" 
+                checked={usePlaceholder} 
+                onChange={(e) => setUsePlaceholder(e.target.checked)} 
+              />
+              Use placeholder
+            </label>
+            <label>
+              <input 
+                type="checkbox" 
+                checked={simulateStreaming} 
+                onChange={(e) => setSimulateStreaming(e.target.checked)} 
+              />
+              Simulate streaming
+            </label>
+          </div>
         </div>
         <div className="flex items-center justify-end gap-2">
           <button onClick={onClose} className="px-3 py-2 text-sm rounded-md border border-slate-200 hover:bg-slate-50">Cancel</button>

@@ -1,9 +1,11 @@
 "use client";
 
-import React, { createContext, useContext, useMemo, useState, useCallback } from 'react';
+import React, { createContext, useContext, useMemo, useState, useCallback, useEffect } from 'react';
 import type { ImplementationPlan, PlanSettings, PlanState, PlanStatus } from './types';
 import type { StreamingState, ProcessedSection, GenerationPhase } from './streaming/types';
 import { loadSettings, saveSettings as persistSettings, loadCachedPlan, saveCachedPlan } from './storage';
+import { parsePlanFromString } from './streamingParser';
+import { PLACEHOLDER_RAW_CONTENT, PLACEHOLDER_SUGGESTION, splitIntoChunks, createPlaceholderPlan } from './placeholder/placeholderContent';
 
 interface ImplementationPlanContextValue extends PlanState {
   setStatus: (s: PlanStatus) => void;
@@ -30,6 +32,9 @@ interface ImplementationPlanContextValue extends PlanState {
   ingestExternalChunk: (sourceId: string, chunk: string) => void;
   ingestExternalComplete: (sourceId: string, finalRaw: string) => void;
   ingestExternalError: (sourceId: string, message: string) => void;
+  // Placeholder methods
+  applyPlaceholderPlan: (options?: { simulateStreaming?: boolean }) => void;
+  clearPlaceholderPlan: () => void;
 }
 
 const ImplementationPlanContext = createContext<ImplementationPlanContextValue | null>(null);
@@ -194,6 +199,105 @@ export const ImplementationPlanProvider: React.FC<{ children: React.ReactNode }>
     }));
   }, []);
 
+  const applyPlaceholderPlan = useCallback((options?: { simulateStreaming?: boolean }) => {
+    const simulateStreaming = options?.simulateStreaming ?? state.settings.simulateStreaming ?? true;
+    
+    // Set the placeholder suggestion
+    setSelectedSuggestion(PLACEHOLDER_SUGGESTION);
+    
+    if (simulateStreaming) {
+      // Simulate streaming by using external ingestion methods
+      ingestExternalStart('__placeholder__', PLACEHOLDER_SUGGESTION);
+      
+      // Split content into chunks and feed them with delays
+      const chunks = splitIntoChunks(PLACEHOLDER_RAW_CONTENT, 100);
+      let index = 0;
+      
+      const feedChunk = () => {
+        if (index < chunks.length) {
+          ingestExternalChunk('__placeholder__', chunks[index]);
+          index++;
+          setTimeout(feedChunk, 50 + Math.random() * 100); // Random delay between 50-150ms
+        } else {
+          // Complete the stream
+          ingestExternalComplete('__placeholder__', PLACEHOLDER_RAW_CONTENT);
+        }
+      };
+      
+      // Start feeding chunks
+      setTimeout(feedChunk, 10);
+    } else {
+      // Directly set the plan without simulation
+      try {
+        const plan = createPlaceholderPlan();
+        setPlan(plan);
+        setState(prev => ({
+          ...prev,
+          status: 'success',
+          rawStream: PLACEHOLDER_RAW_CONTENT
+        }));
+        
+        setStreamingStateInternal(prev => ({
+          ...prev,
+          rawContent: PLACEHOLDER_RAW_CONTENT,
+          currentPhase: 'complete',
+          progress: 100,
+          isProcessing: false
+        }));
+      } catch (e: any) {
+        const message = e?.message || 'Failed to create placeholder plan';
+        setError(message);
+        setState(prev => ({
+          ...prev,
+          status: 'error'
+        }));
+        setStreamingStateInternal(prev => ({
+          ...prev,
+          error: message,
+          isProcessing: false
+        }));
+      }
+    }
+  }, [state.settings.simulateStreaming, setSelectedSuggestion, ingestExternalStart, ingestExternalChunk, ingestExternalComplete, setPlan, setError, setState, setStreamingStateInternal]);
+
+  const clearPlaceholderPlan = useCallback(() => {
+    // Reset to idle state
+    setState(prev => ({
+      ...prev,
+      status: 'idle',
+      error: undefined,
+      rawStream: '',
+      plan: undefined,
+      selectedSuggestion: undefined
+    }));
+    
+    setStreamingStateInternal({
+      rawContent: '',
+      processedSections: [],
+      currentPhase: 'initializing',
+      progress: 0,
+      error: null,
+      isProcessing: false
+    });
+    
+    setExternal({
+      source: null,
+      sourceId: null,
+      isActive: false
+    });
+  }, [setState, setStreamingStateInternal, setExternal]);
+
+  // Effect to handle placeholder setting changes
+  useEffect(() => {
+    if (state.settings.usePlaceholder) {
+      // Apply placeholder plan
+      applyPlaceholderPlan({ simulateStreaming: state.settings.simulateStreaming });
+    } else {
+      // Clear placeholder plan if it was active
+      clearPlaceholderPlan();
+    }
+  }, [state.settings.usePlaceholder, state.settings.simulateStreaming, applyPlaceholderPlan, clearPlaceholderPlan]);
+
   const value = useMemo<ImplementationPlanContextValue>(() => ({
     ...state,
     setStatus,
@@ -214,6 +318,9 @@ export const ImplementationPlanProvider: React.FC<{ children: React.ReactNode }>
     ingestExternalChunk,
     ingestExternalComplete,
     ingestExternalError,
+    // Placeholder methods
+    applyPlaceholderPlan,
+    clearPlaceholderPlan,
   }), [state, setStatus, setError, setPlan, setSelectedSuggestion, appendRaw, clearRaw, saveSettings, cachePlan, getCachedPlan, streamingState, setStreamingState, updateStreamingProgress, external, ingestExternalStart, ingestExternalChunk, ingestExternalComplete, ingestExternalError]);
 
   return (

@@ -4,19 +4,23 @@ const CACHE_PREFIX = 'implPlan:cache:v1:';
 export interface StoredSettings {
   systemPromptOverride: string;
   sources: string[];
+  usePlaceholder?: boolean;
+  simulateStreaming?: boolean;
 }
 
 export const loadSettings = (): StoredSettings => {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
-    if (!raw) return { systemPromptOverride: '', sources: [] };
+    if (!raw) return { systemPromptOverride: '', sources: [], usePlaceholder: false, simulateStreaming: true };
     const parsed = JSON.parse(raw);
     return {
       systemPromptOverride: parsed.systemPromptOverride || '',
-      sources: Array.isArray(parsed.sources) ? parsed.sources : []
+      sources: Array.isArray(parsed.sources) ? parsed.sources : [],
+      usePlaceholder: typeof parsed.usePlaceholder === 'boolean' ? parsed.usePlaceholder : false,
+      simulateStreaming: typeof parsed.simulateStreaming === 'boolean' ? parsed.simulateStreaming : true
     };
   } catch {
-    return { systemPromptOverride: '', sources: [] };
+    return { systemPromptOverride: '', sources: [], usePlaceholder: false, simulateStreaming: true };
   }
 };
 

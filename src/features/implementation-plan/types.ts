@@ -33,6 +33,8 @@ export interface ImplementationPlan {
 export interface PlanSettings {
   systemPromptOverride: string;
   sources: string[];
+  usePlaceholder?: boolean;
+  simulateStreaming?: boolean;
 }
 
 export interface PlanState {

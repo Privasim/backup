@@ -190,5 +190,7 @@ export const useImplementationPlan = () => {
     regenerate,
     setSettings,
     isExternallyDriven,
+    applyPlaceholderPlan: ctx.applyPlaceholderPlan,
+    clearPlaceholderPlan: ctx.clearPlaceholderPlan,
   };
 };
