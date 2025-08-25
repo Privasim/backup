@@ -24,21 +24,20 @@ export default function ConversationsCard({
 
   return (
     <section
-      className="rounded-2xl bg-white/90 p-3 shadow-sm ring-1 ring-gray-200 backdrop-blur"
+      className="rounded-2xl bg-white/90 p-3 shadow-sm ring-1 ring-gray-200 backdrop-blur mt-5"
       aria-labelledby="conversations-heading"
     >
       <div className="flex items-center gap-2 px-1">
-        <ChatBubbleLeftRightIcon className="h-5 w-5 text-gray-700" />
-        <h2 id="conversations-heading" className="text-sm font-semibold text-gray-900">
-          Business Plans
-        </h2>
         <button
           type="button"
           onClick={onNewChat}
-          className="ml-auto inline-flex items-center gap-1 rounded-lg bg-indigo-600 px-2.5 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-          aria-label="Start new chat"
+          className="ml-auto w-full rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          aria-label="Create a Business Plan"
         >
-          <PlusIcon className="h-4 w-4" /> New
+          <div className="flex w-full items-center justify-between">
+            <span>Create a Backup Plan</span>
+            <PlusIcon className="h-5 w-5 font-bold" />
+          </div>
         </button>
       </div>
 
