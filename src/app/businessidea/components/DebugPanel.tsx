@@ -13,7 +13,7 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({ isOpen, onClose }) => {
   const [filter, setFilter] = useState('');
   const [levelFilter, setLevelFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
-  const [activeTab, setActiveTab] = useState<'all' | 'chatbox' | 'ui-prompt' | 'backend-analysis'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'chatbox' | 'backend-analysis'>('all');
   const [autoScroll, setAutoScroll] = useState(true);
   const logsEndRef = useRef<HTMLDivElement>(null);
 
@@ -68,7 +68,7 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleSelectTab = (tab: 'all' | 'chatbox' | 'ui-prompt' | 'backend-analysis') => {
+  const handleSelectTab = (tab: 'all' | 'chatbox' | 'backend-analysis') => {
     setActiveTab(tab);
     setCategoryFilter(tab === 'all' ? 'all' : tab);
   };
@@ -113,7 +113,6 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({ isOpen, onClose }) => {
           {([
             { id: 'all', label: 'All' },
             { id: 'chatbox', label: 'Chatbox' },
-            { id: 'ui-prompt', label: 'UI Prompt' },
             { id: 'backend-analysis', label: 'Backend' }
           ] as const).map(t => (
             <button

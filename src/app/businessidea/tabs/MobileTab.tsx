@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import MobileSettingsPanel from './mobile-settings-panel/MobileSettingsPanel';
-import UIPromptBox from './ui-prompt/UIPromptBox';
+// import UIPromptBox from './ui-prompt/UIPromptBox'; // DEPRECATED: ui-prompt folder legacy
 import { PromptBox } from './PromptBox';
 
 export default function MobileTab() {
@@ -28,13 +28,14 @@ export default function MobileTab() {
 
         {/* UI Generation Panel - full height section with mobile sticky prompt inside */}
         <div className="flex-1 min-h-0">
-          <div className="bg-white/70 backdrop-blur-sm border border-slate-200/60 rounded-2xl p-0 sm:p-5 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col h-full">
-            <div className="flex items-center gap-2 mb-4 p-5 sm:p-0">
-              <div className="w-2 h-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"></div>
+          <div className="bg-white/70 backdrop-blur-sm border border-slate-200/60 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-2 h-2 bg-gradient-to-r from-gray-400 to-gray-500 rounded-full"></div>
               <h3 className="text-lg font-semibold text-slate-800">UI Generator</h3>
             </div>
-            <div className="flex-1 min-h-0">
-              <UIPromptBox />
+            <div className="text-center py-8">
+              <p className="text-sm text-gray-500">UI Generation feature has been deprecated</p>
+              <p className="text-xs text-gray-400 mt-2">This functionality is no longer available</p>
             </div>
           </div>
         </div>
