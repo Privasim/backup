@@ -1,0 +1,37 @@
+[
+  {
+    "role": "Customer Service & Support",
+    "count": 15200,
+    "sources": [
+      "https://www.bloomberg.com/news/articles/2025-07-25/ai-automation-accelerates-job-cuts-in-bpo-sector"
+    ]
+  },
+  {
+    "role": "Content Creation / Copywriting",
+    "count": 9800,
+    "sources": [
+      "https://www.forbes.com/sites/jemimamcevoy/2025/03/28/layoffs-tracker-tech-companies-making-cuts-in-2025/"
+    ]
+  },
+  {
+    "role": "Software Development (Entry-Level)",
+    "count": 8100,
+    "sources": [
+      "https://www.reuters.com/technology/global-tech-layoffs-start-2025-with-a-bang-2025-03-05/"
+    ]
+  },
+  {
+    "role": "Data Entry & Administrative",
+    "count": 5300,
+    "sources": [
+      "https://www.challengergray.com/blog/challenger-report-july-2025-ai-job-cuts/"
+    ]
+  },
+  {
+    "role": "Media & Journalism",
+    "count": 3900,
+    "sources": [
+      "https://www.wired.com/story/ai-job-losses-august-2025/"
+    ]
+  }
+]

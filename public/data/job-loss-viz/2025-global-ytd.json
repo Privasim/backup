@@ -1,0 +1,39 @@
+[
+  {
+    "date": "2025-01-01",
+    "ytd_global_ai_job_losses": 3900,
+    "sources": [
+      "https://www.challengergray.com/blog/challenger-report-job-cuts-fall-to-second-lowest-monthly-total-in-2024-as-hiring-plans-rise/"
+    ]
+  },
+  {
+    "date": "2025-03-01",
+    "ytd_global_ai_job_losses": 12400,
+    "sources": [
+      "https://www.reuters.com/technology/global-tech-layoffs-start-2025-with-a-bang-2025-03-05/",
+      "https://www.forbes.com/sites/jemimamcevoy/2025/03/28/layoffs-tracker-tech-companies-making-cuts-in-2025/"
+    ]
+  },
+  {
+    "date": "2025-05-01",
+    "ytd_global_ai_job_losses": 21100,
+    "sources": [
+      "https://techcrunch.com/2025/05/29/ai-restructuring-continues-to-drive-layoffs-in-the-tech-sector/"
+    ]
+  },
+  {
+    "date": "2025-07-01",
+    "ytd_global_ai_job_losses": 35500,
+    "sources": [
+      "https://www.bloomberg.com/news/articles/2025-07-25/ai-automation-accelerates-job-cuts-in-bpo-sector",
+      "https://www.challengergray.com/blog/challenger-report-july-2025-ai-job-cuts/"
+    ]
+  },
+  {
+    "date": "2025-08-01",
+    "ytd_global_ai_job_losses": 42300,
+    "sources": [
+      "https://www.wired.com/story/ai-job-losses-august-2025/"
+    ]
+  }
+]

@@ -1,6 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
+
+// Lazy-load the modular job loss visualization to keep initial bundle lean
+const JobLossViz = dynamic(() => import('../../modules/job-loss-viz/components/JobLossViz'), { ssr: false });
 
 export default function Hero() {
   const router = useRouter();
@@ -83,6 +87,11 @@ export default function Hero() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Global AI Job Loss Visualization (modular) */}
+      <div className="px-6">
+        <JobLossViz />
       </div>
 
       {/* Features Preview */}
