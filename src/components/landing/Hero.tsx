@@ -44,8 +44,8 @@ export default function Hero() {
           </div>
 
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            Will AI Replace
-            <span className="text-blue-600 block">Your Career?</span>
+            AI is Replacing Jobs Across Industries, 
+            <span className="text-blue-600 block">Is Yours Next?</span>
           </h1>
           
           <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
