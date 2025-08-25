@@ -25,11 +25,14 @@ import { getAnalysisStatus } from './utils/profile-transformation';
 
 interface ChatboxControlsProps {
   className?: string;
+  mode?: 'full' | 'configOnly';
+  visibleTabs?: { api?: boolean; prompt?: boolean; storage?: boolean };
+  onValidationChange?: (isValid: boolean) => void;
 }
 
 type TabType = 'analyze' | 'api' | 'prompt' | 'storage';
 
-export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = '' }) => {
+export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = '', mode, visibleTabs, onValidationChange }) => {
   const { config, status, updateConfig, startAnalysis, profileData, useMockData, setProfileData } = useChatbox();
   const { saveApiKey, getApiKey } = useChatboxSettings();
 
@@ -86,6 +89,14 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
   useEffect(() => {
     if (touched) validate();
   }, [touched, validate]);
+
+  // Notify parent of validation changes
+  useEffect(() => {
+    if (onValidationChange) {
+      const isValid = validation.status === 'valid';
+      onValidationChange(isValid);
+    }
+  }, [validation.status, onValidationChange]);
 
   const handleApiKeyChange = useCallback((value: string) => {
     setTouched(true);
@@ -158,12 +169,32 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
 
   const canAnalyze = validation.status === 'valid' && currentProfileData && status !== 'analyzing';
 
-  const tabs = [
+  const allTabs = [
     { id: 'analyze' as TabType, label: 'Analyze', icon: CommandLineIcon },
     { id: 'api' as TabType, label: 'API', icon: KeyIcon },
     { id: 'prompt' as TabType, label: 'Prompt', icon: DocumentTextIcon },
     { id: 'storage' as TabType, label: 'Storage', icon: WrenchScrewdriverIcon }
   ];
+
+  // Filter tabs based on mode and visibleTabs
+  const tabs = useMemo(() => {
+    if (mode === 'configOnly') {
+      return allTabs.filter(tab => {
+        if (tab.id === 'api') return visibleTabs?.api !== false;
+        if (tab.id === 'prompt') return visibleTabs?.prompt === true;
+        if (tab.id === 'storage') return visibleTabs?.storage === true;
+        return false; // Hide analyze tab in configOnly mode
+      });
+    }
+    return allTabs;
+  }, [mode, visibleTabs]);
+
+  // Set initial tab based on available tabs
+  useEffect(() => {
+    if (tabs.length > 0 && !tabs.find(tab => tab.id === activeTab)) {
+      setActiveTab(tabs[0].id);
+    }
+  }, [tabs, activeTab]);
 
   const renderTabContent = () => {
     switch (activeTab) {

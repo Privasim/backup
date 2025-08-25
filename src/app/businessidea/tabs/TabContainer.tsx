@@ -16,6 +16,7 @@ import BridgeConnector from './BridgeConnector';
 import UserProfileTab from './user-profile';
 import JobRiskAnalysisTab from './job-risk';
 import GoToMarketV2Content from './GoToMarketV2Content';
+import ArtifactStudio from './artifact-studio';
 
 const tabComponents = {
   businessplan: BusinessPlanContent,
@@ -27,6 +28,7 @@ const tabComponents = {
   list: ListTab,
   mobile: MobileTab,
   'gotomarket-v2': GoToMarketV2Content,
+  'artifact-studio': ArtifactStudio,
 } as const;
 
 function TabContent({ onTabChange }: { onTabChange?: (tab: TabId) => void }) {

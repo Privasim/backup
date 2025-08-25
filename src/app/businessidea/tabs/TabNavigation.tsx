@@ -9,6 +9,7 @@ import {
   ChartBarIcon, // For Visualization
   DocumentTextIcon, // For List (changed from ListBulletIcon)
   DevicePhoneMobileIcon, // For Mobile
+  CubeIcon, // For Artifact Studio
 } from '@heroicons/react/24/outline';
 import { 
   CurrencyDollarIcon as SolidCurrencyDollarIcon,
@@ -17,6 +18,7 @@ import {
   ChartBarIcon as SolidChartBarIcon,
   DocumentTextIcon as SolidDocumentTextIcon,
   DevicePhoneMobileIcon as SolidDevicePhoneMobileIcon,
+  CubeIcon as SolidCubeIcon,
 } from '@heroicons/react/24/solid';
 
 const TabIcons = {
@@ -49,6 +51,11 @@ const TabIcons = {
     outline: RocketLaunchIcon,
     solid: SolidRocketLaunchIcon,
     label: 'Go-to-Market'
+  },
+  'artifact-studio': {
+    outline: CubeIcon,
+    solid: SolidCubeIcon,
+    label: 'Artifact'
   },
 } as const;
 
