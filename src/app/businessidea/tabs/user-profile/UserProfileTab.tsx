@@ -51,6 +51,7 @@ export default function UserProfileTab() {
           <RoleDetailsStep
             roleDetails={state.data.roleDetails}
             onPatch={(patch) => actions.updateRoleDetails(patch)}
+            industry={state.data.industry}
           />
         );
       case 3:
@@ -106,6 +107,10 @@ export default function UserProfileTab() {
           <SkillsStep
             skills={state.data.skills}
             onChange={(skills) => actions.updateField("skills", skills)}
+            role={state.data.role}
+            industry={state.data.industry}
+            jobFunction={state.data.roleDetails?.role === Role.Professional ? state.data.roleDetails?.professional?.jobFunction : undefined}
+            roleDetails={state.data.roleDetails}
           />
         );
       case 5:
