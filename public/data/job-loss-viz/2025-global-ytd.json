@@ -7,11 +7,25 @@
     ]
   },
   {
+    "date": "2025-02-01",
+    "ytd_global_ai_job_losses": 7200,
+    "sources": [
+      "https://www.challengergray.com/blog/may-2025-job-cuts-up-47-over-same-month-last-year-cuts-spread-to-other-sectors-than-govt-for-other-reasons-than-doge/"
+    ]
+  },
+  {
     "date": "2025-03-01",
     "ytd_global_ai_job_losses": 12400,
     "sources": [
       "https://www.reuters.com/technology/global-tech-layoffs-start-2025-with-a-bang-2025-03-05/",
       "https://www.forbes.com/sites/jemimamcevoy/2025/03/28/layoffs-tracker-tech-companies-making-cuts-in-2025/"
+    ]
+  },
+  {
+    "date": "2025-04-01",
+    "ytd_global_ai_job_losses": 16800,
+    "sources": [
+      "https://fortune.com/2025/08/07/summer-of-ai-layoffs-july-140-percent-spike-challenger-gray-christmas/"
     ]
   },
   {
@@ -22,11 +36,19 @@
     ]
   },
   {
+    "date": "2025-06-01",
+    "ytd_global_ai_job_losses": 28700,
+    "sources": [
+      "https://www.forbes.com/sites/maryroeloffs/2025/07/31/2025-job-cuts-have-already-surpassed-all-of-2024-doge-ai-and-tariffs-are-biggest-causes/"
+    ]
+  },
+  {
     "date": "2025-07-01",
     "ytd_global_ai_job_losses": 35500,
     "sources": [
       "https://www.bloomberg.com/news/articles/2025-07-25/ai-automation-accelerates-job-cuts-in-bpo-sector",
-      "https://www.challengergray.com/blog/challenger-report-july-2025-ai-job-cuts/"
+      "https://www.challengergray.com/blog/challenger-report-july-2025-ai-job-cuts/",
+      "https://fortune.com/2025/08/07/summer-of-ai-layoffs-july-140-percent-spike-challenger-gray-christmas/"
     ]
   },
   {

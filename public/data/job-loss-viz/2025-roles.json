@@ -3,35 +3,64 @@
     "role": "Customer Service & Support",
     "count": 15200,
     "sources": [
-      "https://www.bloomberg.com/news/articles/2025-07-25/ai-automation-accelerates-job-cuts-in-bpo-sector"
+      "https://www.bloomberg.com/news/articles/2025-07-25/ai-automation-accelerates-job-cuts-in-bpo-sector",
+      "https://www.challengergray.com/blog/summer-lull-ends-july-job-cuts-spike-tech-ai-tariffs-blamed/"
     ]
   },
   {
     "role": "Content Creation / Copywriting",
     "count": 9800,
     "sources": [
-      "https://www.forbes.com/sites/jemimamcevoy/2025/03/28/layoffs-tracker-tech-companies-making-cuts-in-2025/"
+      "https://www.forbes.com/sites/jemimamcevoy/2025/03/28/layoffs-tracker-tech-companies-making-cuts-in-2025/",
+      "https://research.aimultiple.com/ai-job-loss/"
     ]
   },
   {
     "role": "Software Development (Entry-Level)",
     "count": 8100,
     "sources": [
-      "https://www.reuters.com/technology/global-tech-layoffs-start-2025-with-a-bang-2025-03-05/"
+      "https://www.reuters.com/technology/global-tech-layoffs-start-2025-with-a-bang-2025-03-05/",
+      "https://research.aimultiple.com/ai-job-loss/"
     ]
   },
   {
     "role": "Data Entry & Administrative",
     "count": 5300,
     "sources": [
-      "https://www.challengergray.com/blog/challenger-report-july-2025-ai-job-cuts/"
+      "https://www.challengergray.com/blog/challenger-report-july-2025-ai-job-cuts/",
+      "https://research.aimultiple.com/ai-job-loss/"
     ]
   },
   {
     "role": "Media & Journalism",
     "count": 3900,
     "sources": [
-      "https://www.wired.com/story/ai-job-losses-august-2025/"
+      "https://www.wired.com/story/ai-job-losses-august-2025/",
+      "https://research.aimultiple.com/ai-job-loss/"
+    ]
+  },
+  {
+    "role": "Legal Support Staff",
+    "count": 4200,
+    "sources": [
+      "https://research.aimultiple.com/ai-job-loss/",
+      "https://www.challengergray.com/blog/summer-lull-ends-july-job-cuts-spike-tech-ai-tariffs-blamed/"
+    ]
+  },
+  {
+    "role": "Financial Analysts (Junior)",
+    "count": 3800,
+    "sources": [
+      "https://research.aimultiple.com/ai-job-loss/",
+      "https://www.pwc.com/gx/en/issues/artificial-intelligence/ai-jobs-barometer.html"
+    ]
+  },
+  {
+    "role": "Retail Sales Associates",
+    "count": 6700,
+    "sources": [
+      "https://www.challengergray.com/blog/summer-lull-ends-july-job-cuts-spike-tech-ai-tariffs-blamed/",
+      "https://fortune.com/2025/08/07/summer-of-ai-layoffs-july-140-percent-spike-challenger-gray-christmas/"
     ]
   }
 ]
