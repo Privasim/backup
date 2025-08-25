@@ -8,8 +8,8 @@ import {
   WrenchScrewdriverIcon, // For Tools
   ChartBarIcon, // For Visualization
   DocumentTextIcon, // For List (changed from ListBulletIcon)
-  DevicePhoneMobileIcon, // For Mobile
   CubeIcon, // For Artifact Studio
+  ListBulletIcon // For the new list icon
 } from '@heroicons/react/24/outline';
 import { 
   CurrencyDollarIcon as SolidCurrencyDollarIcon,
@@ -17,8 +17,8 @@ import {
   WrenchScrewdriverIcon as SolidWrenchScrewdriverIcon,
   ChartBarIcon as SolidChartBarIcon,
   DocumentTextIcon as SolidDocumentTextIcon,
-  DevicePhoneMobileIcon as SolidDevicePhoneMobileIcon,
   CubeIcon as SolidCubeIcon,
+  ListBulletIcon as SolidListBulletIcon,
 } from '@heroicons/react/24/solid';
 
 const TabIcons = {
@@ -26,11 +26,6 @@ const TabIcons = {
     outline: DocumentTextIcon,
     solid: SolidDocumentTextIcon,
     label: 'List'
-  },
-  mobile: {
-    outline: DevicePhoneMobileIcon,
-    solid: SolidDevicePhoneMobileIcon,
-    label: 'Mobile'
   },
   financials: {
     outline: CurrencyDollarIcon,
@@ -56,6 +51,11 @@ const TabIcons = {
     outline: CubeIcon,
     solid: SolidCubeIcon,
     label: 'Artifact'
+  },
+  'list-view': {
+    outline: ListBulletIcon,
+    solid: SolidListBulletIcon,
+    label: 'List View'
   },
 } as const;
 
