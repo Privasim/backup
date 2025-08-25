@@ -9,7 +9,9 @@ import ToolsContent from './ToolsContent';
 import VisualizationContent from './VisualizationContent';
 import ListTab from './ListTab';
 import MobileTab from './MobileTab';
+import { SpecsContent } from './SpecsContent';
 import { ImplementationPlanProvider, useImplementationPlanContext } from '@/features/implementation-plan/ImplementationPlanProvider';
+import { SpecsGeneratorProvider } from '@/features/specs-generator/SpecsGeneratorProvider';
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
 import { getPlanStreamBridge } from '@/features/implementation-plan/bridge/PlanStreamBridge';
 import BridgeConnector from './BridgeConnector';
@@ -29,6 +31,7 @@ const tabComponents = {
   mobile: MobileTab,
   'gotomarket-v2': GoToMarketV2Content,
   'artifact-studio': ArtifactStudio,
+  specs: SpecsContent,
 } as const;
 
 function TabContent({ onTabChange }: { onTabChange?: (tab: TabId) => void }) {
@@ -51,11 +54,13 @@ function TabContent({ onTabChange }: { onTabChange?: (tab: TabId) => void }) {
 function TabContainerContent({ onTabChange }: { onTabChange?: (tab: TabId) => void }) {
   return (
     <ImplementationPlanProvider>
-      <BridgeConnector />
-      <div className="space-y-4">
-        <TabNavigation />
-        <TabContent onTabChange={onTabChange} />
-      </div>
+      <SpecsGeneratorProvider>
+        <BridgeConnector />
+        <div className="space-y-4">
+          <TabNavigation />
+          <TabContent onTabChange={onTabChange} />
+        </div>
+      </SpecsGeneratorProvider>
     </ImplementationPlanProvider>
   );
 }

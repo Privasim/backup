@@ -9,7 +9,8 @@ import {
   ChartBarIcon, // For Visualization
   DocumentTextIcon, // For List (changed from ListBulletIcon)
   CubeIcon, // For Artifact Studio
-  ListBulletIcon // For the new list icon
+  ListBulletIcon, // For the new list icon
+  ClipboardDocumentListIcon // For Specs
 } from '@heroicons/react/24/outline';
 import { 
   CurrencyDollarIcon as SolidCurrencyDollarIcon,
@@ -19,6 +20,7 @@ import {
   DocumentTextIcon as SolidDocumentTextIcon,
   CubeIcon as SolidCubeIcon,
   ListBulletIcon as SolidListBulletIcon,
+  ClipboardDocumentListIcon as SolidClipboardDocumentListIcon,
 } from '@heroicons/react/24/solid';
 
 const TabIcons = {
@@ -56,6 +58,11 @@ const TabIcons = {
     outline: ListBulletIcon,
     solid: SolidListBulletIcon,
     label: 'List View'
+  },
+  specs: {
+    outline: ClipboardDocumentListIcon,
+    solid: SolidClipboardDocumentListIcon,
+    label: 'Specs'
   },
 } as const;
 

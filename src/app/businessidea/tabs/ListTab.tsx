@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import SettingsTrigger from './settings-panel/SettingsTrigger';
 import SettingsPanel from './settings-panel/SettingsPanel';
 import { useImplementationPlan } from '@/features/implementation-plan/useImplementationPlan';
+import { useTab } from './TabContext';
 import PlanEmpty from '@/features/implementation-plan/components/PlanEmpty';
 import ProgressiveRenderer from '@/features/implementation-plan/components/ProgressiveRenderer';
 import StreamingErrorBoundary from '@/features/implementation-plan/components/StreamingErrorBoundary';
@@ -13,6 +14,7 @@ export default function ListTab() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [displayMode, setDisplayMode] = useState<'text' | 'structured'>('text');
   const { status, error, plan, rawStream, regenerate, cancel, streamingState, isExternallyDriven, settings } = useImplementationPlan();
+  const { setActiveTab } = useTab();
   
   // Get length preset settings
   const lengthPreset = settings.lengthPreset || 'long';
@@ -79,6 +81,12 @@ export default function ListTab() {
                 <button onClick={copyJson} className="text-xs px-2 py-1 rounded-md border border-slate-200 hover:bg-slate-50">Copy JSON</button>
                 <button onClick={downloadText} className="text-xs px-2 py-1 rounded-md border border-slate-200 hover:bg-slate-50">Download MD</button>
                 <button onClick={downloadJson} className="text-xs px-2 py-1 rounded-md border border-slate-200 hover:bg-slate-50">Download JSON</button>
+                <button 
+                  onClick={() => setActiveTab('specs')}
+                  className="text-xs px-2 py-1 rounded-md bg-indigo-600 text-white hover:bg-indigo-700"
+                >
+                  Generate Specs
+                </button>
                 <button 
                   onClick={regenerate} 
                   disabled={isExternallyDriven}
