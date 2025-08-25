@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useMemo } from "react";
-import PillMultiSelect from "../components/PillMultiSelect";
+import DropdownMultiSelect from "../components/DropdownMultiSelect";
+import CollapsibleSection from "../components/CollapsibleSection";
 import { 
   Role, 
   ROLE_SKILL_MAPPING, 
@@ -86,7 +87,7 @@ export default function SkillsStep({ skills, onChange, role, industry, jobFuncti
           recommended: (studentSkills.technical || []).slice(0, 6),
           bgColor: "bg-blue-50",
           borderColor: "border-blue-100",
-          description: "Core technical skills to build your foundation"
+          description: "Foundational technical knowledge and concepts"
         },
         {
           name: "Academic & Research Skills",
@@ -94,7 +95,7 @@ export default function SkillsStep({ skills, onChange, role, industry, jobFuncti
           recommended: (studentSkills.academic || []).slice(0, 6),
           bgColor: "bg-indigo-50",
           borderColor: "border-indigo-100",
-          description: "Skills for academic success and research"
+          description: "Academic research and study skills"
         },
         {
           name: "Essential Tools",
@@ -102,7 +103,7 @@ export default function SkillsStep({ skills, onChange, role, industry, jobFuncti
           recommended: (studentSkills.tooling || []).slice(0, 6),
           bgColor: "bg-purple-50",
           borderColor: "border-purple-100",
-          description: "Essential productivity and collaboration tools"
+          description: "Digital tools for productivity and collaboration"
         },
         {
           name: "Personal & Communication Skills",
@@ -110,7 +111,7 @@ export default function SkillsStep({ skills, onChange, role, industry, jobFuncti
           recommended: (studentSkills.soft || []).slice(0, 6),
           bgColor: "bg-green-50",
           borderColor: "border-green-100",
-          description: "Interpersonal skills for academic and professional success"
+          description: "Communication and personal development skills"
         }
       );
     } else if (role === Role.Professional) {
@@ -135,7 +136,7 @@ export default function SkillsStep({ skills, onChange, role, industry, jobFuncti
           recommended: (professionalSkills.technical || []).slice(0, 6),
           bgColor: "bg-blue-50",
           borderColor: "border-blue-100",
-          description: "Advanced technical skills for professional development"
+          description: "Technical skills for your professional role"
         },
         {
           name: "Professional Tools",
@@ -143,7 +144,7 @@ export default function SkillsStep({ skills, onChange, role, industry, jobFuncti
           recommended: (professionalSkills.tooling || []).slice(0, 6),
           bgColor: "bg-purple-50",
           borderColor: "border-purple-100",
-          description: "Professional development and collaboration tools"
+          description: "Tools and platforms you use professionally"
         },
         {
           name: "Leadership & Communication",
@@ -151,7 +152,7 @@ export default function SkillsStep({ skills, onChange, role, industry, jobFuncti
           recommended: (professionalSkills.soft || []).slice(0, 6),
           bgColor: "bg-green-50",
           borderColor: "border-green-100",
-          description: "Skills for professional growth and team collaboration"
+          description: "Communication and leadership abilities"
         }
       );
     } else if (role === Role.BusinessOwner) {
@@ -163,7 +164,7 @@ export default function SkillsStep({ skills, onChange, role, industry, jobFuncti
           recommended: (businessSkills.business || []).slice(0, 8),
           bgColor: "bg-emerald-50",
           borderColor: "border-emerald-100",
-          description: "Core business management and strategy skills"
+          description: "Business strategy and operations expertise"
         },
         {
           name: "Leadership & Management",
@@ -171,7 +172,7 @@ export default function SkillsStep({ skills, onChange, role, industry, jobFuncti
           recommended: (businessSkills.leadership || []).slice(0, 6),
           bgColor: "bg-rose-50",
           borderColor: "border-rose-100",
-          description: "Leadership skills for building and managing teams"
+          description: "Team leadership and management capabilities"
         },
         {
           name: "Business Technology",
@@ -179,7 +180,7 @@ export default function SkillsStep({ skills, onChange, role, industry, jobFuncti
           recommended: (businessSkills.technical || []).slice(0, 6),
           bgColor: "bg-blue-50",
           borderColor: "border-blue-100",
-          description: "Technology skills for modern business operations"
+          description: "Technology tools for business efficiency"
         },
         {
           name: "Executive Skills",
@@ -187,7 +188,7 @@ export default function SkillsStep({ skills, onChange, role, industry, jobFuncti
           recommended: (businessSkills.soft || []).slice(0, 6),
           bgColor: "bg-amber-50",
           borderColor: "border-amber-100",
-          description: "Essential executive and interpersonal skills"
+          description: "Executive communication and strategic thinking"
         }
       );
     } else if (role === Role.CareerShifter) {
@@ -199,7 +200,7 @@ export default function SkillsStep({ skills, onChange, role, industry, jobFuncti
           recommended: (shifterSkills.transferable || []).slice(0, 8),
           bgColor: "bg-teal-50",
           borderColor: "border-teal-100",
-          description: "Skills that transfer across industries and roles"
+          description: "Universal skills from your previous experience"
         },
         {
           name: "Emerging Digital Skills",
@@ -207,7 +208,7 @@ export default function SkillsStep({ skills, onChange, role, industry, jobFuncti
           recommended: (shifterSkills.emerging || []).slice(0, 6),
           bgColor: "bg-cyan-50",
           borderColor: "border-cyan-100",
-          description: "Modern digital skills for career transition"
+          description: "Digital skills for your new career direction"
         },
         {
           name: "Personal Development",
@@ -215,7 +216,7 @@ export default function SkillsStep({ skills, onChange, role, industry, jobFuncti
           recommended: (shifterSkills.soft || []).slice(0, 6),
           bgColor: "bg-green-50",
           borderColor: "border-green-100",
-          description: "Personal skills for successful career transition"
+          description: "Soft skills for career transition success"
         }
       );
       
@@ -268,45 +269,47 @@ export default function SkillsStep({ skills, onChange, role, industry, jobFuncti
       <div className="mb-4">
         <h3 className="text-sm font-medium text-indigo-600 mb-1">Skills & Expertise</h3>
         <p className="text-xs text-gray-500">{getRoleGuidance()}</p>
-      </div>
-      
-      <div className="space-y-6">
-        {skillCategories.map((category, index) => (
-          <div 
-            key={category.name}
-            className={`${category.bgColor} p-4 rounded-lg border ${category.borderColor}`}
-          >
-            <div className="mb-3">
-              <h4 className="text-sm font-medium text-gray-800">{category.name}</h4>
-              {category.description && (
-                <p className="text-xs text-gray-600 mt-1">{category.description}</p>
-              )}
-            </div>
-            <PillMultiSelect 
-              label="" 
-              options={category.skills} 
-              value={skills} 
-              onChange={onChange} 
-              maxSelected={10} 
-              recommended={category.recommended}
-              initialVisibleCount={8}
-              showSearch={category.skills.length > 10}
-              onSelectAllRecommended={() => onChange(mergeCapped(skills, category.recommended, 10))}
-            />
-          </div>
-        ))}
-      </div>
-      
-      <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-700">
+        <div className="mt-2 flex items-center justify-between">
+          <span className="text-xs font-medium text-gray-700">
             Skills Selected: {skills.length}/10
           </span>
           {skills.length >= 10 && (
-            <span className="text-xs text-indigo-600">Maximum reached</span>
+            <span className="text-xs text-indigo-600 font-medium">Maximum reached</span>
           )}
         </div>
-        <div className="mt-2 text-xs text-gray-500">
+      </div>
+      
+      <div className="space-y-3">
+        {skillCategories.map((category, index) => {
+          const selectedInCategory = skills.filter(skill => category.skills.includes(skill)).length;
+          const categoryBadge = selectedInCategory > 0 ? `${selectedInCategory} selected` : undefined;
+          
+          return (
+            <CollapsibleSection
+              key={category.name}
+              title={category.name}
+              subtitle={category.description}
+              badge={categoryBadge}
+              defaultExpanded={index === 0} // First category expanded by default
+              compact
+            >
+              <DropdownMultiSelect 
+                options={category.skills} 
+                value={skills} 
+                onChange={onChange} 
+                maxSelected={10} 
+                recommended={category.recommended}
+                onSelectAllRecommended={() => onChange(mergeCapped(skills, category.recommended, 10))}
+                placeholder={`Select ${category.name.toLowerCase()}...`}
+                compact
+              />
+            </CollapsibleSection>
+          );
+        })}
+      </div>
+      
+      <div className="mt-4 p-2.5 bg-gray-50 rounded-lg border border-gray-100">
+        <div className="text-xs text-gray-500">
           💡 Tip: Focus on your strongest skills. You can update these anytime in your profile.
         </div>
       </div>

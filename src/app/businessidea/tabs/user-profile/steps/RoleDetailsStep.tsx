@@ -3,6 +3,7 @@
 import React, { useMemo } from "react";
 import CompactSelect from "../components/CompactSelect";
 import SegmentedControl from "../components/SegmentedControl";
+import CollapsibleSection from "../components/CollapsibleSection";
 import PillMultiSelect from "../components/PillMultiSelect";
 import {
   Role,
@@ -58,7 +59,7 @@ export default function RoleDetailsStep({ roleDetails, onPatch, industry }: Prop
           <h3 className="text-sm font-medium text-indigo-600 mb-1">Student Details</h3>
           <p className="text-xs text-gray-500">Tell us about your educational background</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <CompactSelect 
             label="Education Level" 
             value={s.educationLevel} 
@@ -94,28 +95,27 @@ export default function RoleDetailsStep({ roleDetails, onPatch, industry }: Prop
             value={s.status} 
             onChange={(v) => onPatch({ status: v })} 
           />
-          <div className="col-span-2">
-            <details className="group">
-              <summary className="flex items-center justify-between cursor-pointer select-none">
-                <span className="text-sm font-medium text-gray-800">Academic Goals (optional)</span>
-                <span className="text-xs text-indigo-600 group-open:hidden">Show</span>
-                <span className="text-xs text-indigo-600 hidden group-open:inline">Hide</span>
-              </summary>
-              <div className="mt-2">
-                <PillMultiSelect
-                  label="Goals"
-                  options={GOAL_OPTIONS_STUDENT}
-                  value={s.studentGoals ?? []}
-                  onChange={(v) => onPatch({ studentGoals: v })}
-                  recommended={GOAL_OPTIONS_STUDENT.slice(0,8)}
-                  initialVisibleCount={8}
-                  showSearch
-                  onSelectAllRecommended={() => onPatch({ studentGoals: Array.from(new Set([...(s.studentGoals ?? []), ...GOAL_OPTIONS_STUDENT.slice(0,8)])) })}
-                />
-                <p className="mt-1 text-[11px] text-gray-500">💡 Choose goals that align with your career aspirations.</p>
-              </div>
-            </details>
-          </div>
+        </div>
+        
+        <div className="mt-4">
+          <CollapsibleSection
+            title="Academic Goals"
+            subtitle="Choose goals that align with your career aspirations"
+            badge="optional"
+            defaultExpanded={false}
+            compact
+          >
+            <PillMultiSelect
+              label=""
+              options={GOAL_OPTIONS_STUDENT}
+              value={s.studentGoals ?? []}
+              onChange={(v) => onPatch({ studentGoals: v })}
+              recommended={GOAL_OPTIONS_STUDENT.slice(0,6)}
+              initialVisibleCount={6}
+              showSearch
+              onSelectAllRecommended={() => onPatch({ studentGoals: Array.from(new Set([...(s.studentGoals ?? []), ...GOAL_OPTIONS_STUDENT.slice(0,6)])) })}
+            />
+          </CollapsibleSection>
         </div>
       </div>
     );
@@ -136,7 +136,7 @@ export default function RoleDetailsStep({ roleDetails, onPatch, industry }: Prop
           <h3 className="text-sm font-medium text-indigo-600 mb-1">Professional Details</h3>
           <p className="text-xs text-gray-500">Tell us about your professional experience</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <CompactSelect 
             label="Years of Experience" 
             value={p.yearsExperience} 
@@ -159,28 +159,27 @@ export default function RoleDetailsStep({ roleDetails, onPatch, industry }: Prop
             options={SENIORITY_OPTIONS} 
             required
           />
-          <div className="col-span-2">
-            <details className="group">
-              <summary className="flex items-center justify-between cursor-pointer select-none">
-                <span className="text-sm font-medium text-gray-800">Professional Goals (optional)</span>
-                <span className="text-xs text-indigo-600 group-open:hidden">Show</span>
-                <span className="text-xs text-indigo-600 hidden group-open:inline">Hide</span>
-              </summary>
-              <div className="mt-2">
-                <PillMultiSelect
-                  label="Goals"
-                  options={GOAL_OPTIONS_PROFESSIONAL}
-                  value={p.professionalGoals ?? []}
-                  onChange={(v) => onPatch({ professionalGoals: v })}
-                  recommended={GOAL_OPTIONS_PROFESSIONAL.slice(0,8)}
-                  initialVisibleCount={8}
-                  showSearch
-                  onSelectAllRecommended={() => onPatch({ professionalGoals: Array.from(new Set([...(p.professionalGoals ?? []), ...GOAL_OPTIONS_PROFESSIONAL.slice(0,8)])) })}
-                />
-                <p className="mt-1 text-[11px] text-gray-500">💡 Focus on 2-3 key goals for the next 1-2 years.</p>
-              </div>
-            </details>
-          </div>
+        </div>
+        
+        <div className="mt-4">
+          <CollapsibleSection
+            title="Professional Goals"
+            subtitle="Focus on 2-3 key goals for the next 1-2 years"
+            badge="optional"
+            defaultExpanded={false}
+            compact
+          >
+            <PillMultiSelect
+              label=""
+              options={GOAL_OPTIONS_PROFESSIONAL}
+              value={p.professionalGoals ?? []}
+              onChange={(v) => onPatch({ professionalGoals: v })}
+              recommended={GOAL_OPTIONS_PROFESSIONAL.slice(0,6)}
+              initialVisibleCount={6}
+              showSearch
+              onSelectAllRecommended={() => onPatch({ professionalGoals: Array.from(new Set([...(p.professionalGoals ?? []), ...GOAL_OPTIONS_PROFESSIONAL.slice(0,6)])) })}
+            />
+          </CollapsibleSection>
         </div>
       </div>
     );
@@ -194,7 +193,7 @@ export default function RoleDetailsStep({ roleDetails, onPatch, industry }: Prop
           <h3 className="text-sm font-medium text-indigo-600 mb-1">Business Details</h3>
           <p className="text-xs text-gray-500">Tell us about your business or startup</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <CompactSelect 
             label="Company Size" 
             value={b.companySize} 
@@ -222,28 +221,27 @@ export default function RoleDetailsStep({ roleDetails, onPatch, industry }: Prop
             options={TEAM_SIZE_OPTIONS} 
             required
           />
-          <div className="col-span-2">
-            <details className="group">
-              <summary className="flex items-center justify-between cursor-pointer select-none">
-                <span className="text-sm font-medium text-gray-800">Business Goals (optional)</span>
-                <span className="text-xs text-indigo-600 group-open:hidden">Show</span>
-                <span className="text-xs text-indigo-600 hidden group-open:inline">Hide</span>
-              </summary>
-              <div className="mt-2">
-                <PillMultiSelect
-                  label="Goals"
-                  options={GOAL_OPTIONS_BUSINESS}
-                  value={b.businessGoals ?? []}
-                  onChange={(v) => onPatch({ businessGoals: v })}
-                  recommended={GOAL_OPTIONS_BUSINESS.slice(0,8)}
-                  initialVisibleCount={8}
-                  showSearch
-                  onSelectAllRecommended={() => onPatch({ businessGoals: Array.from(new Set([...(b.businessGoals ?? []), ...GOAL_OPTIONS_BUSINESS.slice(0,8)])) })}
-                />
-                <p className="mt-1 text-[11px] text-gray-500">💡 Choose goals that align with your business stage and priorities.</p>
-              </div>
-            </details>
-          </div>
+        </div>
+        
+        <div className="mt-4">
+          <CollapsibleSection
+            title="Business Goals"
+            subtitle="Choose goals that align with your business stage and priorities"
+            badge="optional"
+            defaultExpanded={false}
+            compact
+          >
+            <PillMultiSelect
+              label=""
+              options={GOAL_OPTIONS_BUSINESS}
+              value={b.businessGoals ?? []}
+              onChange={(v) => onPatch({ businessGoals: v })}
+              recommended={GOAL_OPTIONS_BUSINESS.slice(0,6)}
+              initialVisibleCount={6}
+              showSearch
+              onSelectAllRecommended={() => onPatch({ businessGoals: Array.from(new Set([...(b.businessGoals ?? []), ...GOAL_OPTIONS_BUSINESS.slice(0,6)])) })}
+            />
+          </CollapsibleSection>
         </div>
       </div>
     );
@@ -270,7 +268,7 @@ export default function RoleDetailsStep({ roleDetails, onPatch, industry }: Prop
           <h3 className="text-sm font-medium text-indigo-600 mb-1">Career Transition Details</h3>
           <p className="text-xs text-gray-500">Tell us about your career transition journey</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <CompactSelect 
             label="Previous Field" 
             value={s.previousField} 
@@ -299,28 +297,27 @@ export default function RoleDetailsStep({ roleDetails, onPatch, industry }: Prop
             value={s.workPreference} 
             onChange={(v) => onPatch({ workPreference: v })} 
           />
-          <div className="col-span-2">
-            <details className="group">
-              <summary className="flex items-center justify-between cursor-pointer select-none">
-                <span className="text-sm font-medium text-gray-800">Transition Goals (optional)</span>
-                <span className="text-xs text-indigo-600 group-open:hidden">Show</span>
-                <span className="text-xs text-indigo-600 hidden group-open:inline">Hide</span>
-              </summary>
-              <div className="mt-2">
-                <PillMultiSelect
-                  label="Goals"
-                  options={GOAL_OPTIONS_SHIFTER}
-                  value={s.transitionGoals ?? []}
-                  onChange={(v) => onPatch({ transitionGoals: v })}
-                  recommended={GOAL_OPTIONS_SHIFTER.slice(0,8)}
-                  initialVisibleCount={8}
-                  showSearch
-                  onSelectAllRecommended={() => onPatch({ transitionGoals: Array.from(new Set([...(s.transitionGoals ?? []), ...GOAL_OPTIONS_SHIFTER.slice(0,8)])) })}
-                />
-                <p className="mt-1 text-[11px] text-gray-500">💡 Focus on practical steps for your transition timeline.</p>
-              </div>
-            </details>
-          </div>
+        </div>
+        
+        <div className="mt-4">
+          <CollapsibleSection
+            title="Transition Goals"
+            subtitle="Focus on practical steps for your transition timeline"
+            badge="optional"
+            defaultExpanded={false}
+            compact
+          >
+            <PillMultiSelect
+              label=""
+              options={GOAL_OPTIONS_SHIFTER}
+              value={s.transitionGoals ?? []}
+              onChange={(v) => onPatch({ transitionGoals: v })}
+              recommended={GOAL_OPTIONS_SHIFTER.slice(0,6)}
+              initialVisibleCount={6}
+              showSearch
+              onSelectAllRecommended={() => onPatch({ transitionGoals: Array.from(new Set([...(s.transitionGoals ?? []), ...GOAL_OPTIONS_SHIFTER.slice(0,6)])) })}
+            />
+          </CollapsibleSection>
         </div>
         
         {/* Skill Transfer Insight */}
