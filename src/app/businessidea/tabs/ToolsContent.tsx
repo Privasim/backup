@@ -142,7 +142,7 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
             <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-100 dark:border-gray-800 p-1 flex">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'}`}
+                className={`p-1.5 rounded focus-ring ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'}`}
                 aria-label="Grid view"
                 aria-pressed={viewMode === 'grid'}
               >
@@ -150,7 +150,7 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'}`}
+                className={`p-1.5 rounded focus-ring ${viewMode === 'list' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'}`}
                 aria-label="List view"
                 aria-pressed={viewMode === 'list'}
               >
@@ -167,7 +167,7 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white">Filter Tools</h3>
                   <button 
                     onClick={() => setShowFilters(false)}
-                    className="ml-auto text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    className="ml-auto text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus-ring"
                     aria-label="Close filter panel"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

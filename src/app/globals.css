@@ -4,19 +4,68 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Design tokens: radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+
+  /* Design tokens: shadows */
+  --shadow-soft: 0 1px 2px rgba(0,0,0,0.04), 0 1px 1px rgba(0,0,0,0.03);
+  --shadow-hover: 0 6px 14px rgba(0,0,0,0.10);
+
+  /* Design tokens: spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+
+  /* Design tokens: focus ring */
+  --ring-color: rgba(59, 130, 246, 0.45); /* blue-500 @ ~45% */
+
+  /* Category color map (8 deterministic buckets) */
+  --cat1-bg: #dbeafe; /* blue-100 */
+  --cat1-text: #1d4ed8; /* blue-700 */
+  --cat1-ring: #bfdbfe; /* blue-200 */
+
+  --cat2-bg: #d1fae5; /* emerald-100 */
+  --cat2-text: #047857; /* emerald-700 */
+  --cat2-ring: #a7f3d0; /* emerald-200 */
+
+  --cat3-bg: #ffe4e6; /* rose-100 */
+  --cat3-text: #be123c; /* rose-700 */
+  --cat3-ring: #fecdd3; /* rose-200 */
+
+  --cat4-bg: #fef3c7; /* amber-100 */
+  --cat4-text: #b45309; /* amber-700 */
+  --cat4-ring: #fde68a; /* amber-200 */
+
+  --cat5-bg: #ede9fe; /* purple-100 */
+  --cat5-text: #6d28d9; /* purple-700 */
+  --cat5-ring: #ddd6fe; /* purple-200 */
+
+  --cat6-bg: #cffafe; /* cyan-100 */
+  --cat6-text: #0e7490; /* cyan-700 */
+  --cat6-ring: #a5f3fc; /* cyan-200 */
+
+  --cat7-bg: #e0e7ff; /* indigo-100 */
+  --cat7-text: #4338ca; /* indigo-700 */
+  --cat7-ring: #c7d2fe; /* indigo-200 */
+
+  --cat8-bg: #fce7f3; /* pink-100 */
+  --cat8-text: #be185d; /* pink-700 */
+  --cat8-ring: #fbcfe8; /* pink-200 */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* Removed @theme inline block to satisfy linters; using CSS variables directly. */
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --ring-color: rgba(59, 130, 246, 0.35);
   }
 }
 
@@ -25,3 +74,40 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Utilities based on tokens */
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring-color);
+}
+
+.radius-xl { border-radius: var(--radius-xl); }
+.radius-2xl { border-radius: var(--radius-2xl); }
+.shadow-soft { box-shadow: var(--shadow-soft); }
+.shadow-hover:hover { box-shadow: var(--shadow-hover); }
+
+/* Hide scrollbar utility (used by SegmentedCategories and chips row) */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Category color application by index (used with data-color-index) */
+[data-color-index="1"] .cat-avatar { background-color: var(--cat1-bg); color: var(--cat1-text); }
+[data-color-index="2"] .cat-avatar { background-color: var(--cat2-bg); color: var(--cat2-text); }
+[data-color-index="3"] .cat-avatar { background-color: var(--cat3-bg); color: var(--cat3-text); }
+[data-color-index="4"] .cat-avatar { background-color: var(--cat4-bg); color: var(--cat4-text); }
+[data-color-index="5"] .cat-avatar { background-color: var(--cat5-bg); color: var(--cat5-text); }
+[data-color-index="6"] .cat-avatar { background-color: var(--cat6-bg); color: var(--cat6-text); }
+[data-color-index="7"] .cat-avatar { background-color: var(--cat7-bg); color: var(--cat7-text); }
+[data-color-index="8"] .cat-avatar { background-color: var(--cat8-bg); color: var(--cat8-text); }
+
+[data-color-index="1"].cat-active { outline: 2px solid var(--cat1-ring); outline-offset: 2px; }
+[data-color-index="2"].cat-active { outline: 2px solid var(--cat2-ring); outline-offset: 2px; }
+[data-color-index="3"].cat-active { outline: 2px solid var(--cat3-ring); outline-offset: 2px; }
+[data-color-index="4"].cat-active { outline: 2px solid var(--cat4-ring); outline-offset: 2px; }
+[data-color-index="5"].cat-active { outline: 2px solid var(--cat5-ring); outline-offset: 2px; }
+[data-color-index="6"].cat-active { outline: 2px solid var(--cat6-ring); outline-offset: 2px; }
+[data-color-index="7"].cat-active { outline: 2px solid var(--cat7-ring); outline-offset: 2px; }
+[data-color-index="8"].cat-active { outline: 2px solid var(--cat8-ring); outline-offset: 2px; }

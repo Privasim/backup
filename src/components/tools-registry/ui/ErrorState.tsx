@@ -39,7 +39,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
       {onRetry && (
         <button
           onClick={onRetry}
-          className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 dark:focus-visible:ring-blue-400"
+          className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 dark:focus-visible:ring-blue-400 focus-ring"
         >
           {actionLabel}
         </button>

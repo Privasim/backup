@@ -24,7 +24,7 @@ export function FiltersPanel({
           {onClear && selectedCapabilities.length > 0 && (
             <button
               onClick={onClear}
-              className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors underline-offset-2 hover:underline"
+              className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors underline-offset-2 hover:underline focus-ring"
             >
               Clear all
             </button>
@@ -41,7 +41,7 @@ export function FiltersPanel({
                 aria-pressed={selected}
                 onClick={() => onToggle(capability)}
                 className={cn(
-                  "inline-flex items-center px-3 py-1.5 rounded-full border text-sm transition-colors focus-visible:outline-none focus-visible:ring-2",
+                  "inline-flex items-center px-3 py-1.5 rounded-full border text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-ring",
                   selected
                     ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300 focus-visible:ring-blue-300"
                     : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 focus-visible:ring-blue-200"

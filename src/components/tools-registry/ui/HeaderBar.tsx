@@ -52,7 +52,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           {/* Search and filters */}
           <div className="flex gap-2 items-center">
             <div className={`flex-1 bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-700 shadow-sm
-              transition-all duration-300 flex items-center px-3 py-1.5
+              transition-all duration-300 flex items-center px-3 py-1.5 focus-ring
               ${isFocused ? 'ring-2 ring-blue-100 dark:ring-blue-900/40' : ''}`}>
               <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 dark:text-gray-500" />
               <input
@@ -68,7 +68,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
             </div>
             <button
               onClick={onOpenFilters}
-              className="rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-sm"
+              className="rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-sm focus-ring"
               aria-label="Open filters"
             >
               <AdjustmentsHorizontalIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
@@ -82,7 +82,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
                 <button
                   key={sortOption}
                   onClick={() => onSortChange(sortOption)}
-                  className={`px-3 py-1 rounded-full transition-all ${
+                  className={`px-3 py-1 rounded-full transition-all focus-ring ${
                     sort === sortOption 
                       ? 'bg-blue-600 text-white font-medium' 
                       : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
