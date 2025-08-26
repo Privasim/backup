@@ -45,11 +45,11 @@ export const SegmentedCategories: React.FC<SegmentedCategoriesProps> = ({
   }, [active]);
 
   return (
-    <div className="bg-transparent">
-      <div className="mx-4 mt-3 mb-2 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 radius-xl shadow-soft">
+    <div className="mb-3 overflow-hidden">
+      <div className="mx-3 mt-2 mb-1 bg-white dark:bg-gray-800 border border-gray-50 dark:border-gray-700 radius-xl shadow-xs">
         <div
           ref={scrollRef}
-          className="flex md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 overflow-x-auto md:overflow-visible py-3 px-3 gap-2 md:gap-3 hide-scrollbar snap-x md:snap-none snap-mandatory"
+          className="hide-scrollbar flex overflow-x-auto gap-1.5 pb-1.5 snap-x snap-mandatory"
           role="tablist"
           aria-label="Categories"
         >
@@ -65,10 +65,10 @@ export const SegmentedCategories: React.FC<SegmentedCategoriesProps> = ({
                 onClick={() => onSelect(undefined)}
                 data-color-index={colorIndex}
                 className={`snap-start flex flex-col items-center min-w-[96px] px-3 py-2 rounded-lg transition-all bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border focus-ring ${
-                  !active ? 'cat-active border-blue-200' : 'border-gray-100 dark:border-gray-700'
+                  !active ? 'cat-active border-blue-100' : 'border-gray-50 dark:border-gray-700'
                 }`}
               >
-                <div className={`cat-avatar w-12 h-12 rounded-full flex items-center justify-center`}>ALL</div>
+                <div className={`cat-avatar w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium`}>ALL</div>
                 <span className="mt-1 text-sm text-gray-900 dark:text-gray-100 whitespace-nowrap">All Tools</span>
                 <span className="text-xs mt-0.5 text-gray-500 dark:text-gray-400">
                   {categories.reduce((acc, cat) => acc + cat.count, 0)}
@@ -91,10 +91,10 @@ export const SegmentedCategories: React.FC<SegmentedCategoriesProps> = ({
                 onClick={() => onSelect(category.slug)}
                 data-color-index={colorIndex}
                 className={`snap-start flex flex-col items-center min-w-[96px] px-3 py-2 rounded-lg transition-all bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border focus-ring ${
-                  isActive ? 'cat-active border-blue-200' : 'border-gray-100 dark:border-gray-700'
+                  isActive ? 'cat-active border-blue-100' : 'border-gray-50 dark:border-gray-700'
                 }`}
               >
-                <div className={`cat-avatar w-12 h-12 rounded-full flex items-center justify-center`}>{initials(category.name)}</div>
+                <div className={`cat-avatar w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium`}>{initials(category.name)}</div>
                 <span className="mt-1 text-sm text-gray-900 dark:text-gray-100 whitespace-nowrap">{category.name}</span>
                 <span className="text-xs mt-0.5 text-gray-500 dark:text-gray-400">{category.count}</span>
               </button>

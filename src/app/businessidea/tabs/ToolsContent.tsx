@@ -102,7 +102,7 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
   const totalToolsCount = liveCategories.reduce((sum: number, cat: { count: number }) => sum + cat.count, 0);
 
   return (
-    <div className={cn("flex flex-col h-full overflow-hidden bg-slate-50 dark:bg-gray-950", className)}>
+    <div className={cn("flex flex-col h-full overflow-hidden bg-white dark:bg-gray-950", className)}>
       {/* Header Bar with gradient background */}
       <HeaderBar
         title="Tools & Resources"
@@ -135,14 +135,14 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
       />
       
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-3">
         <div className="max-w-7xl mx-auto">
           {/* View Mode Toggle */}
-          <div className="flex justify-end mb-4">
-            <div className="bg-white dark:bg-gray-900 radius-xl shadow-soft border border-gray-100 dark:border-gray-800 p-1 flex">
+          <div className="flex justify-end mb-3">
+            <div className="bg-white dark:bg-gray-900 radius-xl shadow-xs border border-gray-50 dark:border-gray-800 p-0.5 flex">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded focus-ring ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'}`}
+                className={`p-1 rounded focus-ring ${viewMode === 'grid' ? 'bg-blue-50 text-blue-500 dark:bg-blue-900/40 dark:text-blue-300' : 'text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800'}`}
                 aria-label="Grid view"
                 aria-pressed={viewMode === 'grid'}
               >
@@ -150,7 +150,7 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded focus-ring ${viewMode === 'list' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'}`}
+                className={`p-1 rounded focus-ring ${viewMode === 'list' ? 'bg-blue-50 text-blue-500 dark:bg-blue-900/40 dark:text-blue-300' : 'text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800'}`}
                 aria-label="List view"
                 aria-pressed={viewMode === 'list'}
               >
@@ -161,14 +161,14 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
           
           {/* Filter Panel - when filter button is clicked */}
           {showFilters && (
-            <div className="fixed inset-0 z-50 bg-black bg-opacity-25 flex items-end sm:items-center justify-center p-4">
+            <div className="fixed inset-0 z-50 bg-black bg-opacity-20 flex items-end sm:items-center justify-center p-3">
               <div
-                className="bg-white dark:bg-gray-800 radius-xl shadow-soft w-full max-w-lg max-h-[80vh] overflow-y-auto animate-fadeIn"
+                className="bg-white dark:bg-gray-800 radius-xl shadow-xs w-full max-w-lg max-h-[80vh] overflow-y-auto animate-fadeIn"
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="filters-title"
               >
-                <div className="sticky top-0 bg-white dark:bg-gray-800 px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                <div className="sticky top-0 bg-white dark:bg-gray-800 px-3 py-2 border-b border-gray-100 dark:border-gray-700 flex items-center">
                   <h3 id="filters-title" className="text-lg font-medium text-gray-900 dark:text-white">Filter Tools</h3>
                   <button 
                     onClick={() => setShowFilters(false)}
@@ -180,7 +180,7 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
                     </svg>
                   </button>
                 </div>
-                <div className="p-4">
+                <div className="p-3">
                   <FiltersPanel
                     selectedCapabilities={selectedCapabilities}
                     availableCapabilities={availableCapabilities}
@@ -202,7 +202,7 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
           ) : (
             <div className={viewMode === 'grid' 
               ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'
-              : 'divide-y divide-gray-100 dark:divide-gray-800 border border-gray-100 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 shadow-sm'
+              : 'divide-y divide-gray-50 dark:divide-gray-800 border border-gray-50 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 shadow-xs'
             }>
               {visibleTools.map(tool => (
                 <ToolCardCompact

@@ -92,9 +92,9 @@ export const ToolCardCompact: React.FC<ToolCardCompactProps> = ({
   
   if (variant === 'grid') {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xs hover:shadow-sm transition-all border border-gray-50 dark:border-gray-700 overflow-hidden flex flex-col">
         {/* Card header with vendor icon */}
-        <div className="p-4 flex items-center gap-3">
+        <div className="p-3 flex items-center gap-2.5">
           {getVendorIcon('md')}
           <div className="flex-1 min-w-0">
             <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">{tool.name}</h3>
@@ -106,29 +106,29 @@ export const ToolCardCompact: React.FC<ToolCardCompactProps> = ({
         </div>
         
         {/* Card body */}
-        <div className="px-4 pb-2 flex-1">
+        <div className="px-3 pb-1.5 flex-1">
           <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">{tool.description}</p>
         </div>
         
         {/* Capabilities */}
-        <div className="px-4 pb-2 flex flex-wrap gap-1.5">
+        <div className="px-3 pb-1.5 flex flex-wrap gap-1">
           {tool.capabilities.slice(0, 3).map(capability => (
             <span 
               key={capability} 
-              className="inline-block px-2 py-0.5 rounded-full text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+              className="inline-block px-1.5 py-0.5 rounded-full text-xs border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
             >
               {capability}
             </span>
           ))}
           {tool.capabilities.length > 3 && (
-            <span className="inline-block px-2 py-0.5 rounded-full text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+            <span className="inline-block px-1.5 py-0.5 rounded-full text-xs border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300">
               +{tool.capabilities.length - 3} more
             </span>
           )}
         </div>
         
         {/* Card actions */}
-        <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-700 flex justify-between">
+        <div className="px-3 py-2 border-t border-gray-50 dark:border-gray-700 flex justify-between">
           <button 
             onClick={() => onDiscuss(tool.id)}
             className="text-xs flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:focus-visible:ring-blue-400/40 rounded-full px-2 py-1"
@@ -150,7 +150,7 @@ export const ToolCardCompact: React.FC<ToolCardCompactProps> = ({
   
   // List variant
   return (
-    <div className="relative bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all border-b border-gray-100 dark:border-gray-800 py-3 px-4 hover:shadow-sm">
+    <div className="relative bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all border-b border-gray-50 dark:border-gray-800 py-2.5 px-3 hover:shadow-xs">
       <div className="flex items-center gap-3">
         {/* Vendor icon */}
         {getVendorIcon('sm')}
@@ -193,13 +193,13 @@ export const ToolCardCompact: React.FC<ToolCardCompactProps> = ({
             {tool.capabilities.slice(0, 3).map((capability) => (
               <span
                 key={capability}
-                className="inline-block px-1.5 py-0.5 rounded-full text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300"
+                className="inline-block px-1.5 py-0.5 rounded-full text-xs border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300"
               >
                 {capability}
               </span>
             ))}
             {tool.capabilities.length > 3 && (
-              <span className="inline-block px-1.5 py-0.5 rounded-full text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300">
+              <span className="inline-block px-1.5 py-0.5 rounded-full text-xs border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300">
                 +{tool.capabilities.length - 3} more
               </span>
             )}

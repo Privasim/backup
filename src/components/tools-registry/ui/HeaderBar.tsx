@@ -35,10 +35,10 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
 
   return (
     <div 
-      className={`sticky top-0 z-10 transition-all duration-300 ease-in-out bg-slate-50 dark:bg-gray-900 ${isScrolled ? 'py-2' : 'py-4'}`}
+      className={`sticky top-0 z-10 transition-all duration-300 ease-in-out bg-white dark:bg-gray-900 ${isScrolled ? 'py-1.5' : 'py-3'}`}
     >
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col gap-3">
+      <div className="container mx-auto px-3">
+        <div className="relative flex-1 max-w-md">
           {/* Title area */}
           <div className="flex justify-between items-center">
             <div>
@@ -51,9 +51,8 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           
           {/* Search and filters */}
           <div className="flex gap-2 items-center">
-            <div className={`flex-1 bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-700 shadow-sm
-              transition-all duration-300 flex items-center px-3 py-1.5 focus-ring
-              ${isFocused ? 'ring-2 ring-blue-100 dark:ring-blue-900/40' : ''}`}>
+            <div className="flex items-center bg-gray-50 dark:bg-gray-800 rounded-full border border-gray-100 dark:border-gray-700 pl-3 pr-2 py-1.5 shadow-xs focus-within:ring-1 focus-within:ring-blue-400 focus-within:border-blue-400 focus-ring">
+              {isFocused ? 'ring-2 ring-blue-100 dark:ring-blue-900/40' : ''}
               <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 dark:text-gray-500" />
               <input
                 type="text"
@@ -68,7 +67,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
             </div>
             <button
               onClick={onOpenFilters}
-              className="rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-sm focus-ring"
+              className="rounded-full border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-1.5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-xs focus-ring"
               aria-label="Open filters"
             >
               <AdjustmentsHorizontalIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
@@ -78,7 +77,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           {/* Sort options */}
           <div className="flex justify-end">
             <div
-              className="bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-700 p-1 flex text-xs shadow-sm"
+              className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-full py-1 px-1 shadow-xs"
               role="group"
               aria-label="Sort options"
             >
@@ -87,9 +86,9 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
                   key={sortOption}
                   onClick={() => onSortChange(sortOption)}
                   aria-pressed={sort === sortOption}
-                  className={`px-3 py-1 rounded-full transition-all focus-ring ${
+                  className={`px-2.5 py-0.5 rounded-full text-xs transition-all focus-ring ${
                     sort === sortOption 
-                      ? 'bg-blue-600 text-white font-medium' 
+                      ? 'bg-blue-500 text-white font-medium' 
                       : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
                 >

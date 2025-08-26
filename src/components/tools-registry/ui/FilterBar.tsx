@@ -29,9 +29,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   if (!hasFilters) return null;
   
   return (
-    <div className="bg-transparent py-2 px-4">
+    <div className="bg-transparent py-1.5 px-3">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar py-1">
+        <div className="flex items-center gap-1.5 overflow-x-auto hide-scrollbar py-0.5">
           {/* Active filters as chips */}
           {selectedCategory && (
             <button
@@ -69,7 +69,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         {hasFilters && (
           <button
             onClick={onClearAll}
-            className="text-sm text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-200 whitespace-nowrap underline-offset-2 hover:underline focus-ring"
+            className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-200 whitespace-nowrap underline-offset-2 hover:underline focus-ring"
           >
             Clear all
           </button>
