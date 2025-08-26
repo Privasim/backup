@@ -8,14 +8,13 @@ import {
   SpecsGeneratorActions, 
   SpecsGeneratorContextValue 
 } from './types';
+import { DOC_PROFILES, getProfileSettings } from './constants';
 
 const STORAGE_KEY = 'specs-generator:v1:settings';
 
 const DEFAULT_SETTINGS: SpecsSettings = {
-  version: 2, // Increment when changing settings schema
-  length: 10,
-  systemPrompt: 'Create a concise technical specification with clear sections for requirements, implementation approach, constraints, and dependencies.',
-  preset: 'custom',
+  version: 3, // Increment when changing settings schema
+  docProfile: 'prd-design', // Default to balanced option
   include: {
     requirements: true,
     api: true,
@@ -28,9 +27,9 @@ const DEFAULT_SETTINGS: SpecsSettings = {
   },
   outlineStyle: 'numbered',
   audienceLevel: 'engineer',
-  tone: 'neutral',
+  tone: 'detailed',
   language: 'English',
-  maxTokens: undefined
+  tokenBudget: 1500
 };
 
 const INITIAL_STATE: SpecsGeneratorState = {
@@ -57,27 +56,83 @@ export function SpecsGeneratorProvider({ children }: SpecsGeneratorProviderProps
       if (savedSettings) {
         const parsed = JSON.parse(savedSettings);
         
-        // Handle migration from v1 (old format) to v2 (new format)
+        // Handle migration from v1 to v2
         if (parsed && (parsed.version === undefined || parsed.version < 2)) {
           // Migrate from v1 to v2
-          const migratedSettings: SpecsSettings = {
+          const migratedSettings: any = {
             version: 2,
-            length: parsed.length || DEFAULT_SETTINGS.length,
-            systemPrompt: parsed.systemPrompt || DEFAULT_SETTINGS.systemPrompt,
-            preset: DEFAULT_SETTINGS.preset,
+            length: parsed.length || 10,
+            systemPrompt: parsed.systemPrompt || '',
+            preset: 'web-app',
             include: { ...DEFAULT_SETTINGS.include },
             outlineStyle: DEFAULT_SETTINGS.outlineStyle,
             audienceLevel: DEFAULT_SETTINGS.audienceLevel,
             tone: DEFAULT_SETTINGS.tone,
-            language: DEFAULT_SETTINGS.language,
-            maxTokens: DEFAULT_SETTINGS.maxTokens
+            language: parsed.language || DEFAULT_SETTINGS.language,
+            maxTokens: parsed.maxTokens || undefined
           };
           
           setSettings(migratedSettings);
           console.log('Migrated specs settings from v1 to v2');
-        } 
-        // Validate settings structure before applying
-        else if (parsed && typeof parsed.version === 'number' && parsed.version >= 2) {
+        }
+        // Handle migration from v2 to v3
+        else if (parsed && typeof parsed.version === 'number' && parsed.version === 2) {
+          // Map old v2 settings to new v3 profile-driven settings
+          let docProfile: 'prd' | 'prd-design' | 'full-suite' = 'prd-design'; // default
+          
+          // Determine profile based on old preset
+          if (parsed.preset) {
+            switch (parsed.preset) {
+              case 'web-app':
+                docProfile = 'prd';
+                break;
+              case 'api-service':
+              case 'data-pipeline':
+                docProfile = 'prd-design';
+                break;
+              case 'custom':
+              default:
+                // Try to infer from length
+                if (parsed.length === 5) {
+                  docProfile = 'prd';
+                } else if (parsed.length === 15) {
+                  docProfile = 'full-suite';
+                } else {
+                  docProfile = 'prd-design';
+                }
+                break;
+            }
+          } else {
+            // If no preset, try to infer from length
+            if (parsed.length === 5) {
+              docProfile = 'prd';
+            } else if (parsed.length === 15) {
+              docProfile = 'full-suite';
+            } else {
+              docProfile = 'prd-design';
+            }
+          }
+          
+          // Get profile settings
+          const profileSettings = getProfileSettings(docProfile);
+          
+          // Create migrated settings
+          const migratedSettings: SpecsSettings = {
+            version: 3,
+            docProfile,
+            include: profileSettings.include,
+            outlineStyle: profileSettings.outlineStyle,
+            audienceLevel: profileSettings.audienceLevel,
+            tone: profileSettings.tone,
+            language: parsed.language || DEFAULT_SETTINGS.language,
+            tokenBudget: profileSettings.tokenBudget
+          };
+          
+          setSettings(migratedSettings);
+          console.log('Migrated specs settings from v2 to v3');
+        }
+        // Validate settings structure before applying (v3 and above)
+        else if (parsed && typeof parsed.version === 'number' && parsed.version >= 3) {
           setSettings(parsed as SpecsSettings);
         }
       }
@@ -100,19 +155,21 @@ export function SpecsGeneratorProvider({ children }: SpecsGeneratorProviderProps
     setSettings(prev => ({ ...prev, ...partialSettings }));
   };
   
-  // Action to set length
-  const setLength = (length: 5 | 10 | 15) => {
-    setSettings(prev => ({ ...prev, length }));
-  };
-  
-  // Action to set system prompt
-  const setSystemPrompt = (systemPrompt: string) => {
-    setSettings(prev => ({ ...prev, systemPrompt }));
-  };
-  
-  // Action to set preset
-  const setPreset = (preset: 'web-app' | 'api-service' | 'data-pipeline' | 'custom') => {
-    setSettings(prev => ({ ...prev, preset }));
+  // Action to set document profile
+  const setDocProfile = (docProfile: 'prd' | 'prd-design' | 'full-suite') => {
+    // Get profile settings
+    const profileSettings = getProfileSettings(docProfile);
+    
+    // Update settings with profile settings
+    setSettings(prev => ({
+      ...prev,
+      docProfile,
+      include: profileSettings.include,
+      outlineStyle: profileSettings.outlineStyle,
+      audienceLevel: profileSettings.audienceLevel,
+      tone: profileSettings.tone,
+      tokenBudget: profileSettings.tokenBudget
+    }));
   };
   
   // Action to toggle section
@@ -146,10 +203,6 @@ export function SpecsGeneratorProvider({ children }: SpecsGeneratorProviderProps
     setSettings(prev => ({ ...prev, language }));
   };
   
-  // Action to set max tokens
-  const setMaxTokens = (maxTokens: number | undefined) => {
-    setSettings(prev => ({ ...prev, maxTokens }));
-  };
   
   // Action to reset state
   const reset = () => {
@@ -249,19 +302,16 @@ export function SpecsGeneratorProvider({ children }: SpecsGeneratorProviderProps
   
   // Define actions object
   const actions: SpecsGeneratorActions = {
-    setLength,
-    setSystemPrompt,
+    setDocProfile,
     updateSettings,
     generate,
     cancel,
     reset,
-    setPreset,
     toggleSection,
     setOutlineStyle,
     setAudienceLevel,
     setTone,
-    setLanguage,
-    setMaxTokens
+    setLanguage
   };
   
   // Create context value

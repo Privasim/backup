@@ -2,14 +2,10 @@ export interface SpecsSettings {
   // Version tracking for migrations
   version: number;
   
-  // Existing fields
-  length: 5 | 10 | 15;
-  systemPrompt: string;
+  // Profile-driven settings (replaces preset, length, systemPrompt)
+  docProfile: 'prd' | 'prd-design' | 'full-suite';
   
-  // New enhanced fields
-  preset: 'web-app' | 'api-service' | 'data-pipeline' | 'custom';
-  
-  // Section inclusion toggles
+  // Derived from docProfile but stored for consistency
   include: {
     requirements: boolean;
     api: boolean;
@@ -20,15 +16,15 @@ export interface SpecsSettings {
     acceptance: boolean;
     glossary: boolean;
   };
-  
-  // Formatting options
   outlineStyle: 'numbered' | 'bulleted' | 'headings';
   audienceLevel: 'exec' | 'pm' | 'engineer';
   tone: 'concise' | 'detailed' | 'formal' | 'neutral';
+  
+  // User-selectable settings
   language: string;
   
-  // Constraints
-  maxTokens?: number;
+  // Constraints derived from profile
+  tokenBudget?: number; // Replaces maxTokens with profile-driven value
 }
 
 export interface SpecsGenerationRequest {
@@ -43,7 +39,7 @@ export interface SpecsGenerationResult {
   markdown: string;           // Final spec in Markdown
   meta: {
     createdAt: string;        // ISO timestamp
-    length: number;           // 5|10|15 (lines)
+    tokenBudget?: number;     // Profile-driven token budget
     source: 'plan';
     conversationId?: string;  // Filled when posted to Chatbox via user action
   };
@@ -59,18 +55,6 @@ export interface SpecsGeneratorState {
 }
 
 export interface SpecsGeneratorActions {
-  /**
-   * Set the length of the specification (in lines)
-   * @param length - The desired length (5, 10, or 15 lines)
-   */
-  setLength: (length: 5 | 10 | 15) => void;
-  
-  /**
-   * Set the system prompt for the specification generator
-   * @param systemPrompt - Custom instructions for the generator
-   */
-  setSystemPrompt: (systemPrompt: string) => void;
-  
   /**
    * Update settings with partial settings object
    * @param settings - Partial settings to update
@@ -94,10 +78,16 @@ export interface SpecsGeneratorActions {
   reset: () => void;
   
   /**
-   * Set the preset for the specification
-   * @param preset - The preset to use
+   * Set the document profile for the specification
+   * @param profile - The profile to use (prd, prd-design, full-suite)
    */
-  setPreset: (preset: 'web-app' | 'api-service' | 'data-pipeline' | 'custom') => void;
+  setDocProfile: (profile: 'prd' | 'prd-design' | 'full-suite') => void;
+  
+  /**
+   * Set the language
+   * @param language - The language to use
+   */
+  setLanguage: (language: string) => void;
   
   /**
    * Toggle inclusion of a section
@@ -122,18 +112,6 @@ export interface SpecsGeneratorActions {
    * @param tone - The tone to use
    */
   setTone: (tone: 'concise' | 'detailed' | 'formal' | 'neutral') => void;
-  
-  /**
-   * Set the language
-   * @param language - The language to use
-   */
-  setLanguage: (language: string) => void;
-  
-  /**
-   * Set the max tokens
-   * @param maxTokens - The maximum number of tokens to generate
-   */
-  setMaxTokens: (maxTokens: number | undefined) => void;
 }
 
 export interface SpecsGeneratorContextValue {

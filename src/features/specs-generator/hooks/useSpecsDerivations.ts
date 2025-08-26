@@ -2,17 +2,24 @@ import { useMemo } from 'react';
 import { useImplementationPlan } from '../../../features/implementation-plan/useImplementationPlan';
 import { SpecsSettings } from '../types';
 import { Task, Risk } from '../../../features/implementation-plan/types';
+import { DOC_PROFILES } from '../constants';
 
 interface SpecsDerivations {
   outlinePreview: string[];
   sectionHints: Record<string, string[]>;
   warnings: string[];
+  profileInfo: {
+    name: string;
+    description: string;
+    pageTarget: number;
+    tokenBudget: number;
+  };
 }
 
 /**
  * Hook to compute derived information from the implementation plan for specs generation
  * @param settings Current specs settings
- * @returns Derived outline preview, section hints, and warnings
+ * @returns Derived outline preview, section hints, warnings, and profile information
  */
 export function useSpecsDerivations(settings: SpecsSettings): SpecsDerivations {
   const { plan } = useImplementationPlan();
@@ -23,14 +30,23 @@ export function useSpecsDerivations(settings: SpecsSettings): SpecsDerivations {
     const sectionHints: Record<string, string[]> = {};
     const warnings: string[] = [];
     
+    // Get profile information
+    const profile = DOC_PROFILES[settings.docProfile];
+    const profileInfo = {
+      name: profile.name,
+      description: profile.description,
+      pageTarget: profile.pageTarget,
+      tokenBudget: profile.tokenBudget
+    };
+    
     // If no plan, return empty results with warning
     if (!plan) {
       warnings.push('No implementation plan found. Please generate an implementation plan first.');
-      return { outlinePreview, sectionHints, warnings };
+      return { outlinePreview, sectionHints, warnings, profileInfo };
     }
     
     // Generate outline preview based on plan structure and settings
-    outlinePreview.push('Technical Specification Outline');
+    outlinePreview.push(`${profile.name} Outline`);
     
     if (settings.include.requirements && plan.overview?.goals?.length) {
       outlinePreview.push('1. Requirements');
@@ -82,6 +98,11 @@ export function useSpecsDerivations(settings: SpecsSettings): SpecsDerivations {
       outlinePreview.push('8. Glossary');
     }
     
+    // Add profile-specific warnings
+    if (settings.docProfile === 'full-suite' && (!plan.tasks || plan.tasks.length < 5)) {
+      warnings.push('Full specification suite selected but implementation plan has few tasks. Generated document may be shorter than expected.');
+    }
+    
     // Add warnings for missing plan elements
     if (!plan.overview?.goals?.length) {
       warnings.push('Implementation plan has no defined goals. Requirements section may be limited.');
@@ -95,6 +116,11 @@ export function useSpecsDerivations(settings: SpecsSettings): SpecsDerivations {
       warnings.push('Implementation plan has no defined risks. Risk Mitigation section may be limited.');
     }
     
-    return { outlinePreview, sectionHints, warnings };
+    // Add token budget warning
+    if (settings.tokenBudget && settings.tokenBudget > 4000) {
+      warnings.push(`Large token budget (${settings.tokenBudget}) selected. Generation may take longer and consume more API credits.`);
+    }
+    
+    return { outlinePreview, sectionHints, warnings, profileInfo };
   }, [plan, settings]);
 }

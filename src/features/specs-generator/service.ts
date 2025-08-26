@@ -1,4 +1,5 @@
 import { SpecsSettings, SpecsGenerationRequest, SpecsGenerationResult } from './types';
+import { getSystemTemplate } from './constants';
 
 /**
  * Build a prompt for generating technical specifications based on implementation plan
@@ -16,8 +17,7 @@ export function buildPrompt(planText: string, settings: SpecsSettings): string {
 
 1. Provide a concise technical specification based on the implementation plan
 2. Format the output in clean Markdown with appropriate headings and bullet points
-3. Limit the specification to approximately ${settings.length} lines
-4. Follow this system prompt guidance: ${settings.systemPrompt}
+3. Limit the specification to approximately ${settings.tokenBudget} tokens
 
 Note: No implementation plan context was provided. Please generate a generic template structure.`;
   }
@@ -86,10 +86,10 @@ Note: No implementation plan context was provided. Please generate a generic tem
     ? `Write the specification in ${settings.language}.`
     : '';
   
-  // Build max tokens instruction
-  const maxTokensInstruction = settings.maxTokens 
-    ? `Limit the total response to approximately ${settings.maxTokens} tokens.`
-    : `Limit the specification to approximately ${settings.length} lines.`;
+  // Build token budget instruction
+  const tokenBudgetInstruction = settings.tokenBudget 
+    ? `Limit the total response to approximately ${settings.tokenBudget} tokens.`
+    : 'Limit the specification to a concise length.';
   
   // Build the prompt with all constraints
   return `Generate a technical specification document in Markdown format based on the following implementation plan:
@@ -105,8 +105,7 @@ Instructions:
 4. ${audienceInstruction}
 5. ${toneInstruction}
 6. ${languageInstruction}
-7. ${maxTokensInstruction}
-8. Follow this system prompt guidance: ${settings.systemPrompt}
+7. ${tokenBudgetInstruction}
 
 Technical Specification (in Markdown format):`;
 }
@@ -139,7 +138,7 @@ export async function generateSpecs(
   const requestBody = {
     model: req.model,
     messages: [
-      { role: 'system', content: req.settings.systemPrompt },
+      { role: 'system', content: getSystemTemplate(req.settings.docProfile) },
       { role: 'user', content: prompt }
     ],
     stream: req.streaming && !!onChunk
@@ -210,7 +209,7 @@ export async function generateSpecs(
         markdown: accumulatedContent,
         meta: {
           createdAt: new Date().toISOString(),
-          length: req.settings.length,
+          tokenBudget: req.settings.tokenBudget,
           source: 'plan'
         }
       };
@@ -224,7 +223,7 @@ export async function generateSpecs(
       markdown: content,
       meta: {
         createdAt: new Date().toISOString(),
-        length: req.settings.length,
+        tokenBudget: req.settings.tokenBudget,
         source: 'plan'
       }
     };

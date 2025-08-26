@@ -11,7 +11,7 @@ export function SpecsContent() {
   const { state, settings, actions } = useSpecsGenerator();
   const { plan } = useImplementationPlan();
   const { config, createConversation, addMessageToConversation, openConversation } = useChatbox();
-  const { outlinePreview, warnings } = useSpecsDerivations(settings);
+  const { outlinePreview, warnings, profileInfo } = useSpecsDerivations(settings);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   // Check for prerequisites
@@ -113,6 +113,7 @@ export function SpecsContent() {
         errors={errors}
         outlinePreview={outlinePreview}
         warnings={warnings}
+        profileInfo={profileInfo}
         onGenerate={handleGenerate}
         onCancel={handleCancel}
         onRegenerate={handleRegenerate}

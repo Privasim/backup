@@ -1,7 +1,5 @@
 import React from 'react';
 import { SpecsStatus, SpecsGenerationResult } from '../types';
-import { useSpecsDerivations } from '../hooks/useSpecsDerivations';
-import { useSpecsGenerator } from '../useSpecsGenerator';
 
 interface SpecsContentViewProps {
   status: SpecsStatus;
@@ -9,6 +7,12 @@ interface SpecsContentViewProps {
   result?: SpecsGenerationResult;
   outlinePreview?: string[];
   warnings?: string[];
+  profileInfo?: {
+    name: string;
+    description: string;
+    pageTarget: number;
+    tokenBudget: number;
+  };
   onGenerate: () => void;
   onCancel: () => void;
   onRegenerate: () => void;
@@ -24,6 +28,7 @@ export function SpecsContentView({
   result,
   outlinePreview = [],
   warnings = [],
+  profileInfo,
   onGenerate,
   onCancel,
   onRegenerate,
@@ -62,11 +67,31 @@ export function SpecsContentView({
     case 'idle':
       return (
         <div className="space-y-6">
+          {/* Profile Information */}
+          {profileInfo && (
+            <div className="bg-blue-50 rounded-lg border border-blue-200 p-4 mb-4">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-blue-800">{profileInfo.name}</h3>
+                  <div className="mt-1 text-sm text-blue-700">
+                    <p>{profileInfo.description}</p>
+                    <p className="mt-1">Target: {profileInfo.pageTarget} pages (~{profileInfo.tokenBudget} tokens)</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {/* Outline Preview */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-3">Preview Outline</h3>
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <h3 className="text-lg font-medium text-gray-900 mb-3">Preview Outline</h3>
             {warnings.length > 0 ? (
-              <div className="rounded-md bg-yellow-50 dark:bg-yellow-900 p-4 mb-4">
+              <div className="rounded-md bg-yellow-50 p-4 mb-4">
                 <div className="flex">
                   <div className="flex-shrink-0">
                     <svg className="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -74,8 +99,8 @@ export function SpecsContentView({
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">Warnings</h3>
-                    <div className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+                    <h3 className="text-sm font-medium text-yellow-800">Warnings</h3>
+                    <div className="mt-2 text-sm text-yellow-700">
                       <ul className="list-disc space-y-1 pl-5">
                         {warnings.map((warning, index) => (
                           <li key={index}>{warning}</li>
@@ -86,11 +111,11 @@ export function SpecsContentView({
                 </div>
               </div>
             ) : null}
-            <div className="font-mono text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
+            <div className="font-mono text-sm text-gray-800 whitespace-pre-wrap">
               {outlinePreview.length > 0 ? (
                 outlinePreview.map((line, index) => <div key={index}>{line}</div>)
               ) : (
-                <div className="text-gray-500 dark:text-gray-400 italic">No outline preview available. Generate a specification to see the outline.</div>
+                <div className="text-gray-500 italic">No outline preview available. Generate a specification to see the outline.</div>
               )}
             </div>
           </div>
