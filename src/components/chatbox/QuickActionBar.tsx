@@ -37,7 +37,7 @@ export const QuickActionBar: React.FC<QuickActionBarProps> = ({ className = '' }
   };
 
   return (
-    <div className={`mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100 ${className}`}>
+    <div className={`mt-4 p-4 bg-white/70 rounded-xl border border-gray-200 shadow-sm ${className}`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-blue-100 rounded-lg">
@@ -60,7 +60,7 @@ export const QuickActionBar: React.FC<QuickActionBarProps> = ({ className = '' }
             flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
             ${isGenerating
               ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 active:scale-[0.98] shadow-sm'
+              : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98] shadow-sm'
             }
           `}
         >

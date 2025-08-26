@@ -3,23 +3,18 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { useChatbox } from './ChatboxProvider';
 import { 
-  XMarkIcon, 
-  ChatBubbleLeftRightIcon, 
-  Cog6ToothIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
+  ArrowLeftIcon,
+  EllipsisVerticalIcon,
   PaperAirplaneIcon,
-  SparklesIcon,
-  UserIcon
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 
 import ChatboxControls from './ChatboxControls';
 import ChatboxMessage from './ChatboxMessage';
 import QuickActionBar from './QuickActionBar';
 import { getMockProfile } from '@/data/mockProfiles';
-import { ProfileSummaryTooltip } from './ProfileSummaryTooltip';
 import { ProfileSection } from './ProfileSection';
-import { chatboxDebug } from '@/app/businessidea/utils/logStore';
+import { ProfileSummaryTooltip } from './ProfileSummaryTooltip';
 
 interface ChatboxPanelProps {
   className?: string;
@@ -76,75 +71,68 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
 
   return (
     <div className={`fixed right-0 top-0 h-full w-96 bg-white border-l border-gray-200 shadow-2xl z-50 flex flex-col ${className}`}>
-      {/* Minimal Header */}
-      <div className="flex items-center justify-between p-3 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
-        <div className="flex items-center space-x-2">
-          <div className="p-1.5 bg-blue-100 rounded-lg">
-            <ChatBubbleLeftRightIcon className="h-4 w-4 text-blue-600" />
-          </div>
-          <div>
-            <h2 className="text-sm font-semibold text-gray-900">{activeConversation?.title || 'AI Analysis'}</h2>
-            <div className="flex items-center space-x-1">
-              <div className={`w-1.5 h-1.5 rounded-full ${
-                status === 'analyzing' ? 'bg-blue-500 animate-pulse' :
-                status === 'completed' ? 'bg-green-500' :
-                status === 'error' ? 'bg-red-500' :
-                'bg-gray-400'
-              }`} />
-              <span className="text-xs text-gray-600 capitalize">
-                {status === 'analyzing' ? 'Analyzing...' : status}
-              </span>
-            </div>
-          </div>
-          
-          {/* Profile Data Source Badge */}
+      {/* Header */}
+      <div className="flex items-center justify-between h-12 px-3 border-b border-gray-100 bg-white">
+        <button
+          onClick={closeChatbox}
+          className="p-1.5 rounded-md hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          aria-label="Back"
+        >
+          <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
+        </button>
+        <div className="flex items-center gap-2 min-w-0">
+          <h2 className="truncate text-[13px] font-semibold text-gray-900">{activeConversation?.title || 'AI Analysis'}</h2>
+          <span
+            className={`inline-block w-1.5 h-1.5 rounded-full ${
+              status === 'analyzing' ? 'bg-blue-500 animate-pulse' :
+              status === 'completed' ? 'bg-green-500' :
+              status === 'error' ? 'bg-red-500' : 'bg-gray-300'
+            }`}
+            aria-hidden="true"
+          />
+          {/* Profile Data Source Badge with tooltip (preserve functionality) */}
           <div className="relative group ml-2">
-            <span className={`px-2 py-1 rounded text-xs font-medium cursor-help transition-all ${
-              useMockData 
-                ? 'bg-orange-100 text-orange-800 hover:bg-orange-200' 
-                : 'bg-green-100 text-green-800 hover:bg-green-200'
+            <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium cursor-help transition-colors ${
+              useMockData
+                ? 'bg-orange-100 text-orange-800 group-hover:bg-orange-200'
+                : 'bg-green-100 text-green-800 group-hover:bg-green-200'
             }`}>
               {useMockData ? 'Mock' : 'Real'}
             </span>
-            
-            {/* Tooltip */}
-            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
               <div className="bg-white shadow-lg rounded-lg border border-gray-200 p-3 min-w-[200px]">
-                <ProfileSummaryTooltip 
-                  profileData={currentProfileData} 
-                  isMock={useMockData} 
-                />
+                <ProfileSummaryTooltip profileData={currentProfileData} isMock={useMockData} />
               </div>
             </div>
           </div>
         </div>
         <button
-          onClick={closeChatbox}
-          className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-          aria-label="Close chatbox"
+          type="button"
+          className="p-1.5 rounded-md hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          aria-label="Menu"
         >
-          <XMarkIcon className="h-4 w-4 text-gray-500" />
+          <EllipsisVerticalIcon className="h-5 w-5 text-gray-600" />
         </button>
       </div>
 
       {/* Profile Section */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-100 bg-gray-50/60">
         <ProfileSection 
           profileData={currentProfileData} 
           isMock={useMockData} 
         />
       </div>
 
-      {/* Messages Area - Maximized */}
-      <div className="flex-1 overflow-y-auto bg-gray-50">
-        <div className="p-4 space-y-4 min-h-full">
+      {/* Messages Area - Minimal & Airy */}
+      <div className="flex-1 overflow-y-auto bg-gradient-to-b from-gray-50 to-blue-50/40">
+        <div className="px-4 py-3 space-y-3 min-h-full">
           {displayMessages.length === 0 && status === 'idle' && (
             <div className="flex h-full flex-col items-center justify-center p-6 text-center">
-              <div className="rounded-full bg-indigo-50 p-3">
-                <SparklesIcon className="h-6 w-6 text-indigo-500" />
+              <div className="rounded-full bg-blue-50 p-3">
+                <SparklesIcon className="h-6 w-6 text-blue-500" />
               </div>
               <h3 className="mt-2 text-sm font-medium text-gray-900">No messages yet</h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-xs text-gray-500">
                 Start a conversation or analyze your profile to get insights.
               </p>
             </div>
@@ -154,12 +142,19 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
             <ChatboxMessage key={message.id} message={message} />
           ))}
 
-          {/* Quick Action Bar */}
-          <QuickActionBar />
+          {/* Quick Action Bar (minimal) */}
+          <QuickActionBar className="mt-2 bg-white/70 border border-gray-200 shadow-sm" />
+
+          {/* Decorative page indicator dots */}
+          <div className="flex items-center justify-center pt-2" aria-hidden="true">
+            <span className="mx-0.5 h-1.5 w-1.5 rounded-full bg-gray-300" />
+            <span className="mx-0.5 h-1.5 w-1.5 rounded-full bg-blue-500" />
+            <span className="mx-0.5 h-1.5 w-1.5 rounded-full bg-gray-300" />
+          </div>
 
           {/* Error Display */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3 mx-4 mt-4">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 mt-2">
               <div className="flex items-start space-x-2">
                 <div className="w-4 h-4 text-red-500 mt-0.5">
                   <svg fill="currentColor" viewBox="0 0 20 20">
@@ -178,29 +173,31 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
         </div>
       </div>
 
-      {/* Bottom Controls Section - Consolidated */}
-      <div className="border-t border-gray-200 bg-white">
-        {/* Settings Toggle Bar */}
+      {/* Bottom Controls Section - Composer Styled */}
+      <div className="border-t border-gray-100 bg-white">
+        {/* Composer-styled toggle bar */}
         <button
           onClick={() => setIsSettingsExpanded(!isSettingsExpanded)}
-          className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+          className="w-full flex items-center gap-2 px-3 py-2"
+          aria-controls="chatbox-settings"
+          aria-expanded={isSettingsExpanded}
         >
-          <div className="flex items-center space-x-2">
-            <Cog6ToothIcon className="h-4 w-4" />
-            <span>Settings & Controls</span>
+          <div className="flex-1 flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-full border border-gray-200 text-[13px] text-gray-500 text-left">
+            <span className="truncate">Type your messages…</span>
           </div>
-          {isSettingsExpanded ? (
-            <ChevronDownIcon className="h-4 w-4" />
-          ) : (
-            <ChevronUpIcon className="h-4 w-4" />
-          )}
+          <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-600 text-white shadow-sm">
+            <PaperAirplaneIcon className="h-4 w-4 -rotate-45" />
+          </span>
         </button>
 
         {/* Expandable Settings Panel */}
-        <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
-          isSettingsExpanded ? 'max-h-96' : 'max-h-0'
-        }`}>
-          <div className="border-t border-gray-100 p-4 space-y-4">
+        <div
+          id="chatbox-settings"
+          className={`transition-all duration-300 ease-in-out overflow-hidden ${
+            isSettingsExpanded ? 'max-h-96' : 'max-h-0'
+          }`}
+        >
+          <div className="border-t border-gray-100 p-3 space-y-3">
             {/* Plugin Controls */}
             {activePlugins.map(plugin => {
               const ControlsComponent = plugin.getControls?.();
@@ -210,9 +207,9 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
                 </div>
               ) : null;
             })}
-            
+
             {/* Mock Data Toggle */}
-            <div className="border-t border-gray-200 pt-4">
+            <div className="border-t border-gray-200 pt-3">
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="text-sm font-medium text-gray-900">Use Mock Data</h4>
