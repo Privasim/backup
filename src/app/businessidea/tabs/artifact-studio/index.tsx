@@ -8,8 +8,10 @@ import { PromptPanel } from './components/PromptPanel';
 import { ArtifactSubTabProvider } from './context/ArtifactSubTabContext';
 import { ArtifactSubTabNavigation } from './components/ArtifactSubTabNavigation';
 import { ArtifactSubTabContent } from './components/ArtifactSubTabContent';
-import { transpileTsxToJs } from './utils/transpile';
+import { validateSandboxCode } from './utils/sandbox-html';
 import { useTab } from '@/app/businessidea/tabs/TabContext';
+// Feature flag for Path A vs legacy transpile
+import { FEATURE_FLAGS } from '@/config/feature-flags';
 
 export default function ArtifactStudio() {
   const { config } = useChatbox();
@@ -30,7 +32,8 @@ export default function ArtifactStudio() {
     modelValid: false,
     message: ''
   });
-  const [compiledJs, setCompiledJs] = useState('');
+  const [processedJs, setProcessedJs] = useState('');
+  const [codeValidation, setCodeValidation] = useState<{ valid: boolean; errors: string[] }>({ valid: true, errors: [] });
   const [runtimeErrors, setRuntimeErrors] = useState<string[]>([]);
 
   // Performance optimization: skip heavy computations when not active
@@ -57,16 +60,50 @@ export default function ArtifactStudio() {
     }
   }, [handleValidationChange, isActive]);
 
-  // Compile code when it changes and compilation is successful
+  // Process code when it changes (active tab), regardless of compile.ok
   useEffect(() => {
-    if (isActive && compile.ok && code) {
-      transpileTsxToJs(code).then(result => {
-        if (result.ok && result.js) {
-          setCompiledJs(result.js);
+    if (isActive && code) {
+      // Path A: Direct JS validation without transpilation
+      if (FEATURE_FLAGS.USE_PATH_A_SANDBOX) {
+        const validation = validateSandboxCode(code);
+        setCodeValidation(validation);
+
+        if (validation.valid) {
+          // Use the code directly without transpilation
+          setProcessedJs(code);
+          return;
         }
-      });
+
+        // Fallback: attempt transpilation to CommonJS and auto-mount default export
+        import('./utils/transpile').then(({ transpileTsxToJs }) => {
+          transpileTsxToJs(code).then(result => {
+            if (result.ok && result.js) {
+              setProcessedJs(result.js);
+              // Clear previous validation errors if transpile succeeded
+              setRuntimeErrors([]);
+            } else {
+              setRuntimeErrors([
+                ...validation.errors,
+                ...(result.error ? [result.error] : [])
+              ]);
+            }
+          });
+        });
+      } 
+      // Legacy Path B: Transpile TSX to JS
+      else {
+        import('./utils/transpile').then(({ transpileTsxToJs }) => {
+          transpileTsxToJs(code).then(result => {
+            if (result.ok && result.js) {
+              setProcessedJs(result.js);
+            } else if (result.error) {
+              setRuntimeErrors([result.error]);
+            }
+          });
+        });
+      }
     }
-  }, [compile.ok, code, isActive]);
+  }, [code, isActive]);
 
   const handleGenerate = useCallback(() => {
     if (isActive) {
@@ -110,7 +147,8 @@ export default function ArtifactStudio() {
         <ArtifactSubTabContent
           code={code}
           compile={compile}
-          compiledJs={compiledJs}
+          processedJs={processedJs}
+          codeValidation={codeValidation}
           onRuntimeError={handleRuntimeError}
           onSandboxReady={handleSandboxReady}
           runtimeErrors={runtimeErrors}

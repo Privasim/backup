@@ -71,7 +71,7 @@ export function useArtifactGeneration(): ArtifactGenerationState & ArtifactGener
           ...prev,
           compile: result.ok 
             ? { ok: true, errors: [] }
-            : { ok: false, errors: result.errors || [] },
+            : { ok: false, errors: result.error ? [result.error] : [] },
           status: result.ok ? 'compiled' : 'error'
         }));
 

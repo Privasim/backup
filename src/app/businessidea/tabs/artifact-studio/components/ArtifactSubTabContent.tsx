@@ -4,11 +4,14 @@ import React from 'react';
 import { useArtifactSubTab } from '../context/ArtifactSubTabContext';
 import { CodePanel } from './CodePanel';
 import { ArtifactSandbox } from './ArtifactSandbox';
+import { SandboxFrame } from './SandboxFrame';
+import { FEATURE_FLAGS } from '@/config/feature-flags';
 
 interface ArtifactSubTabContentProps {
   code: string;
   compile: { ok: boolean; errors: string[] };
-  compiledJs: string;
+  processedJs: string;
+  codeValidation?: { valid: boolean; errors: string[] };
   onRuntimeError?: (error: { message: string; stack?: string }) => void;
   onSandboxReady?: () => void;
   runtimeErrors?: string[];
@@ -17,7 +20,8 @@ interface ArtifactSubTabContentProps {
 export function ArtifactSubTabContent({
   code,
   compile,
-  compiledJs,
+  processedJs,
+  codeValidation = { valid: true, errors: [] },
   onRuntimeError,
   onSandboxReady,
   runtimeErrors = []
@@ -44,13 +48,22 @@ export function ArtifactSubTabContent({
             )}
           </div>
           
-          <ArtifactSandbox
-            js={compiledJs}
-            className="w-full border border-gray-200 rounded-lg"
-            height="400px"
-            onRuntimeError={onRuntimeError}
-            onReady={onSandboxReady}
-          />
+          {FEATURE_FLAGS.USE_PATH_A_SANDBOX ? (
+            <SandboxFrame
+              code={processedJs}
+              className="w-full h-[400px] border border-gray-200 rounded-lg"
+              onRuntimeError={onRuntimeError}
+              onReady={onSandboxReady}
+            />
+          ) : (
+            <ArtifactSandbox
+              js={processedJs}
+              className="w-full border border-gray-200 rounded-lg"
+              height="400px"
+              onRuntimeError={onRuntimeError}
+              onReady={onSandboxReady}
+            />
+          )}
 
           {/* Runtime Errors */}
           {runtimeErrors.length > 0 && (

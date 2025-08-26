@@ -1,4 +1,5 @@
 import * as Babel from '@babel/standalone';
+import { FEATURE_FLAGS } from '@/config/feature-flags';
 
 const BANNED_TOKENS = [
   'import',
@@ -17,34 +18,45 @@ const BANNED_TOKENS = [
   'dangerouslySetInnerHTML'
 ];
 
-export interface TranspileResult {
-  ok: boolean;
-  js?: string;
-  errors?: string[];
-}
+/**
+ * @deprecated Use Path A sandbox implementation instead which eliminates runtime transpilation
+ * This will be removed in a future release. See Path A implementation in sandbox-html.ts
+ * 
+ * Transpiles TSX to JS using Babel
+ * @param code TSX code to transpile
+ * @returns Transpiled JS or error
+ */
+export async function transpileTsxToJs(code: string): Promise<{ ok: boolean; js?: string; error?: string }> {
+  // Check if Path A is enabled and warn about deprecation
+  if (FEATURE_FLAGS.USE_PATH_A_SANDBOX) {
+    console.warn(
+      'transpileTsxToJs is deprecated and will be removed in a future release. ' +
+      'The Path A sandbox implementation is now active which eliminates runtime transpilation.'
+    );
+  }
 
-export async function transpileTsxToJs(tsx: string): Promise<TranspileResult> {
   try {
     // Pre-pass: check for banned tokens
-    const bannedFound = BANNED_TOKENS.filter(token => tsx.includes(token));
+    const bannedFound = BANNED_TOKENS.filter(token => code.includes(token));
     if (bannedFound.length > 0) {
       return {
         ok: false,
-        errors: [`Banned tokens detected: ${bannedFound.join(', ')}`]
+        error: `Banned tokens detected: ${bannedFound.join(', ')}`
       };
     }
 
     // Ensure there's a default export function
-    if (!tsx.includes('export default function')) {
+    if (!code.includes('export default function')) {
       return {
         ok: false,
-        errors: ['Code must contain exactly one default export function']
+        error: 'Code must contain exactly one default export function'
       };
     }
 
     // Transpile with Babel
-    const result = Babel.transform(tsx, {
+    const result = Babel.transform(code, {
       presets: [
+        ['env', { modules: 'commonjs' }],
         ['typescript', { isTSX: true, allExtensions: true }],
         ['react', { runtime: 'classic' }]
       ],
@@ -54,13 +66,16 @@ export async function transpileTsxToJs(tsx: string): Promise<TranspileResult> {
     if (!result.code) {
       return {
         ok: false,
-        errors: ['Transpilation failed - no output generated']
+        error: 'Transpilation failed - no output generated'
       };
     }
 
+    // Expose default export on window.__ArtifactDefault for auto-mount
+    const expose = `\n;(function(){try{\n  if (typeof window !== 'undefined') {\n    // Prefer exports.default (Babel commonjs output) or module.exports.default\n    var d = (typeof exports !== 'undefined' && (exports.default || exports.Artifact || exports))\n         || (typeof module !== 'undefined' && module.exports && (module.exports.default || module.exports));\n    if (d && !window.__ArtifactDefault) window.__ArtifactDefault = d;\n  }\n}catch(_){}})();\n`;
+
     return {
       ok: true,
-      js: result.code
+      js: result.code + expose
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown transpilation error';
@@ -76,7 +91,7 @@ export async function transpileTsxToJs(tsx: string): Promise<TranspileResult> {
 
     return {
       ok: false,
-      errors: [formattedError]
+      error: formattedError
     };
   }
 }
