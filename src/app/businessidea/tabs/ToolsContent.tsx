@@ -36,13 +36,13 @@ const MobileHeader = memo(function MobileHeader({
   const [isFocused, setIsFocused] = useState(false);
   
   return (
-    <div className="sticky top-0 z-10 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800">
+    <div className="tools-header sticky top-0 z-10 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800">
       <div className="px-4 py-3">
         <div className="flex items-center justify-between mb-3">
           <h1 className="text-xl font-semibold text-gray-900 dark:text-white">{title}</h1>
           <button
             onClick={onOpenFilters}
-            className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            className="tools-search-toggle p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             aria-label="Open filters"
           >
             <AdjustmentsHorizontalIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
@@ -51,7 +51,7 @@ const MobileHeader = memo(function MobileHeader({
         
         {/* Compact Search Bar */}
         <div className={cn(
-          "flex items-center bg-gray-50 dark:bg-gray-800 rounded-xl border transition-colors",
+          "tools-search flex items-center bg-gray-50 dark:bg-gray-800 rounded-xl border transition-colors",
           isFocused ? "border-blue-500" : "border-gray-200 dark:border-gray-700"
         )}>
           <MagnifyingGlassIcon className="h-4 w-4 ml-3 text-gray-400" />
@@ -89,12 +89,12 @@ const CategoryPills = memo(function CategoryPills({
   const totalCount = categories.reduce((sum, cat) => sum + cat.count, 0);
   
   return (
-    <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800">
+    <div className="tools-categories px-4 py-2 border-b border-gray-100 dark:border-gray-800">
       <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         <button
           onClick={() => onSelect(undefined)}
           className={cn(
-            "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors",
+            "tools-category-tile flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors",
             !active 
               ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300" 
               : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -107,7 +107,7 @@ const CategoryPills = memo(function CategoryPills({
             key={category.slug}
             onClick={() => onSelect(category.slug)}
             className={cn(
-              "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap",
+              "tools-category-tile flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap",
               active === category.slug
                 ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
                 : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -142,19 +142,19 @@ const CompactToolCard = memo(function CompactToolCard({
   
   if (variant === 'list') {
     return (
-      <div className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/40 dark:to-blue-800/40 flex items-center justify-center flex-shrink-0">
+      <div className="tools-card tools-row flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+        <div className="tools-card-icon w-10 h-10 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/40 dark:to-blue-800/40 flex items-center justify-center flex-shrink-0">
           <span className="text-blue-600 dark:text-blue-300 font-medium text-sm">
             {tool.name.charAt(0)}
           </span>
         </div>
         
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+        <div className="tools-card-body flex-1 min-w-0">
+          <div className="tools-card-head flex items-center gap-2 mb-1">
             <h3 className="font-medium text-gray-900 dark:text-white truncate">{tool.name}</h3>
             {formatPrice(tool.pricing) && (
               <span className={cn(
-                "px-2 py-0.5 rounded text-xs font-medium",
+                "tools-price px-2 py-0.5 rounded text-xs font-medium",
                 tool.pricing?.model === 'free' || tool.pricing?.model === 'freemium'
                   ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
                   : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
@@ -166,7 +166,7 @@ const CompactToolCard = memo(function CompactToolCard({
           <p className="text-sm text-gray-600 dark:text-gray-400 truncate">{tool.description}</p>
         </div>
         
-        <div className="flex gap-2 flex-shrink-0">
+        <div className="tools-card-actions flex gap-2 flex-shrink-0">
           <button
             onClick={onDiscuss}
             className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
@@ -188,16 +188,16 @@ const CompactToolCard = memo(function CompactToolCard({
   
   // Grid variant
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md transition-all">
-      <div className="flex items-start justify-between mb-3">
-        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/40 dark:to-blue-800/40 flex items-center justify-center">
+    <div className="tools-card bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md transition-all">
+      <div className="tools-card-head flex items-start justify-between mb-3">
+        <div className="tools-card-icon w-10 h-10 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/40 dark:to-blue-800/40 flex items-center justify-center">
           <span className="text-blue-600 dark:text-blue-300 font-medium text-sm">
             {tool.name.charAt(0)}
           </span>
         </div>
         {formatPrice(tool.pricing) && (
           <span className={cn(
-            "px-2 py-1 rounded-full text-xs font-medium",
+            "tools-price px-2 py-1 rounded-full text-xs font-medium",
             tool.pricing?.model === 'free' || tool.pricing?.model === 'freemium'
               ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
               : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
@@ -208,9 +208,9 @@ const CompactToolCard = memo(function CompactToolCard({
       </div>
       
       <h3 className="font-semibold text-gray-900 dark:text-white mb-1 truncate">{tool.name}</h3>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{tool.description}</p>
+      <p className="tools-card-body text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{tool.description}</p>
       
-      <div className="flex gap-2">
+      <div className="tools-card-actions flex gap-2">
         <button
           onClick={onDiscuss}
           className="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-1"
@@ -230,21 +230,20 @@ const CompactToolCard = memo(function CompactToolCard({
   );
 });
 
-// Loading Skeleton
 const LoadingSkeleton = memo(function LoadingSkeleton({ variant }: { variant: 'grid' | 'list' }) {
   if (variant === 'list') {
     return (
-      <div className="border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-800">
+      <div className="tools-skeleton tools-skeleton-list border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-800">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 p-3 animate-pulse">
-            <div className="w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-700" />
-            <div className="flex-1">
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2" />
-              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
+          <div key={i} className="tools-skeleton-row flex items-center gap-3 p-3 animate-pulse">
+            <div className="tools-skeleton-icon w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-700" />
+            <div className="tools-skeleton-text flex-1">
+              <div className="tools-skeleton-title h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2" />
+              <div className="tools-skeleton-desc h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
             </div>
-            <div className="flex gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gray-200 dark:bg-gray-700" />
-              <div className="w-8 h-8 rounded-lg bg-gray-200 dark:bg-gray-700" />
+            <div className="tools-skeleton-actions flex gap-2">
+              <div className="tools-skeleton-btn w-8 h-8 rounded-lg bg-gray-200 dark:bg-gray-700" />
+              <div className="tools-skeleton-btn w-8 h-8 rounded-lg bg-gray-200 dark:bg-gray-700" />
             </div>
           </div>
         ))}
@@ -253,19 +252,19 @@ const LoadingSkeleton = memo(function LoadingSkeleton({ variant }: { variant: 'g
   }
   
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <div className="tools-skeleton tools-skeleton-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 animate-pulse">
-          <div className="flex justify-between mb-3">
-            <div className="w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-700" />
-            <div className="w-16 h-6 rounded-full bg-gray-200 dark:bg-gray-700" />
+        <div key={i} className="tools-skeleton-card bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 animate-pulse">
+          <div className="tools-skeleton-card-head flex justify-between mb-3">
+            <div className="tools-skeleton-card-icon w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-700" />
+            <div className="tools-skeleton-card-price w-16 h-6 rounded-full bg-gray-200 dark:bg-gray-700" />
           </div>
-          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2" />
-          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full mb-1" />
-          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3 mb-3" />
-          <div className="flex gap-2">
-            <div className="flex-1 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg" />
-            <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg" />
+          <div className="tools-skeleton-card-title h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2" />
+          <div className="tools-skeleton-card-desc h-3 bg-gray-200 dark:bg-gray-700 rounded w-full mb-1" />
+          <div className="tools-skeleton-card-desc h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3 mb-3" />
+          <div className="tools-skeleton-card-actions flex gap-2">
+            <div className="tools-skeleton-card-btn flex-1 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg" />
+            <div className="tools-skeleton-card-btn w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg" />
           </div>
         </div>
       ))}
@@ -280,18 +279,18 @@ const EmptyState = memo(function EmptyState({ message, actionLabel, onAction }: 
   onAction?: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
+    <div className="tools-empty-state flex flex-col items-center justify-center py-12 text-center">
+      <div className="tools-empty-icon w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
         <span className="text-2xl">🔍</span>
       </div>
-      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{message}</h3>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 max-w-sm">
+      <h3 className="tools-empty-title text-lg font-medium text-gray-900 dark:text-white mb-2">{message}</h3>
+      <p className="tools-empty-description text-sm text-gray-500 dark:text-gray-400 mb-4 max-w-sm">
         Try adjusting your search terms or filters to find more tools.
       </p>
       {actionLabel && onAction && (
         <button
           onClick={onAction}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+          className="tools-empty-action px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
         >
           {actionLabel}
         </button>
@@ -306,16 +305,16 @@ const ErrorState = memo(function ErrorState({ message, onRetry }: {
   onRetry?: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
+    <div className="tools-error-state flex flex-col items-center justify-center py-12 text-center">
+      <div className="tools-error-icon w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
         <span className="text-2xl">⚠️</span>
       </div>
-      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Failed to load tools</h3>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 max-w-sm">{message}</p>
+      <h3 className="tools-error-title text-lg font-medium text-gray-900 dark:text-white mb-2">Failed to load tools</h3>
+      <p className="tools-error-description text-sm text-gray-500 dark:text-gray-400 mb-4 max-w-sm">{message}</p>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+          className="tools-error-retry px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
         >
           Try Again
         </button>
@@ -338,32 +337,32 @@ const MobileFilterPanel = memo(function MobileFilterPanel({
   if (!show) return null;
   
   return (
-    <div className="fixed inset-0 z-50 bg-black/20 flex items-end sm:items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-lg max-h-[80vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Filter Tools</h3>
+    <div className="tools-filter-panel fixed inset-0 z-50 bg-black/20 flex items-end sm:items-center justify-center p-4">
+      <div className="tools-filter-panel-content bg-white dark:bg-gray-900 rounded-xl w-full max-w-lg max-h-[80vh] overflow-y-auto">
+        <div className="tools-filter-panel-header flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="tools-filter-panel-title text-lg font-semibold text-gray-900 dark:text-white">Filter Tools</h3>
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="tools-filter-panel-close p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <XMarkIcon className="h-5 w-5 text-gray-500" />
           </button>
         </div>
         
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="font-medium text-gray-900 dark:text-white">Capabilities</h4>
+        <div className="tools-filter-panel-body p-4">
+          <div className="tools-filter-panel-capabilities-header flex items-center justify-between mb-4">
+            <h4 className="tools-filter-panel-capabilities-title font-medium text-gray-900 dark:text-white">Capabilities</h4>
             {selectedCapabilities.length > 0 && onClear && (
               <button
                 onClick={onClear}
-                className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                className="tools-filter-panel-clear-all text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
               >
                 Clear all
               </button>
             )}
           </div>
           
-          <div className="flex flex-wrap gap-2">
+          <div className="tools-filter-panel-capabilities-list flex flex-wrap gap-2">
             {availableCapabilities.map((capability) => {
               const isSelected = selectedCapabilities.includes(capability);
               return (
@@ -371,7 +370,7 @@ const MobileFilterPanel = memo(function MobileFilterPanel({
                   key={capability}
                   onClick={() => onToggle(capability)}
                   className={cn(
-                    "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                    "tools-filter-panel-capability px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                     isSelected
                       ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
                       : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -416,28 +415,36 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list'); // Default to list for mobile
 
   return (
-    <div className={cn("flex flex-col h-full bg-gray-50 dark:bg-gray-950", className)}>
+    <div 
+      data-compact="true" 
+      data-force-light="true"
+      className={cn("flex flex-col h-full bg-gray-50 dark:bg-gray-950", className)}
+    >
       {/* Mobile Header */}
-      <MobileHeader
-        title="Tools & Resources"
-        query={query}
-        onSearchChange={setQuery}
-        onOpenFilters={() => setShowFilters(true)}
-      />
+      <div className="tools-header">
+        <MobileHeader
+          title="Tools & Resources"
+          query={query}
+          onSearchChange={setQuery}
+          onOpenFilters={() => setShowFilters(true)}
+        />
+      </div>
       
       {/* Category Pills */}
-      <CategoryPills
-        categories={liveCategories}
-        active={selectedCategory}
-        onSelect={setCategory}
-      />
+      <div className="tools-categories">
+        <CategoryPills
+          categories={liveCategories}
+          active={selectedCategory}
+          onSelect={setCategory}
+        />
+      </div>
       
       {/* Active Filters */}
       {(selectedCapabilities.length > 0 || query) && (
-        <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800">
+        <div className="tools-filterbar px-4 py-2 border-b border-gray-100 dark:border-gray-800">
           <div className="flex flex-wrap gap-2">
             {query && (
-              <div className="flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm">
+              <div className="tools-chip flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm">
                 <span>Search: "{query}"</span>
                 <button onClick={() => setQuery('')}>
                   <XMarkIcon className="h-3 w-3" />
@@ -445,7 +452,7 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
               </div>
             )}
             {selectedCapabilities.map((capability) => (
-              <div key={capability} className="flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm">
+              <div key={capability} className="tools-chip flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm">
                 <span>{capability.replace(/-/g, ' ')}</span>
                 <button onClick={() => toggleCapability(capability)}>
                   <XMarkIcon className="h-3 w-3" />
@@ -454,7 +461,7 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
             ))}
             <button
               onClick={clearFilters}
-              className="px-3 py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              className="tools-clear-all px-3 py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
             >
               Clear all
             </button>
@@ -463,7 +470,7 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
       )}
       
       {/* View Mode Toggle */}
-      <div className="flex justify-between items-center px-4 py-3 border-b border-gray-100 dark:border-gray-800">
+      <div className="tools-view-toggle flex justify-between items-center px-4 py-3 border-b border-gray-100 dark:border-gray-800">
         <p className="text-sm text-gray-600 dark:text-gray-400">
           {visibleTools.length} tools found
         </p>
@@ -495,30 +502,39 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
       </div>
       
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="tools-content flex-1 overflow-y-auto p-4">
         {isLoading ? (
-          <LoadingSkeleton variant={viewMode} />
+          <div className="tools-skeleton">
+            <LoadingSkeleton variant={viewMode} />
+          </div>
         ) : error ? (
-          <ErrorState message={error.message} onRetry={retry} />
+          <div className="tools-error">
+            <ErrorState message={error.message} onRetry={retry} />
+          </div>
         ) : visibleTools.length === 0 ? (
-          <EmptyState 
-            message="No tools found" 
-            actionLabel="Clear filters" 
-            onAction={clearFilters} 
-          />
+          <div className="tools-empty">
+            <EmptyState 
+              message="No tools found" 
+              actionLabel="Clear filters" 
+              onAction={clearFilters} 
+            />
+          </div>
         ) : (
-          <div className={viewMode === 'grid' 
-            ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'
-            : 'border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-800'
-          }>
+          <div 
+            className={viewMode === 'grid' 
+              ? 'tools-list grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'
+              : 'tools-list border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-800'
+            }
+          >
             {visibleTools.map(tool => (
-              <CompactToolCard
-                key={tool.id}
-                tool={tool}
-                variant={viewMode}
-                onDiscuss={() => openInChat(tool.id)}
-                onAddToPlan={() => addToPlan(tool.id)}
-              />
+              <div className="tools-card" key={tool.id}>
+                <CompactToolCard
+                  tool={tool}
+                  variant={viewMode}
+                  onDiscuss={() => openInChat(tool.id)}
+                  onAddToPlan={() => addToPlan(tool.id)}
+                />
+              </div>
             ))}
           </div>
         )}
@@ -536,7 +552,6 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
     </div>
   );
 });
-// Memoize the main export component for better performance
 const ToolsContent = memo(function ToolsContent({ className }: ToolsContentProps) {
   return (
     <ToolsProvider>
