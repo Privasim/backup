@@ -24,31 +24,33 @@ export function FiltersPanel({
           {onClear && selectedCapabilities.length > 0 && (
             <button
               onClick={onClear}
-              className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+              className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors underline-offset-2 hover:underline"
             >
               Clear all
             </button>
           )}
         </div>
-        
-        <div className="space-y-1">
-          {availableCapabilities.map((capability) => (
-            <div key={capability} className="flex items-center">
-              <input
-                id={`capability-${capability}`}
-                type="checkbox"
-                checked={selectedCapabilities.includes(capability)}
-                onChange={() => onToggle(capability)}
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
-              />
-              <label
-                htmlFor={`capability-${capability}`}
-                className="ml-2 text-sm text-gray-700 dark:text-gray-300"
+
+        <div role="group" aria-label="Capabilities" className="flex flex-wrap gap-2">
+          {availableCapabilities.map((capability) => {
+            const selected = selectedCapabilities.includes(capability);
+            return (
+              <button
+                key={capability}
+                type="button"
+                aria-pressed={selected}
+                onClick={() => onToggle(capability)}
+                className={cn(
+                  "inline-flex items-center px-3 py-1.5 rounded-full border text-sm transition-colors focus-visible:outline-none focus-visible:ring-2",
+                  selected
+                    ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300 focus-visible:ring-blue-300"
+                    : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 focus-visible:ring-blue-200"
+                )}
               >
-                {capability}
-              </label>
-            </div>
-          ))}
+                <span className="truncate max-w-[200px]">{capability}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

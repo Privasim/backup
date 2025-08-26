@@ -35,58 +35,57 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
 
   return (
     <div 
-      className={`sticky top-0 z-10 transition-all duration-300 ease-in-out
-        ${isScrolled ? 'py-2 shadow-md' : 'py-4'}
-        bg-gradient-to-r from-blue-500 to-indigo-600`}
+      className={`sticky top-0 z-10 transition-all duration-300 ease-in-out bg-slate-50 dark:bg-gray-900 ${isScrolled ? 'py-2' : 'py-4'}`}
     >
       <div className="container mx-auto px-4">
         <div className="flex flex-col gap-3">
           {/* Title area */}
           <div className="flex justify-between items-center">
             <div>
-              <h1 className={`text-white font-semibold transition-all duration-300 ${isScrolled ? 'text-xl' : 'text-2xl'}`}>
+              <h1 className={`text-gray-900 dark:text-gray-100 font-semibold transition-all duration-300 ${isScrolled ? 'text-xl' : 'text-2xl'}`}>
                 {title}
               </h1>
-              {subtitle && <p className="text-blue-100 text-sm">{subtitle}</p>}
+              {subtitle && <p className="text-gray-500 dark:text-gray-400 text-sm">{subtitle}</p>}
             </div>
           </div>
           
           {/* Search and filters */}
           <div className="flex gap-2 items-center">
-            <div className={`flex-1 bg-white bg-opacity-20 backdrop-blur-sm rounded-full 
+            <div className={`flex-1 bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-700 shadow-sm
               transition-all duration-300 flex items-center px-3 py-1.5
-              ${isFocused ? 'ring-2 ring-white ring-opacity-50' : ''}`}>
-              <MagnifyingGlassIcon className="h-5 w-5 text-white" />
+              ${isFocused ? 'ring-2 ring-blue-100 dark:ring-blue-900/40' : ''}`}>
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 dark:text-gray-500" />
               <input
                 type="text"
                 value={query}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder="Search tools..."
-                className="bg-transparent border-none focus:outline-none text-white placeholder-blue-100 ml-2 w-full"
+                aria-label="Search tools"
+                className="bg-transparent border-none focus:outline-none text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 ml-2 w-full"
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
               />
             </div>
             <button
               onClick={onOpenFilters}
-              className="bg-white bg-opacity-20 backdrop-blur-sm rounded-full p-2 hover:bg-opacity-30 transition-all"
+              className="rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-sm"
               aria-label="Open filters"
             >
-              <AdjustmentsHorizontalIcon className="h-5 w-5 text-white" />
+              <AdjustmentsHorizontalIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
             </button>
           </div>
           
           {/* Sort options */}
           <div className="flex justify-end">
-            <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-full p-1 flex text-xs">
+            <div className="bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-700 p-1 flex text-xs shadow-sm">
               {(['name', 'price-asc', 'price-desc', 'recent'] as SortMode[]).map((sortOption) => (
                 <button
                   key={sortOption}
                   onClick={() => onSortChange(sortOption)}
                   className={`px-3 py-1 rounded-full transition-all ${
                     sort === sortOption 
-                      ? 'bg-white text-blue-600 font-medium' 
-                      : 'text-white hover:bg-white hover:bg-opacity-10'
+                      ? 'bg-blue-600 text-white font-medium' 
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
                 >
                   {sortOption === 'name' && 'Name'}
