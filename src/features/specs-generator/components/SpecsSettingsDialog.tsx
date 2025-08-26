@@ -78,8 +78,7 @@ export function SpecsSettingsDialog({ isOpen, onClose }: SpecsSettingsDialogProp
                 <div className="mt-2">
                   <SpecsSettingsPanel
                     settings={localSettings}
-                    onChangeLength={(length) => setLocalSettings(prev => ({ ...prev, length }))}
-                    onChangeSystemPrompt={(systemPrompt) => setLocalSettings(prev => ({ ...prev, systemPrompt }))}
+                    onChange={(newSettings) => setLocalSettings(prev => ({ ...prev, ...newSettings }))}
                     disabled={isDisabled}
                     showHeader={false}
                   />

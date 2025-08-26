@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSpecsGenerator } from '../../../features/specs-generator/useSpecsGenerator';
 import { useImplementationPlan } from '../../../features/implementation-plan/useImplementationPlan';
 import { useChatbox } from '../../../components/chatbox/ChatboxProvider';
+import { useSpecsDerivations } from '../../../features/specs-generator/hooks/useSpecsDerivations';
 import { SpecsContentView } from '../../../features/specs-generator/components/SpecsContentView';
 import { SpecsSettingsDialog } from '../../../features/specs-generator/components/SpecsSettingsDialog';
 import { Cog6ToothIcon } from '@heroicons/react/24/outline';
@@ -10,6 +11,7 @@ export function SpecsContent() {
   const { state, settings, actions } = useSpecsGenerator();
   const { plan } = useImplementationPlan();
   const { config, createConversation, addMessageToConversation, openConversation } = useChatbox();
+  const { outlinePreview, warnings } = useSpecsDerivations(settings);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   // Check for prerequisites
@@ -109,6 +111,8 @@ export function SpecsContent() {
         preview={state.preview}
         result={state.result}
         errors={errors}
+        outlinePreview={outlinePreview}
+        warnings={warnings}
         onGenerate={handleGenerate}
         onCancel={handleCancel}
         onRegenerate={handleRegenerate}

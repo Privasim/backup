@@ -22,7 +22,76 @@ export function buildPrompt(planText: string, settings: SpecsSettings): string {
 Note: No implementation plan context was provided. Please generate a generic template structure.`;
   }
   
-  // Build the prompt with constraints
+  // Build section inclusion instructions
+  const sections: string[] = [];
+  if (settings.include.requirements) sections.push('Requirements');
+  if (settings.include.api) sections.push('API Endpoints');
+  if (settings.include.dataModel) sections.push('Data Model');
+  if (settings.include.nonFunctional) sections.push('Non-Functional Requirements');
+  if (settings.include.security) sections.push('Security Considerations');
+  if (settings.include.risks) sections.push('Risk Mitigation');
+  if (settings.include.acceptance) sections.push('Acceptance Criteria');
+  if (settings.include.glossary) sections.push('Glossary');
+  
+  const sectionInstructions = sections.length > 0 
+    ? `Include the following sections in your specification: ${sections.join(', ')}.`
+    : 'Include appropriate sections for a complete technical specification.';
+  
+  // Build outline style instructions
+  let outlineStyleInstruction = '';
+  switch (settings.outlineStyle) {
+    case 'numbered':
+      outlineStyleInstruction = 'Use numbered headings (e.g., 1., 2., 2.1, 2.2) for the specification structure.';
+      break;
+    case 'bulleted':
+      outlineStyleInstruction = 'Use bulleted headings with markdown headings (e.g., ## Requirements) for the specification structure.';
+      break;
+    case 'headings':
+      outlineStyleInstruction = 'Use markdown headings (e.g., # Requirements) for the specification structure.';
+      break;
+  }
+  
+  // Build audience and tone instructions
+  let audienceInstruction = '';
+  switch (settings.audienceLevel) {
+    case 'exec':
+      audienceInstruction = 'Target the specification for executive stakeholders with high-level technical understanding.';
+      break;
+    case 'pm':
+      audienceInstruction = 'Target the specification for project managers with moderate technical understanding.';
+      break;
+    case 'engineer':
+      audienceInstruction = 'Target the specification for software engineers with detailed technical understanding.';
+      break;
+  }
+  
+  let toneInstruction = '';
+  switch (settings.tone) {
+    case 'concise':
+      toneInstruction = 'Use a concise writing style with minimal elaboration.';
+      break;
+    case 'detailed':
+      toneInstruction = 'Use a detailed writing style with comprehensive explanations.';
+      break;
+    case 'formal':
+      toneInstruction = 'Use a formal writing style appropriate for technical documentation.';
+      break;
+    case 'neutral':
+      toneInstruction = 'Use a neutral, clear writing style suitable for technical documentation.';
+      break;
+  }
+  
+  // Build language instruction
+  const languageInstruction = settings.language && settings.language !== 'English' 
+    ? `Write the specification in ${settings.language}.`
+    : '';
+  
+  // Build max tokens instruction
+  const maxTokensInstruction = settings.maxTokens 
+    ? `Limit the total response to approximately ${settings.maxTokens} tokens.`
+    : `Limit the specification to approximately ${settings.length} lines.`;
+  
+  // Build the prompt with all constraints
   return `Generate a technical specification document in Markdown format based on the following implementation plan:
 
 <IMPLEMENTATION_PLAN>
@@ -30,10 +99,14 @@ ${normalizedPlan}
 </IMPLEMENTATION_PLAN>
 
 Instructions:
-1. Provide a concise technical specification based on the implementation plan above
-2. Format the output in clean Markdown with appropriate headings and bullet points
-3. Limit the specification to approximately ${settings.length} lines
-4. Follow this system prompt guidance: ${settings.systemPrompt}
+1. Provide a comprehensive technical specification based on the implementation plan above
+2. ${sectionInstructions}
+3. ${outlineStyleInstruction}
+4. ${audienceInstruction}
+5. ${toneInstruction}
+6. ${languageInstruction}
+7. ${maxTokensInstruction}
+8. Follow this system prompt guidance: ${settings.systemPrompt}
 
 Technical Specification (in Markdown format):`;
 }
