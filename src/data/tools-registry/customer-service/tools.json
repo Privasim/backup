@@ -1,0 +1,108 @@
+[
+  {
+    "id": "zendesk-ai",
+    "name": "Zendesk AI",
+    "vendor": "Zendesk",
+    "category": "customer-service",
+    "website": "https://www.zendesk.com/service/ai/",
+    "description": "AI-powered customer service platform with intelligent routing, chatbots, and agent assistance to automate support workflows and improve response times.",
+    "pricing": {
+      "model": "subscription",
+      "minMonthlyUSD": 49,
+      "maxMonthlyUSD": 199
+    },
+    "capabilities": [
+      "ticketing",
+      "live-chat",
+      "knowledge-base",
+      "ai-assistant",
+      "automation"
+    ],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true,
+      "hipaa": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-26T00:00:00Z"
+    }
+  },
+  {
+    "id": "intercom",
+    "name": "Intercom",
+    "vendor": "Intercom Inc",
+    "category": "customer-service",
+    "website": "https://www.intercom.com/",
+    "description": "Customer messaging platform with AI-powered chatbots, help center, and support inbox to engage customers and provide personalized support.",
+    "pricing": {
+      "model": "subscription",
+      "minMonthlyUSD": 39,
+      "maxMonthlyUSD": 999
+    },
+    "capabilities": [
+      "live-chat",
+      "knowledge-base",
+      "ai-assistant",
+      "automation"
+    ],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-26T00:00:00Z"
+    }
+  },
+  {
+    "id": "freshdesk",
+    "name": "Freshdesk",
+    "vendor": "Freshworks",
+    "category": "customer-service",
+    "website": "https://www.freshworks.com/freshdesk/",
+    "description": "AI-enhanced customer support software with ticketing, automation, and self-service to streamline support operations and improve customer satisfaction.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 79
+    },
+    "capabilities": [
+      "ticketing",
+      "knowledge-base",
+      "automation",
+      "collaboration"
+    ],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-26T00:00:00Z"
+    }
+  },
+  {
+    "id": "kustomer",
+    "name": "Kustomer",
+    "vendor": "Meta",
+    "category": "customer-service",
+    "website": "https://www.kustomer.com/",
+    "description": "AI-powered CRM platform for customer service that unifies customer conversations across channels and provides intelligent automation.",
+    "pricing": {
+      "model": "subscription",
+      "minMonthlyUSD": 89,
+      "maxMonthlyUSD": 139
+    },
+    "capabilities": [
+      "ticketing",
+      "live-chat",
+      "crm",
+      "ai-assistant"
+    ],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-26T00:00:00Z"
+    }
+  }
+]

@@ -13,6 +13,42 @@
       "name": "AI Assistant"
     },
     {
+      "slug": "ticketing",
+      "name": "Ticketing"
+    },
+    {
+      "slug": "live-chat",
+      "name": "Live Chat"
+    },
+    {
+      "slug": "knowledge-base",
+      "name": "Knowledge Base"
+    },
+    {
+      "slug": "lead-scoring",
+      "name": "Lead Scoring"
+    },
+    {
+      "slug": "pipeline-management",
+      "name": "Pipeline Management"
+    },
+    {
+      "slug": "proposal-automation",
+      "name": "Proposal Automation"
+    },
+    {
+      "slug": "roadmapping",
+      "name": "Roadmapping"
+    },
+    {
+      "slug": "requirements-management",
+      "name": "Requirements Management"
+    },
+    {
+      "slug": "user-feedback",
+      "name": "User Feedback"
+    },
+    {
       "slug": "collaboration",
       "name": "Collaboration"
     },

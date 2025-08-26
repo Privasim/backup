@@ -19,7 +19,8 @@ import {
   PlusIcon, 
   XMarkIcon,
   Squares2X2Icon as ViewGridIcon, 
-  ListBulletIcon as ViewListIcon 
+  ListBulletIcon as ViewListIcon,
+  ArrowPathIcon
 } from '@heroicons/react/24/outline';
 
 // Mobile-first inline UI components following modern design principles
@@ -469,9 +470,18 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
       
       {/* View Mode Toggle */}
       <div className="flex justify-between items-center px-4 py-3 border-b border-gray-100 tools-view-toggle">
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          {visibleTools.length} tools found
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {visibleTools.length} tools found
+          </p>
+          <button 
+            onClick={retry}
+            className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-700 transition-colors"
+            title="Refresh tools data"
+          >
+            <ArrowPathIcon className="h-4 w-4" />
+          </button>
+        </div>
         
         <div className="flex bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-0.5">
           <button

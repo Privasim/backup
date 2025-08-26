@@ -31,6 +31,18 @@
       "name": "Marketing",
       "status": "live"
     },
+    "customer-service": {
+      "name": "Customer Service",
+      "status": "live"
+    },
+    "sales": {
+      "name": "Sales",
+      "status": "live"
+    },
+    "product-management": {
+      "name": "Product Management",
+      "status": "live"
+    },
     "developer-tools": {
       "name": "Developer Tools",
       "status": "draft"

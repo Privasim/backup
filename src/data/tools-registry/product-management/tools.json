@@ -1,0 +1,102 @@
+[
+  {
+    "id": "aha",
+    "name": "Aha!",
+    "vendor": "Aha! Labs Inc",
+    "category": "product-management",
+    "website": "https://www.aha.io/",
+    "description": "Product management software with AI capabilities for roadmapping, idea management, and strategic planning to align product development with business goals.",
+    "pricing": {
+      "model": "subscription",
+      "minMonthlyUSD": 59,
+      "maxMonthlyUSD": 149
+    },
+    "capabilities": [
+      "roadmapping",
+      "requirements-management",
+      "project-management",
+      "collaboration"
+    ],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-26T00:00:00Z"
+    }
+  },
+  {
+    "id": "chatprd",
+    "name": "ChatPRD",
+    "vendor": "ChatPRD",
+    "category": "product-management",
+    "website": "https://www.chatprd.ai/",
+    "description": "AI copilot for product managers that helps create PRDs, analyze user feedback, and generate product insights to streamline the product development process.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 49
+    },
+    "capabilities": [
+      "requirements-management",
+      "ai-assistant",
+      "user-feedback"
+    ],
+    "compliance": {
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-26T00:00:00Z"
+    }
+  },
+  {
+    "id": "productboard",
+    "name": "Productboard",
+    "vendor": "Productboard",
+    "category": "product-management",
+    "website": "https://www.productboard.com/",
+    "description": "Product management platform with AI features for capturing customer feedback, prioritizing features, and creating strategic roadmaps based on customer needs.",
+    "pricing": {
+      "model": "subscription",
+      "minMonthlyUSD": 25,
+      "maxMonthlyUSD": 100
+    },
+    "capabilities": [
+      "roadmapping",
+      "user-feedback",
+      "requirements-management",
+      "analytics"
+    ],
+    "compliance": {
+      "gdpr": true,
+      "soc2": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-26T00:00:00Z"
+    }
+  },
+  {
+    "id": "maze",
+    "name": "Maze",
+    "vendor": "Maze",
+    "category": "product-management",
+    "website": "https://maze.co/",
+    "description": "Product research platform with AI-powered insights that helps product teams test prototypes, analyze user behavior, and make data-driven decisions.",
+    "pricing": {
+      "model": "freemium",
+      "minMonthlyUSD": 0,
+      "maxMonthlyUSD": 83
+    },
+    "capabilities": [
+      "user-feedback",
+      "analytics",
+      "requirements-management"
+    ],
+    "compliance": {
+      "gdpr": true
+    },
+    "metadata": {
+      "lastVerifiedAt": "2025-08-26T00:00:00Z"
+    }
+  }
+]

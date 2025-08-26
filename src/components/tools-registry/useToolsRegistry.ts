@@ -73,7 +73,16 @@ export function useToolsRegistry(): ToolsRegistryState {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await fetch('/data/tools.snapshot.v1.json', { cache: 'no-store' });
+        // Add timestamp to prevent caching issues with the snapshot file
+        const timestamp = new Date().getTime();
+        const res = await fetch(`/data/tools.snapshot.v1.json?t=${timestamp}`, { 
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
         if (!res.ok) {
           throw new Error(`Failed to fetch snapshot: ${res.status} ${res.statusText}`);
         }
@@ -194,7 +203,29 @@ export function useToolsRegistry(): ToolsRegistryState {
 
   const retry = () => {
     setError(null);
-    setReloadCount((c) => c + 1);
+    setIsLoading(true);
+    
+    // Force clear any potential browser cache for the snapshot file
+    // by adding a unique timestamp to the URL and forcing a network fetch
+    const snapshotUrl = '/data/tools.snapshot.v1.json';
+    const clearCacheUrl = `${snapshotUrl}?forceClear=${Date.now()}`;
+    
+    // Use the fetch API to force a network request that bypasses the cache
+    fetch(clearCacheUrl, { 
+      cache: 'reload',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    }).then(() => {
+      // Increment reload count to trigger the useEffect that loads the data
+      setReloadCount((c) => c + 1);
+    }).catch(e => {
+      console.error('Failed to clear cache:', e);
+      // Still increment reload count to retry loading the data
+      setReloadCount((c) => c + 1);
+    });
   };
 
   return {
