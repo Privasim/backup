@@ -31,106 +31,147 @@ export function useToolsRegistry(): ToolsRegistryState {
   const [visibleTools, setVisibleTools] = useState<ToolSummary[]>([]);
   const [liveCategories, setLiveCategories] = useState<LiveCategory[]>([]);
   const [availableCapabilities, setAvailableCapabilities] = useState<string[]>([]);
+  const [allTools, setAllTools] = useState<ToolSummary[]>([]);
+  const [reloadCount, setReloadCount] = useState(0);
 
-  // Mock implementation for demo purposes
+  function mapToToolSummary(item: any): ToolSummary {
+    const pricing = item.pricing
+      ? {
+          model: String(item.pricing.model),
+          ...(typeof item.pricing.minMonthlyUSD === 'number' ? { minUSD: item.pricing.minMonthlyUSD } : {}),
+          ...(typeof item.pricing.maxMonthlyUSD === 'number' ? { maxUSD: item.pricing.maxMonthlyUSD } : {}),
+        }
+      : undefined;
+
+    const compliance = item.compliance
+      ? {
+          gdpr: item.compliance.gdpr ?? undefined,
+          soc2: item.compliance.soc2 ?? undefined,
+          hipaa: item.compliance.hipaa ?? undefined,
+        }
+      : undefined;
+
+    return {
+      // Ensure uniqueness for React keys by combining id + category
+      id: `${item.id}__${item.category}`,
+      name: String(item.name),
+      vendor: String(item.vendor),
+      category: String(item.category),
+      website: String(item.website),
+      description: String(item.description || ''),
+      pricing,
+      capabilities: Array.isArray(item.capabilities) ? (item.capabilities as string[]) : [],
+      compliance,
+      lastVerifiedAt: item.metadata?.lastVerifiedAt,
+    };
+  }
+
+  // Load registry snapshot once (and on retry)
   useEffect(() => {
-    setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
+    let cancelled = false;
+    async function load() {
+      setIsLoading(true);
+      setError(null);
       try {
-        // Mock data
-        const mockCategories: LiveCategory[] = [
-          { slug: 'ai', name: 'AI Tools', count: 12 },
-          { slug: 'analytics', name: 'Analytics', count: 8 },
-          { slug: 'marketing', name: 'Marketing', count: 15 },
-          { slug: 'productivity', name: 'Productivity', count: 10 },
-          { slug: 'development', name: 'Development', count: 20 },
-        ];
-        
-        const mockCapabilities = [
-          'API Access', 'Data Export', 'Automation', 'Collaboration', 
-          'Mobile Support', 'Integrations', 'Custom Reporting'
-        ];
-        
-        const mockTools: ToolSummary[] = mockCategories.flatMap(cat => 
-          Array(cat.count).fill(0).map((_, i) => ({
-            id: `${cat.slug}-tool-${i+1}`,
-            name: `${cat.name.slice(0, -1)} ${i+1}`,
-            vendor: `${cat.name.split(' ')[0]} Co.`,
-            category: cat.slug,
-            website: `https://example.com/${cat.slug}/tool-${i+1}`,
-            description: `A powerful tool for ${cat.name.toLowerCase()}.`,
-            capabilities: mockCapabilities.slice(0, Math.floor(Math.random() * 5) + 1),
-            pricing: ((): ToolSummary['pricing'] => {
-              const tier = Math.floor(Math.random() * 4);
-              if (tier === 0) return { model: 'free', minUSD: 0, maxUSD: 0 };
-              if (tier === 1) return { model: 'freemium', minUSD: 0, maxUSD: 10 };
-              if (tier === 2) return { model: 'paid', minUSD: 10, maxUSD: 50 };
-              return { model: 'enterprise', minUSD: 50, maxUSD: 200 };
-            })(),
-            lastVerifiedAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 86400000).toISOString(),
-          }))
-        );
-        
-        setLiveCategories(mockCategories);
-        setAvailableCapabilities(mockCapabilities);
-        
-        // Filter tools based on current state
-        let filtered = [...mockTools];
-        
-        if (selectedCategory) {
-          filtered = filtered.filter(tool => tool.category === selectedCategory);
+        const res = await fetch('/data/tools.snapshot.v1.json', { cache: 'no-store' });
+        if (!res.ok) {
+          throw new Error(`Failed to fetch snapshot: ${res.status} ${res.statusText}`);
         }
-        
-        if (query) {
-          const lowerQuery = query.toLowerCase();
-          filtered = filtered.filter(tool => 
-            tool.name.toLowerCase().includes(lowerQuery) || 
-            tool.description.toLowerCase().includes(lowerQuery)
-          );
+        const snapshot: any = await res.json();
+        const toolsRaw: any[] = Array.isArray(snapshot?.tools) ? snapshot.tools : [];
+
+        // Deduplicate by composite key to avoid repeated entries in snapshot
+        const seen = new Set<string>();
+        const deduped: any[] = [];
+        for (const item of toolsRaw) {
+          const key = `${item.id}|${item.category}|${item.website}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          deduped.push(item);
         }
-        
-        if (selectedCapabilities.length > 0) {
-          filtered = filtered.filter(tool => 
-            selectedCapabilities.every(cap => tool.capabilities.includes(cap))
-          );
+        const loadedTools = deduped.map(mapToToolSummary);
+
+        // Compute live categories from snapshot categories + loaded tools counts
+        const categoriesRec: Record<string, { name: string; status: string }> = snapshot?.categories || {};
+        const counts = new Map<string, number>();
+        for (const t of loadedTools) {
+          counts.set(t.category, (counts.get(t.category) ?? 0) + 1);
         }
-        
-        // Sort tools
-        switch (sort) {
-          case 'name':
-            filtered.sort((a, b) => a.name.localeCompare(b.name));
-            break;
-          case 'price-asc':
-            filtered.sort((a, b) => (a.pricing?.minUSD ?? 0) - (b.pricing?.minUSD ?? 0));
-            break;
-          case 'price-desc':
-            filtered.sort((a, b) => (b.pricing?.maxUSD ?? 0) - (a.pricing?.maxUSD ?? 0));
-            break;
-          case 'recent':
-            filtered.sort((a, b) => {
-              const ta = a.lastVerifiedAt ? new Date(a.lastVerifiedAt).getTime() : 0;
-              const tb = b.lastVerifiedAt ? new Date(b.lastVerifiedAt).getTime() : 0;
-              return tb - ta;
-            });
-            break;
+        const liveCats: LiveCategory[] = Object.entries(categoriesRec)
+          .filter(([, c]) => c && c.status === 'live')
+          .map(([slug, c]) => ({ slug, name: c.name, count: counts.get(slug) ?? 0 }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+
+        // Compute available capabilities
+        const capSet = new Set<string>();
+        for (const t of loadedTools) {
+          for (const c of t.capabilities) capSet.add(c);
         }
-        
-        setVisibleTools(filtered);
-        setIsLoading(false);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Unknown error'));
-        setIsLoading(false);
+        const caps = Array.from(capSet).sort((a, b) => a.localeCompare(b));
+
+        if (!cancelled) {
+          setAllTools(loadedTools);
+          setLiveCategories(liveCats);
+          setAvailableCapabilities(caps);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setError(e instanceof Error ? e : new Error('Unknown error loading tools snapshot'));
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
-    }, 500);
-  }, [selectedCategory, query, sort, selectedCapabilities]);
+    }
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [reloadCount]);
+
+  // Derive visible tools based on filters/sort
+  useEffect(() => {
+    let filtered = [...allTools];
+
+    if (selectedCategory) {
+      filtered = filtered.filter((t) => t.category === selectedCategory);
+    }
+
+    if (query) {
+      const q = query.toLowerCase();
+      filtered = filtered.filter((t) =>
+        t.name.toLowerCase().includes(q) || t.description.toLowerCase().includes(q)
+      );
+    }
+
+    if (selectedCapabilities.length > 0) {
+      filtered = filtered.filter((t) => selectedCapabilities.every((c) => t.capabilities.includes(c)));
+    }
+
+    switch (sort) {
+      case 'name':
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'price-asc':
+        filtered.sort((a, b) => (a.pricing?.minUSD ?? 0) - (b.pricing?.minUSD ?? 0));
+        break;
+      case 'price-desc':
+        filtered.sort((a, b) => (b.pricing?.maxUSD ?? 0) - (a.pricing?.maxUSD ?? 0));
+        break;
+      case 'recent':
+        filtered.sort((a, b) => {
+          const ta = a.lastVerifiedAt ? new Date(a.lastVerifiedAt).getTime() : 0;
+          const tb = b.lastVerifiedAt ? new Date(b.lastVerifiedAt).getTime() : 0;
+          return tb - ta;
+        });
+        break;
+    }
+
+    setVisibleTools(filtered);
+  }, [allTools, selectedCategory, query, sort, selectedCapabilities]);
 
   const toggleCapability = (capability: string) => {
-    setSelectedCapabilities(prev => 
-      prev.includes(capability) 
-        ? prev.filter(c => c !== capability)
-        : [...prev, capability]
+    setSelectedCapabilities((prev) =>
+      prev.includes(capability) ? prev.filter((c) => c !== capability) : [...prev, capability]
     );
   };
 
@@ -152,9 +193,8 @@ export function useToolsRegistry(): ToolsRegistryState {
   };
 
   const retry = () => {
-    // Re-fetch data
     setError(null);
-    // This would trigger the useEffect
+    setReloadCount((c) => c + 1);
   };
 
   return {
