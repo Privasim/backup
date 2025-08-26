@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSpecsGenerator } from '../../../features/specs-generator/useSpecsGenerator';
 import { useImplementationPlan } from '../../../features/implementation-plan/useImplementationPlan';
 import { useChatbox } from '../../../components/chatbox/ChatboxProvider';
-import { SpecsSettingsPanel } from '../../../features/specs-generator/components/SpecsSettingsPanel';
 import { SpecsContentView } from '../../../features/specs-generator/components/SpecsContentView';
+import { SpecsSettingsDialog } from '../../../features/specs-generator/components/SpecsSettingsDialog';
+import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 
 export function SpecsContent() {
   const { state, settings, actions } = useSpecsGenerator();
   const { plan } = useImplementationPlan();
   const { config, createConversation, addMessageToConversation, openConversation } = useChatbox();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   // Check for prerequisites
   const errors: string[] = [];
@@ -81,20 +83,25 @@ export function SpecsContent() {
   
   return (
     <div className="p-4 md:p-6 max-w-4xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Technical Specification Generator</h1>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-          Generate technical specifications from your implementation plan
-        </p>
+      <div className="mb-6 flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Technical Specification Generator</h1>
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            Generate technical specifications from your implementation plan
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsSettingsOpen(true)}
+          className="rounded-full p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700"
+          aria-label="Specification settings"
+        >
+          <Cog6ToothIcon className="h-5 w-5" />
+        </button>
       </div>
       
-      {/* Settings Panel */}
-      <SpecsSettingsPanel
-        settings={settings}
-        onChangeLength={actions.setLength}
-        onChangeSystemPrompt={actions.setSystemPrompt}
-        disabled={state.status === 'generating' || state.status === 'streaming'}
-      />
+      {/* Settings Dialog */}
+      <SpecsSettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
       
       {/* Content View */}
       <SpecsContentView
