@@ -112,502 +112,253 @@ body {
 [data-color-index="7"].cat-active { outline: 2px solid var(--cat7-ring); outline-offset: 2px; }
 [data-color-index="8"].cat-active { outline: 2px solid var(--cat8-ring); outline-offset: 2px; }
 
-/* Tools Registry Compact Mode */
-/* Force light mode within ToolsContent */
-[data-force-light] {
-  --background: #ffffff;
-  --foreground: #171717;
-  --ring-color: rgba(59, 130, 246, 0.45);
-  color: var(--foreground) !important;
-  background: var(--background) !important;
-}
-
-[data-force-light] .dark\:bg-gray-950 {
-  background-color: #ffffff !important;
-}
-
-[data-force-light] .dark\:bg-gray-900 {
-  background-color: #ffffff !important;
-}
-
-[data-force-light] .dark\:bg-gray-800 {
-  background-color: #f9fafb !important;
-}
-
-[data-force-light] .dark\:bg-gray-700 {
-  background-color: #f3f4f6 !important;
-}
-
-[data-force-light] .dark\:text-white {
-  color: #171717 !important;
-}
-
-[data-force-light] .dark\:text-gray-400 {
-  color: #6b7280 !important;
-}
-
-[data-force-light] .dark\:text-gray-300 {
-  color: #4b5563 !important;
-}
-
-[data-force-light] .dark\:border-gray-800 {
-  border-color: #e5e7eb !important;
-}
-
-[data-force-light] .dark\:border-gray-700 {
-  border-color: #e5e7eb !important;
-}
-
-/* Compact density scale for ToolsContent */
-[data-compact] {
-  /* Base font size reduction */
+/* Ultra-compact Tools Registry UI */
+[data-compact="true"] {
+  /* Base typography scale reduction */
   font-size: 14px;
 }
 
-[data-compact] .tools-header {
-  font-size: 15px;
+/* Force light mode regardless of system preference */
+[data-force-light="true"] {
+  --background: #ffffff;
+  --foreground: #171717;
+  background-color: #ffffff;
+  color: #171717;
 }
 
-[data-compact] .tools-header h1 {
-  font-size: 16px;
-  line-height: 1.25;
+[data-force-light="true"] .dark\:bg-gray-800,
+[data-force-light="true"] .dark\:bg-gray-900,
+[data-force-light="true"] .dark\:bg-gray-950 {
+  background-color: #ffffff !important;
 }
 
-[data-compact] .tools-header input {
-  padding: 6px 12px;
-  font-size: 13px;
+[data-force-light="true"] .dark\:text-white,
+[data-force-light="true"] .dark\:text-gray-100,
+[data-force-light="true"] .dark\:text-gray-200,
+[data-force-light="true"] .dark\:text-gray-300 {
+  color: #171717 !important;
 }
 
-[data-compact] .tools-header .p-2 {
-  padding: 6px;
+[data-force-light="true"] .dark\:text-gray-400 {
+  color: #525252 !important;
 }
 
-[data-compact] .tools-header .h-5 {
-  height: 16px;
-  width: 16px;
+[data-force-light="true"] .dark\:border-gray-700,
+[data-force-light="true"] .dark\:border-gray-800 {
+  border-color: #f1f5f9 !important;
 }
 
-[data-compact] .tools-header .h-4 {
-  height: 14px;
-  width: 14px;
+/* Compact header */
+[data-compact="true"] .tools-header {
+  padding: 0.5rem 0.75rem;
 }
 
-[data-compact] .tools-categories {
-  padding: 8px 0;
+[data-compact="true"] .tools-header h1 {
+  font-size: 1.125rem;
+  margin-bottom: 0.25rem;
 }
 
-[data-compact] .tools-categories .px-4 {
-  padding-left: 12px;
-  padding-right: 12px;
+[data-compact="true"] .tools-header input {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  font-size: 0.75rem;
 }
 
-[data-compact] .tools-categories .py-2 {
-  padding-top: 6px;
-  padding-bottom: 6px;
+[data-compact="true"] .tools-header button {
+  padding: 0.25rem;
 }
 
-[data-compact] .tools-categories button {
-  padding: 6px 12px;
-  font-size: 12px;
-  min-height: 28px;
+/* Compact categories */
+[data-compact="true"] .tools-categories {
+  padding: 0.25rem 0.75rem;
 }
 
-[data-compact] .tools-categories .rounded-full {
-  border-radius: 16px;
+[data-compact="true"] .tools-categories button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
 }
 
-[data-compact] .tools-filterbar {
-  padding: 8px 0;
+[data-compact="true"] .tools-categories .flex {
+  gap: 0.25rem;
+  padding-bottom: 0.25rem;
 }
 
-[data-compact] .tools-filterbar .px-4 {
-  padding-left: 12px;
-  padding-right: 12px;
+/* Compact filter bar */
+[data-compact="true"] .tools-filterbar {
+  padding: 0.25rem 0.75rem;
 }
 
-[data-compact] .tools-filterbar .py-2 {
-  padding-top: 6px;
-  padding-bottom: 6px;
+[data-compact="true"] .tools-filterbar .flex {
+  gap: 0.25rem;
 }
 
-[data-compact] .tools-chip {
-  padding: 4px 10px;
-  font-size: 11px;
+[data-compact="true"] .tools-filterbar .flex > div,
+[data-compact="true"] .tools-filterbar button {
+  padding: 0.125rem 0.375rem;
+  font-size: 0.7rem;
 }
 
-[data-compact] .tools-chip .h-3 {
-  height: 12px;
-  width: 12px;
+/* Compact view toggle */
+[data-compact="true"] .tools-view-toggle {
+  padding: 0.25rem 0.75rem;
 }
 
-[data-compact] .tools-clear-all {
-  padding: 4px 10px;
-  font-size: 11px;
+[data-compact="true"] .tools-view-toggle p {
+  font-size: 0.7rem;
 }
 
-[data-compact] .tools-view-toggle {
-  padding: 8px 0;
+[data-compact="true"] .tools-view-toggle button {
+  padding: 0.125rem;
 }
 
-[data-compact] .tools-view-toggle .px-4 {
-  padding-left: 12px;
-  padding-right: 12px;
+[data-compact="true"] .tools-view-toggle svg {
+  width: 0.875rem;
+  height: 0.875rem;
 }
 
-[data-compact] .tools-view-toggle .py-3 {
-  padding-top: 8px;
-  padding-bottom: 8px;
+/* Compact content area */
+[data-compact="true"] .tools-content {
+  padding: 0.5rem;
 }
 
-[data-compact] .tools-view-toggle .p-1\.5 {
-  padding: 4px;
+[data-compact="true"] .tools-list {
+  gap: 0.5rem;
 }
 
-[data-compact] .tools-view-toggle .text-sm {
-  font-size: 12px;
+/* Compact tool cards */
+[data-compact="true"] .tools-list > div {
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  border-color: #f1f5f9;
 }
 
-[data-compact] .tools-view-toggle .h-4 {
-  height: 14px;
-  width: 14px;
+/* Grid mode */
+[data-compact="true"] .tools-list.grid > div {
+  padding: 0.5rem;
 }
 
-[data-compact] .tools-content {
-  padding: 8px;
+[data-compact="true"] .tools-list.grid h3 {
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
 }
 
-[data-compact] .tools-list {
-  gap: 8px;
+[data-compact="true"] .tools-list.grid p {
+  font-size: 0.75rem;
+  margin-bottom: 0.375rem;
+  line-height: 1.2;
 }
 
-[data-compact] .tools-list.grid {
-  gap: 8px;
+[data-compact="true"] .tools-list.grid .w-10.h-10 {
+  width: 1.75rem;
+  height: 1.75rem;
 }
 
-[data-compact] .tools-card .p-4 {
-  padding: 8px;
+[data-compact="true"] .tools-list.grid button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
 }
 
-[data-compact] .tools-card .p-3 {
-  padding: 8px;
+[data-compact="true"] .tools-list.grid button svg {
+  width: 0.875rem;
+  height: 0.875rem;
 }
 
-[data-compact] .tools-card .gap-3 {
-  gap: 8px;
+/* List mode */
+[data-compact="true"] .tools-list:not(.grid) > div {
+  padding: 0.375rem 0.5rem;
 }
 
-[data-compact] .tools-card .gap-2 {
-  gap: 6px;
+[data-compact="true"] .tools-list:not(.grid) h3 {
+  font-size: 0.875rem;
 }
 
-[data-compact] .tools-card .w-10 {
-  width: 28px;
+[data-compact="true"] .tools-list:not(.grid) p {
+  font-size: 0.75rem;
+  margin-top: 0;
+  line-height: 1.2;
 }
 
-[data-compact] .tools-card .h-10 {
-  height: 28px;
+[data-compact="true"] .tools-list:not(.grid) .w-10.h-10 {
+  width: 1.75rem;
+  height: 1.75rem;
 }
 
-[data-compact] .tools-card .w-8 {
-  width: 24px;
+[data-compact="true"] .tools-list:not(.grid) button {
+  padding: 0.25rem;
 }
 
-[data-compact] .tools-card .h-8 {
-  height: 24px;
+[data-compact="true"] .tools-list:not(.grid) button svg {
+  width: 0.875rem;
+  height: 0.875rem;
 }
 
-[data-compact] .tools-card .text-sm {
-  font-size: 12px;
+/* Compact empty/error states */
+[data-compact="true"] .tools-content > div > div.flex.flex-col.items-center {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
 }
 
-[data-compact] .tools-card .text-xs {
-  font-size: 11px;
+[data-compact="true"] .tools-content > div > div.flex.flex-col.items-center .w-16.h-16 {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-bottom: 0.5rem;
 }
 
-[data-compact] .tools-card .px-3 {
-  padding-left: 8px;
-  padding-right: 8px;
+[data-compact="true"] .tools-content > div > div.flex.flex-col.items-center h3 {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
 }
 
-[data-compact] .tools-card .py-2 {
-  padding-top: 6px;
-  padding-bottom: 6px;
+[data-compact="true"] .tools-content > div > div.flex.flex-col.items-center p {
+  font-size: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
-[data-compact] .tools-card .px-2 {
-  padding-left: 6px;
-  padding-right: 6px;
+[data-compact="true"] .tools-content > div > div.flex.flex-col.items-center button {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
 }
 
-[data-compact] .tools-card .py-1 {
-  padding-top: 4px;
-  padding-bottom: 4px;
+/* Compact skeleton */
+[data-compact="true"] .animate-pulse .w-10.h-10 {
+  width: 1.75rem;
+  height: 1.75rem;
 }
 
-[data-compact] .tools-card .rounded-lg {
-  border-radius: 8px;
+[data-compact="true"] .animate-pulse .h-4 {
+  height: 0.75rem;
 }
 
-[data-compact] .tools-card .rounded-xl {
-  border-radius: 12px;
+[data-compact="true"] .animate-pulse .h-3 {
+  height: 0.5rem;
 }
 
-[data-compact] .tools-card .h-4 {
-  height: 14px;
-  width: 14px;
+[data-compact="true"] .animate-pulse .h-8 {
+  height: 1.5rem;
 }
 
-[data-compact] .tools-card .h-3 {
-  height: 12px;
-  width: 12px;
+/* Compact filter panel */
+[data-compact="true"] .tools-filter-panel .bg-white {
+  border-radius: 0.5rem;
 }
 
-[data-compact] .tools-card .line-clamp-2 {
-  -webkit-line-clamp: 2;
+[data-compact="true"] .tools-filter-panel .p-4 {
+  padding: 0.5rem;
 }
 
-[data-compact] .tools-card .mb-3 {
-  margin-bottom: 8px;
+[data-compact="true"] .tools-filter-panel h3 {
+  font-size: 1rem;
 }
 
-[data-compact] .tools-card .mb-1 {
-  margin-bottom: 4px;
+[data-compact="true"] .tools-filter-panel h4 {
+  font-size: 0.875rem;
 }
 
-[data-compact] .tools-card .mb-2 {
-  margin-bottom: 6px;
+[data-compact="true"] .tools-filter-panel .gap-2 {
+  gap: 0.25rem;
 }
 
-[data-compact] .tools-card .font-semibold {
-  font-weight: 600;
-}
-
-[data-compact] .tools-card .font-medium {
-  font-weight: 500;
-}
-
-[data-compact] .tools-card .border-2 {
-  border-width: 1px;
-}
-
-[data-compact] .tools-card .rounded-full {
-  border-radius: 12px;
-}
-
-[data-compact] .tools-card .px-2\.5 {
-  padding-left: 8px;
-  padding-right: 8px;
-}
-
-[data-compact] .tools-card .py-0\.5 {
-  padding-top: 2px;
-  padding-bottom: 2px;
-}
-
-[data-compact] .tools-card .px-1\.5 {
-  padding-left: 4px;
-  padding-right: 4px;
-}
-
-[data-compact] .tools-skeleton .p-4 {
-  padding: 8px;
-}
-
-[data-compact] .tools-skeleton .p-3 {
-  padding: 8px;
-}
-
-[data-compact] .tools-skeleton .gap-3 {
-  gap: 8px;
-}
-
-[data-compact] .tools-skeleton .gap-2 {
-  gap: 6px;
-}
-
-[data-compact] .tools-skeleton .w-10 {
-  width: 28px;
-}
-
-[data-compact] .tools-skeleton .h-10 {
-  height: 28px;
-}
-
-[data-compact] .tools-skeleton .w-8 {
-  width: 24px;
-}
-
-[data-compact] .tools-skeleton .h-8 {
-  height: 24px;
-}
-
-[data-compact] .tools-skeleton .h-4 {
-  height: 12px;
-}
-
-[data-compact] .tools-skeleton .h-3 {
-  height: 10px;
-}
-
-[data-compact] .tools-skeleton .w-3\/4 {
-  width: 75%;
-}
-
-[data-compact] .tools-skeleton .w-1\/2 {
-  width: 50%;
-}
-
-[data-compact] .tools-skeleton .w-full {
-  width: 100%;
-}
-
-[data-compact] .tools-skeleton .w-2\/3 {
-  width: 66.666667%;
-}
-
-[data-compact] .tools-skeleton .h-8 {
-  height: 24px;
-}
-
-[data-compact] .tools-skeleton .h-6 {
-  height: 18px;
-}
-
-[data-compact] .tools-skeleton .rounded-lg {
-  border-radius: 8px;
-}
-
-[data-compact] .tools-skeleton .rounded-xl {
-  border-radius: 12px;
-}
-
-[data-compact] .tools-skeleton .rounded-full {
-  border-radius: 12px;
-}
-
-[data-compact] .tools-empty {
-  padding: 24px 0;
-}
-
-[data-compact] .tools-empty .w-16 {
-  width: 32px;
-}
-
-[data-compact] .tools-empty .h-16 {
-  height: 32px;
-}
-
-[data-compact] .tools-empty .text-lg {
-  font-size: 16px;
-}
-
-[data-compact] .tools-empty .text-sm {
-  font-size: 12px;
-}
-
-[data-compact] .tools-empty .mb-4 {
-  margin-bottom: 12px;
-}
-
-[data-compact] .tools-empty .mb-2 {
-  margin-bottom: 8px;
-}
-
-[data-compact] .tools-empty .px-4 {
-  padding-left: 12px;
-  padding-right: 12px;
-}
-
-[data-compact] .tools-empty .py-2 {
-  padding-top: 8px;
-  padding-bottom: 8px;
-}
-
-[data-compact] .tools-empty .rounded-lg {
-  border-radius: 8px;
-}
-
-[data-compact] .tools-error {
-  padding: 24px 0;
-}
-
-[data-compact] .tools-error .w-16 {
-  width: 32px;
-}
-
-[data-compact] .tools-error .h-16 {
-  height: 32px;
-}
-
-[data-compact] .tools-error .text-lg {
-  font-size: 16px;
-}
-
-[data-compact] .tools-error .text-sm {
-  font-size: 12px;
-}
-
-[data-compact] .tools-error .mb-4 {
-  margin-bottom: 12px;
-}
-
-[data-compact] .tools-error .mb-2 {
-  margin-bottom: 8px;
-}
-
-[data-compact] .tools-error .px-4 {
-  padding-left: 12px;
-  padding-right: 12px;
-}
-
-[data-compact] .tools-error .py-2 {
-  padding-top: 8px;
-  padding-bottom: 8px;
-}
-
-[data-compact] .tools-error .rounded-lg {
-  border-radius: 8px;
-}
-
-/* Reduce shadows in compact mode */
-[data-compact] .shadow-sm {
-  box-shadow: 0 1px 1px rgba(0,0,0,0.02), 0 1px 1px rgba(0,0,0,0.015);
-}
-
-[data-compact] .shadow-md {
-  box-shadow: 0 2px 4px rgba(0,0,0,0.03), 0 1px 2px rgba(0,0,0,0.02);
-}
-
-[data-compact] .shadow-lg {
-  box-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.025);
-}
-
-[data-compact] .border-2 {
-  border-width: 1px;
-}
-
-/* Reduce border radius in compact mode */
-[data-compact] .rounded-xl {
-  border-radius: 12px;
-}
-
-[data-compact] .rounded-2xl {
-  border-radius: 16px;
-}
-
-/* Reduce gap spacing in compact mode */
-[data-compact] .gap-4 {
-  gap: 8px;
-}
-
-[data-compact] .gap-2 {
-  gap: 6px;
-}
-
-[data-compact] .gap-1\.5 {
-  gap: 4px;
-}
-
-[data-compact] .gap-1 {
-  gap: 4px;
+[data-compact="true"] .tools-filter-panel button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
 }
