@@ -39,39 +39,39 @@ const MobileHeader = memo(function MobileHeader({
   
   return (
     <div className={cn("sticky top-0 z-10 bg-white border-b border-gray-100", className)}>
-      <div className="px-4 py-3">
-        <div className="flex items-center justify-between mb-3">
-          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">{title}</h1>
+      <div className="px-3 py-2">
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h1>
           <button
             onClick={onOpenFilters}
-            className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            className="p-1.5 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             aria-label="Open filters"
           >
-            <AdjustmentsHorizontalIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+            <AdjustmentsHorizontalIcon className="h-4 w-4 text-gray-600 dark:text-gray-300" />
           </button>
         </div>
         
-        {/* Compact Search Bar */}
+        {/* Ultra-compact Search Bar */}
         <div className={cn(
-          "flex items-center bg-gray-50 dark:bg-gray-800 rounded-xl border transition-colors",
+          "flex items-center bg-gray-50 dark:bg-gray-800 rounded-lg border transition-colors",
           isFocused ? "border-blue-500" : "border-gray-200 dark:border-gray-700"
         )}>
-          <MagnifyingGlassIcon className="h-4 w-4 ml-3 text-gray-400" />
+          <MagnifyingGlassIcon className="h-3.5 w-3.5 ml-2.5 text-gray-400" />
           <input
             type="text"
             value={query}
             onChange={(e) => onSearchChange(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            placeholder="Search tools..."
-            className="flex-1 px-3 py-2.5 bg-transparent text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none text-sm"
+            placeholder="Search..."
+            className="flex-1 px-2 py-2 bg-transparent text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none text-sm"
           />
           {query && (
             <button
               onClick={() => onSearchChange('')}
-              className="p-1 mr-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              className="p-1 mr-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
             >
-              <XMarkIcon className="h-4 w-4 text-gray-400" />
+              <XMarkIcon className="h-3.5 w-3.5 text-gray-400" />
             </button>
           )}
         </div>
@@ -92,12 +92,12 @@ const CategoryPills = memo(function CategoryPills({
   const totalCount = categories.reduce((sum, cat) => sum + cat.count, 0);
   
   return (
-    <div className={cn("px-4 py-2 border-b border-gray-100", className)}>
-      <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+    <div className={cn("px-3 py-1.5 border-b border-gray-100", className)}>
+      <div className="flex gap-1.5 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         <button
           onClick={() => onSelect(undefined)}
           className={cn(
-            "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors",
+            "flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
             !active 
               ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300" 
               : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -110,7 +110,7 @@ const CategoryPills = memo(function CategoryPills({
             key={category.slug}
             onClick={() => onSelect(category.slug)}
             className={cn(
-              "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap",
+              "flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap",
               active === category.slug
                 ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
                 : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -146,43 +146,43 @@ const CompactToolCard = memo(function CompactToolCard({
   if (variant === 'list') {
     return (
       <div className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/40 dark:to-blue-800/40 flex items-center justify-center flex-shrink-0">
-          <span className="text-blue-600 dark:text-blue-300 font-medium text-sm">
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/40 dark:to-blue-800/40 flex items-center justify-center flex-shrink-0">
+          <span className="text-blue-600 dark:text-blue-300 font-medium text-xs">
             {tool.name.charAt(0)}
           </span>
         </div>
         
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-medium text-gray-900 dark:text-white truncate">{tool.name}</h3>
+          <div className="flex items-center gap-1 mb-0.5">
+            <h3 className="font-medium text-sm text-gray-900 dark:text-white truncate">{tool.name}</h3>
             {formatPrice(tool.pricing) && (
               <span className={cn(
-                "px-2 py-0.5 rounded text-xs font-medium",
+                "px-1.5 py-0.5 rounded text-xs font-medium",
                 tool.pricing?.model === 'free' || tool.pricing?.model === 'freemium'
-                  ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                  ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300" 
                   : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
               )}>
                 {formatPrice(tool.pricing)}
               </span>
             )}
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-400 truncate">{tool.description}</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 truncate">{tool.description}</p>
         </div>
         
-        <div className="flex gap-2 flex-shrink-0">
+        <div className="flex gap-1 flex-shrink-0">
           <button
             onClick={onDiscuss}
-            className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+            className="p-1.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
             title="Discuss"
           >
-            <ChatBubbleLeftIcon className="h-4 w-4" />
+            <ChatBubbleLeftIcon className="h-3 w-3" />
           </button>
           <button
             onClick={onAddToPlan}
-            className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            className="p-1.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             title="Add to Plan"
           >
-            <PlusIcon className="h-4 w-4" />
+            <PlusIcon className="h-3 w-3" />
           </button>
         </div>
       </div>
@@ -191,16 +191,16 @@ const CompactToolCard = memo(function CompactToolCard({
   
   // Grid variant
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md transition-all">
-      <div className="flex items-start justify-between mb-3">
-        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/40 dark:to-blue-800/40 flex items-center justify-center">
-          <span className="text-blue-600 dark:text-blue-300 font-medium text-sm">
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-3 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md transition-all">
+      <div className="flex justify-between items-center mb-2">
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/40 dark:to-blue-800/40 flex items-center justify-center">
+          <span className="text-blue-600 dark:text-blue-300 font-medium text-xs">
             {tool.name.charAt(0)}
           </span>
         </div>
         {formatPrice(tool.pricing) && (
           <span className={cn(
-            "px-2 py-1 rounded-full text-xs font-medium",
+            "px-1.5 py-0.5 rounded-full text-xs font-medium",
             tool.pricing?.model === 'free' || tool.pricing?.model === 'freemium'
               ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
               : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
@@ -210,23 +210,23 @@ const CompactToolCard = memo(function CompactToolCard({
         )}
       </div>
       
-      <h3 className="font-semibold text-gray-900 dark:text-white mb-1 truncate">{tool.name}</h3>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{tool.description}</p>
+      <h3 className="font-medium text-sm text-gray-900 dark:text-white mb-1 truncate">{tool.name}</h3>
+      <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">{tool.description}</p>
       
-      <div className="flex gap-2">
+      <div className="flex gap-1.5">
         <button
           onClick={onDiscuss}
-          className="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-1"
+          className="flex-1 px-2 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors flex items-center justify-center gap-0.5"
         >
-          <ChatBubbleLeftIcon className="h-4 w-4" />
+          <ChatBubbleLeftIcon className="h-3 w-3" />
           Discuss
         </button>
         <button
           onClick={onAddToPlan}
-          className="px-3 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg transition-colors"
+          className="px-2 py-1.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded transition-colors"
           title="Add to Plan"
         >
-          <PlusIcon className="h-4 w-4" />
+          <PlusIcon className="h-3 w-3" />
         </button>
       </div>
     </div>
@@ -239,15 +239,15 @@ const LoadingSkeleton = memo(function LoadingSkeleton({ variant }: { variant: 'g
     return (
       <div className="border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-800">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 p-3 animate-pulse">
-            <div className="w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-700" />
+          <div key={i} className="flex items-center gap-2 p-2 animate-pulse">
+            <div className="w-8 h-8 rounded-lg bg-gray-200 dark:bg-gray-700" />
             <div className="flex-1">
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2" />
-              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
+              <div className="h-3.5 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-1.5" />
+              <div className="h-2.5 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
             </div>
-            <div className="flex gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gray-200 dark:bg-gray-700" />
-              <div className="w-8 h-8 rounded-lg bg-gray-200 dark:bg-gray-700" />
+            <div className="flex gap-1">
+              <div className="w-6 h-6 rounded-lg bg-gray-200 dark:bg-gray-700" />
+              <div className="w-6 h-6 rounded-lg bg-gray-200 dark:bg-gray-700" />
             </div>
           </div>
         ))}
@@ -256,19 +256,19 @@ const LoadingSkeleton = memo(function LoadingSkeleton({ variant }: { variant: 'g
   }
   
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
       {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 animate-pulse">
-          <div className="flex justify-between mb-3">
-            <div className="w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-700" />
-            <div className="w-16 h-6 rounded-full bg-gray-200 dark:bg-gray-700" />
+        <div key={i} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-3 animate-pulse">
+          <div className="flex justify-between mb-2">
+            <div className="w-8 h-8 rounded-lg bg-gray-200 dark:bg-gray-700" />
+            <div className="w-12 h-5 rounded-full bg-gray-200 dark:bg-gray-700" />
           </div>
-          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2" />
-          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full mb-1" />
-          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3 mb-3" />
-          <div className="flex gap-2">
-            <div className="flex-1 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg" />
-            <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg" />
+          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-1.5" />
+          <div className="h-2.5 bg-gray-200 dark:bg-gray-700 rounded w-full mb-1" />
+          <div className="h-2.5 bg-gray-200 dark:bg-gray-700 rounded w-2/3 mb-2" />
+          <div className="flex gap-1">
+            <div className="flex-1 h-6 bg-gray-200 dark:bg-gray-700 rounded-lg" />
+            <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded-lg" />
           </div>
         </div>
       ))}
@@ -283,18 +283,18 @@ const EmptyState = memo(function EmptyState({ message, actionLabel, onAction }: 
   onAction?: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-        <span className="text-2xl">🔍</span>
+    <div className="flex flex-col items-center justify-center py-8 text-center">
+      <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-2.5">
+        <span className="text-lg">🔍</span>
       </div>
-      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{message}</h3>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 max-w-sm">
-        Try adjusting your search terms or filters to find more tools.
+      <h3 className="text-base font-medium text-gray-900 dark:text-white mb-1">{message}</h3>
+      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2.5 max-w-sm">
+        Try adjusting your search terms or filters.
       </p>
       {actionLabel && onAction && (
         <button
           onClick={onAction}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+          className="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors"
         >
           {actionLabel}
         </button>
@@ -309,16 +309,16 @@ const ErrorState = memo(function ErrorState({ message, onRetry }: {
   onRetry?: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
-        <span className="text-2xl">⚠️</span>
+    <div className="flex flex-col items-center justify-center py-8 text-center">
+      <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-2.5">
+        <span className="text-lg">⚠️</span>
       </div>
-      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Failed to load tools</h3>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 max-w-sm">{message}</p>
+      <h3 className="text-base font-medium text-gray-900 dark:text-white mb-1">Failed to load tools</h3>
+      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2.5 max-w-sm">{message}</p>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+          className="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors"
         >
           Try Again
         </button>
@@ -420,7 +420,7 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list'); // Default to list for mobile
 
   return (
-    <div className={cn("flex flex-col h-full bg-gray-50", className)} data-compact="true" data-force-light="true">
+    <div className={cn("flex flex-col h-full bg-gray-50 max-w-2xl mx-auto", className)} data-compact="true" data-force-light="true">
       {/* Mobile Header */}
       <MobileHeader
         title="Tools & Resources"
@@ -510,7 +510,7 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
       </div>
       
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto p-4 tools-content">
+      <div className="flex-1 overflow-y-auto p-2.5 tools-content">
         {isLoading ? (
           <LoadingSkeleton variant={viewMode} />
         ) : error ? (
