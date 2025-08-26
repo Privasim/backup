@@ -13,7 +13,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
 }) => {
   return (
     <div
-      className="mx-auto max-w-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl shadow-sm py-10 px-6 text-center"
+      className="mx-auto max-w-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 radius-2xl shadow-soft py-10 px-6 text-center"
       role="alert"
       aria-live="assertive"
     >

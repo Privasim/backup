@@ -61,6 +61,7 @@ export const SegmentedCategories: React.FC<SegmentedCategoriesProps> = ({
                 ref={!active ? activeRef : undefined}
                 role="tab"
                 aria-selected={!active}
+                tabIndex={!active ? 0 : -1}
                 onClick={() => onSelect(undefined)}
                 data-color-index={colorIndex}
                 className={`snap-start flex flex-col items-center min-w-[96px] px-3 py-2 rounded-lg transition-all bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border focus-ring ${
@@ -86,6 +87,7 @@ export const SegmentedCategories: React.FC<SegmentedCategoriesProps> = ({
                 ref={isActive ? activeRef : undefined}
                 role="tab"
                 aria-selected={isActive}
+                tabIndex={isActive ? 0 : -1}
                 onClick={() => onSelect(category.slug)}
                 data-color-index={colorIndex}
                 className={`snap-start flex flex-col items-center min-w-[96px] px-3 py-2 rounded-lg transition-all bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border focus-ring ${

@@ -139,7 +139,7 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
         <div className="max-w-7xl mx-auto">
           {/* View Mode Toggle */}
           <div className="flex justify-end mb-4">
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-100 dark:border-gray-800 p-1 flex">
+            <div className="bg-white dark:bg-gray-900 radius-xl shadow-soft border border-gray-100 dark:border-gray-800 p-1 flex">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-1.5 rounded focus-ring ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'}`}
@@ -162,9 +162,14 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
           {/* Filter Panel - when filter button is clicked */}
           {showFilters && (
             <div className="fixed inset-0 z-50 bg-black bg-opacity-25 flex items-end sm:items-center justify-center p-4">
-              <div className="bg-white dark:bg-gray-800 rounded-t-xl sm:rounded-xl shadow-xl w-full max-w-lg max-h-[80vh] overflow-y-auto animate-fadeIn">
+              <div
+                className="bg-white dark:bg-gray-800 radius-xl shadow-soft w-full max-w-lg max-h-[80vh] overflow-y-auto animate-fadeIn"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="filters-title"
+              >
                 <div className="sticky top-0 bg-white dark:bg-gray-800 px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">Filter Tools</h3>
+                  <h3 id="filters-title" className="text-lg font-medium text-gray-900 dark:text-white">Filter Tools</h3>
                   <button 
                     onClick={() => setShowFilters(false)}
                     className="ml-auto text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus-ring"

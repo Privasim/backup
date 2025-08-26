@@ -77,11 +77,16 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           
           {/* Sort options */}
           <div className="flex justify-end">
-            <div className="bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-700 p-1 flex text-xs shadow-sm">
+            <div
+              className="bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-700 p-1 flex text-xs shadow-sm"
+              role="group"
+              aria-label="Sort options"
+            >
               {(['name', 'price-asc', 'price-desc', 'recent'] as SortMode[]).map((sortOption) => (
                 <button
                   key={sortOption}
                   onClick={() => onSortChange(sortOption)}
+                  aria-pressed={sort === sortOption}
                   className={`px-3 py-1 rounded-full transition-all focus-ring ${
                     sort === sortOption 
                       ? 'bg-blue-600 text-white font-medium' 
