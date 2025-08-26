@@ -1,42 +1,23 @@
 import { useState, useEffect } from 'react';
-
-export interface Tool {
-  id: string;
-  name: string;
-  description: string;
-  url: string;
-  category: string;
-  capabilities: string[];
-  pricing?: {
-    type: 'free' | 'freemium' | 'paid' | 'enterprise';
-    range?: string;
-  };
-  compliance?: string[];
-}
-
-export interface Category {
-  slug: string;
-  name: string;
-  count: number;
-}
+import { ToolSummary, LiveCategory, SortMode } from '../../features/tools-registry/types';
 
 export interface ToolsRegistryState {
   isLoading: boolean;
   error: Error | null;
   selectedCategory?: string;
   query: string;
-  sort: 'name' | 'popularity' | 'newest';
+  sort: SortMode;
   selectedCapabilities: string[];
-  visibleTools: Tool[];
-  liveCategories: Category[];
+  visibleTools: ToolSummary[];
+  liveCategories: LiveCategory[];
   availableCapabilities: string[];
   setCategory: (category?: string) => void;
   setQuery: (query: string) => void;
-  setSort: (sort: 'name' | 'popularity' | 'newest') => void;
+  setSort: (sort: SortMode) => void;
   toggleCapability: (capability: string) => void;
   clearFilters: () => void;
-  openInChat: (tool: Tool) => void;
-  addToPlan: (tool: Tool) => void;
+  openInChat: (toolId: string) => void;
+  addToPlan: (toolId: string) => void;
   retry: () => void;
 }
 
@@ -45,10 +26,10 @@ export function useToolsRegistry(): ToolsRegistryState {
   const [error, setError] = useState<Error | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
   const [query, setQuery] = useState('');
-  const [sort, setSort] = useState<'name' | 'popularity' | 'newest'>('name');
+  const [sort, setSort] = useState<SortMode>('name');
   const [selectedCapabilities, setSelectedCapabilities] = useState<string[]>([]);
-  const [visibleTools, setVisibleTools] = useState<Tool[]>([]);
-  const [liveCategories, setLiveCategories] = useState<Category[]>([]);
+  const [visibleTools, setVisibleTools] = useState<ToolSummary[]>([]);
+  const [liveCategories, setLiveCategories] = useState<LiveCategory[]>([]);
   const [availableCapabilities, setAvailableCapabilities] = useState<string[]>([]);
 
   // Mock implementation for demo purposes
@@ -59,7 +40,7 @@ export function useToolsRegistry(): ToolsRegistryState {
     setTimeout(() => {
       try {
         // Mock data
-        const mockCategories: Category[] = [
+        const mockCategories: LiveCategory[] = [
           { slug: 'ai', name: 'AI Tools', count: 12 },
           { slug: 'analytics', name: 'Analytics', count: 8 },
           { slug: 'marketing', name: 'Marketing', count: 15 },
@@ -72,18 +53,23 @@ export function useToolsRegistry(): ToolsRegistryState {
           'Mobile Support', 'Integrations', 'Custom Reporting'
         ];
         
-        const mockTools: Tool[] = mockCategories.flatMap(cat => 
+        const mockTools: ToolSummary[] = mockCategories.flatMap(cat => 
           Array(cat.count).fill(0).map((_, i) => ({
             id: `${cat.slug}-tool-${i+1}`,
             name: `${cat.name.slice(0, -1)} ${i+1}`,
-            description: `A powerful tool for ${cat.name.toLowerCase()}.`,
-            url: `https://example.com/${cat.slug}/tool-${i+1}`,
+            vendor: `${cat.name.split(' ')[0]} Co.`,
             category: cat.slug,
+            website: `https://example.com/${cat.slug}/tool-${i+1}`,
+            description: `A powerful tool for ${cat.name.toLowerCase()}.`,
             capabilities: mockCapabilities.slice(0, Math.floor(Math.random() * 5) + 1),
-            pricing: {
-              type: ['free', 'freemium', 'paid', 'enterprise'][Math.floor(Math.random() * 4)] as 'free' | 'freemium' | 'paid' | 'enterprise',
-              range: ['$0', '$10-50/mo', '$50-200/mo', 'Custom'][Math.floor(Math.random() * 4)]
-            }
+            pricing: ((): ToolSummary['pricing'] => {
+              const tier = Math.floor(Math.random() * 4);
+              if (tier === 0) return { model: 'free', minUSD: 0, maxUSD: 0 };
+              if (tier === 1) return { model: 'freemium', minUSD: 0, maxUSD: 10 };
+              if (tier === 2) return { model: 'paid', minUSD: 10, maxUSD: 50 };
+              return { model: 'enterprise', minUSD: 50, maxUSD: 200 };
+            })(),
+            lastVerifiedAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 86400000).toISOString(),
           }))
         );
         
@@ -116,13 +102,18 @@ export function useToolsRegistry(): ToolsRegistryState {
           case 'name':
             filtered.sort((a, b) => a.name.localeCompare(b.name));
             break;
-          case 'popularity':
-            // Mock popularity sorting
-            filtered.sort(() => Math.random() - 0.5);
+          case 'price-asc':
+            filtered.sort((a, b) => (a.pricing?.minUSD ?? 0) - (b.pricing?.minUSD ?? 0));
             break;
-          case 'newest':
-            // Mock newest sorting
-            filtered.sort(() => Math.random() - 0.5);
+          case 'price-desc':
+            filtered.sort((a, b) => (b.pricing?.maxUSD ?? 0) - (a.pricing?.maxUSD ?? 0));
+            break;
+          case 'recent':
+            filtered.sort((a, b) => {
+              const ta = a.lastVerifiedAt ? new Date(a.lastVerifiedAt).getTime() : 0;
+              const tb = b.lastVerifiedAt ? new Date(b.lastVerifiedAt).getTime() : 0;
+              return tb - ta;
+            });
             break;
         }
         
@@ -150,13 +141,13 @@ export function useToolsRegistry(): ToolsRegistryState {
     setSort('name');
   };
 
-  const openInChat = (tool: Tool) => {
-    console.log('Open in chat:', tool);
+  const openInChat = (toolId: string) => {
+    console.log('Open in chat:', toolId);
     // Implementation would connect to chat system
   };
 
-  const addToPlan = (tool: Tool) => {
-    console.log('Add to plan:', tool);
+  const addToPlan = (toolId: string) => {
+    console.log('Add to plan:', toolId);
     // Implementation would connect to implementation plan
   };
 

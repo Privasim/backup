@@ -4,11 +4,9 @@ import { useState, useEffect, useCallback, memo } from 'react';
 import { cn } from '@/lib/utils';
 import { useToolsRegistry } from "../../../components/tools-registry/useToolsRegistry";
 import { ToolsProvider } from "../../../components/tools-registry/ToolsProvider";
-import { CategorySidebar } from "../../../components/tools-registry/CategorySidebar";
 import { FiltersPanel } from "../../../components/tools-registry/FiltersPanel";
-import { SortMenu } from "../../../components/tools-registry/SortMenu";
-import { ToolList } from "../../../components/tools-registry/ToolList";
-import { SortMode } from "../../../features/tools-registry/types";
+// Removed unused imports: SortMenu, ToolList
+// Removed unused import: SortMode
 
 // Import new UI components
 import { HeaderBar } from "../../../components/tools-registry/ui/HeaderBar";
@@ -104,7 +102,7 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
   const totalToolsCount = liveCategories.reduce((sum: number, cat: { count: number }) => sum + cat.count, 0);
 
   return (
-    <div className={cn("flex flex-col h-full overflow-hidden bg-slate-50", className)}>
+    <div className={cn("flex flex-col h-full overflow-hidden bg-slate-50 dark:bg-gray-950", className)}>
       {/* Header Bar with gradient background */}
       <HeaderBar
         title="Tools & Resources"
@@ -141,10 +139,10 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
         <div className="max-w-7xl mx-auto">
           {/* View Mode Toggle */}
           <div className="flex justify-end mb-4">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-1 flex">
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-100 dark:border-gray-800 p-1 flex">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:bg-gray-100'}`}
+                className={`p-1.5 rounded ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'}`}
                 aria-label="Grid view"
                 aria-pressed={viewMode === 'grid'}
               >
@@ -152,7 +150,7 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:bg-gray-100'}`}
+                className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'}`}
                 aria-label="List view"
                 aria-pressed={viewMode === 'list'}
               >
@@ -199,7 +197,7 @@ const ToolsContentInner = memo(function ToolsContentInner({ className }: ToolsCo
           ) : (
             <div className={viewMode === 'grid' 
               ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'
-              : 'divide-y divide-gray-100 border border-gray-100 rounded-xl bg-white shadow-sm'
+              : 'divide-y divide-gray-100 dark:divide-gray-800 border border-gray-100 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 shadow-sm'
             }>
               {visibleTools.map(tool => (
                 <ToolCardCompact

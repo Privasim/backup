@@ -36,7 +36,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           {selectedCategory && (
             <button
               onClick={onClearCategory}
-              className="inline-flex items-center px-3 py-1 rounded-full border border-gray-200 bg-white text-gray-700 text-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200"
+              className="inline-flex items-center px-3 py-1 rounded-full border border-gray-200 bg-white text-gray-700 text-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:focus-visible:ring-blue-400"
             >
               <span>Category: {categoryLabel}</span>
               <XMarkIcon className="w-4 h-4 ml-1" />
@@ -46,7 +46,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           {query && (
             <button
               onClick={onClearQuery}
-              className="inline-flex items-center px-3 py-1 rounded-full border border-gray-200 bg-white text-gray-700 text-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200"
+              className="inline-flex items-center px-3 py-1 rounded-full border border-gray-200 bg-white text-gray-700 text-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:focus-visible:ring-blue-400"
             >
               <span>Search: {query}</span>
               <XMarkIcon className="w-4 h-4 ml-1" />
@@ -57,7 +57,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             <button
               key={capability}
               onClick={() => onRemoveCapability(capability)}
-              className="inline-flex items-center px-3 py-1 rounded-full border border-gray-200 bg-white text-gray-700 text-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200"
+              className="inline-flex items-center px-3 py-1 rounded-full border border-gray-200 bg-white text-gray-700 text-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:focus-visible:ring-blue-400"
             >
               <span>{capabilityLabels[capability] || capability}</span>
               <XMarkIcon className="w-4 h-4 ml-1" />
@@ -69,7 +69,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         {hasFilters && (
           <button
             onClick={onClearAll}
-            className="text-sm text-gray-600 hover:text-gray-800 whitespace-nowrap underline-offset-2 hover:underline"
+            className="text-sm text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-200 whitespace-nowrap underline-offset-2 hover:underline"
           >
             Clear all
           </button>

@@ -37,30 +37,30 @@ export const ToolCardCompact: React.FC<ToolCardCompactProps> = ({
     return `$${minUSD} - $${maxUSD}/mo`;
   };
   
-  // Get pricing color based on price range
+  // Get pricing color based on price range (with dark mode variants)
   const getPriceColor = () => {
-    if (!tool.pricing) return 'bg-green-100 text-green-700';
+    if (!tool.pricing) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300';
     
     const minUSD = tool.pricing.minUSD || 0;
     const maxUSD = tool.pricing.maxUSD || 0;
     
     if (minUSD === 0 && maxUSD === 0) {
-      return 'bg-green-100 text-green-700';
+      return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300';
     }
     
     if (maxUSD <= 10) {
-      return 'bg-blue-100 text-blue-700';
+      return 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300';
     }
     
     if (maxUSD <= 50) {
-      return 'bg-purple-100 text-purple-700';
+      return 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300';
     }
     
-    return 'bg-amber-100 text-amber-700';
+    return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300';
   };
   
   // Generate vendor icon initials with deterministic pastel color
-  const getVendorIcon = () => {
+  const getVendorIcon = (size: 'sm' | 'md' = 'md') => {
     const vendorName = tool.vendor || 'Unknown';
     const initials = vendorName
       .split(' ')
@@ -70,21 +70,21 @@ export const ToolCardCompact: React.FC<ToolCardCompactProps> = ({
       .toUpperCase();
 
     const palette = [
-      'bg-blue-100 text-blue-700 ring-blue-200',
-      'bg-emerald-100 text-emerald-700 ring-emerald-200',
-      'bg-rose-100 text-rose-700 ring-rose-200',
-      'bg-amber-100 text-amber-700 ring-amber-200',
-      'bg-purple-100 text-purple-700 ring-purple-200',
-      'bg-cyan-100 text-cyan-700 ring-cyan-200',
-      'bg-indigo-100 text-indigo-700 ring-indigo-200',
-      'bg-pink-100 text-pink-700 ring-pink-200',
+      'bg-blue-100 text-blue-700 ring-blue-200 dark:bg-blue-900/40 dark:text-blue-300 dark:ring-blue-800/60',
+      'bg-emerald-100 text-emerald-700 ring-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-300 dark:ring-emerald-800/60',
+      'bg-rose-100 text-rose-700 ring-rose-200 dark:bg-rose-900/40 dark:text-rose-300 dark:ring-rose-800/60',
+      'bg-amber-100 text-amber-700 ring-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:ring-amber-800/60',
+      'bg-purple-100 text-purple-700 ring-purple-200 dark:bg-purple-900/40 dark:text-purple-300 dark:ring-purple-800/60',
+      'bg-cyan-100 text-cyan-700 ring-cyan-200 dark:bg-cyan-900/40 dark:text-cyan-300 dark:ring-cyan-800/60',
+      'bg-indigo-100 text-indigo-700 ring-indigo-200 dark:bg-indigo-900/40 dark:text-indigo-300 dark:ring-indigo-800/60',
+      'bg-pink-100 text-pink-700 ring-pink-200 dark:bg-pink-900/40 dark:text-pink-300 dark:ring-pink-800/60',
     ];
     let hash = 0;
     for (let i = 0; i < vendorName.length; i++) hash = (hash * 31 + vendorName.charCodeAt(i)) >>> 0;
     const color = palette[hash % palette.length];
 
     return (
-      <div className={`flex items-center justify-center rounded-full ring-2 ring-inset ${color}`}>
+      <div className={`flex items-center justify-center rounded-full ring-2 ring-inset ${color} ${size === 'sm' ? 'w-8 h-8 text-xs font-semibold' : 'w-10 h-10 text-sm font-semibold'}`}>
         {initials}
       </div>
     );
@@ -95,7 +95,7 @@ export const ToolCardCompact: React.FC<ToolCardCompactProps> = ({
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col">
         {/* Card header with vendor icon */}
         <div className="p-4 flex items-center gap-3">
-          <div className="w-10 h-10">{getVendorIcon()}</div>
+          {getVendorIcon('md')}
           <div className="flex-1 min-w-0">
             <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">{tool.name}</h3>
             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{tool.vendor}</p>
@@ -131,14 +131,14 @@ export const ToolCardCompact: React.FC<ToolCardCompactProps> = ({
         <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-700 flex justify-between">
           <button 
             onClick={() => onDiscuss(tool.id)}
-            className="text-xs flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+            className="text-xs flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:focus-visible:ring-blue-400/40 rounded-full px-2 py-1"
           >
             <ChatBubbleLeftRightIcon className="w-4 h-4 mr-1" />
             Discuss
           </button>
           <button 
             onClick={() => onAddToPlan(tool.id)}
-            className="text-xs flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+            className="text-xs flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:focus-visible:ring-blue-400/40 rounded-full px-2 py-1"
           >
             <PlusCircleIcon className="w-4 h-4 mr-1" />
             Add to Plan
@@ -150,10 +150,10 @@ export const ToolCardCompact: React.FC<ToolCardCompactProps> = ({
   
   // List variant
   return (
-    <div className="relative bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all border-b border-gray-100 dark:border-gray-800 py-3 px-4">
+    <div className="relative bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all border-b border-gray-100 dark:border-gray-800 py-3 px-4 hover:shadow-sm">
       <div className="flex items-center gap-3">
         {/* Vendor icon */}
-        <div className="w-8 h-8">{getVendorIcon()}</div>
+        {getVendorIcon('sm')}
 
         {/* Tool info */}
         <div className="flex-1 min-w-0">
@@ -171,14 +171,14 @@ export const ToolCardCompact: React.FC<ToolCardCompactProps> = ({
             <div className="flex gap-3">
               <button
                 onClick={() => onDiscuss(tool.id)}
-                className="flex items-center justify-center gap-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                className="flex items-center justify-center gap-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:focus-visible:ring-blue-400/40 rounded-full px-1.5 py-0.5"
               >
                 <ChatBubbleLeftRightIcon className="h-3.5 w-3.5" />
                 <span>Discuss</span>
               </button>
               <button
                 onClick={() => onAddToPlan(tool.id)}
-                className="flex items-center justify-center gap-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                className="flex items-center justify-center gap-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:focus-visible:ring-blue-400/40 rounded-full px-1.5 py-0.5"
               >
                 <PlusCircleIcon className="h-3.5 w-3.5" />
                 <span>Add to Plan</span>
