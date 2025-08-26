@@ -54,11 +54,6 @@ const TabIcons = {
     solid: SolidCubeIcon,
     label: 'Artifact'
   },
-  'list-view': {
-    outline: ListBulletIcon,
-    solid: SolidListBulletIcon,
-    label: 'List View'
-  },
   specs: {
     outline: ClipboardDocumentListIcon,
     solid: SolidClipboardDocumentListIcon,
