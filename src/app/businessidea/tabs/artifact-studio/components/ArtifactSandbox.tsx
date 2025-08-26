@@ -16,7 +16,7 @@ export function ArtifactSandbox({
   js,
   className = '',
   width = '100%',
-  height = '400px',
+  height = '100%',
   onRuntimeError,
   onReady
 }: ArtifactSandboxProps) {

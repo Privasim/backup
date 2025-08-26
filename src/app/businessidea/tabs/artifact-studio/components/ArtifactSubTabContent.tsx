@@ -31,13 +31,13 @@ export function ArtifactSubTabContent({
   return (
     <div className="flex-1 min-h-0 bg-white">
       {activeSubTab === 'code' && (
-        <div className="h-full p-4 overflow-y-auto">
+        <div className="h-full p-2 md:p-3 flex flex-col min-h-0">
           <CodePanel code={code} compile={compile} />
         </div>
       )}
 
       {activeSubTab === 'preview' && (
-        <div className="h-full p-4 space-y-4 overflow-y-auto">
+        <div className="h-full p-2 md:p-3 flex flex-col min-h-0 space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium text-gray-700">Live Preview</h3>
             {compile.ok && (
@@ -51,15 +51,15 @@ export function ArtifactSubTabContent({
           {FEATURE_FLAGS.USE_PATH_A_SANDBOX ? (
             <SandboxFrame
               code={processedJs}
-              className="w-full h-[400px] border border-gray-200 rounded-lg"
+              className="w-full h-full border border-gray-200 rounded-lg"
               onRuntimeError={onRuntimeError}
               onReady={onSandboxReady}
             />
           ) : (
             <ArtifactSandbox
               js={processedJs}
-              className="w-full border border-gray-200 rounded-lg"
-              height="400px"
+              className="w-full h-full border border-gray-200 rounded-lg"
+              height="100%"
               onRuntimeError={onRuntimeError}
               onReady={onSandboxReady}
             />

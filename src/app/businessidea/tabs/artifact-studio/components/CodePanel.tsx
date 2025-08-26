@@ -20,7 +20,7 @@ export function CodePanel({ code, compile }: CodePanelProps) {
   };
 
   return (
-    <div className="space-y-3">
+    <div className="h-full flex flex-col space-y-3">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium text-gray-700">Generated Code</h3>
@@ -48,8 +48,8 @@ export function CodePanel({ code, compile }: CodePanelProps) {
       </div>
 
       {/* Code Display */}
-      <div className="relative">
-        <pre className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs font-mono overflow-auto max-h-64 whitespace-pre-wrap">
+      <div className="relative flex-1 min-h-0">
+        <pre className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs font-mono overflow-auto h-full whitespace-pre-wrap">
           {code || '// Generated code will appear here...'}
         </pre>
       </div>

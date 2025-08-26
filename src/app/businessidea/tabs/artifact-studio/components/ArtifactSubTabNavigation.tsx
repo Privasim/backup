@@ -62,7 +62,7 @@ export function ArtifactSubTabNavigation({
 
   return (
     <div className="bg-gray-50 border-b border-gray-200">
-      <div className="flex h-12 px-4">
+      <div className="flex h-8 px-2">
         {Object.values(subTabConfig).map((tab) => {
           const isActive = activeSubTab === tab.id;
           const Icon = isActive ? tab.solidIcon : tab.icon;
@@ -71,7 +71,7 @@ export function ArtifactSubTabNavigation({
             <button
               key={tab.id}
               onClick={() => setActiveSubTab(tab.id)}
-              className={`flex items-center space-x-2 px-4 py-2 text-sm font-medium transition-all duration-200 border-b-2 ${
+              className={`flex items-center space-x-1.5 px-3 py-1.5 text-xs font-medium transition-all duration-200 border-b-2 ${
                 isActive
                   ? 'text-blue-600 border-blue-500 bg-white'
                   : 'text-gray-500 border-transparent hover:text-gray-700 hover:bg-gray-100'

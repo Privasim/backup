@@ -35,6 +35,7 @@ export default function ArtifactStudio() {
   const [processedJs, setProcessedJs] = useState('');
   const [codeValidation, setCodeValidation] = useState<{ valid: boolean; errors: string[] }>({ valid: true, errors: [] });
   const [runtimeErrors, setRuntimeErrors] = useState<string[]>([]);
+  const [isPromptCollapsed, setIsPromptCollapsed] = useState(true);
 
   // Performance optimization: skip heavy computations when not active
   const isActive = activeTab === 'artifact-studio';
@@ -123,6 +124,10 @@ export default function ArtifactStudio() {
     }
   }, [isActive]);
 
+  const togglePromptCollapse = useCallback(() => {
+    setIsPromptCollapsed(prev => !prev);
+  }, []);
+
   // Skip rendering heavy components when not active
   if (!isActive) {
     return <div className="flex items-center justify-center h-full text-gray-500">Loading...</div>;
@@ -155,32 +160,48 @@ export default function ArtifactStudio() {
         />
 
         {/* Bottom Panel: Prompt + API Configuration */}
-        <div className="bg-gray-50">
-          <PromptPanel
-            status={status}
-            prompt={prompt}
-            onChange={setPrompt}
-            onGenerate={handleGenerate}
-            onCancel={cancelGeneration}
-            validation={validation}
-          />
-          
-          {/* API Configuration - Compact */}
-          <div className="px-4 pb-3">
-            <details className="group">
-              <summary className="cursor-pointer text-xs font-medium text-gray-700 hover:text-gray-900 list-none flex items-center justify-between">
-                <span>API Configuration</span>
-                <span className="text-xs text-gray-500 group-open:rotate-180 transition-transform">▼</span>
-              </summary>
-              <div className="mt-2 border-t border-gray-200 pt-2">
-                <ChatboxControls
-                  mode="configOnly"
-                  visibleTabs={{ api: true }}
-                  onValidationChange={handleValidationChange}
-                  className="text-xs"
+        <div className={`bg-gray-50 transition-all duration-200 ${isPromptCollapsed ? 'py-2' : 'py-0'}`}>
+          <div className={`${isPromptCollapsed ? 'px-4 py-2' : 'p-4'}`}>
+            <div className="flex items-center justify-between mb-2">
+              <button
+                onClick={togglePromptCollapse}
+                className="text-xs font-medium text-gray-700 hover:text-gray-900 flex items-center space-x-1"
+              >
+                <span>{isPromptCollapsed ? '▶' : '▼'}</span>
+                <span>{isPromptCollapsed ? 'Show Prompt' : 'Hide Prompt'}</span>
+              </button>
+            </div>
+            
+            {!isPromptCollapsed && (
+              <>
+                <PromptPanel
+                  status={status}
+                  prompt={prompt}
+                  onChange={setPrompt}
+                  onGenerate={handleGenerate}
+                  onCancel={cancelGeneration}
+                  validation={validation}
                 />
-              </div>
-            </details>
+                
+                {/* API Configuration - Compact */}
+                <div className="px-4 pb-3">
+                  <details className="group">
+                    <summary className="cursor-pointer text-xs font-medium text-gray-700 hover:text-gray-900 list-none flex items-center justify-between">
+                      <span>API Configuration</span>
+                      <span className="text-xs text-gray-500 group-open:rotate-180 transition-transform">▼</span>
+                    </summary>
+                    <div className="mt-2 border-t border-gray-200 pt-2">
+                      <ChatboxControls
+                        mode="configOnly"
+                        visibleTabs={{ api: true }}
+                        onValidationChange={handleValidationChange}
+                        className="text-xs"
+                      />
+                    </div>
+                  </details>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
