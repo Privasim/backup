@@ -8,7 +8,7 @@ import { PromptPanel } from './components/PromptPanel';
 import { ArtifactSubTabProvider } from './context/ArtifactSubTabContext';
 import { ArtifactSubTabNavigation } from './components/ArtifactSubTabNavigation';
 import { ArtifactSubTabContent } from './components/ArtifactSubTabContent';
-import { validateSandboxCode } from './utils/sandbox-html';
+import { validateSandboxCode, validateWireframeInteractivity } from './utils/sandbox-html';
 import { useTab } from '@/app/businessidea/tabs/TabContext';
 // Feature flag for Path A vs legacy transpile
 import { FEATURE_FLAGS } from '@/config/feature-flags';
@@ -24,7 +24,11 @@ export default function ArtifactStudio() {
     compile,
     runtime,
     generateFromPrompt,
-    cancelGeneration
+    cancelGeneration,
+    interactivity,
+    retryCount,
+    cacheHit,
+    regenerateWithEnhancements
   } = useArtifactGeneration();
 
   const [validation, setValidation] = useState({
@@ -64,14 +68,22 @@ export default function ArtifactStudio() {
   // Process code when it changes (active tab), regardless of compile.ok
   useEffect(() => {
     if (isActive && code) {
-      // Path A: Direct JS validation without transpilation
+      // Path A: Direct JS validation without transpilation for wireframes
       if (FEATURE_FLAGS.USE_PATH_A_SANDBOX) {
-        const validation = validateSandboxCode(code);
-        setCodeValidation(validation);
+        const sandboxValidation = validateSandboxCode(code);
+        setCodeValidation(sandboxValidation);
 
-        if (validation.valid) {
-          // Use the code directly without transpilation
+        // For wireframes, check if it's valid JavaScript that can run directly
+        const isValidWireframe = sandboxValidation.valid && (
+          code.includes('ReactDOM.createRoot') || 
+          code.includes('React.createElement') ||
+          code.includes('function') // Basic function structure
+        );
+
+        if (isValidWireframe) {
+          // Use the code directly without transpilation for wireframes
           setProcessedJs(code);
+          setRuntimeErrors([]);
           return;
         }
 
@@ -84,7 +96,7 @@ export default function ArtifactStudio() {
               setRuntimeErrors([]);
             } else {
               setRuntimeErrors([
-                ...validation.errors,
+                ...sandboxValidation.errors,
                 ...(result.error ? [result.error] : [])
               ]);
             }
@@ -135,7 +147,8 @@ export default function ArtifactStudio() {
 
   // Determine compile status for sub-tab navigation
   const compileStatus = 
-    status === 'generating' || status === 'streaming' ? 'compiling' :
+    status === 'generating' || status === 'streaming' || status === 'validating' ? 'compiling' :
+    status === 'retrying' ? 'compiling' :
     compile.ok ? 'success' :
     compile.errors.length > 0 ? 'error' : 'idle';
 
@@ -146,6 +159,9 @@ export default function ArtifactStudio() {
         <ArtifactSubTabNavigation 
           compileStatus={compileStatus}
           runtimeErrors={runtimeErrors.length}
+          interactivity={interactivity}
+          retryCount={retryCount}
+          cacheHit={cacheHit}
         />
 
         {/* Content Area */}
@@ -157,6 +173,11 @@ export default function ArtifactStudio() {
           onRuntimeError={handleRuntimeError}
           onSandboxReady={handleSandboxReady}
           runtimeErrors={runtimeErrors}
+          interactivity={interactivity}
+          retryCount={retryCount}
+          cacheHit={cacheHit}
+          status={status}
+          onRegenerate={regenerateWithEnhancements}
         />
 
         {/* Bottom Panel: Prompt + API Configuration */}
