@@ -66,49 +66,72 @@ export default function ImplementationPlanTab({ className = '' }: Implementation
 
   // Loading state
   const renderLoadingState = () => (
-    <div className="flex flex-col items-center justify-center h-full text-center p-8">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">Generating Plan</h3>
-      <p className="text-gray-600">
-        Your implementation plan is being generated...
-      </p>
+    <div className="flex flex-col items-center justify-center h-full p-8">
+      <div className="space-y-4 w-full max-w-md">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gradient-to-r from-slate-200 to-slate-300 rounded-lg w-3/4 mb-4"></div>
+          <div className="space-y-3">
+            <div className="h-4 bg-slate-200 rounded w-full"></div>
+            <div className="h-4 bg-slate-200 rounded w-5/6"></div>
+            <div className="h-4 bg-slate-200 rounded w-4/6"></div>
+          </div>
+        </div>
+        <div className="text-center">
+          <h3 className="text-lg font-semibold text-slate-900 mb-2">Crafting Your Implementation Plan</h3>
+          <p className="text-sm text-slate-600">
+            Analyzing your business idea and creating a comprehensive roadmap...
+          </p>
+        </div>
+      </div>
     </div>
   );
 
   // Error state
   const renderErrorState = () => (
-    <div className="flex flex-col items-center justify-center h-full text-center p-8">
-      <div className="rounded-full bg-red-50 p-4 mb-4">
-        <ExclamationTriangleIcon className="h-12 w-12 text-red-500" />
+    <div className="flex flex-col items-center justify-center h-full p-8">
+      <div className="bg-white rounded-xl shadow-sm border border-red-200 p-8 max-w-md">
+        <div className="flex items-center justify-center mb-4">
+          <div className="p-3 bg-red-50 rounded-full">
+            <ExclamationTriangleIcon className="h-8 w-8 text-red-600" />
+          </div>
+        </div>
+        <h3 className="text-xl font-semibold text-slate-900 mb-2 text-center">Generation Failed</h3>
+        <p className="text-base text-slate-600 mb-6 text-center leading-relaxed">
+          {error || 'There was an error generating your implementation plan. Please try again.'}
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <button
+            onClick={() => {
+              setError(null);
+              // Retry by refreshing the plan sync
+              window.location.reload();
+            }}
+            className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+          >
+            <ArrowPathIcon className="h-4 w-4 mr-2" />
+            Try Again
+          </button>
+          <button
+            onClick={() => setError(null)}
+            className="inline-flex items-center justify-center px-4 py-2.5 border border-slate-300 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors duration-200"
+          >
+            Dismiss
+          </button>
+        </div>
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">Generation Failed</h3>
-      <p className="text-gray-600 mb-4 max-w-md">
-        {error || 'There was an error generating your implementation plan.'}
-      </p>
-      <button
-        onClick={() => {
-          setError(null);
-          // Retry by refreshing the plan sync
-          window.location.reload();
-        }}
-        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-      >
-        <ArrowPathIcon className="h-4 w-4 mr-2" />
-        Try Again
-      </button>
     </div>
   );
 
   // Action buttons for when plan exists
   const renderActionButtons = () => (
-    <div className="flex items-center gap-2 mb-4">
+    <div className="flex items-center gap-3">
       <button
         onClick={() => {
           if (planContent) {
             navigator.clipboard.writeText(planContent);
           }
         }}
-        className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        className="inline-flex items-center px-4 py-2.5 border border-slate-200 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow"
       >
         <ClipboardDocumentCheckIcon className="h-4 w-4 mr-2" />
         Copy
@@ -125,7 +148,7 @@ export default function ImplementationPlanTab({ className = '' }: Implementation
             URL.revokeObjectURL(url);
           }
         }}
-        className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        className="inline-flex items-center px-4 py-2.5 border border-slate-200 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow"
       >
         <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
         Download
@@ -135,7 +158,7 @@ export default function ImplementationPlanTab({ className = '' }: Implementation
           // TODO: Implement regenerate logic - would need access to original suggestion
           console.log('Regenerate plan - feature to be implemented');
         }}
-        className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        className="inline-flex items-center px-4 py-2.5 border border-slate-200 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow"
       >
         <ArrowPathIcon className="h-4 w-4 mr-2" />
         Regenerate
@@ -159,16 +182,83 @@ export default function ImplementationPlanTab({ className = '' }: Implementation
 
     return (
       <div className="h-full flex flex-col">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Implementation Plan</h2>
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Implementation Plan</h2>
+          <div className="flex flex-wrap gap-2 sm:gap-3">
             {renderActionButtons()}
           </div>
         </div>
         
         <div className="flex-1 overflow-y-auto">
-          <div className="prose max-w-none bg-white border border-gray-200 rounded-lg p-6">
-            <ReactMarkdown>{planContent}</ReactMarkdown>
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm">
+            <div className="prose prose-slate max-w-none p-4 sm:p-6 md:p-8">
+              <ReactMarkdown
+                components={{
+                  h1: ({ children }) => (
+                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-4 sm:mb-6 pb-3 border-b border-slate-200">
+                      {children}
+                    </h1>
+                  ),
+                  h2: ({ children }) => (
+                    <h2 className="text-xl sm:text-2xl font-semibold text-slate-800 mt-6 sm:mt-8 mb-3 sm:mb-4">
+                      {children}
+                    </h2>
+                  ),
+                  h3: ({ children }) => (
+                    <h3 className="text-lg sm:text-xl font-semibold text-slate-800 mt-4 sm:mt-6 mb-2 sm:mb-3">
+                      {children}
+                    </h3>
+                  ),
+                  p: ({ children }) => (
+                    <p className="text-slate-700 leading-relaxed mb-3 sm:mb-4">
+                      {children}
+                    </p>
+                  ),
+                  ul: ({ children }) => (
+                    <ul className="space-y-2 mb-3 sm:mb-4 pl-4 sm:pl-6 list-disc marker:text-blue-600">
+                      {children}
+                    </ul>
+                  ),
+                  ol: ({ children }) => (
+                    <ol className="space-y-2 mb-3 sm:mb-4 pl-4 sm:pl-6 list-decimal marker:text-blue-600">
+                      {children}
+                    </ol>
+                  ),
+                  li: ({ children }) => (
+                    <li className="text-slate-700 leading-relaxed">
+                      {children}
+                    </li>
+                  ),
+                  code: ({ children }) => (
+                    <code className="bg-slate-100 text-slate-800 px-2 py-1 rounded text-sm font-mono">
+                      {children}
+                    </code>
+                  ),
+                  pre: ({ children }) => (
+                    <pre className="bg-slate-900 text-slate-100 p-3 sm:p-4 rounded-lg overflow-x-auto mb-3 sm:mb-4 text-sm">
+                      {children}
+                    </pre>
+                  ),
+                  blockquote: ({ children }) => (
+                    <blockquote className="border-l-4 border-blue-500 pl-3 sm:pl-4 italic text-slate-600 mb-3 sm:mb-4">
+                      {children}
+                    </blockquote>
+                  ),
+                  strong: ({ children }) => (
+                    <strong className="font-semibold text-slate-900">
+                      {children}
+                    </strong>
+                  ),
+                  em: ({ children }) => (
+                    <em className="italic text-slate-700">
+                      {children}
+                    </em>
+                  ),
+                }}
+              >
+                {planContent}
+              </ReactMarkdown>
+            </div>
           </div>
         </div>
       </div>
