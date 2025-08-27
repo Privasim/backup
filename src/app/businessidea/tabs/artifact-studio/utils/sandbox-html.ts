@@ -613,125 +613,17 @@ export function testSandboxSecurity(): {
 }
 
 /**
- * Injects minimal interactivity into static wireframes as a fallback auto-repair function.
- * Adds basic useState and onClick handlers to make the wireframe interactive.
+ * Pre-processes and cleans generated code to remove banned tokens and ensure proper structure.
+ * This function sanitizes code by removing potentially harmful patterns and ensures
+ * the code is properly structured for the sandbox environment.
  */
-export function injectMinimalInteractivity(code: string): string {
+export function cleanAndValidateCode(code: string): string {
   // First, clean up any banned tokens
   let cleanedCode = code
     .replace(/require\s*\([^)]*\)/g, '') // Remove require statements
     .replace(/setTimeout\s*\([^)]*\)/g, '') // Remove setTimeout
     .replace(/setInterval\s*\([^)]*\)/g, '') // Remove setInterval
     .replace(/console\.(log|error|warn|info|debug)\s*\([^)]*\)/g, '') // Remove console statements
-    .replace(/import\s+[^;]+;?/g, '') // Remove import statements
-    .replace(/export\s+[^;]+;?/g, ''); // Remove export statements
-
-  // If already has useState, just ensure proper mounting and return
-  if (/React\.useState/.test(cleanedCode)) {
-    // Ensure proper mounting
-    if (!cleanedCode.includes('ReactDOM.createRoot') && cleanedCode.includes('function WireframeComponent')) {
-      cleanedCode += '\n\nReactDOM.createRoot(document.getElementById(\'root\')).render(React.createElement(WireframeComponent));';
-    }
-    return cleanedCode;
-  }
-  
-  // Find the component function - be more flexible with naming
-  const componentMatch = cleanedCode.match(/function\s+(\w*Component|\w+)\s*\([^)]*\)\s*\{/);
-  if (!componentMatch) {
-    // If no component function found, create a minimal one
-    return `function WireframeComponent() {
-  const [count, setCount] = React.useState(0);
-  
-  return React.createElement('div', { className: 'p-4 bg-gray-100 rounded-lg' },
-    React.createElement('h2', { className: 'text-lg font-bold mb-4' }, 'Interactive Wireframe'),
-    React.createElement('button', {
-      className: 'bg-blue-500 text-white px-4 py-2 rounded',
-      onClick: () => setCount(count + 1)
-    }, 'Count: ' + count),
-    React.createElement('p', { className: 'mt-2 text-gray-600' }, 'Click the button to see interactivity!')
-  );
-}
-
-ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(WireframeComponent));`;
-  }
-  
-  const componentName = componentMatch[1];
-  
-  // Find the return statement - be more flexible
-  const returnMatch = cleanedCode.match(/(return\s+React\.createElement\([^;]+\);?)/s);
-  if (!returnMatch) {
-    // If no return statement, create a complete component
-    return `function WireframeComponent() {
-  const [count, setCount] = React.useState(0);
-  
-  return React.createElement('div', { className: 'p-4 bg-gray-100 rounded-lg' },
-    React.createElement('h2', { className: 'text-lg font-bold mb-4' }, 'Interactive Wireframe'),
-    React.createElement('button', {
-      className: 'bg-blue-500 text-white px-4 py-2 rounded',
-      onClick: () => setCount(count + 1)
-    }, 'Count: ' + count)
-  );
-}
-
-ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(WireframeComponent));`;
-  }
-  
-  // Inject useState after the function declaration
-  const stateInjection = `
-  const [clickCount, setClickCount] = React.useState(0);
-  const [inputText, setInputText] = React.useState('');
-  `;
-  
-  let modifiedCode = cleanedCode.replace(
-    /function\s+\w*\s*\([^)]*\)\s*\{/,
-    (match) => match + stateInjection
-  );
-  
-  // Try to add a click handler to the first button-like element
-  modifiedCode = modifiedCode.replace(
-    /React\.createElement\('button',\s*\{([^}]*)\}/,
-    (match, props) => {
-      if (match.includes('onClick')) return match; // Already has onClick
-      const newProps = props.trim() ? `${props}, onClick: () => setClickCount(clickCount + 1)` : `onClick: () => setClickCount(clickCount + 1)`;
-      return `React.createElement('button', { ${newProps} }`;
-    }
-  );
-  
-  // Try to add controlled input behavior to the first input
-  modifiedCode = modifiedCode.replace(
-    /React\.createElement\('input',\s*\{([^}]*)\}/,
-    (match, props) => {
-      if (match.includes('value:') && match.includes('onChange:')) return match; // Already controlled
-      const newProps = props.trim() ? 
-        `${props}, value: inputText, onChange: (e) => setInputText(e.target.value)` : 
-        `value: inputText, onChange: (e) => setInputText(e.target.value)`;
-      return `React.createElement('input', { ${newProps} }`;
-    }
-  );
-  
-  // Add display of interactive state in the UI
-  modifiedCode = modifiedCode.replace(
-    /(React\.createElement\('div',\s*\{[^}]*\},\s*)/,
-    `$1React.createElement('div', { className: 'mb-2 text-sm text-gray-600' }, 'Clicks: ' + clickCount + ', Input: ' + inputText), `
-  );
-  
-  // Ensure proper mounting
-  if (!modifiedCode.includes('ReactDOM.createRoot')) {
-    modifiedCode += '\n\nReactDOM.createRoot(document.getElementById(\'root\')).render(React.createElement(WireframeComponent));';
-  }
-  
-  return modifiedCode;
-}
-/**
- * Pre-processes and cleans generated code to remove banned tokens and ensure proper structure
- */
-export function cleanAndValidateCode(code: string): string {
-  // Remove banned tokens with more precise regex patterns
-  let cleanedCode = code
-    .replace(/require\s*\([^)]*\)\s*;?/g, '') // Remove require statements
-    .replace(/setTimeout\s*\([^)]*\)\s*;?/g, '') // Remove setTimeout
-    .replace(/setInterval\s*\([^)]*\)\s*;?/g, '') // Remove setInterval
-    .replace(/console\.(log|error|warn|info|debug)\s*\([^)]*\)\s*;?/g, '') // Remove console statements
     .replace(/import\s+[^;]+;?\s*/g, '') // Remove import statements
     .replace(/export\s+[^;]+;?\s*/g, '') // Remove export statements
     .replace(/fetch\s*\([^)]*\)\s*;?/g, '') // Remove fetch calls
