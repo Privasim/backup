@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@import "../styles/design-system.css";
+@import "../styles/design-tokens.css";
+@import "../styles/typography.css";
 @import "../styles/unified-debug-interface.css";
 
 :root {
@@ -59,20 +62,19 @@
   --cat8-ring: #fbcfe8; /* pink-200 */
 }
 
-/* Removed @theme inline block to satisfy linters; using CSS variables directly. */
+/* Using CSS variables directly for consistent light mode styling */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --ring-color: rgba(59, 130, 246, 0.35);
-  }
+/* Force light mode for entire app */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --ring-color: rgba(59, 130, 246, 0.45);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
 }
 
 /* Utilities based on tokens */

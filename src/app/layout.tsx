@@ -27,6 +27,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        data-force-light="true"
       >
         <ChatboxProvider>
           <ChatboxLayout position="right" width="24rem">
