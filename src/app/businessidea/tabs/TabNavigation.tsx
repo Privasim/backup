@@ -26,10 +26,10 @@ import {
 } from '@heroicons/react/24/solid';
 
 const TabIcons = {
-  list: {
-    outline: DocumentTextIcon,
-    solid: SolidDocumentTextIcon,
-    label: 'List'
+  'implementation-plan': {
+    outline: ClipboardDocumentCheckIcon,
+    solid: SolidClipboardDocumentCheckIcon,
+    label: 'Plan'
   },
   financials: {
     outline: CurrencyDollarIcon,
@@ -61,11 +61,6 @@ const TabIcons = {
     solid: SolidClipboardDocumentListIcon,
     label: 'Specs'
   },
-  'implementation-plan': {
-    outline: ClipboardDocumentCheckIcon,
-    solid: SolidClipboardDocumentCheckIcon,
-    label: 'Plan'
-  },
 } as const;
 
 export default function TabNavigation() {
@@ -76,7 +71,7 @@ export default function TabNavigation() {
     <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm border-b border-gray-100 overflow-x-auto">
       <div className="max-w-3xl mx-auto px-2">
         <div className="flex items-center h-14 px-1 min-w-max">
-          {Object.entries(TabIcons).filter(([tabId]) => tabId !== 'artifact-studio').map(([tabId, { outline: Icon, solid: SolidIcon, label }]) => {
+          {Object.entries(TabIcons).filter(([tabId]) => tabId !== 'artifact-studio' && tabId !== 'list').map(([tabId, { outline: Icon, solid: SolidIcon, label }]) => {
             // Type assertion to ensure tabId is a valid TabId
             const typedTabId = tabId as TabId;
             const isActive = activeTab === typedTabId;
