@@ -32,3 +32,37 @@ export interface GoToMarketStrategy {
   sections: StrategySection[];
   generatedAt: string;
 }
+
+export type DetailLevel = 1 | 2 | 3 | 4 | 5;
+export type PricingModel = 'freemium' | 'subscription' | 'one-time';
+export type SalesApproach = 'self-service' | 'assisted' | 'enterprise';
+
+export interface DistributionChannels {
+  socialMedia: boolean;
+  reddit: boolean;
+  email: boolean;
+  partnerships: boolean;
+  events: boolean;
+}
+
+export interface GoToMarketSettings {
+  detailLevel: DetailLevel;
+  distributionChannels: DistributionChannels;
+  pricingModel: PricingModel;
+  salesApproach: SalesApproach;
+  includeTimeline: boolean;
+}
+
+export const DEFAULT_SETTINGS: GoToMarketSettings = {
+  detailLevel: 3,
+  distributionChannels: {
+    socialMedia: true,
+    reddit: true,
+    email: true,
+    partnerships: true,
+    events: true
+  },
+  pricingModel: 'subscription',
+  salesApproach: 'self-service',
+  includeTimeline: true
+};

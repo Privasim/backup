@@ -2,8 +2,9 @@ import { useState, useCallback, useRef } from 'react';
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
 import { GoToMarketTextService } from '../services/goToMarketTextService';
 import { useImplementationContext } from './useImplementationContext';
+import { GoToMarketSettings, DEFAULT_SETTINGS } from '../types';
 
-export const useGoToMarketV2 = () => {
+export const useGoToMarketV2 = (settings: GoToMarketSettings = DEFAULT_SETTINGS) => {
   const { config, businessSuggestions, activeConversationId } = useChatbox();
   const { context, isValid: isContextValid, status: contextStatus, error: contextError } = useImplementationContext();
   
@@ -88,23 +89,24 @@ export const useGoToMarketV2 = () => {
       
       const result = await service.generateStrategy(
         context,
-        (chunk) => {
+        config.model,
+        settings,
+        ideaId,
+        abortControllerRef.current,
+        (progress) => {
           if (abortControllerRef.current?.signal.aborted) {
             return;
           }
-          
-          setStrategy(prev => prev + chunk);
-          setProgress(prev => Math.min(prev + 5, 95)); // Cap at 95% during streaming
-        },
-        ideaId
+          setProgress(progress);
+        }
       );
       
       if (!abortControllerRef.current?.signal.aborted) {
-        setStrategy(result);
+        setStrategy(result.content);
         setProgress(100);
         console.log('GoToMarketV2: Strategy generation completed', {
           ideaId,
-          contentLength: result.length
+          contentLength: result.content.length
         });
       }
     } catch (err) {

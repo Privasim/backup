@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { GoToMarketV2Generator } from './goToMarketV2/components/GoToMarketV2Generator';
+import GoToMarketV2Generator from './goToMarketV2/components/GoToMarketV2Generator';
 
 export default function GoToMarketV2Content() {
   return (

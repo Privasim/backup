@@ -1,11 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGoToMarketV2 } from '../hooks/useGoToMarketV2';
 import { StrategyDisplay } from './StrategyDisplay';
+import { SettingsModal } from './SettingsModal';
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
+import { useImplementationContext } from '../hooks/useImplementationContext';
+import { GoToMarketSettings, DEFAULT_SETTINGS } from '../types';
 
-export const GoToMarketV2Generator: React.FC = () => {
+export default function GoToMarketV2Generator() {
+  const [settings, setSettings] = useState<GoToMarketSettings>({...DEFAULT_SETTINGS});
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [showStrategy, setShowStrategy] = useState(false);
+  
   const { 
     strategyContent, 
     isLoading, 
@@ -17,10 +24,9 @@ export const GoToMarketV2Generator: React.FC = () => {
     generateStrategy, 
     resetGeneration,
     cancelGeneration
-  } = useGoToMarketV2();
+  } = useGoToMarketV2(settings);
   
   const { config } = useChatbox();
-  const [showStrategy, setShowStrategy] = useState(false);
   
   const handleGenerate = async () => {
     setShowStrategy(true);
@@ -31,6 +37,33 @@ export const GoToMarketV2Generator: React.FC = () => {
     resetGeneration();
     setShowStrategy(false);
   };
+  
+  const handleOpenSettings = () => {
+    setIsSettingsModalOpen(true);
+  };
+  
+  const handleCloseSettings = () => {
+    setIsSettingsModalOpen(false);
+  };
+  
+  const handleSaveSettings = (newSettings: GoToMarketSettings) => {
+    setSettings(newSettings);
+    // Optional: Save to localStorage
+    localStorage.setItem('goToMarketV2Settings', JSON.stringify(newSettings));
+  };
+  
+  // Load settings from localStorage on mount
+  useEffect(() => {
+    const savedSettings = localStorage.getItem('goToMarketV2Settings');
+    if (savedSettings) {
+      try {
+        const parsedSettings = JSON.parse(savedSettings);
+        setSettings(parsedSettings);
+      } catch (e) {
+        console.error('Failed to parse saved settings', e);
+      }
+    }
+  }, []);
   
   const isConfigValid = config.apiKey && config.model;
   
@@ -123,6 +156,22 @@ export const GoToMarketV2Generator: React.FC = () => {
         </button>
         
         <button
+          onClick={handleOpenSettings}
+          disabled={isLoading}
+          className={`px-6 py-3 rounded-lg font-medium flex items-center ${
+            isLoading
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+          }`}
+        >
+          <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Settings
+        </button>
+        
+        <button
           onClick={handleReset}
           disabled={isLoading}
           className={`px-6 py-3 rounded-lg font-medium ${
@@ -194,6 +243,14 @@ export const GoToMarketV2Generator: React.FC = () => {
           isLoading={isLoading} 
         />
       )}
+      
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={handleCloseSettings}
+        settings={settings}
+        onSave={handleSaveSettings}
+      />
     </div>
   );
 };
