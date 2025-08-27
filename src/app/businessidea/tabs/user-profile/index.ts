@@ -1,1 +1,1 @@
-export { default } from "./UserProfileTab";
+export { default } from "./CompactUserProfileTab";
