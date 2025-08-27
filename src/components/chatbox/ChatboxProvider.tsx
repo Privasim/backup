@@ -1097,12 +1097,18 @@ Outline:
       setState(prev => ({ ...prev, status: 'analyzing', error: undefined }));
       const outline = await generatePlanOutline(suggestion);
       const convTitle = outline.title || `${suggestion.title} Plan`;
+      console.log('ChatboxProvider: Creating plan conversation', { 
+        outlineTitle: outline.title, 
+        suggestionTitle: suggestion.title, 
+        finalTitle: convTitle 
+      });
       conversationId = createConversation(convTitle);
       messageId = addMessageToConversation(conversationId, {
         type: 'assistant',
         content: '',
         analysisType: 'business-suggestion'
       });
+      console.log('ChatboxProvider: Added initial message to conversation', { conversationId, messageId });
       
       // Notify bridge of stream start
       if (planStreamBridge) {
@@ -1116,6 +1122,7 @@ Outline:
           planStreamBridge.chunk(conversationId, chunk);
         }
       }, lengthPreset);
+      console.log('ChatboxProvider: Plan generation completed for conversation', conversationId);
       
       // Get the final content to send to bridge
       const conversation = state.conversations.find(c => c.id === conversationId);

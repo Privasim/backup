@@ -116,7 +116,9 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
           type="button"
           aria-label="Create Implementation Plan"
           onClick={() => {
-            setActiveTab('list');
+            // Switch to implementation-plan tab to show loading state
+            console.log('SuggestionCard: Switching to implementation-plan tab and creating plan for:', suggestion.title);
+            setActiveTab('implementation-plan');
             // Pass undefined for lengthPreset to let the parent component handle it
             onCreatePlan?.(suggestion, undefined);
           }}

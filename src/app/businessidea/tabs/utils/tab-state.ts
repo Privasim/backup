@@ -9,6 +9,7 @@ export type ProfileSettingsTab = 'userprofile' | 'jobrisk' | 'businessplan';
 export interface ConversationTabState {
   globalActiveTab?: string;
   profileActiveTab?: ProfileSettingsTab;
+  lastViewedPlanConversationId?: string;
 }
 
 const CONV_KEY_PREFIX = 'tabstate:conversation:';
@@ -57,4 +58,29 @@ export function getProfileSettingsTab(): ProfileSettingsTab | undefined {
 
 export function setProfileSettingsTab(tab: ProfileSettingsTab): void {
   safeWrite(PROFILE_SETTINGS_KEY, { tab });
+}
+// Implementation Plan specific state management
+export interface ImplementationPlanTabState {
+  lastViewedConversationId?: string;
+  autoSwitchEnabled: boolean;
+  preferredDisplayMode: 'markdown' | 'formatted';
+}
+
+const IMPL_PLAN_KEY = 'tabstate:implementation-plan';
+
+export function getImplementationPlanTabState(): ImplementationPlanTabState | undefined {
+  return safeRead<ImplementationPlanTabState>(IMPL_PLAN_KEY);
+}
+
+export function setImplementationPlanTabState(patch: Partial<ImplementationPlanTabState>): void {
+  const current = getImplementationPlanTabState() || {
+    autoSwitchEnabled: true,
+    preferredDisplayMode: 'markdown'
+  };
+  const next = { ...current, ...patch } as ImplementationPlanTabState;
+  safeWrite(IMPL_PLAN_KEY, next);
+}
+
+export function updateLastViewedPlanConversation(conversationId: string): void {
+  setImplementationPlanTabState({ lastViewedConversationId: conversationId });
 }

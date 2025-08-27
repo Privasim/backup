@@ -10,6 +10,7 @@ import VisualizationContent from './VisualizationContent';
 import ListTab from './ListTab';
 import MobileTab from './MobileTab';
 import { SpecsContent } from './SpecsContent';
+import ImplementationPlanTab from './ImplementationPlanTab';
 import { ImplementationPlanProvider, useImplementationPlanContext } from '@/features/implementation-plan/ImplementationPlanProvider';
 import { SpecsGeneratorProvider } from '@/features/specs-generator/SpecsGeneratorProvider';
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
@@ -32,6 +33,7 @@ const tabComponents = {
   'gotomarket-v2': GoToMarketV2Content,
   'artifact-studio': ArtifactStudio,
   specs: SpecsContent,
+  'implementation-plan': ImplementationPlanTab,
 } as const;
 
 function TabContent({ onTabChange }: { onTabChange?: (tab: TabId) => void }) {
