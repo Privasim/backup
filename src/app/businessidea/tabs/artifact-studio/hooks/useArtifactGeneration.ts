@@ -8,6 +8,8 @@ import {
   validateWireframeInteractivity, 
   createInteractivityFollowupPrompt, 
   injectMinimalInteractivity,
+  cleanAndValidateCode,
+  validateSandboxCode,
   WireframeInteractivityResult 
 } from '../utils/sandbox-html';
 
@@ -133,8 +135,19 @@ export function useArtifactGeneration(): ArtifactGenerationState & ArtifactGener
       .replace(/`/g, '')
       .trim();
 
+    // Remove any banned tokens that might have slipped through
+    normalized = normalized
+      .replace(/require\s*\([^)]*\)/g, '') // Remove require statements
+      .replace(/setTimeout\s*\([^)]*\)/g, '') // Remove setTimeout
+      .replace(/setInterval\s*\([^)]*\)/g, '') // Remove setInterval
+      .replace(/console\.(log|error|warn|info|debug)\s*\([^)]*\)/g, '') // Remove console statements
+      .replace(/import\s+[^;]+;?/g, '') // Remove import statements
+      .replace(/export\s+[^;]+;?/g, '') // Remove export statements
+
+    // Apply comprehensive cleaning and validation
+    normalized = cleanAndValidateCode(normalized);
+
     // For wireframes, we expect plain JavaScript with React UMD globals
-    // No need to wrap in exports - the code should be self-contained
     return normalized;
   }, []);
 
@@ -143,8 +156,11 @@ export function useArtifactGeneration(): ArtifactGenerationState & ArtifactGener
 
     setState(prev => ({ ...prev, status: 'validating' }));
 
+    // Clean the code first to remove any banned tokens
+    const cleanedCode = cleanAndValidateCode(code);
+
     // Validate wireframe interactivity
-    const interactivity = validateWireframeInteractivity(code);
+    const interactivity = validateWireframeInteractivity(cleanedCode);
     
     setState(prev => ({ ...prev, interactivity }));
 
@@ -179,7 +195,7 @@ export function useArtifactGeneration(): ArtifactGenerationState & ArtifactGener
     }
 
     // If still not interactive after retries, apply auto-repair
-    let finalCode = code;
+    let finalCode = cleanedCode;
     let finalInteractivity = interactivity;
     
     if (interactivity.level === 'static' && retryCount >= 2) {
@@ -217,6 +233,29 @@ export function useArtifactGeneration(): ArtifactGenerationState & ArtifactGener
           ]
         }
       }));
+    }
+
+    // Final validation before compilation
+    const sandboxValidation = validateSandboxCode(finalCode);
+    if (!sandboxValidation.valid) {
+      setState(prev => ({
+        ...prev,
+        compile: { 
+          ok: false, 
+          errors: [
+            'Sandbox validation failed:',
+            ...sandboxValidation.errors,
+            '',
+            'The code will be automatically cleaned and retried.'
+          ] 
+        },
+        status: 'error'
+      }));
+      
+      // Apply additional cleaning and try again
+      finalCode = cleanAndValidateCode(finalCode);
+      finalCode = injectMinimalInteractivity(finalCode);
+      finalInteractivity = validateWireframeInteractivity(finalCode);
     }
 
     // Try to compile the final code
@@ -344,15 +383,24 @@ export function useArtifactGeneration(): ArtifactGenerationState & ArtifactGener
       
       const systemPrompt = `You are a wireframe generator that creates interactive React components. Generate plain JavaScript code that:
 
-CRITICAL REQUIREMENTS:
-1. Use React UMD globals (React, ReactDOM) - NO imports or exports
-2. Create interactive wireframes with React.useState for state management
-3. Include event handlers (onClick, onChange, onSubmit) that visibly update the UI
-4. Use controlled inputs with state binding
-5. End with ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(WireframeComponent))
-6. Use only Tailwind CSS classes for styling
-7. No external dependencies, DOM APIs, network APIs, or timers
-8. No dangerouslySetInnerHTML
+CRITICAL SECURITY REQUIREMENTS - NEVER USE THESE:
+❌ NO require() or import statements
+❌ NO setTimeout, setInterval, or any timers
+❌ NO fetch, XMLHttpRequest, or network calls
+❌ NO localStorage, sessionStorage, or storage APIs
+❌ NO eval, Function constructor, or code execution
+❌ NO console.log or console methods
+❌ NO DOM manipulation (innerHTML, document.write)
+❌ NO window.location or navigation APIs
+
+MANDATORY REQUIREMENTS:
+✅ Use React UMD globals (React, ReactDOM) - already available
+✅ Create interactive wireframes with React.useState for state management
+✅ Include event handlers (onClick, onChange, onSubmit) that visibly update the UI
+✅ Use controlled inputs with state binding
+✅ MUST end with: ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(WireframeComponent));
+✅ Use only Tailwind CSS classes for styling
+✅ Component must be named 'WireframeComponent'
 
 INTERACTIVITY PATTERNS REQUIRED:
 - Forms with controlled inputs and submission handling
@@ -361,9 +409,9 @@ INTERACTIVITY PATTERNS REQUIRED:
 - Visual feedback for user interactions
 - State-driven UI changes
 
-Output only plain JavaScript code with no markdown formatting, no code fences, no explanations.
+Output ONLY plain JavaScript code. NO markdown, NO code fences, NO explanations, NO comments.
 
-Example format:
+EXACT TEMPLATE TO FOLLOW:
 function WireframeComponent() {
   const [count, setCount] = React.useState(0);
   const [text, setText] = React.useState('');
