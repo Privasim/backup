@@ -15,8 +15,8 @@ const createInitialWorkbook = (): Workbook => ({
     sheet1: {
       id: 'sheet1',
       name: 'Sheet 1',
-      rows: 10,
-      cols: 20,
+      rows: 20,
+      cols: 10,
       cells: {},
       formats: {},
       frozen: { rows: 1, cols: 1 }
