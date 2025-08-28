@@ -24,6 +24,9 @@ import {
 import CompactSelect from "../components/CompactSelect";
 import SegmentedControl from "../components/SegmentedControl";
 import PillMultiSelect from "../components/PillMultiSelect";
+import { useRoleFieldConfig } from "../hooks/useRoleFieldConfig";
+import FieldRenderer from "../components/FieldRenderer";
+import { useRoleLocalValues } from "../hooks/useRoleLocalValues";
 
 type Props = {
   className?: string;
@@ -34,6 +37,60 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
   const role = profileData.role;
   const roleDetails = profileData.roleDetails;
   const industry = profileData.industry;
+  const location = profileData.location;
+
+  // Local role-specific extras storage (no schema change)
+  const { values: extraValues, setValue: setExtraValue } = useRoleLocalValues(role);
+
+  // Merge current role detail object for visibility context
+  const baseValues = useMemo<Record<string, unknown>>(() => {
+    if (!roleDetails) return {};
+    switch (roleDetails.role) {
+      case Role.Student:
+        return roleDetails.student ?? {};
+      case Role.Professional:
+        return roleDetails.professional ?? {};
+      case Role.BusinessOwner:
+        return roleDetails.business ?? {};
+      case Role.CareerShifter:
+        return roleDetails.shifter ?? {};
+      default:
+        return {};
+    }
+  }, [roleDetails]);
+
+  const { fields } = useRoleFieldConfig({
+    role: role as Role,
+    context: {
+      industry,
+      location,
+      values: { ...baseValues, ...extraValues },
+    },
+  });
+
+  const compensationFields = useMemo(() => fields.filter((f) => f.group === "compensation"), [fields]);
+
+  const compensationSection = useMemo(() => {
+    if (!compensationFields.length) return null;
+    return (
+      <div className="mt-1 pt-1 border-t border-gray-100">
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-xs font-medium text-gray-700">Compensation</span>
+          <span className="text-[10px] text-gray-400 px-1.5 py-0.5 bg-gray-50 rounded">optional</span>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {compensationFields.map((f) => (
+            <FieldRenderer
+              key={f.id}
+              field={f}
+              values={extraValues}
+              onChange={(id, v) => setExtraValue(id, v, fields as any)}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }, [compensationFields, extraValues, fields, setExtraValue]);
 
   const handlePatch = (patch: Record<string, any>) => {
     if (!role) return;
@@ -44,44 +101,56 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
       // Create new role details object based on role
       switch (role) {
         case Role.Student:
-          updatedRoleDetails = { role, student: { ...patch } };
+          updatedRoleDetails = { role: Role.Student, student: { ...patch } };
           break;
         case Role.Professional:
-          updatedRoleDetails = { role, professional: { ...patch } };
+          updatedRoleDetails = { role: Role.Professional, professional: { ...patch } };
           break;
         case Role.BusinessOwner:
-          updatedRoleDetails = { role, business: { ...patch } };
+          updatedRoleDetails = { role: Role.BusinessOwner, business: { ...patch } };
           break;
         case Role.CareerShifter:
-          updatedRoleDetails = { role, shifter: { ...patch } };
+          updatedRoleDetails = { role: Role.CareerShifter, shifter: { ...patch } };
           break;
       }
     } else {
       // Update existing role details
       switch (role) {
         case Role.Student:
-          updatedRoleDetails = { 
-            ...updatedRoleDetails, 
-            student: { ...updatedRoleDetails.student, ...patch } 
-          };
+          {
+            const prev = (updatedRoleDetails as any)?.role === Role.Student ? (updatedRoleDetails as any).student ?? {} : {};
+            updatedRoleDetails = {
+              role: Role.Student,
+              student: { ...prev, ...patch },
+            } as RoleDetails;
+          }
           break;
         case Role.Professional:
-          updatedRoleDetails = { 
-            ...updatedRoleDetails, 
-            professional: { ...updatedRoleDetails.professional, ...patch } 
-          };
+          {
+            const prev = (updatedRoleDetails as any)?.role === Role.Professional ? (updatedRoleDetails as any).professional ?? {} : {};
+            updatedRoleDetails = {
+              role: Role.Professional,
+              professional: { ...prev, ...patch },
+            } as RoleDetails;
+          }
           break;
         case Role.BusinessOwner:
-          updatedRoleDetails = { 
-            ...updatedRoleDetails, 
-            business: { ...updatedRoleDetails.business, ...patch } 
-          };
+          {
+            const prev = (updatedRoleDetails as any)?.role === Role.BusinessOwner ? (updatedRoleDetails as any).business ?? {} : {};
+            updatedRoleDetails = {
+              role: Role.BusinessOwner,
+              business: { ...prev, ...patch },
+            } as RoleDetails;
+          }
           break;
         case Role.CareerShifter:
-          updatedRoleDetails = { 
-            ...updatedRoleDetails, 
-            shifter: { ...updatedRoleDetails.shifter, ...patch } 
-          };
+          {
+            const prev = (updatedRoleDetails as any)?.role === Role.CareerShifter ? (updatedRoleDetails as any).shifter ?? {} : {};
+            updatedRoleDetails = {
+              role: Role.CareerShifter,
+              shifter: { ...prev, ...patch },
+            } as RoleDetails;
+          }
           break;
       }
     }
@@ -96,12 +165,13 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
           <span className="inline-block text-xl mb-1">⚠️</span>
           <p className="text-xs font-medium">Please select a role first</p>
         </div>
+        {compensationSection}
       </div>
     );
   }
 
   if (role === Role.Student) {
-    const s = roleDetails?.student || {};
+    const s = roleDetails?.role === Role.Student ? roleDetails.student : ({} as any);
     
     // Get field of study options based on education level
     const fieldOfStudyOptions = useMemo(() => {
@@ -178,7 +248,7 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
   }
 
   if (role === Role.Professional) {
-    const p = roleDetails?.professional || {};
+    const p = roleDetails?.role === Role.Professional ? roleDetails.professional : ({} as any);
     
     // Get job function options based on industry
     const jobFunctionOptions = useMemo(() => {
@@ -242,7 +312,7 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
   }
 
   if (role === Role.BusinessOwner) {
-    const b = roleDetails?.business || {};
+    const b = roleDetails?.role === Role.BusinessOwner ? roleDetails.business : ({} as any);
     return (
       <div className={`space-y-2 ${className}`}>
         <div className="space-y-0.5">
@@ -304,7 +374,7 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
   }
 
   if (role === Role.CareerShifter) {
-    const s = roleDetails?.shifter || {};
+    const s = roleDetails?.role === Role.CareerShifter ? roleDetails.shifter : ({} as any);
     
     // Enhanced previous and desired field options
     const previousFieldOptions = [
@@ -390,6 +460,7 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
             </div>
           </div>
         )}
+        {compensationSection}
       </div>
     );
   }
