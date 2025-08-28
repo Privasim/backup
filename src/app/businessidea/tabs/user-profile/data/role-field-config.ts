@@ -59,6 +59,22 @@ export const BASE_ROLE_FIELD_CONFIG: RoleFieldConfig = {
         group: "compensation",
         options: () => INCOME_RANGES_USD,
       },
+      {
+        id: "compensationType",
+        label: "Compensation Type",
+        type: "segmented",
+        group: "compensation",
+        options: () => ["Salary", "Hourly", "Stipend"],
+      },
+      {
+        id: "currency",
+        label: "Currency",
+        type: "select",
+        group: "compensation",
+        options: () => ["USD"],
+        visibleIf: ({ values }) => !!values["compensationType"],
+        dependsOn: ["compensationType"],
+      },
     ],
     [Role.Professional]: [
       {
@@ -75,6 +91,31 @@ export const BASE_ROLE_FIELD_CONFIG: RoleFieldConfig = {
         group: "compensation",
         options: () => INCOME_RANGES_USD,
       },
+      {
+        id: "compensationType",
+        label: "Compensation Type",
+        type: "segmented",
+        group: "compensation",
+        options: () => ["Salary", "Hourly", "Contract"],
+      },
+      {
+        id: "equityParticipation",
+        label: "Equity",
+        type: "segmented",
+        group: "compensation",
+        options: () => ["None", "RSU", "Options"],
+        visibleIf: ({ values }) => values["compensationType"] === "Salary" || values["compensationType"] === "Contract",
+        dependsOn: ["compensationType"],
+      },
+      {
+        id: "currency",
+        label: "Currency",
+        type: "select",
+        group: "compensation",
+        options: () => ["USD"],
+        visibleIf: ({ values }) => !!values["compensationType"],
+        dependsOn: ["compensationType"],
+      },
     ],
     [Role.BusinessOwner]: [
       {
@@ -84,6 +125,20 @@ export const BASE_ROLE_FIELD_CONFIG: RoleFieldConfig = {
         group: "compensation",
         options: () => REVENUE_RANGES_USD,
       },
+      {
+        id: "ownerDrawStyle",
+        label: "Owner Draw",
+        type: "segmented",
+        group: "compensation",
+        options: () => ["Salary", "Distribution"],
+      },
+      {
+        id: "profitabilityStatus",
+        label: "Profitability",
+        type: "segmented",
+        group: "compensation",
+        options: () => ["Pre-profit", "Break-even", "Profitable"],
+      },
     ],
     [Role.CareerShifter]: [
       {
@@ -92,6 +147,22 @@ export const BASE_ROLE_FIELD_CONFIG: RoleFieldConfig = {
         type: "range",
         group: "compensation",
         options: () => INCOME_RANGES_USD,
+      },
+      {
+        id: "compensationType",
+        label: "Compensation Type",
+        type: "segmented",
+        group: "compensation",
+        options: () => ["Salary", "Hourly", "Contract"],
+      },
+      {
+        id: "currency",
+        label: "Currency",
+        type: "select",
+        group: "compensation",
+        options: () => ["USD"],
+        visibleIf: ({ values }) => !!values["compensationType"],
+        dependsOn: ["compensationType"],
       },
     ],
   },

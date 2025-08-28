@@ -25,7 +25,7 @@ import CompactSelect from "../components/CompactSelect";
 import SegmentedControl from "../components/SegmentedControl";
 import PillMultiSelect from "../components/PillMultiSelect";
 import { useRoleFieldConfig } from "../hooks/useRoleFieldConfig";
-import FieldRenderer from "../components/FieldRenderer";
+import GroupRenderer from "../components/GroupRenderer";
 import { useRoleLocalValues } from "../hooks/useRoleLocalValues";
 
 type Props = {
@@ -70,25 +70,15 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
 
   const compensationFields = useMemo(() => fields.filter((f) => f.group === "compensation"), [fields]);
 
-  const compensationSection = useMemo(() => {
-    if (!compensationFields.length) return null;
+  const compensationRenderer = useMemo(() => {
     return (
-      <div className="mt-1 pt-1 border-t border-gray-100">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-xs font-medium text-gray-700">Compensation</span>
-          <span className="text-[10px] text-gray-400 px-1.5 py-0.5 bg-gray-50 rounded">optional</span>
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          {compensationFields.map((f) => (
-            <FieldRenderer
-              key={f.id}
-              field={f}
-              values={extraValues}
-              onChange={(id, v) => setExtraValue(id, v, fields as any)}
-            />
-          ))}
-        </div>
-      </div>
+      <GroupRenderer
+        title="Compensation"
+        fields={compensationFields}
+        values={extraValues}
+        onChange={(id, v) => setExtraValue(id, v, fields as any)}
+        columns={2}
+      />
     );
   }, [compensationFields, extraValues, fields, setExtraValue]);
 
@@ -165,7 +155,6 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
           <span className="inline-block text-xl mb-1">⚠️</span>
           <p className="text-xs font-medium">Please select a role first</p>
         </div>
-        {compensationSection}
       </div>
     );
   }
@@ -243,6 +232,7 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
             onSelectAllRecommended={() => handlePatch({ studentGoals: Array.from(new Set([...(s.studentGoals ?? []), ...GOAL_OPTIONS_STUDENT.slice(0,3)])) })}
           />
         </div>
+        {compensationRenderer}
       </div>
     );
   }
@@ -307,6 +297,7 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
             onSelectAllRecommended={() => handlePatch({ professionalGoals: Array.from(new Set([...(p.professionalGoals ?? []), ...GOAL_OPTIONS_PROFESSIONAL.slice(0,3)])) })}
           />
         </div>
+        {compensationRenderer}
       </div>
     );
   }
@@ -369,6 +360,7 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
             onSelectAllRecommended={() => handlePatch({ businessGoals: Array.from(new Set([...(b.businessGoals ?? []), ...GOAL_OPTIONS_BUSINESS.slice(0,3)])) })}
           />
         </div>
+        {compensationRenderer}
       </div>
     );
   }
@@ -460,10 +452,11 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
             </div>
           </div>
         )}
-        {compensationSection}
+        {compensationRenderer}
       </div>
     );
   }
 
   return null;
+
 }
