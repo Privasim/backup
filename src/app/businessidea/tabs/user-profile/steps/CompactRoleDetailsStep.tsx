@@ -82,6 +82,47 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
     );
   }, [compensationFields, extraValues, fields, setExtraValue]);
 
+  // Additional groups: Experience, Skillset, Personality
+  const experienceFields = useMemo(() => fields.filter((f) => f.group === "experience"), [fields]);
+  const skillsetFields = useMemo(() => fields.filter((f) => f.group === "skillset"), [fields]);
+  const personalityFields = useMemo(() => fields.filter((f) => f.group === "personality"), [fields]);
+
+  const experienceRenderer = useMemo(() => {
+    return (
+      <GroupRenderer
+        title="Experience"
+        fields={experienceFields}
+        values={extraValues}
+        onChange={(id, v) => setExtraValue(id, v, fields as any)}
+        columns={2}
+      />
+    );
+  }, [experienceFields, extraValues, fields, setExtraValue]);
+
+  const skillsetRenderer = useMemo(() => {
+    return (
+      <GroupRenderer
+        title="Skillset"
+        fields={skillsetFields}
+        values={extraValues}
+        onChange={(id, v) => setExtraValue(id, v, fields as any)}
+        columns={2}
+      />
+    );
+  }, [skillsetFields, extraValues, fields, setExtraValue]);
+
+  const personalityRenderer = useMemo(() => {
+    return (
+      <GroupRenderer
+        title="Personality"
+        fields={personalityFields}
+        values={extraValues}
+        onChange={(id, v) => setExtraValue(id, v, fields as any)}
+        columns={2}
+      />
+    );
+  }, [personalityFields, extraValues, fields, setExtraValue]);
+
   const handlePatch = (patch: Record<string, any>) => {
     if (!role) return;
     
@@ -232,6 +273,9 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
             onSelectAllRecommended={() => handlePatch({ studentGoals: Array.from(new Set([...(s.studentGoals ?? []), ...GOAL_OPTIONS_STUDENT.slice(0,3)])) })}
           />
         </div>
+        {experienceRenderer}
+        {skillsetRenderer}
+        {personalityRenderer}
         {compensationRenderer}
       </div>
     );
@@ -297,6 +341,9 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
             onSelectAllRecommended={() => handlePatch({ professionalGoals: Array.from(new Set([...(p.professionalGoals ?? []), ...GOAL_OPTIONS_PROFESSIONAL.slice(0,3)])) })}
           />
         </div>
+        {experienceRenderer}
+        {skillsetRenderer}
+        {personalityRenderer}
         {compensationRenderer}
       </div>
     );
@@ -360,6 +407,9 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
             onSelectAllRecommended={() => handlePatch({ businessGoals: Array.from(new Set([...(b.businessGoals ?? []), ...GOAL_OPTIONS_BUSINESS.slice(0,3)])) })}
           />
         </div>
+        {experienceRenderer}
+        {skillsetRenderer}
+        {personalityRenderer}
         {compensationRenderer}
       </div>
     );
@@ -452,6 +502,9 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
             </div>
           </div>
         )}
+        {experienceRenderer}
+        {skillsetRenderer}
+        {personalityRenderer}
         {compensationRenderer}
       </div>
     );
