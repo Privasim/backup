@@ -17,8 +17,6 @@ function CompactUserProfileContent() {
   const { profileData, setProfileData } = useUserProfile();
   const { setProfileData: setChatboxProfileData } = useChatbox();
   const [currentStep, setCurrentStep] = useState(1);
-  const [prunedInterestsBackup, setPrunedInterestsBackup] = useState<string[] | null>(null);
-  const [prunedRemovedCount, setPrunedRemovedCount] = useState<number>(0);
 
   // Helper function to check if current step is complete
   const isStepComplete = (step: number): boolean => {
@@ -42,11 +40,7 @@ function CompactUserProfileContent() {
           return !!(c?.previousField && c?.desiredField);
         }
         return false;
-      case 3: // Industry & Location
-        return !!(profileData.industry && profileData.location);
-      case 4: // Skills
-        return (profileData.skills && profileData.skills.length > 0);
-      case 5: // Review
+      case 3: // Review
         return true;
       default:
         return false;
@@ -69,31 +63,6 @@ function CompactUserProfileContent() {
     }
   }, [profileData, setChatboxProfileData]);
 
-  // Handle industry change to prune interests
-  const handleIndustryChange = (newIndustry: string) => {
-    const currentInterests = profileData.interests || [];
-    const newIndustryInterests = newIndustry ? 
-      (INTEREST_OPTIONS_BY_INDUSTRY[newIndustry] || INTEREST_OPTIONS) : 
-      INTEREST_OPTIONS;
-    
-    const validInterests = currentInterests.filter(interest => 
-      newIndustryInterests.includes(interest)
-    );
-    
-    if (validInterests.length !== currentInterests.length) {
-      // store backup and count for undo UX
-      setPrunedInterestsBackup(currentInterests);
-      setPrunedRemovedCount(currentInterests.length - validInterests.length);
-      setProfileData({ 
-        industry: newIndustry,
-        interests: validInterests 
-      });
-    } else {
-      setPrunedInterestsBackup(null);
-      setPrunedRemovedCount(0);
-      setProfileData({ industry: newIndustry });
-    }
-  };
 
   // Navigation functions
   const goNext = () => {
@@ -122,10 +91,6 @@ function CompactUserProfileContent() {
       case 2:
         return <CompactRoleDetailsStep />;
       case 3:
-        return <CompactIndustryLocationStep />;
-      case 4:
-        return <CompactSkillsStep />;
-      case 5:
         return <CompactReviewStep onEditStep={goToStep} />;
       default:
         return null;
@@ -140,36 +105,6 @@ function CompactUserProfileContent() {
             <StepIndicator currentStep={currentStep} />
           </div>
           
-          {currentStep === 3 && prunedInterestsBackup && prunedRemovedCount > 0 && (
-            <div className="mb-3 px-2.5 py-1.5 rounded-md border border-amber-200 bg-amber-50 text-amber-800 flex items-center justify-between">
-              <span className="text-xs">{prunedRemovedCount} interest{prunedRemovedCount > 1 ? 's' : ''} removed due to industry change.</span>
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  className="text-xs px-1.5 py-0.5 rounded border border-amber-300 hover:bg-amber-100"
-                  onClick={() => {
-                    if (prunedInterestsBackup) {
-                      setProfileData({ interests: prunedInterestsBackup });
-                    }
-                    setPrunedInterestsBackup(null);
-                    setPrunedRemovedCount(0);
-                  }}
-                >
-                  Undo
-                </button>
-                <button
-                  type="button"
-                  className="text-xs px-1.5 py-0.5 rounded border border-transparent hover:bg-amber-100"
-                  onClick={() => {
-                    setPrunedInterestsBackup(null);
-                    setPrunedRemovedCount(0);
-                  }}
-                >
-                  Dismiss
-                </button>
-              </div>
-            </div>
-          )}
           
           <div className="space-y-4">
             {renderStepContent()}
@@ -181,7 +116,7 @@ function CompactUserProfileContent() {
             canBack={canBack}
             canNext={canNext}
             currentStep={currentStep}
-            totalSteps={5}
+            totalSteps={3}
           />
         </div>
       </div>

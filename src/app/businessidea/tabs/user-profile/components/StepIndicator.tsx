@@ -12,8 +12,6 @@ type Props = {
 const DEFAULT_LABELS = [
   "Role",
   "Details",
-  "Industry & Location",
-  "Skills",
   "Review",
 ];
 
