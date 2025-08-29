@@ -1,5 +1,12 @@
 /* Design tokens for centralized UI styling
  * Light mode only with blue accent colors and clean modern aesthetic
+ *
+ * PRECEDENCE POLICY:
+ * - This file is the source of truth for component classes (.btn-*, .card-*) and color tokens
+ * - For components not defined here (e.g., badges), use design-system.css
+ * - Global utilities like .focus-ring are defined in globals.css (which wins due to cascade)
+ * - Avoid direct Tailwind color/shadow/radius classes for brand/semantic visuals
+ * - Tailwind remains acceptable for layout, spacing, and responsive utilities
  */
 
 :root {
@@ -99,7 +106,47 @@
 }
 
 /* Focus states */
+/* Note: .focus-ring is also defined in globals.css which takes precedence due to cascade order.
+   This definition is kept for reference but globals.css version is canonical. */
 .focus-ring:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+/* Semantic bridging utilities for consistent styling */
+.text-primary {
+  color: var(--color-text-primary);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-brand {
+  color: var(--color-primary);
+}
+
+.fill-brand {
+  fill: var(--color-primary);
+}
+
+.border-default {
+  border-color: var(--color-border);
+}
+
+.bg-surface {
+  background-color: var(--color-background);
+}
+
+.bg-hero {
+  background: linear-gradient(135deg, #f0f7ff, var(--color-background));
+}
+
+.link-primary {
+  color: var(--color-primary);
+  transition: color 0.2s ease;
+}
+
+.link-primary:hover {
+  color: var(--color-primary-hover);
 }

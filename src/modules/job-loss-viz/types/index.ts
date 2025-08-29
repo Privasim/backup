@@ -5,6 +5,7 @@ export interface SourceRef {
   title?: string;
   publisher?: string;
   date?: string; // ISO date string
+  description?: string; // Brief description of the source
 }
 
 export interface YtdPoint {
