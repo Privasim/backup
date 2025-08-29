@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useChatbox } from './ChatboxProvider';
-import ChatboxPanel from './ChatboxPanel';
+import { RightDockSwitcher } from '@/features/messenger/components/RightDockSwitcher';
 
 /**
  * Enhanced overlay component for mobile chatbox with better animations
@@ -48,7 +48,7 @@ export const ChatboxLayout: React.FC<ChatboxLayoutProps> = ({
   width = '24rem', // 384px (w-96)
   className = ''
 }) => {
-  const { isVisible } = useChatbox();
+  const { isVisible, closeChatbox } = useChatbox();
   const [isClient, setIsClient] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -92,7 +92,7 @@ export const ChatboxLayout: React.FC<ChatboxLayoutProps> = ({
         {children}
       </div>
 
-      {/* Enhanced Chatbox Panel with better animations */}
+      {/* Enhanced Right Dock with better animations */}
       <div
         className={`
           fixed top-0 bottom-0 z-50 
@@ -105,7 +105,11 @@ export const ChatboxLayout: React.FC<ChatboxLayoutProps> = ({
         `}
         style={{ width }}
       >
-        <ChatboxPanel className="h-full w-full" />
+        <RightDockSwitcher 
+          className="h-full w-full" 
+          visible={isVisible} 
+          onClose={closeChatbox} 
+        />
       </div>
 
       {/* Enhanced overlay for mobile with fade animation */}

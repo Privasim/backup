@@ -23,16 +23,78 @@ import { chatboxDebug } from '@/app/businessidea/utils/logStore';
 import { AnalysisConfig } from './types';
 import { getAnalysisStatus } from './utils/profile-transformation';
 
+/**
+ * External configuration interface for when ChatboxControls is used outside of ChatboxProvider
+ */
+interface ExternalConfig {
+  model?: string;
+  apiKey?: string;
+}
+
 interface ChatboxControlsProps {
   className?: string;
   mode?: 'full' | 'configOnly';
   visibleTabs?: { api?: boolean; prompt?: boolean; storage?: boolean };
   onValidationChange?: (isValid: boolean) => void;
+  
+  // New props for external mode
+  controlSource?: 'context' | 'external';
+  externalConfig?: ExternalConfig;
+  onExternalConfigChange?: (update: Partial<ExternalConfig>) => void;
+  forceMode?: 'configOnly';
 }
 
 type TabType = 'analyze' | 'api' | 'prompt' | 'storage';
 
-export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = '', mode, visibleTabs, onValidationChange }) => {
+/**
+ * Main ChatboxControls component that acts as a wrapper to render either the context-driven
+ * or external mode version based on controlSource prop
+ */
+export const ChatboxControls: React.FC<ChatboxControlsProps> = (props) => {
+  const { 
+    className = '', 
+    controlSource = 'context',
+    externalConfig,
+    onExternalConfigChange,
+    forceMode,
+    mode,
+    visibleTabs,
+    onValidationChange 
+  } = props;
+  
+  // If controlSource is 'external', render the external version
+  if (controlSource === 'external') {
+    return (
+      <ChatboxControlsExternalApi
+        className={className}
+        externalConfig={externalConfig}
+        onExternalConfigChange={onExternalConfigChange}
+        onValidationChange={onValidationChange}
+      />
+    );
+  }
+  
+  // Otherwise render the context-driven version
+  return (
+    <ChatboxControlsContext
+      className={className}
+      mode={forceMode || mode}
+      visibleTabs={visibleTabs}
+      onValidationChange={onValidationChange}
+    />
+  );
+};
+
+/**
+ * Original ChatboxControls implementation that uses ChatboxProvider context
+ * This preserves all existing functionality
+ */
+const ChatboxControlsContext: React.FC<Omit<ChatboxControlsProps, 'controlSource' | 'externalConfig' | 'onExternalConfigChange' | 'forceMode'>> = ({ 
+  className = '', 
+  mode, 
+  visibleTabs, 
+  onValidationChange 
+}) => {
   const { config, status, updateConfig, startAnalysis, profileData, useMockData, setProfileData } = useChatbox();
   const { saveApiKey, getApiKey } = useChatboxSettings();
 
@@ -448,6 +510,219 @@ export const ChatboxControls: React.FC<ChatboxControlsProps> = ({ className = ''
       {showHistoryPanel && (
         <AnalysisHistory isVisible={showHistoryPanel} onClose={() => setShowHistoryPanel(false)} />
       )}
+    </div>
+  );
+};
+
+/**
+ * External API-only version of ChatboxControls that doesn't depend on ChatboxProvider
+ * Used when controlSource='external' is specified
+ */
+const ChatboxControlsExternalApi: React.FC<{
+  className?: string;
+  externalConfig?: ExternalConfig;
+  onExternalConfigChange?: (update: Partial<ExternalConfig>) => void;
+  onValidationChange?: (isValid: boolean) => void;
+}> = ({ 
+  className = '', 
+  externalConfig = { model: '', apiKey: '' },
+  onExternalConfigChange,
+  onValidationChange 
+}) => {
+  const { saveApiKey, getApiKey } = useChatboxSettings();
+  
+  const [showKey, setShowKey] = useState(false);
+  const [touched, setTouched] = useState(false);
+  const [validation, setValidation] = useState({ 
+    status: 'idle' as 'idle' | 'valid' | 'invalid', 
+    errors: {} as Record<string, string>
+  });
+
+  const availableModels = useMemo(() => {
+    const modelInfo = {
+      'qwen/qwen3-coder:free': { label: 'Qwen3 Coder', tag: 'Free', description: 'Optimized for coding tasks' },
+      'z-ai/glm-4.5-air:free': { label: 'GLM 4.5 Air', tag: 'Free', description: 'Lightweight analysis' },
+      'moonshotai/kimi-k2:free': { label: 'Kimi K2', tag: 'Free', description: 'Advanced reasoning' }
+    };
+
+    return getAvailableModels().map(model => ({
+      value: model,
+      ...modelInfo[model as keyof typeof modelInfo] || { label: model, tag: 'Model', description: 'AI analysis' }
+    }));
+  }, []);
+
+  const validate = useCallback(() => {
+    const modelValues = availableModels.map(m => m.value);
+    const errors: Record<string, string> = {};
+    
+    // Validate model
+    if (!externalConfig.model) {
+      errors.model = 'Model is required';
+    } else if (!modelValues.includes(externalConfig.model)) {
+      errors.model = 'Invalid model selected';
+    }
+    
+    // Validate API key
+    const apiKeyValidation = externalConfig.apiKey ? 
+      { isValid: /^sk-or-v1-[a-f0-9]{32,}$/.test(externalConfig.apiKey) } : 
+      { isValid: false };
+      
+    if (!externalConfig.apiKey) {
+      errors.apiKey = 'API key is required';
+    } else if (!apiKeyValidation.isValid) {
+      errors.apiKey = 'Invalid API key format';
+    }
+    
+    const isValid = Object.keys(errors).length === 0;
+    
+    setValidation({
+      status: isValid ? 'valid' : 'invalid',
+      errors
+    });
+    
+    return isValid;
+  }, [externalConfig, availableModels]);
+
+  useEffect(() => {
+    if (touched) validate();
+  }, [touched, validate]);
+
+  // Notify parent of validation changes
+  useEffect(() => {
+    if (onValidationChange) {
+      const isValid = validation.status === 'valid';
+      onValidationChange(isValid);
+    }
+  }, [validation.status, onValidationChange]);
+
+  const handleApiKeyChange = useCallback((value: string) => {
+    setTouched(true);
+    const key = value.trim();
+    
+    if (onExternalConfigChange) {
+      onExternalConfigChange({ apiKey: key });
+    }
+    
+    if (externalConfig.model && /^sk-or-v1-[a-f0-9]{32,}$/.test(key)) {
+      saveApiKey(externalConfig.model, key);
+    }
+  }, [externalConfig.model, onExternalConfigChange, saveApiKey]);
+
+  const handleApiKeyPaste = useCallback((e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pastedText = e.clipboardData.getData('text').trim();
+    handleApiKeyChange(pastedText);
+  }, [handleApiKeyChange]);
+
+  const handleModelChange = useCallback((model: string) => {
+    setTouched(true);
+    const savedKey = getApiKey(model);
+    
+    if (onExternalConfigChange) {
+      onExternalConfigChange({ 
+        model, 
+        apiKey: savedKey || externalConfig.apiKey || '' 
+      });
+    }
+  }, [externalConfig.apiKey, onExternalConfigChange, getApiKey]);
+
+  const selectedModel = availableModels.find(m => m.value === externalConfig.model);
+
+  return (
+    <div className={`bg-white border border-gray-200 rounded-lg ${className}`}>
+      {/* Tab Navigation - Only API tab */}
+      <div className="flex border-b border-gray-200">
+        <div className="flex-1 flex items-center justify-center px-3 py-2 text-xs font-medium text-blue-600 border-b-2 border-blue-600 bg-blue-50/50">
+          <KeyIcon className="w-3 h-3 mr-1" />
+          API
+        </div>
+      </div>
+
+      {/* API Tab Content */}
+      <div className="p-3">
+        <div className="space-y-3">
+          {/* Model Selection */}
+          <div>
+            <label className="flex items-center justify-between text-sm font-medium text-gray-700 mb-2">
+              <span>AI Model</span>
+              <span className="text-red-500 text-xs">Required</span>
+            </label>
+            <div className="relative">
+              <select
+                value={externalConfig.model || ''}
+                onChange={(e) => handleModelChange(e.target.value)}
+                className={`w-full px-3 py-2 pr-8 text-sm border rounded-lg transition-all duration-200 ${validation.errors.model && touched
+                  ? 'border-red-300 bg-red-50/50 focus:ring-2 focus:ring-red-500'
+                  : 'border-gray-200 hover:border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                  }`}
+              >
+                <option value="" disabled>Choose model...</option>
+                {availableModels.map(model => (
+                  <option key={model.value} value={model.value}>
+                    {model.label}
+                  </option>
+                ))}
+              </select>
+              <CogIcon className="absolute right-3 top-3 h-4 w-4 text-gray-400 pointer-events-none" />
+            </div>
+            {selectedModel && (
+              <p className="mt-1 text-xs text-gray-500">{selectedModel.description}</p>
+            )}
+            {validation.errors.model && touched && (
+              <p className="mt-1 text-xs text-red-600">{validation.errors.model}</p>
+            )}
+          </div>
+
+          {/* API Key Input */}
+          <div>
+            <label className="flex items-center justify-between text-sm font-medium text-gray-700 mb-2">
+              <span>API Key</span>
+              <span className="text-red-500 text-xs">Required</span>
+            </label>
+            <div className="relative">
+              <input
+                type={showKey ? 'text' : 'password'}
+                value={externalConfig.apiKey || ''}
+                onChange={(e) => handleApiKeyChange(e.target.value)}
+                onPaste={(e) => handleApiKeyPaste(e)}
+                placeholder="sk-or-..."
+                className={`w-full px-3 py-2 pr-12 text-sm font-mono border rounded-lg transition-all duration-200 ${validation.status === 'valid'
+                  ? 'border-green-300 bg-green-50/30 focus:ring-2 focus:ring-green-500'
+                  : validation.status === 'invalid' && touched
+                    ? 'border-red-300 bg-red-50/30 focus:ring-2 focus:ring-red-500'
+                    : 'border-gray-200 hover:border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                  }`}
+              />
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-1">
+                {validation.status === 'valid' && (
+                  <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                )}
+                {validation.status === 'invalid' && touched && (
+                  <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowKey(!showKey)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  aria-label={showKey ? 'Hide' : 'Show'}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d={showKey ? "M15 12a3 3 0 11-6 0 3 3 0 016 0z" : "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243"} />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            {validation.errors.apiKey && touched && (
+              <p className="mt-1 text-xs text-red-600">{validation.errors.apiKey}</p>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

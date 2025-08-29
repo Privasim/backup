@@ -18,9 +18,10 @@ import { ProfileSummaryTooltip } from './ProfileSummaryTooltip';
 
 interface ChatboxPanelProps {
   className?: string;
+  onClose?: () => void;
 }
 
-export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) => {
+export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '', onClose }) => {
   const {
     isVisible,
     status,
@@ -70,11 +71,11 @@ export const ChatboxPanel: React.FC<ChatboxPanelProps> = ({ className = '' }) =>
   }
 
   return (
-    <div className={`fixed right-0 top-0 h-full w-96 bg-white border-l border-gray-200 shadow-2xl z-50 flex flex-col ${className}`}>
+    <div className={`h-full w-full bg-white flex flex-col ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between h-12 px-3 border-b border-gray-100 bg-white">
         <button
-          onClick={closeChatbox}
+          onClick={onClose || closeChatbox}
           className="p-1.5 rounded-md hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           aria-label="Back"
         >
