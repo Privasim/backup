@@ -10,7 +10,7 @@ interface Props {
   maxItems?: number;
 }
 
-export function IndustryList({ industries, className = '', maxItems = 5 }: Props) {
+export function IndustryList({ industries, className = '', maxItems = 20 }: Props) {
   const displayIndustries = useMemo(() => {
     // Sort by count and limit to maxItems
     return [...industries]
@@ -31,39 +31,34 @@ export function IndustryList({ industries, className = '', maxItems = 5 }: Props
   }
 
   return (
-    <div className={`flex flex-col gap-3 ${className}`}>
-      <h3 className="text-lg font-semibold text-primary">Industry Breakdown</h3>
+    <div className={`${className}`}>
+      <h3 className="text-md font-semibold text-primary mb-3">Industry Breakdown</h3>
       
-      <div className="flex flex-col gap-2">
+      <div className="grid grid-cols-1 gap-1 text-sm">
         {displayIndustries.map((industry) => {
           const percentage = Math.round((industry.count / totalCount) * 100);
           
           return (
-            <div key={industry.industry} className="flex flex-col">
-              <div className="flex justify-between items-center mb-1">
-                <span className="font-medium text-primary">{industry.industry}</span>
-                <span className="text-sm text-secondary">
-                  {industry.count.toLocaleString()} ({percentage}%)
+            <div key={industry.industry} className="flex items-center justify-between py-1">
+              <div className="flex items-center gap-2 min-w-0">
+                <div 
+                  className="w-2 h-2 rounded-full flex-shrink-0" 
+                  style={{ backgroundColor: 'var(--color-hero)' }}
+                />
+                <span className="font-medium text-primary truncate" title={industry.industry}>
+                  {industry.industry}
                 </span>
               </div>
-              
-              <div className="h-2 w-full border-default bg-surface rounded-full overflow-hidden">
-                <div 
-                  className="bg-hero h-full rounded-full" 
-                  style={{ width: `${percentage}%` }}
-                  role="progressbar"
-                  aria-valuenow={percentage}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                />
-              </div>
+              <span className="text-secondary text-xs ml-2 whitespace-nowrap">
+                {industry.count.toLocaleString()} ({percentage}%)
+              </span>
             </div>
           );
         })}
       </div>
       
       {industries.length > maxItems && (
-        <div className="text-sm text-secondary mt-1">
+        <div className="text-xs text-secondary mt-2">
           Showing top {maxItems} of {industries.length} industries
         </div>
       )}
