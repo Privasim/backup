@@ -76,6 +76,27 @@ export default function CompactReviewStep({ className = "", onEditStep }: Props)
     setActiveTab('jobrisk');
   };
 
+  // Allow proceeding with partial profile via confirmation
+  const handleAnalyzeWithConfirm = () => {
+    // Gate only if there is absolutely no progress
+    const canProceed = readiness.completionLevel > 0;
+    if (!canProceed) return; // Button will be disabled in this case anyway
+
+    if (readiness.ready) {
+      handleAnalyzeJobRisk();
+      return;
+    }
+
+    const humanize = (s: string) => s.replace(/([A-Z])/g, ' $1').toLowerCase();
+    const missingList = readiness.missing.map(humanize).join(', ');
+    const confirmed = window.confirm(
+      `Your profile is ${readiness.completionLevel}% complete. Missing: ${missingList || 'none'}.\n\nProceed with partial data?`
+    );
+    if (confirmed) {
+      handleAnalyzeJobRisk();
+    }
+  };
+
   return (
     <div className={`space-y-2 ${className}`}>
       <div className="space-y-0.5">
@@ -212,6 +233,19 @@ export default function CompactReviewStep({ className = "", onEditStep }: Props)
                   <li>And {readiness.missing.length - 3} more fields</li>
                 )}
               </ul>
+              {process.env.NODE_ENV === 'development' && (
+                <pre className="mt-1 text-[9px] text-yellow-800 bg-yellow-100/60 p-1 rounded">
+{`debug: ${JSON.stringify({
+  role: !!profileData.role,
+  roleDetails: !!profileData.roleDetails,
+  industry: !!profileData.industry,
+  location: !!profileData.location,
+  workPreference: !!profileData.workPreference,
+  skillsCount: profileData.skills?.length || 0,
+  completion: readiness.completionLevel
+})}`}
+                </pre>
+              )}
             </div>
           </div>
         </div>
@@ -221,7 +255,7 @@ export default function CompactReviewStep({ className = "", onEditStep }: Props)
       <div className="pt-1">
         <ProfileAnalysisTrigger 
           profileData={profileData} 
-          variant="compact" 
+          variant="inline" 
           size="sm"
           onAnalysisStart={() => console.log('Analysis started')}
           onAnalysisComplete={() => console.log('Analysis completed')}
@@ -231,11 +265,17 @@ export default function CompactReviewStep({ className = "", onEditStep }: Props)
         <div className="flex flex-wrap gap-2 mt-2">
           <button
             type="button"
-            onClick={handleAnalyzeJobRisk}
-            disabled={!readiness.ready}
+            onClick={handleAnalyzeWithConfirm}
+            disabled={readiness.completionLevel <= 0}
             className="flex-1 px-3 py-1.5 rounded-md text-xs font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            title={readiness.ready ? "View job risk analysis" : "Complete your profile to enable job risk analysis"}
-            aria-disabled={!readiness.ready}
+            title={
+              readiness.completionLevel <= 0
+                ? "Add at least one profile field to proceed"
+                : readiness.ready
+                  ? "View job risk analysis"
+                  : "Proceed with partial profile (confirmation required)"
+            }
+            aria-disabled={readiness.completionLevel <= 0}
           >
             Analyze Job Risk
           </button>
