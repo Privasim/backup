@@ -8,11 +8,13 @@ import { useChatbox } from '@/components/chatbox/ChatboxProvider';
 interface BusinessHeaderProps {
   title: string;
   description?: string;
+  className?: string;
 }
 
 const BusinessHeader: React.FC<BusinessHeaderProps> = ({ 
   title, 
-  description = 'Explore innovative business opportunities and ideas' 
+  description = 'Explore innovative business opportunities and ideas',
+  className = ''
 }) => {
   const { openChatbox } = useChatbox();
 
@@ -22,7 +24,7 @@ const BusinessHeader: React.FC<BusinessHeaderProps> = ({
   }, [openChatbox]);
 
   return (
-    <header className="bg-white shadow">
+    <header className={`bg-white shadow ${className}`}>
       <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
           <div>

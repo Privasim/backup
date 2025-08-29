@@ -58,7 +58,7 @@ function TabContainerContent({ onTabChange }: { onTabChange?: (tab: TabId) => vo
     <ImplementationPlanProvider>
       <SpecsGeneratorProvider>
         <BridgeConnector />
-        <div className="space-y-4">
+        <div className="space-y-1">
           <TabNavigation />
           <TabContent onTabChange={onTabChange} />
         </div>

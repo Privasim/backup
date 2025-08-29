@@ -21,7 +21,7 @@ function LocalTabNav() {
 
   return (
     <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm border-b border-gray-100">
-      <div className="flex items-center gap-2 h-12 px-2">
+      <div className="flex items-center gap-1 h-10 px-1">
         {items.map(({ id, label }) => {
           const isActive = activeTab === id;
           return (
@@ -54,8 +54,8 @@ function LocalTabContent() {
 
   if (activeTab === 'userprofile') {
     return (
-      <div className="max-w-4xl mx-auto h-[500px] overflow-y-auto">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 h-full">
+      <div className="max-w-[627px] mx-auto h-[400px] overflow-y-auto">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 h-full">
           <UserProfileTab />
         </div>
       </div>
@@ -64,8 +64,8 @@ function LocalTabContent() {
 
   if (activeTab === 'jobrisk') {
     return (
-      <div className="max-w-4xl mx-auto h-[500px] overflow-y-auto">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 h-full">
+      <div className="max-w-[627px] mx-auto h-[400px] overflow-y-auto">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 h-full">
           <JobRiskAnalysisTab />
         </div>
       </div>
@@ -74,8 +74,8 @@ function LocalTabContent() {
 
   // businessplan
   return (
-    <div className="max-w-4xl mx-auto h-[500px] overflow-y-auto">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 h-full">
+    <div className="max-w-[627px] mx-auto h-[400px] overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 h-full">
         <ImplementationPlanProvider>
           <BusinessPlanContent />
         </ImplementationPlanProvider>
@@ -89,7 +89,7 @@ export default function ProfileSettingsTabs() {
 
   return (
     <TabProvider initialTab={initialTab}>
-      <div className="space-y-4">
+      <div className="space-y-2">
         <LocalTabNav />
         <LocalTabContent />
       </div>
