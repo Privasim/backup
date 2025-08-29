@@ -9,8 +9,8 @@ const BusinessIdeaPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 relative">
-        {/* Chatbox Toggle in upper right corner */}
-        <div className="absolute top-4 right-4 z-10">
+        {/* Chatbox Toggle in bottom right corner */}
+        <div className="absolute bottom-4 right-4 z-10">
           <ChatboxToggle variant="icon" size="md" />
         </div>
         
@@ -31,7 +31,9 @@ const BusinessIdeaPage = () => {
           </div>
         </div>
       </div>
-      <DebugButton />
+      <div className="hidden">
+        <DebugButton />
+      </div>
     </div>
   );
 };

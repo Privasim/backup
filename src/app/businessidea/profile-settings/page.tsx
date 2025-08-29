@@ -6,8 +6,8 @@ import { ChatboxToggle } from '@/components/chatbox/ChatboxToggle';
 export default function ProfileSettingsPage() {
   return (
     <div className="flex-1 relative">
-      {/* Chatbox Toggle in upper right corner */}
-      <div className="absolute top-4 right-4 z-10">
+      {/* Chatbox Toggle in bottom right corner */}
+      <div className="absolute bottom-4 right-4 z-10">
         <ChatboxToggle variant="icon" size="md" />
       </div>
       

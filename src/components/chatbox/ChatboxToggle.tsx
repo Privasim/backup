@@ -50,22 +50,22 @@ export const ChatboxToggle: React.FC<ChatboxToggleProps> = ({
   // Size configurations
   const sizeConfig = {
     sm: {
-      button: 'px-3 py-1.5 text-sm',
-      icon: 'w-4 h-4',
-      fab: 'w-10 h-10',
-      badge: 'w-4 h-4 text-xs'
+      button: 'px-5 py-2.5 text-sm',
+      icon: 'w-6 h-6',
+      fab: 'w-15 h-15',
+      badge: 'w-6 h-6 text-xs'
     },
     md: {
-      button: 'px-4 py-2 text-base',
-      icon: 'w-5 h-5',
-      fab: 'w-12 h-12',
-      badge: 'w-5 h-5 text-xs'
+      button: 'px-6 py-3 text-base',
+      icon: 'w-8 h-8',
+      fab: 'w-18 h-18',
+      badge: 'w-7 h-7 text-xs'
     },
     lg: {
-      button: 'px-6 py-3 text-lg',
-      icon: 'w-6 h-6',
-      fab: 'w-14 h-14',
-      badge: 'w-6 h-6 text-sm'
+      button: 'px-9 py-4.5 text-lg',
+      icon: 'w-9 h-9',
+      fab: 'w-21 h-21',
+      badge: 'w-9 h-9 text-sm'
     }
   };
 
@@ -75,13 +75,13 @@ export const ChatboxToggle: React.FC<ChatboxToggleProps> = ({
   const getStatusColor = () => {
     switch (status) {
       case 'analyzing':
-        return 'text-blue-600 bg-blue-50 border-blue-200';
+        return 'text-white bg-blue-600 border-blue-600 hover:bg-blue-700';
       case 'completed':
-        return 'text-green-600 bg-green-50 border-green-200';
+        return 'text-white bg-green-600 border-green-600 hover:bg-green-700';
       case 'error':
-        return 'text-red-600 bg-red-50 border-red-200';
+        return 'text-white bg-red-600 border-red-600 hover:bg-red-700';
       default:
-        return 'text-gray-600 bg-white border-gray-200 hover:bg-gray-50';
+        return 'text-white bg-blue-600 border-blue-600 hover:bg-blue-700';
     }
   };
 
