@@ -10,16 +10,22 @@ export const SourceRefSchema = z.object({
   date: z.string().optional(), // ISO date
 });
 
+// Define a schema that accepts either a URL string or a SourceRef object
+export const SourceInputSchema = z.union([
+  z.string().url(),
+  SourceRefSchema
+]);
+
 export const YtdPointSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-01$/, 'date must be month start YYYY-MM-01'),
   ytd_global_ai_job_losses: z.number().int().nonnegative(),
-  sources: z.array(z.string().url()).min(1),
+  sources: z.array(SourceInputSchema).min(1),
 });
 
 export const RoleAggregateSchema = z.object({
   role: z.string().min(1),
   count: z.number().int().nonnegative(),
-  sources: z.array(z.string().url()).min(1),
+  sources: z.array(SourceInputSchema).min(1),
 });
 
 export const YtdPointsSchema = z.array(YtdPointSchema);
@@ -33,6 +39,11 @@ export function parseRoleAggregates(input: unknown): RoleAggregate[] {
   return RoleAggregatesSchema.parse(input);
 }
 
-export function toSourceRefs(urls: string[]): SourceRef[] {
-  return urls.map((u) => ({ url: u }));
+export function toSourceRefs(sources: (string | SourceRef)[]): SourceRef[] {
+  return sources.map((source) => {
+    if (typeof source === 'string') {
+      return { url: source };
+    }
+    return source;
+  });
 }

@@ -2,9 +2,11 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import type { UseJobLossDataResult, YtdPoint, RoleAggregate, SourceRef } from '../types';
+import type { UseJobLossDataResult, YtdPoint, RoleAggregate, SourceRef, IndustryAggregate, AggregatedSourceRef } from '../types';
 import { parseRoleAggregates, parseYtdPoints, toSourceRefs } from '../utils/validate';
 import { buildSeriesFromYtd } from '../utils/normalize';
+import { aggregateSourcesFromYtd, getSourceDateRange } from '../utils/sourceAggregator';
+import { aggregateRolesByIndustry } from '../data/industryMap';
 
 interface Options {
   year?: number; // default 2025
@@ -60,6 +62,29 @@ export function useJobLossData(opts: Options = {}): UseJobLossDataResult {
     const last = [...ytdPoints].sort((a, b) => a.date.localeCompare(b.date))[ytdPoints.length - 1];
     return toSourceRefs(last.sources);
   }, [ytdPoints]);
+  
+  const aggregatedSources: AggregatedSourceRef[] = useMemo(() => {
+    if (!ytdPoints || ytdPoints.length === 0) return [];
+    return aggregateSourcesFromYtd(ytdPoints);
+  }, [ytdPoints]);
+  
+  const sourceDateRange = useMemo(() => {
+    if (!ytdPoints || ytdPoints.length === 0) return undefined;
+    return getSourceDateRange(ytdPoints);
+  }, [ytdPoints]);
+  
+  const industries: IndustryAggregate[] = useMemo(() => {
+    if (!roles || roles.length === 0) return [];
+    
+    const industryMap = aggregateRolesByIndustry(roles);
+    
+    return Object.entries(industryMap).map(([industry, data]) => ({
+      industry,
+      count: data.count,
+      roles: data.roles,
+      sources: Array.from(data.sources).map(url => ({ url }))
+    })).sort((a, b) => b.count - a.count); // Sort by count descending
+  }, [roles]);
 
   const lastUpdated = useMemo(() => {
     if (!ytdPoints || ytdPoints.length === 0) return undefined;
@@ -69,7 +94,10 @@ export function useJobLossData(opts: Options = {}): UseJobLossDataResult {
   return {
     ytdSeries,
     latestSources,
+    aggregatedSources,
+    sourceDateRange,
     roles: roles ?? [],
+    industries: industries,
     lastUpdated,
     error,
   };

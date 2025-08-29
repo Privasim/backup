@@ -1,13 +1,14 @@
 // File: src/modules/job-loss-viz/components/JobLossViz.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useJobLossData } from '../hooks/useJobLossData';
 import { LineGraph } from './LineGraph';
-import { RolesList } from './RolesList';
+import { IndustryList } from './IndustryList';
 import { SourcePanel } from './SourcePanel';
 import { FloatingActionButton } from '../../../components/ui/FloatingActionButton';
 import { InfoModal } from '../../../components/ui/InfoModal';
+import { formatDateRange } from '../utils/sourceAggregator';
 
 interface Props {
   className?: string;
@@ -15,7 +16,16 @@ interface Props {
 }
 
 export default function JobLossViz({ className, year = 2025 }: Props) {
-  const { ytdSeries, roles, latestSources, lastUpdated, error } = useJobLossData({ year });
+  const { 
+    ytdSeries, 
+    roles, 
+    industries,
+    latestSources, 
+    aggregatedSources,
+    sourceDateRange,
+    lastUpdated, 
+    error 
+  } = useJobLossData({ year });
   const [isSourceModalOpen, setIsSourceModalOpen] = useState(false);
   
   const handleOpenSourceModal = () => setIsSourceModalOpen(true);
@@ -46,7 +56,28 @@ export default function JobLossViz({ className, year = 2025 }: Props) {
             <div className="text-sm text-error">Failed to load data: {error}</div>
           ) : (
             <>
-              <LineGraph data={ytdSeries} height={200} className="mt-2" />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+                <div className="md:col-span-2">
+                  <LineGraph data={ytdSeries} height={200} />
+                  
+                  {/* Total YTD Value */}
+                  {ytdSeries.length > 0 && (
+                    <div className="mt-4 text-center">
+                      <div className="text-sm text-secondary">Total YTD Job Losses</div>
+                      <div className="text-3xl font-bold text-primary">
+                        {ytdSeries[ytdSeries.length - 1]?.value.toLocaleString()}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Industry Breakdown */}
+                <div>
+                  {industries && industries.length > 0 && (
+                    <IndustryList industries={industries} maxItems={5} />
+                  )}
+                </div>
+              </div>
               
               {/* Floating Action Button for Sources */}
               <FloatingActionButton 
@@ -65,10 +96,13 @@ export default function JobLossViz({ className, year = 2025 }: Props) {
           )}
         </div>
         
-        {/* Roles List Card (Separate) */}
-        {!error && roles && roles.length > 0 && (
-          <div className="mt-6">
-            <RolesList roles={roles} standalone={true} maxItems={8} />
+        {/* Sources Panel (Separate) */}
+        {!error && latestSources && latestSources.length > 0 && (
+          <div className="mt-6 card-base p-6">
+            <SourcePanel 
+              sources={latestSources} 
+              className="w-full" 
+            />
           </div>
         )}
         
@@ -80,7 +114,13 @@ export default function JobLossViz({ className, year = 2025 }: Props) {
           size="md"
         >
           <SourcePanel 
-            sources={latestSources} 
+            sources={latestSources}
+            aggregatedSources={aggregatedSources}
+            sourceDateRange={sourceDateRange}
+            subtitle={sourceDateRange ? 
+              `${aggregatedSources?.length || 0} sources from ${formatDateRange(sourceDateRange.start, sourceDateRange.end)}` : 
+              undefined
+            }
             isModal={true} 
             onClose={handleCloseSourceModal} 
           />
