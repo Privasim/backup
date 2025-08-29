@@ -11,9 +11,10 @@ type Props = {
   options: Option[];
   placeholder?: string;
   required?: boolean;
+  disabled?: boolean;
 };
 
-export default function CompactSelect({ label, value, onChange, options, placeholder = 'Select...', required }: Props) {
+export default function CompactSelect({ label, value, onChange, options, placeholder = 'Select...', required, disabled }: Props) {
   const normalized = options.map((o) => (typeof o === 'string' ? { label: o, value: o } : o));
   const hasValue = value !== undefined && value !== '';
   
@@ -30,9 +31,14 @@ export default function CompactSelect({ label, value, onChange, options, placeho
           value={value ?? ''}
           onChange={(e) => onChange(e.target.value)}
           required={required}
-          className={`w-full appearance-none pr-9 pl-3.5 py-2.5 rounded-lg border bg-white text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${hasValue 
-            ? 'border-gray-300 text-gray-800 font-medium' 
-            : 'border-gray-200 text-gray-500'} hover:border-gray-300`}
+          disabled={disabled}
+          className={`w-full appearance-none pr-9 pl-3.5 py-2.5 rounded-lg border bg-white text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
+            disabled 
+              ? 'border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed'
+              : hasValue 
+                ? 'border-gray-300 text-gray-800 font-medium' 
+                : 'border-gray-200 text-gray-500'
+          } ${!disabled ? 'hover:border-gray-300' : ''}`}
         >
           <option value="" disabled>{placeholder}</option>
           {normalized.map((o) => (

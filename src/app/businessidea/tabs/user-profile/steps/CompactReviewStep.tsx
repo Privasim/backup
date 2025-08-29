@@ -186,7 +186,6 @@ export default function CompactReviewStep({ className = "", onEditStep }: Props)
           </SectionCard>
         )}
 
-
         {/* Work Context Section */}
         <SectionCard 
           title="Work Context" 
@@ -195,12 +194,36 @@ export default function CompactReviewStep({ className = "", onEditStep }: Props)
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           }
-          onEdit={onEditStep ? () => onEditStep(3) : undefined}
+          onEdit={onEditStep ? () => onEditStep(2) : undefined}
         >
           <SummaryRow label="Industry" value={profileData.industry} />
           <SummaryRow label="Location" value={profileData.location} />
           <SummaryRow label="Work" value={profileData.workPreference} />
         </SectionCard>
+
+        {/* Skills Section */}
+        {(profileData.skills && profileData.skills.length > 0) && (
+          <SectionCard 
+            title="Skills" 
+            icon={
+              <svg className="h-3 w-3 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            }
+            onEdit={onEditStep ? () => onEditStep(2) : undefined}
+          >
+            <div className="flex flex-wrap gap-1 pt-0.5">
+              {profileData.skills.slice(0, 6).map((skill) => (
+                <span key={skill} className="px-1.5 py-0.5 rounded-full text-[9px] bg-indigo-50 text-indigo-700 border border-indigo-100">{skill}</span>
+              ))}
+              {profileData.skills.length > 6 && (
+                <span className="px-1.5 py-0.5 rounded-full text-[9px] bg-gray-50 text-gray-700 border border-gray-100">
+                  +{profileData.skills.length - 6} more
+                </span>
+              )}
+            </div>
+          </SectionCard>
+        )}
 
         {(profileData.interests && profileData.interests.length > 0) && (
           <SectionCard 

@@ -14,9 +14,10 @@ type Props = {
   showSearch?: boolean; // renders a small search input to filter options
   showSelectedCount?: boolean; // show selected count in header even without maxSelected
   onSelectAllRecommended?: () => void; // quick action to select recommended
+  placeholder?: string; // placeholder for search input
 };
 
-export default function PillMultiSelect({ label, options, value, onChange, maxSelected, recommended, initialVisibleCount = 8, showSearch = false, showSelectedCount = true, onSelectAllRecommended }: Props) {
+export default function PillMultiSelect({ label, options, value, onChange, maxSelected, recommended, initialVisibleCount = 8, showSearch = false, showSelectedCount = true, onSelectAllRecommended, placeholder = "Search..." }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -88,7 +89,7 @@ export default function PillMultiSelect({ label, options, value, onChange, maxSe
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search..."
+            placeholder={placeholder}
             className="w-full px-3 py-1.5 text-sm rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             aria-label="Filter options"
           />

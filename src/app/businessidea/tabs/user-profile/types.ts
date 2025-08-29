@@ -16,6 +16,11 @@ export type StudentDetails = {
   interests?: string[];
   values?: string[];
   studentGoals?: string[];
+  // New fields for modular branching
+  targetIncome?: string;
+  compensationType?: string;
+  experienceType?: string;
+  experienceDuration?: string;
 };
 
 export type ProfessionalDetails = {
@@ -26,6 +31,11 @@ export type ProfessionalDetails = {
   hobbies?: string[];
   interests?: string[];
   values?: string[];
+  // New fields for modular branching
+  currentIncome?: string;
+  compensationType?: string;
+  managementType?: string;
+  managementDuration?: string;
 };
 
 export type BusinessOwnerDetails = {
@@ -37,17 +47,27 @@ export type BusinessOwnerDetails = {
   hobbies?: string[];
   interests?: string[];
   values?: string[];
+  // New fields for modular branching
+  revenueRange?: string;
+  revenueType?: string;
+  founderType?: string;
+  operatingDuration?: string;
 };
 
 export type CareerShifterDetails = {
   previousField?: string;
   desiredField?: string;
-  timeline?: 'Immediate' | '3–6 months' | '6–12 months';
+  timeline?: 'Immediate' | '3–6 months' | '6–12 months' | '1+ years';
   workPreference?: WorkPreference;
   transitionGoals?: string[];
   hobbies?: string[];
   interests?: string[];
   values?: string[];
+  // New fields for modular branching
+  targetIncome?: string;
+  compensationType?: string;
+  transitionType?: string;
+  preparationTime?: string;
 };
 
 export type RoleDetails =

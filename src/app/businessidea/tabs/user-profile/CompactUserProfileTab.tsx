@@ -5,9 +5,7 @@ import StepIndicator from "./components/StepIndicator";
 import StepFooter from "./components/StepFooter";
 import { UserProfileProvider, useUserProfile } from "./UserProfileContext";
 import CompactRoleStep from "./steps/CompactRoleStep";
-import CompactRoleDetailsStep from "./steps/CompactRoleDetailsStep";
-import CompactIndustryLocationStep from "./steps/CompactIndustryLocationStep";
-import CompactSkillsStep from "./steps/CompactSkillsStep";
+import NewBranchingDetailsStep from "./steps/NewBranchingDetailsStep";
 import CompactReviewStep from "./steps/CompactReviewStep";
 import { Role, INTEREST_OPTIONS_BY_INDUSTRY, INTEREST_OPTIONS } from "./types";
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
@@ -23,7 +21,13 @@ function CompactUserProfileContent() {
     switch (step) {
       case 1: // Role selection
         return !!profileData.role;
-      case 2: // Role details
+      case 2: // Branching details (all 7 data points)
+        // Check universal fields
+        if (!profileData.industry || !profileData.location || !profileData.skills?.length) {
+          return false;
+        }
+        
+        // Check role-specific requirements
         if (!profileData.roleDetails) return false;
         
         if (profileData.role === Role.Student) {
@@ -31,18 +35,16 @@ function CompactUserProfileContent() {
           return !!(s?.educationLevel && s?.fieldOfStudy);
         } else if (profileData.role === Role.Professional) {
           const p = profileData.roleDetails?.role === Role.Professional ? profileData.roleDetails.professional : undefined;
-          return !!(p?.jobFunction && p?.seniority);
+          return !!(p?.yearsExperience && p?.jobFunction && p?.seniority);
         } else if (profileData.role === Role.BusinessOwner) {
           const b = profileData.roleDetails?.role === Role.BusinessOwner ? profileData.roleDetails.business : undefined;
-          return !!(b?.sector && b?.stage);
+          return !!(b?.companySize && b?.sector && b?.stage);
         } else if (profileData.role === Role.CareerShifter) {
           const c = profileData.roleDetails?.role === Role.CareerShifter ? profileData.roleDetails.shifter : undefined;
-          return !!(c?.previousField && c?.desiredField);
+          return !!(c?.previousField && c?.desiredField && c?.timeline);
         }
         return false;
-      case 3: // Context (Industry/Location)
-        return !!(profileData.industry && profileData.location);
-      case 4: // Review
+      case 3: // Review
         return true;
       default:
         return false;
@@ -68,7 +70,7 @@ function CompactUserProfileContent() {
 
   // Navigation functions
   const goNext = () => {
-    if (currentStep < 4) {
+    if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -80,7 +82,7 @@ function CompactUserProfileContent() {
   };
 
   const goToStep = (step: number) => {
-    if (step >= 1 && step <= 4) {
+    if (step >= 1 && step <= 3) {
       setCurrentStep(step);
     }
   };
@@ -91,10 +93,8 @@ function CompactUserProfileContent() {
       case 1:
         return <CompactRoleStep />;
       case 2:
-        return <CompactRoleDetailsStep />;
+        return <NewBranchingDetailsStep />;
       case 3:
-        return <CompactIndustryLocationStep />;
-      case 4:
         return <CompactReviewStep onEditStep={goToStep} />;
       default:
         return null;
@@ -108,8 +108,8 @@ function CompactUserProfileContent() {
           <div className="mb-4">
             <StepIndicator
               currentStep={currentStep}
-              totalSteps={4}
-              labels={["Role", "Details", "Context", "Review"]}
+              totalSteps={3}
+              labels={["Role", "Details", "Review"]}
             />
           </div>
           
@@ -124,7 +124,7 @@ function CompactUserProfileContent() {
             canBack={canBack}
             canNext={canNext}
             currentStep={currentStep}
-            totalSteps={4}
+            totalSteps={3}
           />
         </div>
       </div>
