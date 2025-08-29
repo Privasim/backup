@@ -8,6 +8,7 @@ import { IndustryList } from './IndustryList';
 import { SourcePanel } from './SourcePanel';
 import { FloatingActionButton } from '../../../components/ui/FloatingActionButton';
 import { InfoModal } from '../../../components/ui/InfoModal';
+import { createForecastUntil2028 } from '../utils/forecast';
 import { formatDateRange } from '../utils/sourceAggregator';
 
 interface Props {
@@ -27,6 +28,13 @@ export default function JobLossViz({ className, year = 2025 }: Props) {
     error 
   } = useJobLossData({ year });
   const [isSourceModalOpen, setIsSourceModalOpen] = useState(false);
+  
+  // Generate forecast data
+  const forecastData = useMemo(() => {
+    if (!ytdSeries || ytdSeries.length === 0) return [];
+    const { forecast } = createForecastUntil2028(ytdSeries);
+    return forecast;
+  }, [ytdSeries]);
   
   const handleOpenSourceModal = () => setIsSourceModalOpen(true);
   const handleCloseSourceModal = () => setIsSourceModalOpen(false);
@@ -59,7 +67,7 @@ export default function JobLossViz({ className, year = 2025 }: Props) {
               <div className="flex flex-col gap-6 mt-4">
                 {/* LineGraph Card */}
                 <div className="card-base p-6 relative">
-                  <LineGraph data={ytdSeries} height={200} />
+                  <LineGraph data={ytdSeries} forecastData={forecastData} height={200} />
                   
                   {/* Total YTD Value */}
                   {ytdSeries.length > 0 && (
@@ -68,6 +76,11 @@ export default function JobLossViz({ className, year = 2025 }: Props) {
                       <div className="text-3xl font-bold text-primary">
                         {ytdSeries[ytdSeries.length - 1]?.value.toLocaleString()}
                       </div>
+                      {forecastData.length > 0 && (
+                        <div className="text-sm text-secondary mt-1">
+                          Forecast until 2028: {forecastData[forecastData.length - 1]?.value.toLocaleString()}
+                        </div>
+                      )}
                     </div>
                   )}
                   
