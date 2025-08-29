@@ -197,5 +197,8 @@ export class OpenRouterClient {
 export const getAvailableModels = () => [
   'qwen/qwen3-coder:free',
   'z-ai/glm-4.5-air:free',
-  'moonshotai/kimi-k2:free'
+  'moonshotai/kimi-k2:free',
+  'deepseek/deepseek-chat-v3.1:free',
+  'openai/gpt-oss-120b:free',
+  'mistralai/mistral-small-3.2-24b-instruct:free'
 ];

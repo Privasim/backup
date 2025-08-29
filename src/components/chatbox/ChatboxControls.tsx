@@ -114,7 +114,10 @@ const ChatboxControlsContext: React.FC<Omit<ChatboxControlsProps, 'controlSource
     const modelInfo = {
       'qwen/qwen3-coder:free': { label: 'Qwen3 Coder', tag: 'Free', description: 'Optimized for coding tasks' },
       'z-ai/glm-4.5-air:free': { label: 'GLM 4.5 Air', tag: 'Free', description: 'Lightweight analysis' },
-      'moonshotai/kimi-k2:free': { label: 'Kimi K2', tag: 'Free', description: 'Advanced reasoning' }
+      'moonshotai/kimi-k2:free': { label: 'Kimi K2', tag: 'Free', description: 'Advanced reasoning' },
+      'deepseek/deepseek-chat-v3.1:free': { label: 'DeepSeek Chat v3.1', tag: 'Free', description: 'Advanced reasoning and coding' },
+      'openai/gpt-oss-120b:free': { label: 'GPT-OSS 120B', tag: 'Free', description: 'Open source GPT model' },
+      'mistralai/mistral-small-3.2-24b-instruct:free': { label: 'Mistral Small 3.2', tag: 'Free', description: 'Efficient small model' }
     };
 
     return getAvailableModels().map(model => ({
@@ -542,7 +545,10 @@ const ChatboxControlsExternalApi: React.FC<{
     const modelInfo = {
       'qwen/qwen3-coder:free': { label: 'Qwen3 Coder', tag: 'Free', description: 'Optimized for coding tasks' },
       'z-ai/glm-4.5-air:free': { label: 'GLM 4.5 Air', tag: 'Free', description: 'Lightweight analysis' },
-      'moonshotai/kimi-k2:free': { label: 'Kimi K2', tag: 'Free', description: 'Advanced reasoning' }
+      'moonshotai/kimi-k2:free': { label: 'Kimi K2', tag: 'Free', description: 'Advanced reasoning' },
+      'deepseek/deepseek-chat-v3.1:free': { label: 'DeepSeek Chat v3.1', tag: 'Free', description: 'Advanced reasoning and coding' },
+      'openai/gpt-oss-120b:free': { label: 'GPT-OSS 120B', tag: 'Free', description: 'Open source GPT model' },
+      'mistralai/mistral-small-3.2-24b-instruct:free': { label: 'Mistral Small 3.2', tag: 'Free', description: 'Efficient small model' }
     };
 
     return getAvailableModels().map(model => ({
