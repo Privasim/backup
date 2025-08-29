@@ -27,20 +27,22 @@ function CompactUserProfileContent() {
         if (!profileData.roleDetails) return false;
         
         if (profileData.role === Role.Student) {
-          const s = profileData.roleDetails.student;
+          const s = profileData.roleDetails?.role === Role.Student ? profileData.roleDetails.student : undefined;
           return !!(s?.educationLevel && s?.fieldOfStudy);
         } else if (profileData.role === Role.Professional) {
-          const p = profileData.roleDetails.professional;
+          const p = profileData.roleDetails?.role === Role.Professional ? profileData.roleDetails.professional : undefined;
           return !!(p?.jobFunction && p?.seniority);
         } else if (profileData.role === Role.BusinessOwner) {
-          const b = profileData.roleDetails.business;
+          const b = profileData.roleDetails?.role === Role.BusinessOwner ? profileData.roleDetails.business : undefined;
           return !!(b?.sector && b?.stage);
         } else if (profileData.role === Role.CareerShifter) {
-          const c = profileData.roleDetails.shifter;
+          const c = profileData.roleDetails?.role === Role.CareerShifter ? profileData.roleDetails.shifter : undefined;
           return !!(c?.previousField && c?.desiredField);
         }
         return false;
-      case 3: // Review
+      case 3: // Context (Industry/Location)
+        return !!(profileData.industry && profileData.location);
+      case 4: // Review
         return true;
       default:
         return false;
@@ -66,7 +68,7 @@ function CompactUserProfileContent() {
 
   // Navigation functions
   const goNext = () => {
-    if (currentStep < 5) {
+    if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -78,7 +80,7 @@ function CompactUserProfileContent() {
   };
 
   const goToStep = (step: number) => {
-    if (step >= 1 && step <= 5) {
+    if (step >= 1 && step <= 4) {
       setCurrentStep(step);
     }
   };
@@ -91,6 +93,8 @@ function CompactUserProfileContent() {
       case 2:
         return <CompactRoleDetailsStep />;
       case 3:
+        return <CompactIndustryLocationStep />;
+      case 4:
         return <CompactReviewStep onEditStep={goToStep} />;
       default:
         return null;
@@ -102,7 +106,11 @@ function CompactUserProfileContent() {
       <div className="w-full max-w-3xl">
         <div className="p-4 sm:p-5 rounded-xl border border-gray-100 bg-white shadow-[0_2px_10px_rgba(0,0,0,0.06)] transition-all">
           <div className="mb-4">
-            <StepIndicator currentStep={currentStep} />
+            <StepIndicator
+              currentStep={currentStep}
+              totalSteps={4}
+              labels={["Role", "Details", "Context", "Review"]}
+            />
           </div>
           
           
@@ -116,7 +124,7 @@ function CompactUserProfileContent() {
             canBack={canBack}
             canNext={canNext}
             currentStep={currentStep}
-            totalSteps={3}
+            totalSteps={4}
           />
         </div>
       </div>
