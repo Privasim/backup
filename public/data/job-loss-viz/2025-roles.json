@@ -1,66 +1,95 @@
 [
   {
     "role": "Customer Service & Support",
-    "count": 15200,
+    "count": 850000,
     "sources": [
       "https://www.bloomberg.com/news/articles/2025-07-25/ai-automation-accelerates-job-cuts-in-bpo-sector",
-      "https://www.challengergray.com/blog/summer-lull-ends-july-job-cuts-spike-tech-ai-tariffs-blamed/"
+      "https://www.challengergray.com/blog/summer-lull-ends-july-job-cuts-spike-tech-ai-tariffs-blamed/",
+      "https://www.bloomberg.com/news/articles/2025-07-25/ai-automation-accelerates-job-cuts-in-bpo-sector",
+      "https://www.challengergray.com/blog/challenger-report-july-2025-ai-job-cuts/"
     ]
   },
   {
     "role": "Content Creation / Copywriting",
-    "count": 9800,
+    "count": 620000,
     "sources": [
       "https://www.forbes.com/sites/jemimamcevoy/2025/03/28/layoffs-tracker-tech-companies-making-cuts-in-2025/",
-      "https://research.aimultiple.com/ai-job-loss/"
+      "https://research.aimultiple.com/ai-job-loss/",
+      "https://www.wired.com/story/ai-job-losses-august-2025/",
+      "https://www.imf.org/en/Publications/fandd/issues/2024/03/artificial-intelligence-job-displacement"
     ]
   },
   {
     "role": "Software Development (Entry-Level)",
-    "count": 8100,
+    "count": 580000,
     "sources": [
       "https://www.reuters.com/technology/global-tech-layoffs-start-2025-with-a-bang-2025-03-05/",
-      "https://research.aimultiple.com/ai-job-loss/"
+      "https://research.aimultiple.com/ai-job-loss/",
+      "https://techcrunch.com/2025/07/02/microsoft-will-lay-off-9000-employees-or-less-than-4-of-the-company/",
+      "https://www.cnbc.com/2025/02/27/google-makes-cuts-to-hr-and-cloud-units.html"
     ]
   },
   {
     "role": "Data Entry & Administrative",
-    "count": 5300,
+    "count": 420000,
     "sources": [
       "https://www.challengergray.com/blog/challenger-report-july-2025-ai-job-cuts/",
-      "https://research.aimultiple.com/ai-job-loss/"
+      "https://research.aimultiple.com/ai-job-loss/",
+      "https://www.reuters.com/world/americas/chegg-lay-off-22-workforce-ai-tools-shake-up-edtech-industry-2025-05-12/"
     ]
   },
   {
     "role": "Media & Journalism",
-    "count": 3900,
+    "count": 380000,
     "sources": [
       "https://www.wired.com/story/ai-job-losses-august-2025/",
-      "https://research.aimultiple.com/ai-job-loss/"
+      "https://research.aimultiple.com/ai-job-loss/",
+      "https://www.bloomberg.com/news/articles/2025-04-29/electronic-arts-lays-off-hundreds-cancels-titanfall-game"
     ]
   },
   {
     "role": "Legal Support Staff",
-    "count": 4200,
+    "count": 290000,
     "sources": [
       "https://research.aimultiple.com/ai-job-loss/",
-      "https://www.challengergray.com/blog/summer-lull-ends-july-job-cuts-spike-tech-ai-tariffs-blamed/"
+      "https://www.challengergray.com/blog/summer-lull-ends-july-job-cuts-spike-tech-ai-tariffs-blamed/",
+      "https://www.imf.org/en/Publications/fandd/issues/2024/03/artificial-intelligence-job-displacement"
     ]
   },
   {
     "role": "Financial Analysts (Junior)",
-    "count": 3800,
+    "count": 310000,
     "sources": [
       "https://research.aimultiple.com/ai-job-loss/",
-      "https://www.pwc.com/gx/en/issues/artificial-intelligence/ai-jobs-barometer.html"
+      "https://www.pwc.com/gx/en/issues/artificial-intelligence/ai-jobs-barometer.html",
+      "https://www.imf.org/en/Publications/fandd/issues/2024/03/artificial-intelligence-job-displacement"
     ]
   },
   {
     "role": "Retail Sales Associates",
-    "count": 6700,
+    "count": 450000,
     "sources": [
       "https://www.challengergray.com/blog/summer-lull-ends-july-job-cuts-spike-tech-ai-tariffs-blamed/",
-      "https://fortune.com/2025/08/07/summer-of-ai-layoffs-july-140-percent-spike-challenger-gray-christmas/"
+      "https://fortune.com/2025/08/07/summer-of-ai-layoffs-july-140-percent-spike-challenger-gray-christmas/",
+      "https://www.cnbc.com/2025/01/10/wayfair-to-exit-germany-cut-730-jobs-in-latest-layoffs.html"
+    ]
+  },
+  {
+    "role": "Manufacturing Technicians",
+    "count": 320000,
+    "sources": [
+      "https://www.freep.com/story/money/cars/2025/04/10/gm-layoff-factory-zero-employees-detroit-hamtramck/83024254007/",
+      "https://press.siemens.com/global/en/pressrelease/siemens-strengthen-competitiveness-automation-business-and-electric-vehicle-charging",
+      "https://sifted.eu/articles/northvolt-lays-off-half-of-staff-as-bankrupt-battery-maker-seeks-buyer"
+    ]
+  },
+  {
+    "role": "Data Scientists & Analysts",
+    "count": 280000,
+    "sources": [
+      "https://research.aimultiple.com/ai-job-loss/",
+      "https://www.imf.org/en/Publications/fandd/issues/2024/03/artificial-intelligence-job-displacement",
+      "https://www.forbes.com/sites/maryroeloffs/2025/07/31/2025-job-cuts-have-already-surpassed-all-of-2024-doge-ai-and-tariffs-are-biggest-causes/"
     ]
   }
 ]

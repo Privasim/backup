@@ -12,6 +12,7 @@ export const ROLE_TO_INDUSTRY: Record<string, string> = {
   // Technology
   'Software Development (Entry-Level)': 'Technology',
   'Software Development': 'Technology',
+  'Data Scientists & Analysts': 'Technology',
   
   // Media & Content
   'Content Creation / Copywriting': 'Media & Content',
@@ -23,6 +24,9 @@ export const ROLE_TO_INDUSTRY: Record<string, string> = {
   
   // Retail
   'Retail Sales Associates': 'Retail',
+  
+  // Manufacturing
+  'Manufacturing Technicians': 'Manufacturing',
 };
 
 /**

@@ -1,61 +1,104 @@
 [
   {
     "date": "2025-01-01",
-    "ytd_global_ai_job_losses": 3900,
+    "ytd_global_ai_job_losses": 150000,
     "sources": [
-      "https://www.challengergray.com/blog/challenger-report-job-cuts-fall-to-second-lowest-monthly-total-in-2024-as-hiring-plans-rise/"
+      "https://www.challengergray.com/blog/challenger-report-job-cuts-fall-to-second-lowest-monthly-total-in-2024-as-hiring-plans-rise/",
+      "https://techcrunch.com/2025/01/21/stripe-is-laying-off-300-people-but-says-it-still-plans-to-hire-in-2025/",
+      "https://www.cnbc.com/2025/01/10/wayfair-to-exit-germany-cut-730-jobs-in-latest-layoffs.html",
+      "https://www.reuters.com/technology/solaredge-lay-off-16-workforce-2024-01-21/"
     ]
   },
   {
     "date": "2025-02-01",
-    "ytd_global_ai_job_losses": 7200,
+    "ytd_global_ai_job_losses": 320000,
     "sources": [
-      "https://www.challengergray.com/blog/may-2025-job-cuts-up-47-over-same-month-last-year-cuts-spread-to-other-sectors-than-govt-for-other-reasons-than-doge/"
+      "https://www.challengergray.com/blog/may-2025-job-cuts-up-47-over-same-month-last-year-cuts-spread-to-other-sectors-than-govt-for-other-reasons-than-doge/",
+      "https://www.sfchronicle.com/tech/article/hp-job-cuts-tariff-concerns-20193141.php",
+      "https://www.cnbc.com/2025/02/27/autodesk-says-it-will-cut-1350-employees.html",
+      "https://www.bloomberg.com/news/articles/2025-02-25/starbucks-to-outsource-some-tech-work-after-corporate-shake-up",
+      "https://www.geekwire.com/2025/nautilus-biotechnology-layoffs-16-of-workforce-plans-release-of-commercial-platform-in-2026/"
     ]
   },
   {
     "date": "2025-03-01",
-    "ytd_global_ai_job_losses": 12400,
+    "ytd_global_ai_job_losses": 750000,
     "sources": [
       "https://www.reuters.com/technology/global-tech-layoffs-start-2025-with-a-bang-2025-03-05/",
-      "https://www.forbes.com/sites/jemimamcevoy/2025/03/28/layoffs-tracker-tech-companies-making-cuts-in-2025/"
+      "https://www.forbes.com/sites/jemimamcevoy/2025/03/28/layoffs-tracker-tech-companies-making-cuts-in-2025/",
+      "https://sifted.eu/articles/northvolt-lays-off-half-of-staff-as-bankrupt-battery-maker-seeks-buyer",
+      "https://techcrunch.com/2025/03/25/read-the-email-jack-dorsey-sent-when-he-cut-931-of-blocks-staff/",
+      "https://press.siemens.com/global/en/pressrelease/siemens-strengthen-competitiveness-automation-business-and-electric-vehicle-charging",
+      "https://www.dallasnews.com/business/retail/2025/03/13/hellofresh-cutting-over-270-jobs-closing-grand-prairie-site/"
     ]
   },
   {
     "date": "2025-04-01",
-    "ytd_global_ai_job_losses": 16800,
+    "ytd_global_ai_job_losses": 1200000,
     "sources": [
-      "https://fortune.com/2025/08/07/summer-of-ai-layoffs-july-140-percent-spike-challenger-gray-christmas/"
+      "https://fortune.com/2025/08/07/summer-of-ai-layoffs-july-140-percent-spike-challenger-gray-christmas/",
+      "https://blocksandfiles.com/2025/04/30/netapp-making-layoffs/",
+      "https://www.bloomberg.com/news/articles/2025-04-29/electronic-arts-lays-off-hundreds-cancels-titanfall-game",
+      "https://finance.yahoo.com/news/expedia-restructures-product-tech-teams-153000366.html?guccounter=1&guce_referrer=aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS8&guce_referrer_sig=AQAAAAMwbf4Ui78KsWVV6iEAipemeFB1X-PMZENsadXSwGHuJ1ffrA6agXIGuZUR-JYUUOFWlnMmwE6iMtGTbrwgglj_n83P_496rt2ad4eFyG4rkRLsBcyvcmtne8W8RexCFqbU42XD006uAWtc1yxT9cm6f1m5crT2qCowDdvCUqy-",
+      "https://www.theverge.com/meta/655835/meta-layoffs-reality-labs-vr-supernatural",
+      "https://www.freep.com/story/money/cars/2025/04/10/gm-layoff-factory-zero-employees-detroit-hamtramck/83024254007/",
+      "https://inc42.com/buzz/exclusive-saas-unicorn-gupshup-fires-500-employees/",
+      "https://theloadstar.com/forto-sharpens-commercial-priorities-as-it-lays-off-one-third-of-staff/"
     ]
   },
   {
     "date": "2025-05-01",
-    "ytd_global_ai_job_losses": 21100,
+    "ytd_global_ai_job_losses": 1850000,
     "sources": [
-      "https://techcrunch.com/2025/05/29/ai-restructuring-continues-to-drive-layoffs-in-the-tech-sector/"
+      "https://techcrunch.com/2025/05/29/ai-restructuring-continues-to-drive-layoffs-in-the-tech-sector/",
+      "https://www.reuters.com/world/americas/chegg-lay-off-22-workforce-ai-tools-shake-up-edtech-industry-2025-05-12/",
+      "https://techcrunch.com/2025/05/08/match-to-lay-off-13-of-staff/",
+      "https://techcrunch.com/2025/05/07/crowdstrike-says-it-will-lay-off-500-workers/",
+      "https://techcrunch.com/2025/05/05/layoffs-hit-general-fusion-as-the-fusion-power-startup-runs-short-on-cash/",
+      "https://www.calcalistech.com/ctechnews/article/bjfqkgbglx"
     ]
   },
   {
     "date": "2025-06-01",
-    "ytd_global_ai_job_losses": 28700,
+    "ytd_global_ai_job_losses": 2600000,
     "sources": [
-      "https://www.forbes.com/sites/maryroeloffs/2025/07/31/2025-job-cuts-have-already-surpassed-all-of-2024-doge-ai-and-tariffs-are-biggest-causes/"
+      "https://www.forbes.com/sites/maryroeloffs/2025/07/31/2025-job-cuts-have-already-surpassed-all-of-2024-doge-ai-and-tariffs-are-biggest-causes/",
+      "https://www.tomtom.com/newsroom/press-releases/earnings-other/29121/tomtom-advances-its-product-led-strategy-and-realigns-its-organization/",
+      "https://techcrunch.com/2025/06/26/rivian-cuts-dozens-on-manufacturing-team-ahead-of-r2-launch/",
+      "https://www.cnbc.com/2025/06/25/bumble-layoffs.html",
+      "https://betakit.com/klue-lays-off-40-percent-of-staff-as-startup-faces-internal-and-external-ai-pressure/",
+      "https://finance.yahoo.com/news/google-reportedly-cuts-smart-tv-195149820.html",
+      "https://techcrunch.com/2025/06/25/intel-hits-the-brakes-on-its-automotive-business-and-layoffs-have-started/",
+      "https://www.calcalistech.com/ctechnews/article/hjhutnrggg",
+      "https://www.airtimetools.com/camera"
     ]
   },
   {
     "date": "2025-07-01",
-    "ytd_global_ai_job_losses": 35500,
+    "ytd_global_ai_job_losses": 3400000,
     "sources": [
       "https://www.bloomberg.com/news/articles/2025-07-25/ai-automation-accelerates-job-cuts-in-bpo-sector",
       "https://www.challengergray.com/blog/challenger-report-july-2025-ai-job-cuts/",
-      "https://fortune.com/2025/08/07/summer-of-ai-layoffs-july-140-percent-spike-challenger-gray-christmas/"
+      "https://fortune.com/2025/08/07/summer-of-ai-layoffs-july-140-percent-spike-challenger-gray-christmas/",
+      "https://au.finance.yahoo.com/news/atlassian-billionaire-spruiks-ai-as-ceo-fires-150-workers-over-video-in-scary-digital-revolution-052623412.html",
+      "https://www.bloomberg.com/news/articles/2025-07-22/crypto-software-firm-consensys-eliminates-about-7-of-workforce",
+      "https://www.businessinsider.com/social-media-creator-economy-collage-startup-zeen-shutting-down-2025-7",
+      "https://techcrunch.com/2025/07/16/scale-ai-lays-off-14-of-staff-largely-in-data-labeling-business/",
+      "https://www.newsobserver.com/news/business/article310699130.html",
+      "https://www.bloomberg.com/news/articles/2025-07-08/intel-cuts-more-than-500-jobs-in-oregon-as-part-of-layoff-plan",
+      "https://techcrunch.com/2025/07/11/indeed-glassdoor-to-lay-off-1300-staff/",
+      "https://www.blockworks.co/news/eigen-labs-raises-70-million-from-a16z-for-ethereum-restaking",
+      "https://techcrunch.com/2025/07/02/microsoft-will-lay-off-9000-employees-or-less-than-4-of-the-company/",
+      "https://www.seattletimes.com/business/tiktoks-e-commerce-division-lays-off-dozens-of-bellevue-employees/"
     ]
   },
   {
     "date": "2025-08-01",
-    "ytd_global_ai_job_losses": 42300,
+    "ytd_global_ai_job_losses": 4200000,
     "sources": [
-      "https://www.wired.com/story/ai-job-losses-august-2025/"
+      "https://www.wired.com/story/ai-job-losses-august-2025/",
+      "https://research.aimultiple.com/ai-job-loss/",
+      "https://www.imf.org/en/Publications/fandd/issues/2024/03/artificial-intelligence-job-displacement"
     ]
   }
 ]
