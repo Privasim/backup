@@ -20,7 +20,8 @@ export default function CompactRoleStep({ className = "" }: Props) {
   const role = profileData.role;
   
   const handleSelect = (selectedRole: Role) => {
-    setProfileData({ role: selectedRole });
+    // Clear stale roleDetails when switching roles to avoid mismatched nested data
+    setProfileData({ role: selectedRole, roleDetails: undefined });
   };
 
   return (
@@ -68,3 +69,4 @@ export default function CompactRoleStep({ className = "" }: Props) {
     </div>
   );
 }
+

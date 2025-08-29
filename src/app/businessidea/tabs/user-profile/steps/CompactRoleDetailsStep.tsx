@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useUserProfile } from "../UserProfileContext";
 import {
   Role,
   RoleDetails,
+  WorkPreference,
   EDUCATION_LEVEL_OPTIONS,
   FIELD_OF_STUDY_BY_EDUCATION_LEVEL,
   GRAD_YEAR_OPTIONS,
@@ -41,6 +42,19 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
 
   // Local role-specific extras storage (no schema change)
   const { values: extraValues, setValue: setExtraValue } = useRoleLocalValues(role);
+
+  // Dev-time guard: warn if nested roleDetails doesn't match selected role
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      if (roleDetails && role && roleDetails.role !== role) {
+        // eslint-disable-next-line no-console
+        console.warn("[UserProfile] roleDetails.role mismatch with selected role", {
+          role,
+          roleDetailsRole: (roleDetails as any).role,
+        });
+      }
+    }
+  }, [role, roleDetails]);
 
   // Merge current role detail object for visibility context
   const baseValues = useMemo<Record<string, unknown>>(() => {
@@ -87,6 +101,42 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
   const skillsetFields = useMemo(() => fields.filter((f) => f.group === "skillset"), [fields]);
   const personalityFields = useMemo(() => fields.filter((f) => f.group === "personality"), [fields]);
 
+  // Helpers to sync role-specific skillset values into top-level profileData.skills
+  const normalizeToStringArray = (value: unknown): string[] => {
+    if (Array.isArray(value)) return (value as unknown[]).filter((x): x is string => typeof x === "string" && x.trim().length > 0);
+    if (typeof value === "string" && value.trim().length > 0) return [value];
+    return [];
+  };
+
+  const buildSkillsFrom = (values: Record<string, unknown>): string[] => {
+    const ids = new Set(skillsetFields.map((f) => f.id));
+    const all: string[] = [];
+    ids.forEach((id) => {
+      const arr = normalizeToStringArray(values[id]);
+      if (arr.length) all.push(...arr);
+    });
+    const deduped = Array.from(new Set(all.map((s) => s.trim()).filter(Boolean)));
+    return deduped;
+  };
+
+  const arraysEqual = (a: string[], b: string[]): boolean => {
+    if (a.length !== b.length) return false;
+    const sa = [...a].sort();
+    const sb = [...b].sort();
+    for (let i = 0; i < sa.length; i++) if (sa[i] !== sb[i]) return false;
+    return true;
+  };
+
+  // Sync on changes to local extraValues affecting skillset
+  useEffect(() => {
+    const nextSkills = buildSkillsFrom(extraValues);
+    const currentSkills = Array.isArray(profileData.skills) ? profileData.skills : [];
+    if (!arraysEqual(nextSkills, currentSkills)) {
+      setProfileData({ skills: nextSkills });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [extraValues, skillsetFields]);
+
   const experienceRenderer = useMemo(() => {
     return (
       <GroupRenderer
@@ -125,6 +175,12 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
 
   const handlePatch = (patch: Record<string, any>) => {
     if (!role) return;
+    // Lift known top-level fields out of roleDetails
+    if (Object.prototype.hasOwnProperty.call(patch, "workPreference")) {
+      const wp = patch["workPreference"] as WorkPreference | undefined;
+      setProfileData({ workPreference: wp });
+      delete patch["workPreference"];
+    }
     
     let updatedRoleDetails: RoleDetails | undefined = roleDetails;
     
@@ -466,8 +522,8 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
           <SegmentedControl 
             label="Work" 
             options={["Remote", "Hybrid", "On-site"]} 
-            value={s.workPreference} 
-            onChange={(v) => handlePatch({ workPreference: v })} 
+            value={profileData.workPreference} 
+            onChange={(v) => setProfileData({ workPreference: v as WorkPreference })} 
           />
         </div>
         
