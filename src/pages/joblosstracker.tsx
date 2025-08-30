@@ -11,19 +11,16 @@ import { useJobLossTracker } from '@/hooks/useJobLossTracker';
 import { AnalysisResult } from '@/types/jobloss';
 import { FEATURE_FLAGS } from '@/config/feature-flags';
 
+const isEnabled = FEATURE_FLAGS.JOB_LOSS_TRACKER_ENABLED;
+
 export const getStaticProps: GetStaticProps = async () => {
-  if (!FEATURE_FLAGS.JOB_LOSS_TRACKER_ENABLED) {
-    return { notFound: true, revalidate: 60 };
-  }
+  if (!isEnabled) return { notFound: true, revalidate: 60 };
   return { props: {} };
 };
 
 export default function JobLossTrackerPage() {
-  // Guard: if feature is disabled, do not render or execute hooks
-  if (!FEATURE_FLAGS.JOB_LOSS_TRACKER_ENABLED) {
-    return null;
-  }
-
+  if (!isEnabled) return null;
+  
   const {
     searchQuery,
     searchResults: newsItems,
