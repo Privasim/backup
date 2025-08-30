@@ -131,7 +131,7 @@ describe('Profile Integration', () => {
       expect(result.missing).toContain('role details');
       expect(result.missing).toContain('industry');
       expect(result.missing).toContain('location');
-      expect(result.missing).toContain('work preference');
+      expect(result.missing).not.toContain('work preference'); // Should not require for Student
       expect(result.missing).toContain('skills');
     });
   });
@@ -278,11 +278,11 @@ describe('Profile Integration', () => {
         },
         industry: 'Technology',
         location: 'United States',
-        workPreference: 'Remote',
-        skills: ['Python', 'Java']
+        skills: ['Python', 'Java'] // Note: workPreference not required for Student
       };
 
       const result = transformUserProfileToAnalysisData(studentProfile);
+      const readiness = validateProfileReadiness(studentProfile);
 
       expect(result.experience[0]).toEqual({
         title: "Bachelor's Degree in Computer Science",
@@ -290,6 +290,8 @@ describe('Profile Integration', () => {
         duration: 'Expected graduation: 2025',
         description: 'Full-time student'
       });
+      expect(readiness.ready).toBe(true);
+      expect(readiness.missing).not.toContain('work preference');
     });
 
     it('should handle BusinessOwner role correctly', () => {
@@ -339,10 +341,58 @@ describe('Profile Integration', () => {
       };
 
       const result = transformUserProfileToAnalysisData(shifterProfile);
+      const readiness = validateProfileReadiness(shifterProfile);
 
       expect(result.experience).toHaveLength(2);
       expect(result.experience[0].description).toContain('Previous field: Retail');
       expect(result.experience[1].description).toContain('Desired field: Technology');
+      expect(readiness.ready).toBe(true);
+      expect(readiness.missing).not.toContain('work preference');
+    });
+
+    it('should require work preference for CareerShifter without it', () => {
+      const incompleteShifter: UserProfileData = {
+        role: Role.CareerShifter,
+        roleDetails: {
+          role: Role.CareerShifter,
+          shifter: {
+            previousField: 'Retail',
+            desiredField: 'Technology',
+            timeline: '6–12 months'
+          }
+        },
+        industry: 'Technology',
+        location: 'United States',
+        skills: ['Communication', 'Problem Solving']
+      };
+
+      const result = validateProfileReadiness(incompleteShifter);
+
+      expect(result.ready).toBe(false);
+      expect(result.missing).toContain('work preference');
+    });
+
+    it('should not require work preference for Professional role', () => {
+      const professionalProfile: UserProfileData = {
+        role: Role.Professional,
+        roleDetails: {
+          role: Role.Professional,
+          professional: {
+            yearsExperience: '5-7',
+            jobFunction: 'Software Engineering',
+            seniority: 'Senior'
+          }
+        },
+        industry: 'Technology',
+        location: 'United States',
+        skills: ['JavaScript', 'React', 'TypeScript']
+        // Note: workPreference not provided, should not be required
+      };
+
+      const result = validateProfileReadiness(professionalProfile);
+
+      expect(result.ready).toBe(true);
+      expect(result.missing).not.toContain('work preference');
     });
   });
 });

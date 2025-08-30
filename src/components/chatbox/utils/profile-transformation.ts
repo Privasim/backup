@@ -155,14 +155,18 @@ const extractRoleSpecificInfo = (userProfile: UserProfileData) => {
  * Calculate profile completion level
  */
 const calculateCompletionLevel = (userProfile: UserProfileData): number => {
-  const fields = [
+  const baseFields = [
     userProfile.role,
     userProfile.roleDetails,
     userProfile.industry,
     userProfile.location,
-    userProfile.workPreference,
     userProfile.skills?.length > 0 ? userProfile.skills : null
   ];
+
+  // Only include workPreference for CareerShifters
+  const fields = userProfile.role === Role.CareerShifter
+    ? [...baseFields, userProfile.workPreference]
+    : baseFields;
 
   const completedFields = fields.filter(field => field !== undefined && field !== null).length;
   return Math.round((completedFields / fields.length) * 100);
@@ -182,7 +186,12 @@ export const validateProfileReadiness = (userProfile: UserProfileData): {
   if (!userProfile.roleDetails) missing.push('role details');
   if (!userProfile.industry) missing.push('industry');
   if (!userProfile.location) missing.push('location');
-  if (!userProfile.workPreference) missing.push('work preference');
+  
+  // Only require workPreference for CareerShifters
+  if (userProfile.role === Role.CareerShifter && !userProfile.workPreference) {
+    missing.push('work preference');
+  }
+  
   if (!userProfile.skills || userProfile.skills.length === 0) missing.push('skills');
 
   const completionLevel = calculateCompletionLevel(userProfile);
