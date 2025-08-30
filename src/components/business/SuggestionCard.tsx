@@ -127,6 +127,7 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
           <ClipboardDocumentCheckIcon className="h-4 w-4 mr-2" />
           Create Implementation Plan
         </button>
+        {/*
         <button
           type="button"
           aria-label="Visualize App"
@@ -136,6 +137,7 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
           <DevicePhoneMobileIcon className="h-4 w-4 mr-2" />
           Visualize App
         </button>
+        */}
       </div>
     </div>
   );
