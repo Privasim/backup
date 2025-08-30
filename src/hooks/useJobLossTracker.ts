@@ -2,12 +2,37 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useJobLossStore } from '@/store/useJobLossStore';
 import { rssFeedService, relevanceFilterService, deduplicationService } from '@/lib/rss';
 import { RSSArticle, AnalysisResult } from '@/lib/rss/types';
+import { FEATURE_FLAGS } from '@/config/feature-flags';
 
 /**
  * Hook for managing job loss tracking functionality
  * This is a simplified version that delegates to useRSSFeedTracker
  */
 export const useJobLossTracker = () => {
+  // Inert early return when feature is disabled
+  if (!FEATURE_FLAGS.JOB_LOSS_TRACKER_ENABLED) {
+    return {
+      articles: [] as RSSArticle[],
+      selectedArticles: [] as string[],
+      analysisResults: [] as AnalysisResult[],
+      isLoading: false,
+      error: 'Feature disabled',
+
+      searchArticles: async (_query: string, _filters?: any) => {},
+      toggleSelection: (_articleId: string) => {},
+      toggleSelectAll: () => {},
+      analyzeSelected: async () => {},
+      clearSelection: () => {},
+      reset: () => {},
+
+      setFeedUrl: (_url: string) => {},
+      setFeedConfig: (_cfg: any) => {},
+      loadArticles: (_articles: RSSArticle[]) => {},
+      setShowRelevantOnly: (_val: boolean) => {},
+      setSortBy: (_sort: 'date' | 'relevance' | 'analysis') => {},
+    };
+  }
+
   // Get state from store
   const store = useJobLossStore();
   

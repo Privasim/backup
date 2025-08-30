@@ -27,6 +27,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import ClearIcon from '@mui/icons-material/Clear';
+import { FEATURE_FLAGS } from '@/config/feature-flags';
 
 interface JobLossSearchProps {
   onSearch: (query: string, filters?: SearchFilters) => void;
@@ -72,6 +73,9 @@ export function JobLossSearch({
   lastSearchedQuery,
   className = ''
 }: JobLossSearchProps) {
+  if (!FEATURE_FLAGS.JOB_LOSS_TRACKER_ENABLED) {
+    return null;
+  }
   const [searchQuery, setSearchQuery] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>({

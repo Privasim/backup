@@ -15,4 +15,11 @@ export const FEATURE_FLAGS = {
    * - Falls back to legacy transpile.ts implementation
    */
   USE_PATH_A_SANDBOX: true,
+
+  /**
+   * Job Loss Tracker feature flag
+   * - When false: /joblosstracker route is disabled at build-time (404) and all related components/hooks are inert.
+   * - When true: route and components behave normally.
+   */
+  JOB_LOSS_TRACKER_ENABLED: false,
 };

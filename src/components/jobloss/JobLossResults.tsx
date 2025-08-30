@@ -30,6 +30,7 @@ import SourceIcon from '@mui/icons-material/Source';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { NewsItem } from '@/types/jobloss';
+import { FEATURE_FLAGS } from '@/config/feature-flags';
 
 interface JobLossResultsProps {
   items: NewsItem[];
@@ -58,6 +59,9 @@ export function JobLossResults({
   isLoading,
   error,
 }: JobLossResultsProps) {
+  if (!FEATURE_FLAGS.JOB_LOSS_TRACKER_ENABLED) {
+    return null;
+  }
   const theme = useTheme();
   const [selectAll, setSelectAll] = useState(false);
 

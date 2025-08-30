@@ -8,6 +8,7 @@ import TimelineIcon from '@mui/icons-material/Timeline';
 import BusinessIcon from '@mui/icons-material/Business';
 import InsightsIcon from '@mui/icons-material/Insights';
 import { format } from 'date-fns';
+import { FEATURE_FLAGS } from '@/config/feature-flags';
 
 interface JobLossAnalysisProps {
   results: Record<string, AnalysisResult>;
@@ -29,6 +30,9 @@ const ImpactChip = styled(Chip)(({ theme, color }) => ({
 }));
 
 export function JobLossAnalysis({ results }: JobLossAnalysisProps) {
+  if (!FEATURE_FLAGS.JOB_LOSS_TRACKER_ENABLED) {
+    return null;
+  }
   const analysisResults = Object.values(results);
   
   if (analysisResults.length === 0) {

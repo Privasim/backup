@@ -2,14 +2,28 @@
 
 import { useState } from 'react';
 import Head from 'next/head';
+import type { GetStaticProps } from 'next';
 import { Box, Container, Typography, CircularProgress } from '@mui/material';
 import { JobLossSearch } from '@/components/jobloss/JobLossSearch';
 import { JobLossResults } from '@/components/jobloss/JobLossResults';
 import { JobLossAnalysis } from '@/components/jobloss/JobLossAnalysis';
 import { useJobLossTracker } from '@/hooks/useJobLossTracker';
 import { AnalysisResult } from '@/types/jobloss';
+import { FEATURE_FLAGS } from '@/config/feature-flags';
+
+export const getStaticProps: GetStaticProps = async () => {
+  if (!FEATURE_FLAGS.JOB_LOSS_TRACKER_ENABLED) {
+    return { notFound: true, revalidate: 60 };
+  }
+  return { props: {} };
+};
 
 export default function JobLossTrackerPage() {
+  // Guard: if feature is disabled, do not render or execute hooks
+  if (!FEATURE_FLAGS.JOB_LOSS_TRACKER_ENABLED) {
+    return null;
+  }
+
   const {
     searchQuery,
     searchResults: newsItems,
