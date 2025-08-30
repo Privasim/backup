@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next-on-railway",
+    "start": "next start",
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -42,8 +42,7 @@
     "tailwind-merge": "^3.3.1",
     "use-debounce": "^10.0.5",
     "zod": "^4.0.14",
-    "zustand": "^5.0.7",
-    "next-on-railway": "^2.0.0"
+    "zustand": "^5.0.7"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
