@@ -36,13 +36,20 @@ export const transformUserProfileToAnalysisData = (userProfile: UserProfileData)
   const roleInfo = extractRoleSpecificInfo(userProfile);
   
   // Transform skills data
+  const technicalList = ['JavaScript', 'TypeScript', 'React', 'Python', 'SQL', 'AWS', 'Git', 'Docker'];
+  const softList = ['Communication', 'Leadership', 'Problem Solving', 'Time Management', 'Adaptability'];
+  
+  const technical = userProfile.skills?.filter(skill => technicalList.includes(skill)) || [];
+  const soft = userProfile.skills?.filter(skill => softList.includes(skill)) || [];
+  
+  // Find skills that weren't categorized and add them to technical by default
+  const uncategorized = userProfile.skills?.filter(skill => 
+    !technicalList.includes(skill) && !softList.includes(skill)
+  ) || [];
+  
   const transformedSkills = {
-    technical: userProfile.skills?.filter(skill => 
-      ['JavaScript', 'TypeScript', 'React', 'Python', 'SQL', 'AWS', 'Git', 'Docker'].includes(skill)
-    ) || [],
-    soft: userProfile.skills?.filter(skill => 
-      ['Communication', 'Leadership', 'Problem Solving', 'Time Management', 'Adaptability'].includes(skill)
-    ) || [],
+    technical: [...technical, ...uncategorized], // Include uncategorized skills in technical
+    soft,
     languages: [], // UserProfileData doesn't have language info, so empty for now
     certifications: [] // UserProfileData doesn't have certification info, so empty for now
   };
@@ -239,11 +246,18 @@ function toEnhancedSkillset(skills: string[] | undefined): EnhancedSkillset {
   const technicalList = ['JavaScript', 'TypeScript', 'React', 'Python', 'SQL', 'AWS', 'Git', 'Docker'];
   const softList = ['Communication', 'Leadership', 'Problem Solving', 'Time Management', 'Adaptability'];
 
+  // Categorize known skills
   const technical = all.filter(s => technicalList.includes(s));
   const soft = all.filter(s => softList.includes(s));
+  
+  // Find skills that weren't categorized
+  const uncategorized = all.filter(s => !technicalList.includes(s) && !softList.includes(s));
+  
+  // Add uncategorized skills to technical by default to ensure they're preserved
+  const allTechnical = [...technical, ...uncategorized];
 
   return {
-    technical,
+    technical: allTechnical,
     soft,
     languages: [],
     certifications: [],
@@ -373,21 +387,30 @@ export function adaptFormDataToUserProfile(formData: ProfileFormData | undefined
   // Map profileType back to Role
   const role = mapProfileTypeToRole(formData.profile.profileType);
   
-  // Extract skills from skillset
+  // Extract all skills from skillset (technical, soft, and any other categories)
   const skills = [
     ...formData.skillset.technical || [],
-    ...formData.skillset.soft || []
+    ...formData.skillset.soft || [],
+    // Include any skills from other categories that might be present
+    ...(formData.skillset.languages || []),
+    ...(formData.skillset.certifications || [])
   ];
   
   // Build role details based on profile type
   const roleDetails = buildRoleDetailsTyped(formData.profile, role);
   
+  // Only set workPreference for CareerShifter
+  // Note: ProfileData doesn't have workPreference directly, so we don't attempt to extract it
+  const workPreference = role === Role.CareerShifter ? 
+    (formData.profile.targetIndustry ? 'Remote' as WorkPreference : undefined) : 
+    undefined;
+    
   const userProfile: UserProfileData = {
     role,
     roleDetails,
     industry: formData.profile.industry,
     location: formData.profile.location,
-    workPreference: 'Remote', // Fixed to match WorkPreference type
+    workPreference,
     skills
   };
   

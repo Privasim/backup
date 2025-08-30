@@ -270,17 +270,21 @@ export const createProfileAnalysisProvider = (): AnalysisProvider => {
     },
     
     formatPrompt: (data: any, customPrompt?: string) => {
-      // Check if data is already in ProfileAnalysisData format or needs transformation
+      // Use the adapter facade to normalize any input type
+      const { toAnalysisData } = require('@/lib/profile-analysis');
       let transformedData;
-      if (data && data.profileType && data.experience && data.skills && data.metadata) {
-        transformedData = data;
-      } else {
-        try {
-          transformedData = transformUserProfileToAnalysisData(data);
-        } catch (error) {
+      
+      try {
+        transformedData = toAnalysisData(data);
+      } catch (error) {
+        // Fallback to direct transformation if adapter fails
+        if (data && data.profileType && data.experience && data.skills && data.metadata) {
+          transformedData = data;
+        } else {
           transformedData = transformProfileData(data);
         }
       }
+      
       const prompts = generateProfileAnalysisPrompt(transformedData, customPrompt);
       return prompts.userPrompt; // Return user prompt for compatibility
     },
@@ -288,17 +292,17 @@ export const createProfileAnalysisProvider = (): AnalysisProvider => {
     analyze: async (config: AnalysisConfig, data: any): Promise<AnalysisResult> => {
       const client = new OpenRouterClient(config.apiKey);
       
-      // Check if data is already in ProfileAnalysisData format or needs transformation
+      // Use the adapter facade to normalize any input type
+      const { toAnalysisData } = require('@/lib/profile-analysis');
       let transformedData;
-      if (data && data.profileType && data.experience && data.skills && data.metadata) {
-        // Data is already in ProfileAnalysisData format
-        transformedData = data;
-      } else {
-        // Data needs transformation from UserProfileData or ProfileFormData
-        try {
-          transformedData = transformUserProfileToAnalysisData(data);
-        } catch (error) {
-          // Fallback to old transformation for ProfileFormData
+      
+      try {
+        transformedData = toAnalysisData(data);
+      } catch (error) {
+        // Fallback to direct transformation if adapter fails
+        if (data && data.profileType && data.experience && data.skills && data.metadata) {
+          transformedData = data;
+        } else {
           transformedData = transformProfileData(data);
         }
       }
@@ -385,17 +389,17 @@ export const createProfileAnalysisProvider = (): AnalysisProvider => {
     ): Promise<AnalysisResult> => {
       const client = new OpenRouterClient(config.apiKey);
       
-      // Check if data is already in ProfileAnalysisData format or needs transformation
+      // Use the adapter facade to normalize any input type
+      const { toAnalysisData } = require('@/lib/profile-analysis');
       let transformedData;
-      if (data && data.profileType && data.experience && data.skills && data.metadata) {
-        // Data is already in ProfileAnalysisData format
-        transformedData = data;
-      } else {
-        // Data needs transformation from UserProfileData or ProfileFormData
-        try {
-          transformedData = transformUserProfileToAnalysisData(data);
-        } catch (error) {
-          // Fallback to old transformation for ProfileFormData
+      
+      try {
+        transformedData = toAnalysisData(data);
+      } catch (error) {
+        // Fallback to direct transformation if adapter fails
+        if (data && data.profileType && data.experience && data.skills && data.metadata) {
+          transformedData = data;
+        } else {
           transformedData = transformProfileData(data);
         }
       }
