@@ -2,19 +2,21 @@
 
 import React, { useState } from 'react';
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
+import { useBusinessSuggestion } from '@/contexts';
 import { useImplementationPlanContext } from '@/features/implementation-plan/ImplementationPlanProvider';
+import { BusinessSuggestionSelector } from '@/features/go-to-market/components/BusinessSuggestionSelector';
 import SuggestionCard from '@/components/business/SuggestionCard';
 import BusinessPlanSettings from '@/components/business/BusinessPlanSettings';
 import { SparklesIcon, LightBulbIcon, CogIcon } from '@heroicons/react/24/outline';
 
 export default function BusinessPlanContent() {
-  const { businessSuggestions, createPlanConversation, openChatbox } = useChatbox();
+  const { createPlanConversation, openChatbox } = useChatbox();
+  const { suggestions, isGenerating, error: suggestionError } = useBusinessSuggestion();
   const implementationPlanContext = useImplementationPlanContext();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
-  const { suggestions, suggestionStatus, suggestionError } = businessSuggestions;
-  const isLoading = suggestionStatus === 'generating';
-  const hasError = suggestionStatus === 'error';
+  const isLoading = isGenerating;
+  const hasError = !!suggestionError;
   const hasSuggestions = suggestions.length > 0;
   const lengthPreset = implementationPlanContext?.settings?.lengthPreset || 'long';
 
@@ -74,10 +76,13 @@ export default function BusinessPlanContent() {
         {suggestionError || 'Failed to generate business suggestions. Please try again.'}
       </p>
       <p className="text-sm text-gray-500">
-        You can retry from the chatbox panel
+        You can retry using the business suggestion selector
       </p>
     </div>
   );
+
+  // Track selected suggestion for the selector
+  const [selectedSuggestion, setSelectedSuggestion] = useState(suggestions[0]);
 
   return (
     <div className="space-y-4">
@@ -117,7 +122,16 @@ export default function BusinessPlanContent() {
           </div>
         </div>
         
-        <div className="flex flex-col gap-4 h-[calc(100vh-180px)] overflow-y-auto">
+        {/* Business Suggestion Selector */}
+        <div className="mb-4">
+          <BusinessSuggestionSelector
+            selectedSuggestion={selectedSuggestion}
+            availableSuggestions={suggestions}
+            onSuggestionSelect={setSelectedSuggestion}
+          />
+        </div>
+        
+        <div className="flex flex-col gap-4 h-[calc(100vh-240px)] overflow-y-auto">
           {isLoading && (
             <div className="space-y-4">
               <LoadingSkeleton />

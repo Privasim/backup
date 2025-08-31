@@ -1,3 +1,5 @@
+'use client';
+
 import { AnalysisResult } from '@/components/chatbox/types';
 import { ProfileFormData } from '@/app/businessidea/types/profile.types';
 
@@ -39,13 +41,33 @@ ${outputFormat}`;
       return `PROFILE DATA: Limited profile information available.`;
     }
 
+    // Extract skills from skillset
+    const skills = profileData.skillset?.technical || [];
+    
+    // Get experience level from the first experience entry if available
+    const experienceLevel = profileData.experience && profileData.experience.length > 0 
+      ? profileData.experience[0].seniority 
+      : 'Not specified';
+    
+    // Get industry from profile data
+    const industry = profileData.profile?.industry || profileData.profile?.targetIndustry || 'Not specified';
+    
+    // Get career goals
+    const goals = profileData.profile?.goal || 'Not specified';
+    
+    // Get education level if available
+    const education = profileData.profile?.educationLevel || 'Not specified';
+    
+    // Get location if available
+    const location = profileData.profile?.location || 'Not specified';
+
     return `PROFILE DATA:
-- Skills: ${profileData.skills?.join(', ') || 'Not specified'}
-- Experience Level: ${profileData.experience || 'Not specified'}
-- Industry Background: ${profileData.industry || 'Not specified'}
-- Career Goals: ${profileData.goals || 'Not specified'}
-- Education: ${profileData.education || 'Not specified'}
-- Location: ${profileData.location || 'Not specified'}`;
+- Skills: ${skills.join(', ') || 'Not specified'}
+- Experience Level: ${experienceLevel}
+- Industry Background: ${industry}
+- Career Goals: ${goals}
+- Education: ${education}
+- Location: ${location}`;
   }
 
   private static buildAnalysisContext(analysisResult: AnalysisResult): string {

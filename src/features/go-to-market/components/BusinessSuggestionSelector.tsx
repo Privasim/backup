@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BusinessSuggestion } from '@/components/chatbox/types';
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
+import { useBusinessSuggestion } from '@/contexts';
 import { 
   ChevronDownIcon, 
   PlusIcon, 
@@ -24,20 +25,30 @@ export function BusinessSuggestionSelector({
   onSuggestionSelect,
   className = ''
 }: BusinessSuggestionSelectorProps) {
-  const { generateBusinessSuggestions, businessSuggestions, openChatbox } = useChatbox();
+  const { openChatbox } = useChatbox();
+  const { 
+    generateSuggestions, 
+    suggestions: contextSuggestions, 
+    isGenerating, 
+    error: suggestionError,
+    businessType
+  } = useBusinessSuggestion();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
 
-  const { suggestionStatus, suggestionError } = businessSuggestions;
+  // Use suggestions from context if available, otherwise use props
+  const effectiveSuggestions = contextSuggestions.length > 0 ? contextSuggestions : availableSuggestions;
+  const suggestionStatus = isGenerating ? 'generating' : 'completed';
 
   const handleGenerateSuggestions = async () => {
-    setIsGenerating(true);
     try {
-      await generateBusinessSuggestions();
+      const newSuggestions = await generateSuggestions();
+      // If we have a callback for selection and new suggestions were generated
+      if (onSuggestionSelect && newSuggestions && newSuggestions.length > 0) {
+        // Auto-select the first suggestion
+        onSuggestionSelect(newSuggestions[0]);
+      }
     } catch (error) {
       console.error('Failed to generate suggestions:', error);
-    } finally {
-      setIsGenerating(false);
     }
   };
 
@@ -47,7 +58,7 @@ export function BusinessSuggestionSelector({
   };
 
   // Empty state when no suggestions are available
-  if (availableSuggestions.length === 0) {
+  if (effectiveSuggestions.length === 0) {
     return (
       <div className={`bg-white rounded-lg border border-gray-200 p-6 ${className}`}>
         <div className="text-center">
@@ -161,7 +172,7 @@ export function BusinessSuggestionSelector({
 
         {isDropdownOpen && (
           <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-y-auto">
-            {availableSuggestions.map((suggestion) => (
+            {effectiveSuggestions.map((suggestion) => (
               <button
                 key={suggestion.id}
                 onClick={() => handleSuggestionClick(suggestion)}

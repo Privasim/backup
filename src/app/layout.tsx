@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ChatboxProvider, ChatboxLayout } from "@/components/chatbox";
+import { BusinessSuggestionProvider } from "@/contexts";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,9 +31,11 @@ export default function RootLayout({
         data-force-light="true"
       >
         <ChatboxProvider>
-          <ChatboxLayout position="right" width="24rem">
-            {children}
-          </ChatboxLayout>
+          <BusinessSuggestionProvider>
+            <ChatboxLayout position="right" width="24rem">
+              {children}
+            </ChatboxLayout>
+          </BusinessSuggestionProvider>
         </ChatboxProvider>
       </body>
     </html>
