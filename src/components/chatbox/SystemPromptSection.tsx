@@ -40,7 +40,10 @@ export const SystemPromptSection: React.FC<SystemPromptSectionProps> = ({
 }) => {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.CLASSIC);
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('systemPromptViewMode') : null;
+    return saved === ViewMode.ADVANCED ? ViewMode.ADVANCED : ViewMode.CLASSIC;
+  });
   const [showTemplateEditor, setShowTemplateEditor] = useState<boolean>(false);
   const [templateToEdit, setTemplateToEdit] = useState<PromptTemplate | undefined>(undefined);
   
@@ -98,7 +101,14 @@ export const SystemPromptSection: React.FC<SystemPromptSectionProps> = ({
 
   // Toggle view mode
   const toggleViewMode = () => {
-    setViewMode(viewMode === ViewMode.CLASSIC ? ViewMode.ADVANCED : ViewMode.CLASSIC);
+    const newMode = viewMode === ViewMode.CLASSIC ? ViewMode.ADVANCED : ViewMode.CLASSIC;
+    setViewMode(newMode);
+    localStorage.setItem('systemPromptViewMode', newMode);
+    
+    // Auto-expand if collapsed so user can see the change
+    if (!isExpanded) {
+      onToggleExpanded();
+    }
   };
   
   const templateCategories = getTemplateCategories();
@@ -129,18 +139,34 @@ export const SystemPromptSection: React.FC<SystemPromptSectionProps> = ({
         </button>
         
         {/* View Mode Toggle */}
-        <button 
-          onClick={toggleViewMode}
-          className="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded transition-colors"
-        >
-          {viewMode === ViewMode.CLASSIC ? 'Advanced Mode' : 'Classic Mode'}
-        </button>
+        <div className="flex items-center space-x-2">
+          <span className={`text-xs px-2 py-1 rounded transition-colors ${
+            viewMode === ViewMode.CLASSIC 
+              ? 'bg-blue-100 text-blue-800 border border-blue-200' 
+              : 'bg-purple-100 text-purple-800 border border-purple-200'
+          }`}>
+            {viewMode === ViewMode.CLASSIC ? 'Classic' : 'Advanced'}
+          </span>
+          <button 
+            onClick={toggleViewMode}
+            className="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+          >
+            {viewMode === ViewMode.CLASSIC ? 'Switch to Advanced' : 'Switch to Classic'}
+          </button>
+        </div>
       </div>
       
       {/* Preview when collapsed */}
       {!isExpanded && hasActivePrompt && (
-        <div className="mt-2 p-2 bg-gray-50 rounded text-xs text-gray-600">
-          {generateSystemPromptPreview(currentPrompt, 100)}
+        <div className="mt-2 p-2 bg-gray-50 rounded text-xs text-gray-600 flex justify-between items-center">
+          <span className="truncate">{generateSystemPromptPreview(currentPrompt, 70)}</span>
+          <span className={`ml-2 px-1.5 py-0.5 text-xs rounded ${
+            viewMode === ViewMode.CLASSIC 
+              ? 'bg-blue-100 text-blue-800' 
+              : 'bg-purple-100 text-purple-800'
+          }`}>
+            {viewMode === ViewMode.CLASSIC ? 'Classic' : 'Advanced'}
+          </span>
         </div>
       )}
 
