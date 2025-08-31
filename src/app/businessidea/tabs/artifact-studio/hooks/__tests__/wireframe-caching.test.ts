@@ -158,12 +158,9 @@ describe('Wireframe Caching System', () => {
                 }`
               }
             }]
-          }))
+          })
         }))
-      }))
-    }))
-  }))
-}));
+      }));
 
       const { result } = renderHook(() => useArtifactGeneration());
       

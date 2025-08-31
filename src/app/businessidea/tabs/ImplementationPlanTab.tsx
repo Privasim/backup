@@ -6,10 +6,18 @@ import {
   ClipboardDocumentCheckIcon,
   ArrowDownTrayIcon,
   ArrowPathIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  CogIcon
 } from '@heroicons/react/24/outline';
 import { usePlanSync } from './utils/plan-sync';
 import { ImplementationPlanErrorBoundary } from './components/ImplementationPlanErrorBoundary';
+import { usePlanSettings } from '@/hooks/usePlanSettings';
+import { 
+  getVisualizationComponent, 
+  getDefaultVisualization,
+  VisualizationErrorBoundary 
+} from '@/components/visualizations/visualizationRegistry';
+import { PlanSettings } from '@/components/settings/PlanSettings';
 
 interface ImplementationPlanTabProps {
   className?: string;
@@ -23,11 +31,32 @@ export default function ImplementationPlanTab({ className = '' }: Implementation
     subscribeToPlanUpdates 
   } = usePlanSync();
   
+  const { settings, getVisualizationDisplayName } = usePlanSettings();
   const [error, setError] = useState<string | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
 
   // Map plan generation status to local state
   const isLoading = planGenerationStatus === 'generating';
   const planContent = currentPlanContent;
+
+  // Get visualization component based on settings
+  const visualizationComponent = useMemo(() => {
+    const component = getVisualizationComponent(settings.visualizationType);
+    return component || getDefaultVisualization();
+  }, [settings.visualizationType]);
+
+  // Memoize plan content processing to avoid re-processing on every render
+  const processedPlanData = useMemo(() => {
+    if (!planContent) return null;
+    
+    // For now, just return the content as-is
+    // In the future, this could include parsing, validation, etc.
+    return {
+      content: planContent,
+      length: planContent.length,
+      lastProcessed: Date.now(),
+    };
+  }, [planContent]);
 
   // Debug logging
   useEffect(() => {
@@ -163,6 +192,17 @@ export default function ImplementationPlanTab({ className = '' }: Implementation
         <ArrowPathIcon className="h-4 w-4 mr-2" />
         Regenerate
       </button>
+      <button
+        onClick={() => setShowSettings(!showSettings)}
+        className={`inline-flex items-center px-4 py-2.5 border text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 shadow-sm hover:shadow ${
+          showSettings 
+            ? 'border-blue-300 bg-blue-50 text-blue-700 focus:ring-blue-500' 
+            : 'border-slate-200 text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:ring-blue-500'
+        }`}
+      >
+        <CogIcon className="h-4 w-4 mr-2" />
+        View Settings
+      </button>
     </div>
   );
 
@@ -183,83 +223,58 @@ export default function ImplementationPlanTab({ className = '' }: Implementation
     return (
       <div className="h-full flex flex-col">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Implementation Plan</h2>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Implementation Plan</h2>
+            <p className="text-sm text-slate-600 mt-1">
+              {getVisualizationDisplayName(settings.visualizationType)} • {processedPlanData?.length || 0} characters
+            </p>
+          </div>
           <div className="flex flex-wrap gap-2 sm:gap-3">
             {renderActionButtons()}
           </div>
         </div>
-        
-        <div className="flex-1 overflow-y-auto">
-          <div className="bg-white border border-slate-200 rounded-xl shadow-sm">
-            <div className="prose prose-slate max-w-none p-4 sm:p-6 md:p-8">
-              <ReactMarkdown
-                components={{
-                  h1: ({ children }) => (
-                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-4 sm:mb-6 pb-3 border-b border-slate-200">
-                      {children}
-                    </h1>
-                  ),
-                  h2: ({ children }) => (
-                    <h2 className="text-xl sm:text-2xl font-semibold text-slate-800 mt-6 sm:mt-8 mb-3 sm:mb-4">
-                      {children}
-                    </h2>
-                  ),
-                  h3: ({ children }) => (
-                    <h3 className="text-lg sm:text-xl font-semibold text-slate-800 mt-4 sm:mt-6 mb-2 sm:mb-3">
-                      {children}
-                    </h3>
-                  ),
-                  p: ({ children }) => (
-                    <p className="text-slate-700 leading-relaxed mb-3 sm:mb-4">
-                      {children}
-                    </p>
-                  ),
-                  ul: ({ children }) => (
-                    <ul className="space-y-2 mb-3 sm:mb-4 pl-4 sm:pl-6 list-disc marker:text-blue-600">
-                      {children}
-                    </ul>
-                  ),
-                  ol: ({ children }) => (
-                    <ol className="space-y-2 mb-3 sm:mb-4 pl-4 sm:pl-6 list-decimal marker:text-blue-600">
-                      {children}
-                    </ol>
-                  ),
-                  li: ({ children }) => (
-                    <li className="text-slate-700 leading-relaxed">
-                      {children}
-                    </li>
-                  ),
-                  code: ({ children }) => (
-                    <code className="bg-slate-100 text-slate-800 px-2 py-1 rounded text-sm font-mono">
-                      {children}
-                    </code>
-                  ),
-                  pre: ({ children }) => (
-                    <pre className="bg-slate-900 text-slate-100 p-3 sm:p-4 rounded-lg overflow-x-auto mb-3 sm:mb-4 text-sm">
-                      {children}
-                    </pre>
-                  ),
-                  blockquote: ({ children }) => (
-                    <blockquote className="border-l-4 border-blue-500 pl-3 sm:pl-4 italic text-slate-600 mb-3 sm:mb-4">
-                      {children}
-                    </blockquote>
-                  ),
-                  strong: ({ children }) => (
-                    <strong className="font-semibold text-slate-900">
-                      {children}
-                    </strong>
-                  ),
-                  em: ({ children }) => (
-                    <em className="italic text-slate-700">
-                      {children}
-                    </em>
-                  ),
-                }}
+
+        {/* Settings Panel */}
+        {showSettings && (
+          <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-medium text-gray-900">Visualization Settings</h3>
+              <button
+                onClick={() => setShowSettings(false)}
+                className="text-gray-400 hover:text-gray-600 text-sm"
+                aria-label="Close settings"
               >
-                {planContent}
-              </ReactMarkdown>
+                ✕
+              </button>
             </div>
+            <PlanSettings 
+              showPreview={true}
+              onSettingsChange={() => {
+                // Settings are automatically saved via context
+                // The visualization will re-render automatically
+              }}
+            />
           </div>
+        )}
+        
+        <div className="flex-1 overflow-hidden">
+          <VisualizationErrorBoundary
+            fallback={getDefaultVisualization().component}
+            onError={(error) => {
+              console.error('Visualization error:', error);
+              setError(`Visualization error: ${error.message}`);
+            }}
+          >
+            {React.createElement(visualizationComponent.component, {
+              planContent: processedPlanData?.content,
+              isLoading,
+              onError: (error: Error) => {
+                console.error('Visualization component error:', error);
+                setError(`Visualization error: ${error.message}`);
+              },
+              className: "h-full"
+            })}
+          </VisualizationErrorBoundary>
         </div>
       </div>
     );

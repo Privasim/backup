@@ -56,6 +56,7 @@ export interface PlanSettings {
   lengthPreset?: 'brief' | 'standard' | 'long';
   model?: string;
   apiKey?: string;
+  visualizationType?: 'standard' | 'vertical-timeline';
 }
 
 export interface PlanState {

@@ -41,7 +41,7 @@ export const useImplementationPlan = () => {
     });
   }, [ctx, isExternallyDriven]);
 
-  const generate = useCallback(async (suggestion: any) => {
+  const generate = useCallback(async (suggestion: any, visualizationType?: string) => {
     // If externally driven, don't start internal generation
     if (isExternallyDriven) {
       return;
@@ -94,7 +94,8 @@ export const useImplementationPlan = () => {
       const planSettings = {
         ...ctx.settings,
         model,
-        apiKey
+        apiKey,
+        visualizationType: visualizationType || ctx.settings.visualizationType
       };
       
       const plan = await textService.generatePlan(

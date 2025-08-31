@@ -148,9 +148,10 @@ export default function BusinessPlanContent() {
             <div key={suggestion.id} className="w-full">
               <SuggestionCard
                 suggestion={suggestion}
-                onCreatePlan={(suggestion, _lengthPreset) => {
+                onCreatePlan={(suggestion, _lengthPreset, visualizationType) => {
                   // Create a new conversation with the plan and open the chatbox
                   // Use the lengthPreset from the context
+                  // Note: visualizationType is handled by the plan generation system
                   createPlanConversation(suggestion, lengthPreset);
                   openChatbox();
                 }}
