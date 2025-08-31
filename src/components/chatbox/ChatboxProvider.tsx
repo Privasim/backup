@@ -15,6 +15,7 @@ import {
   BusinessSuggestionState,
   Conversation
 } from './types';
+import { PromptTemplate } from '@/lib/chatbox/prompts/types';
 import type { ChatboxContext } from './types';
 import { ProfileFormData } from '@/app/businessidea/types/profile.types';
 import { useStorageManager } from './hooks/useStorageManager';
@@ -70,6 +71,7 @@ interface ChatboxContextType extends ChatboxState {
   profileData?: ProfileFormData;
   plugins: ChatboxPlugin[];
   providers: AnalysisProvider[];
+  availableTemplates: PromptTemplate[];
   
   // Mock data functionality
   useMockData: boolean;
@@ -78,6 +80,10 @@ interface ChatboxContextType extends ChatboxState {
   // Business suggestions
   generateBusinessSuggestions: () => Promise<void>;
   clearBusinessSuggestions: () => void;
+  
+  // Template management
+  setActiveTemplate: (templateId: string | null) => void;
+  getActiveTemplate: () => Promise<PromptTemplate | null>;
   
   // Implementation plan methods
   generatePlanOutline: (suggestion: BusinessSuggestion) => Promise<PlanOutline>;
@@ -121,8 +127,7 @@ const defaultPreferences: ChatboxPreferences = {
 
 export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
   // Core state
-  const [state, setState] = useState<ChatboxState & { plugins: ChatboxPlugin[]; providers: AnalysisProvider[] }>({
-    status: 'idle',
+  const [state, setState] = useState<ChatboxState & { plugins: ChatboxPlugin[]; providers: AnalysisProvider[] }>({    status: 'idle',
     config: defaultConfig,
     messages: [],
     isVisible: false,
@@ -132,7 +137,8 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
     conversations: [],
     activeConversationId: undefined,
     plugins: [],
-    providers: []
+    providers: [],
+    activeTemplateId: null
   });
 
   // Initialize the chatbox system on mount
@@ -142,6 +148,18 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
         const { initializeChatboxSystem } = await import('@/lib/chatbox/initialization');
         await initializeChatboxSystem();
         console.log('Chatbox system initialized successfully');
+        
+        // Initialize prompt manager and load templates
+        const { promptManager } = await import('@/lib/chatbox/prompts/PromptManager');
+        await promptManager.initialize();
+        const templates = await promptManager.getAllTemplates();
+        setAvailableTemplates(templates);
+        
+        // Check for active template in storage
+        const activeId = localStorage.getItem('chatbox-active-template-id');
+        if (activeId) {
+          setState(prev => ({ ...prev, activeTemplateId: activeId }));
+        }
       } catch (error) {
         console.error('Failed to initialize chatbox system:', error);
       }
@@ -158,6 +176,7 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
   const [providers, setProviders] = useState<AnalysisProvider[]>([]);
   const [useMockData, setUseMockData] = useState(process.env.NODE_ENV === 'development');
   const [planStreamBridge, setPlanStreamBridgeState] = useState<PlanStreamBridge | null>(null);
+  const [availableTemplates, setAvailableTemplates] = useState<PromptTemplate[]>([]);
   
   // Storage hooks
   const storageManager = useStorageManager();
@@ -514,6 +533,33 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
       currentAnalysis: undefined
     }));
   }, [storageManager]);
+  
+  // Template management
+  const setActiveTemplate = useCallback((templateId: string | null) => {
+    setState(prev => ({
+      ...prev,
+      activeTemplateId: templateId
+    }));
+    
+    // Save to local storage for persistence
+    if (templateId) {
+      localStorage.setItem('chatbox-active-template-id', templateId);
+    } else {
+      localStorage.removeItem('chatbox-active-template-id');
+    }
+  }, []);
+  
+  const getActiveTemplate = useCallback(async (): Promise<PromptTemplate | null> => {
+    if (!state.activeTemplateId) return null;
+    
+    try {
+      const { promptManager } = await import('@/lib/chatbox/prompts/PromptManager');
+      return await promptManager.getTemplateById(state.activeTemplateId);
+    } catch (error) {
+      console.error('Failed to get active template:', error);
+      return null;
+    }
+  }, [state.activeTemplateId]);
 
 
 
@@ -545,9 +591,19 @@ export const ChatboxProvider = ({ children }: { children: ReactNode }) => {
       const { businessSuggestionService } = await import('@/lib/chatbox/BusinessSuggestionService');
       const { businessSuggestionErrorHandler } = await import('./utils/error-handler');
       
-      // Get custom system prompt from settings
+      // Get custom system prompt from settings or from active template
       const { getCustomSystemPrompt } = await import('@/lib/business/settings-utils');
-      const customSystemPrompt = getCustomSystemPrompt();
+      let customSystemPrompt = getCustomSystemPrompt();
+      
+      // If we have an active template, use its content as the system prompt
+      if (state.activeTemplateId) {
+        const { promptManager } = await import('@/lib/chatbox/prompts/PromptManager');
+        const activeTemplate = await promptManager.getTemplateById(state.activeTemplateId);
+        if (activeTemplate) {
+          customSystemPrompt = activeTemplate.content;
+          console.log('Using template for system prompt:', activeTemplate.name);
+        }
+      }
       
       if (!state.currentAnalysis) {
         throw new Error('No analysis result available');
@@ -1173,6 +1229,8 @@ Outline:
     clearStorage,
     generateBusinessSuggestions,
     clearBusinessSuggestions,
+    setActiveTemplate,
+    getActiveTemplate,
     generatePlanOutline,
     generateFullPlan,
     setPlanStreamBridge,
@@ -1181,7 +1239,8 @@ Outline:
     createConversation,
     addMessageToConversation,
     appendToConversationMessage,
-    createPlanConversation
+    createPlanConversation,
+    availableTemplates
   };
 
   return (

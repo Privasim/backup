@@ -28,6 +28,8 @@ ${outputFormat}`;
     const baseContext = `You are an expert business consultant AI specializing in personalized business opportunity identification. Your role is to analyze user profiles and generate viable, actionable business suggestions that align with their skills, experience, and market opportunities.`;
     
     if (customPrompt) {
+      // If the custom prompt is from a template, use it as the primary system context
+      // but still append our base context to ensure proper formatting
       return `${customPrompt}\n\n${baseContext}`;
     }
     

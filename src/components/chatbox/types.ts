@@ -137,4 +137,5 @@ export type ChatboxState = {
   businessSuggestions: BusinessSuggestionState;
   conversations: Conversation[];
   activeConversationId?: string;
+  activeTemplateId: string | null;
 };

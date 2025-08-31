@@ -24,7 +24,8 @@ export class BusinessSuggestionService {
     chatboxDebug.info('business-suggestion', 'Starting business suggestion generation', {
       hasAnalysisResult: !!analysisResult,
       hasProfileData: !!profileData,
-      model: config.model
+      model: config.model,
+      usingCustomPrompt: !!customSystemPrompt
     });
 
     try {
@@ -33,12 +34,22 @@ export class BusinessSuggestionService {
       // Create OpenRouter client instance
       const client = new OpenRouterClient(config.apiKey);
       
+      // Use the custom system prompt if provided, otherwise use the default
+      const systemMessage = customSystemPrompt 
+        ? 'Using custom template for business suggestion generation. Always respond with valid JSON containing exactly 3 business suggestions.'
+        : 'You are a business consultant AI that generates personalized business suggestions based on user profile analysis. Always respond with valid JSON containing exactly 3 business suggestions.';
+      
+      chatboxDebug.info('business-suggestion', 'System message prepared', {
+        usingCustomPrompt: !!customSystemPrompt,
+        promptLength: customSystemPrompt?.length || 0
+      });
+      
       const response = await client.chat({
         model: config.model,
         messages: [
           {
             role: 'system',
-            content: 'You are a business consultant AI that generates personalized business suggestions based on user profile analysis. Always respond with valid JSON containing exactly 3 business suggestions.'
+            content: systemMessage
           },
           {
             role: 'user',
