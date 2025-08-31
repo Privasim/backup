@@ -52,10 +52,13 @@ function LocalTabContent() {
     }
   }, [activeTab]);
 
+  const tabContainerClass = "max-w-[627px] mx-auto min-h-[200px]";
+  const tabContentClass = "bg-white rounded-xl shadow-sm border border-gray-100 p-3";
+
   if (activeTab === 'userprofile') {
     return (
-      <div className="max-w-[627px] mx-auto h-[400px] overflow-y-auto">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 h-full">
+      <div className={tabContainerClass}>
+        <div className={tabContentClass}>
           <UserProfileTab />
         </div>
       </div>
@@ -64,8 +67,8 @@ function LocalTabContent() {
 
   if (activeTab === 'jobrisk') {
     return (
-      <div className="max-w-[627px] mx-auto h-[400px] overflow-y-auto">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 h-full">
+      <div className={tabContainerClass}>
+        <div className={tabContentClass}>
           <JobRiskAnalysisTab />
         </div>
       </div>
@@ -74,8 +77,8 @@ function LocalTabContent() {
 
   // businessplan
   return (
-    <div className="max-w-[627px] mx-auto h-[400px] overflow-y-auto">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 h-full">
+    <div className={tabContainerClass}>
+      <div className={tabContentClass}>
         <ImplementationPlanProvider>
           <BusinessPlanContent />
         </ImplementationPlanProvider>
