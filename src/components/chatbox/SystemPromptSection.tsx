@@ -14,7 +14,7 @@ import {
   generateSystemPromptPreview,
   SYSTEM_PROMPT_LIMITS
 } from '@/lib/chatbox/utils/system-prompt-utils';
-import { ChevronDownIcon, ChevronUpIcon, SparklesIcon, ExclamationTriangleIcon, PlusIcon, PencilIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, ChevronUpIcon, SparklesIcon, ExclamationTriangleIcon, PlusIcon, PencilIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { PromptTemplate } from '@/lib/chatbox/prompts/types';
 import { promptManager } from '@/lib/chatbox/prompts/PromptManager';
 import { TemplateSelector } from './TemplateSelector';
@@ -191,8 +191,9 @@ export const SystemPromptSection: React.FC<SystemPromptSectionProps> = ({
             <div className="flex items-center justify-between mb-2">
               <button
                 onClick={() => setShowTemplateSelector(true)}
-                className="flex items-center space-x-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors"
+                className="flex items-center space-x-1 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
               >
+                <DocumentTextIcon className="h-3.5 w-3.5" />
                 <span>Browse Templates</span>
               </button>
               <button
@@ -200,9 +201,9 @@ export const SystemPromptSection: React.FC<SystemPromptSectionProps> = ({
                   setTemplateToEdit(undefined);
                   setShowTemplateEditor(true);
                 }}
-                className="flex items-center space-x-1 px-3 py-1.5 border border-gray-300 hover:border-gray-400 text-xs rounded transition-colors"
+                className="flex items-center space-x-1 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
               >
-                <PlusIcon className="h-3 w-3" />
+                <PlusIcon className="h-3.5 w-3.5" />
                 <span>Create Template</span>
               </button>
             </div>
@@ -232,16 +233,16 @@ export const SystemPromptSection: React.FC<SystemPromptSectionProps> = ({
                       });
                       setShowTemplateEditor(true);
                     }}
-                    className="flex items-center space-x-1 text-xs text-blue-600 hover:text-blue-800 transition-colors"
+                    className="flex items-center space-x-1 text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
                   >
-                    <PencilIcon className="h-3 w-3" />
+                    <PencilIcon className="h-3.5 w-3.5" />
                     <span>Save as Template</span>
                   </button>
                 )}
                 {currentPrompt && (
                   <button
                     onClick={clearPrompt}
-                    className="text-xs text-red-600 hover:text-red-800 transition-colors"
+                    className="text-xs font-medium text-red-600 hover:text-red-800 transition-colors"
                   >
                     Clear
                   </button>
@@ -253,9 +254,9 @@ export const SystemPromptSection: React.FC<SystemPromptSectionProps> = ({
               value={currentPrompt}
               onChange={(e) => handlePromptChange(e.target.value)}
               placeholder="Define how the AI should behave and analyze profiles..."
-              className={`w-full px-3 py-2 text-xs border rounded-md resize-none transition-all duration-200 ${
+              className={`w-full px-3 py-2 text-sm border rounded-md resize-none transition-all duration-200 focus:outline-none ${
                 validation.isValid
-                  ? 'border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'
+                  ? 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'
                   : 'border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
               }`}
               rows={4}
@@ -299,14 +300,19 @@ export const SystemPromptSection: React.FC<SystemPromptSectionProps> = ({
       {/* Template Selector Dialog */}
       {showTemplateSelector && viewMode === ViewMode.ADVANCED && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-3xl max-h-[80vh] overflow-hidden">
+          <div className="bg-white rounded-lg w-full max-w-3xl max-h-[80vh] overflow-hidden shadow-lg">
             <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-              <h2 className="text-lg font-medium">Select a Template</h2>
-              <button onClick={() => setShowTemplateSelector(false)} className="text-gray-500 hover:text-gray-700">
-                &times;
+              <h2 className="text-lg font-medium text-gray-900">Select a Template</h2>
+              <button 
+                onClick={() => setShowTemplateSelector(false)} 
+                className="text-gray-500 hover:text-gray-700 rounded-full p-1 hover:bg-gray-100 transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
               </button>
             </div>
-            <div className="p-4 overflow-auto max-h-[calc(80vh-8rem)]">
+            <div className="overflow-auto max-h-[calc(80vh-8rem)]">
               <TemplateSelector
                 onSelectTemplate={(template: PromptTemplate) => {
                   handlePromptChange(template.content);
@@ -314,12 +320,13 @@ export const SystemPromptSection: React.FC<SystemPromptSectionProps> = ({
                 }}
                 onEditTemplate={handleEditTemplate}
                 onDeleteTemplate={handleDeleteTemplate}
+                selectedTemplateId={selectedTemplateId}
               />
             </div>
             <div className="p-4 border-t border-gray-200 flex justify-end">
               <button 
                 onClick={() => setShowTemplateSelector(false)}
-                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded transition-colors"
+                className="px-4 py-2 text-sm font-medium bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
               >
                 Cancel
               </button>

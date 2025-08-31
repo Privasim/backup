@@ -1,29 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Box, 
-  Typography, 
-  Tabs, 
-  Tab, 
-  List, 
-  ListItem, 
-  ListItemText, 
-  ListItemSecondaryAction, 
-  IconButton,
-  TextField,
-  InputAdornment,
-  Chip,
-  Tooltip,
-  CircularProgress,
-  Divider
-} from '@mui/material';
-import { 
-  Search as SearchIcon, 
-  Star as StarIcon,
-  StarBorder as StarBorderIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Info as InfoIcon
-} from '@mui/icons-material';
+  MagnifyingGlassIcon,
+  StarIcon,
+  PencilIcon,
+  TrashIcon,
+  InformationCircleIcon
+} from '@heroicons/react/24/outline';
+import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { PromptTemplate, TemplateCategory } from '../../lib/chatbox/prompts/types';
 import { promptManager } from '../../lib/chatbox/prompts/PromptManager';
 
@@ -128,175 +111,158 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
   const renderTemplateList = () => {
     if (loading) {
       return (
-        <Box display="flex" justifyContent="center" alignItems="center" p={3}>
-          <CircularProgress size={24} />
-          <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
+        <div className="flex justify-center items-center p-6">
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-sm text-gray-500">
             Loading templates...
-          </Typography>
-        </Box>
+          </span>
+        </div>
       );
     }
 
     if (filteredTemplates.length === 0) {
       return (
-        <Box p={3} textAlign="center">
-          <Typography variant="body2" color="textSecondary">
+        <div className="p-6 text-center">
+          <span className="text-sm text-gray-500">
             No templates found. Try adjusting your search or category filter.
-          </Typography>
-        </Box>
+          </span>
+        </div>
       );
     }
 
     return (
-      <List sx={{ width: '100%', maxHeight: 400, overflow: 'auto' }}>
+      <div className="w-full max-h-[400px] overflow-y-auto">
         {filteredTemplates.map((template) => (
-          <ListItem 
+          <div 
             key={template.id}
-            button 
-            selected={selectedTemplateId === template.id}
             onClick={() => onSelectTemplate(template)}
-            sx={{
-              borderLeft: selectedTemplateId === template.id ? '3px solid #1976d2' : 'none',
-              backgroundColor: selectedTemplateId === template.id ? 'rgba(25, 118, 210, 0.08)' : 'transparent',
-              '&:hover': {
-                backgroundColor: 'rgba(0, 0, 0, 0.04)'
-              }
-            }}
+            className={`p-3 cursor-pointer border-l-[3px] transition-colors ${selectedTemplateId === template.id 
+              ? 'border-l-blue-600 bg-blue-50' 
+              : 'border-l-transparent hover:bg-gray-50'}`}
           >
-            <ListItemText
-              primary={
-                <Box display="flex" alignItems="center">
-                  <Typography variant="subtitle2" component="span">
+            <div className="flex justify-between items-start">
+              <div className="flex-1">
+                <div className="flex items-center">
+                  <span className="font-medium text-sm text-gray-900">
                     {template.name}
-                  </Typography>
+                  </span>
                   {template.isBuiltIn && (
-                    <Chip 
-                      label="Built-in" 
-                      size="small" 
-                      variant="outlined"
-                      sx={{ ml: 1, height: 20, fontSize: '0.7rem' }}
-                    />
+                    <span className="ml-2 px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-600">
+                      Built-in
+                    </span>
                   )}
-                </Box>
-              }
-              secondary={
-                <>
-                  <Typography variant="body2" color="textSecondary" component="span" sx={{ display: 'block', fontSize: '0.8rem' }}>
-                    {promptManager.getTemplatePreview(template, 80)}
-                  </Typography>
-                  <Box mt={0.5}>
-                    {template.tags.slice(0, 3).map((tag) => (
-                      <Chip 
-                        key={tag} 
-                        label={tag} 
-                        size="small" 
-                        sx={{ mr: 0.5, mb: 0.5, height: 20, fontSize: '0.7rem' }}
-                      />
-                    ))}
-                    {template.tags.length > 3 && (
-                      <Chip 
-                        label={`+${template.tags.length - 3}`} 
-                        size="small" 
-                        variant="outlined"
-                        sx={{ mr: 0.5, mb: 0.5, height: 20, fontSize: '0.7rem' }}
-                      />
-                    )}
-                  </Box>
-                </>
-              }
-            />
-            <ListItemSecondaryAction>
-              <Tooltip title={favorites.has(template.id) ? "Remove from favorites" : "Add to favorites"}>
-                <IconButton 
-                  edge="end" 
-                  size="small"
+                </div>
+                <p className="mt-1 text-xs text-gray-600 line-clamp-2">
+                  {promptManager.getTemplatePreview(template, 80)}
+                </p>
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {template.tags.slice(0, 3).map((tag) => (
+                    <span 
+                      key={tag} 
+                      className="px-2 py-0.5 text-xs rounded-md bg-blue-50 text-blue-700"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                  {template.tags.length > 3 && (
+                    <span 
+                      className="px-2 py-0.5 text-xs rounded-md border border-gray-200 text-gray-600"
+                    >
+                      +{template.tags.length - 3}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="flex space-x-1">
+                <button
+                  title={favorites.has(template.id) ? "Remove from favorites" : "Add to favorites"}
+                  className="p-1 rounded-md hover:bg-gray-100 transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     toggleFavorite(template.id);
                   }}
                 >
-                  {favorites.has(template.id) ? <StarIcon fontSize="small" color="primary" /> : <StarBorderIcon fontSize="small" />}
-                </IconButton>
-              </Tooltip>
-              
-              {template.isEditable && onEditTemplate && (
-                <Tooltip title="Edit template">
-                  <IconButton 
-                    edge="end" 
-                    size="small"
+                  {favorites.has(template.id) 
+                    ? <StarIconSolid className="h-4 w-4 text-blue-600" /> 
+                    : <StarIcon className="h-4 w-4 text-gray-500" />}
+                </button>
+                
+                {template.isEditable && onEditTemplate && (
+                  <button
+                    title="Edit template"
+                    className="p-1 rounded-md hover:bg-gray-100 transition-colors"
                     onClick={(e) => {
                       e.stopPropagation();
                       onEditTemplate(template);
                     }}
-                    sx={{ ml: 1 }}
                   >
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              )}
-              
-              {template.isEditable && onDeleteTemplate && (
-                <Tooltip title="Delete template">
-                  <IconButton 
-                    edge="end" 
-                    size="small"
+                    <PencilIcon className="h-4 w-4 text-gray-500" />
+                  </button>
+                )}
+                
+                {template.isEditable && onDeleteTemplate && (
+                  <button
+                    title="Delete template"
+                    className="p-1 rounded-md hover:bg-gray-100 transition-colors"
                     onClick={(e) => {
                       e.stopPropagation();
                       onDeleteTemplate(template);
                     }}
-                    sx={{ ml: 1 }}
                   >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              )}
-              
-              <Tooltip title={template.description}>
-                <IconButton edge="end" size="small" sx={{ ml: 1 }}>
-                  <InfoIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            </ListItemSecondaryAction>
-          </ListItem>
+                    <TrashIcon className="h-4 w-4 text-gray-500" />
+                  </button>
+                )}
+                
+                <button 
+                  title={template.description}
+                  className="p-1 rounded-md hover:bg-gray-100 transition-colors"
+                >
+                  <InformationCircleIcon className="h-4 w-4 text-gray-500" />
+                </button>
+              </div>
+            </div>
+          </div>
         ))}
-      </List>
+      </div>
     );
   };
 
   return (
-    <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
-      <Box p={2} pb={1}>
-        <TextField
-          fullWidth
-          placeholder="Search templates..."
-          variant="outlined"
-          size="small"
-          value={searchQuery}
-          onChange={handleSearchChange}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" />
-              </InputAdornment>
-            ),
-          }}
-        />
-      </Box>
+    <div className="w-full bg-white">
+      <div className="p-4 pb-3">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Search templates..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="w-full px-3 py-2 pl-9 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+          />
+          <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+        </div>
+      </div>
       
-      <Tabs 
-        value={selectedCategory} 
-        onChange={handleCategoryChange}
-        variant="scrollable"
-        scrollButtons="auto"
-        sx={{ borderBottom: 1, borderColor: 'divider' }}
-      >
-        <Tab label="All" value="all" />
-        {Object.entries(CATEGORIES).map(([key, label]) => (
-          <Tab key={key} label={label} value={key} />
-        ))}
-      </Tabs>
+      <div className="border-b border-gray-200">
+        <nav className="flex space-x-4 px-4 overflow-x-auto hide-scrollbar" aria-label="Template categories">
+          <button
+            onClick={() => setSelectedCategory('all')}
+            className={`px-3 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${selectedCategory === 'all' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}`}
+          >
+            All
+          </button>
+          {Object.entries(CATEGORIES).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setSelectedCategory(key as TemplateCategory)}
+              className={`px-3 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${selectedCategory === key ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}`}
+            >
+              {label}
+            </button>
+          ))}
+        </nav>
+      </div>
       
       {renderTemplateList()}
-    </Box>
+    </div>
   );
 };
