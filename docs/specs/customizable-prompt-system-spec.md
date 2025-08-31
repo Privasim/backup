@@ -230,6 +230,13 @@ export interface ValidationResult {
 - Variable substitution preview
 - Length and complexity metrics
 
+#### 8. `src/components/chatbox/ActivePromptIndicator.tsx`
+**Purpose**: Visually displays the currently active prompt template
+**Dependencies**: `PromptManager.ts`, `ChatboxContext`
+**Key Features**:
+- Displays active template name
+- Updates dynamically with template selection
+
 ### Files to Modify
 
 #### 1. `src/lib/chatbox/prompts/BusinessSuggestionPrompts.ts`
@@ -492,8 +499,6 @@ The system will provide users with powerful tools for customizing their business
 
 ---
 
-**Document Version**: 1.0
-**Date**: 2024-12-XX
-**Authors**: Cascade AI Assistant
-**Reviewers**: Development Team
-**Approval Status**: Pending
+**Document Version**: 1.1
+**Updated**: 2024-12-XX
+**Changes**: Added active prompt indicator requirements and implementation details
