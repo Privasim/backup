@@ -698,26 +698,13 @@ features=${suggestion.keyFeatures.join(', ')}`;
     try {
       const client = new OpenRouterClient(state.config.apiKey);
       
-      // REPLACED: verbose full-plan prompt with streamlined version for concise generation
       const lengthInstructions = lengthPreset === 'brief' 
         ? '- Keep the entire response to 4-5 sentences maximum\n- Produce exactly 1 phase with key tasks only\n- Focus on core execution steps only'
         : lengthPreset === 'standard'
         ? '- Produce at most 2 clearly separated phases\n- Keep content concise and focused\n- Include key tasks, milestones, and risks'
         : '- Provide a complete implementation plan with all relevant details';
       
-      const prompt = `Create a clear, actionable implementation plan (markdown):
-- Cover: executive summary, phases with objectives/timelines, 90-day quick start, resources/budget, KPIs, risks.
-- Use concise headers and bullet points; be practical and to the point.
-- Base strictly on the outline provided below.
-${lengthInstructions}
-
-Outline:
-- Title: ${outline.title}
-- Overview: ${outline.overview}
-- Phases: ${outline.keyPhases.join(', ')}
-- Timeline: ${outline.estimatedTimeline}
-- Milestones: ${outline.majorMilestones.join(', ')}
-- Resources: ${outline.resourceRequirements.join(', ')}`;
+      const prompt = `Create a clear, actionable implementation plan in markdown format with exactly 3 phases. Each phase must have the following structure:\n\nPhase [number] - [Name]\nTimeline: [duration]\nTools: [comma-separated list of tools with pricing]\nChannels: [comma-separated list of marketing channels]\nDescription: [1-sentence description]\n\nExample:\n\nPhase 1 - Build\nTimeline: 7-14 days\nTools: Lovable.dev ($0), bolt.new ($0), V0\nChannels: \nDescription: Create specs and build prototype\n\nPhase 2 - Marketing Automation\nTimeline: 7-14 days\nTools: make.com, n8n, zapier\nChannels: Facebook, LinkedIn\nDescription: Setup automated marketing campaigns\n\nPhase 3 - Feedback and Iteration\nTimeline: 14-30 days\nTools: CRM Tools\nChannels: Facebook, Email\nDescription: Collect user feedback and iterate\n\nNow, generate the plan for the following business suggestion: ${outline.title}\n\n${outline.overview}\n\n${lengthInstructions}`;
 
       if (onChunk) {
         // Streaming generation
