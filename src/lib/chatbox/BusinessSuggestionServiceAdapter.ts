@@ -20,50 +20,44 @@ export class BusinessSuggestionServiceAdapter {
     profileData?: ProfileFormData
   ): Promise<BusinessSuggestion[]> {
     try {
-      chatboxDebug.info('business-suggestion-adapter', 'Generating suggestions with template', {
-        businessType,
+      const id = businessType.trim().toLowerCase();
+      chatboxDebug.info('business-suggestion-adapter', 'Generating suggestions (template-first)', {
+        businessType: id,
         hasAnalysisResult: !!analysisResult,
         hasProfileData: !!profileData
       });
 
-      // Get template content based on business type
+      // Template-first resolution for ALL ids
       let customSystemPrompt: string | undefined;
-      
-      // If it's a custom template (not one of the default types)
-      if (businessType !== 'saas' && businessType !== 'retail' && businessType !== 'course') {
-        const template = await getTemplateById(businessType);
-        
-        if (template) {
-          // Create variables object from profile data and analysis
-          const variables: Record<string, string> = {
-            skills: profileData?.skillset?.technical?.join(', ') || 'Not specified',
-            interests: profileData?.skillset?.categories?.map(c => c.name)?.join(', ') || 'Not specified',
-            budget: 'Not specified', // No direct budget field in ProfileFormData
-            experience: Array.isArray(profileData?.experience) 
-              ? profileData.experience.map(e => e.title).join(', ')
-              : 'Not specified',
-            goals: profileData?.profile?.goal || 'Not specified',
-            industry: profileData?.profile?.industry || profileData?.profile?.targetIndustry || 'Not specified',
-            market: 'Global', // Default value
-            competitors: 'Various', // Default value
-            timeline: '3-6 months' // Default value
-          };
-          
-          // Interpolate the template with variables
-          customSystemPrompt = interpolateTemplate(template, variables);
-        }
-      } else {
-        // For default types, use the industry-specific prompt
-        const industryMap: Record<string, string> = {
-          'saas': 'technology',
-          'retail': 'retail',
-          'course': 'education'
+      const template = await getTemplateById(id);
+      if (template) {
+        const variables: Record<string, string> = {
+          skills: profileData?.skillset?.technical?.join(', ') || 'Not specified',
+          interests: profileData?.skillset?.categories?.map(c => c.name)?.join(', ') || 'Not specified',
+          budget: 'Not specified',
+          experience: Array.isArray(profileData?.experience)
+            ? profileData.experience.map(e => e.title).join(', ')
+            : 'Not specified',
+          goals: profileData?.profile?.goal || 'Not specified',
+          industry: profileData?.profile?.industry || profileData?.profile?.targetIndustry || 'Not specified',
+          market: 'Global',
+          competitors: 'Various',
+          timeline: '3-6 months'
         };
-        
-        // Import dynamically to avoid circular dependencies
-        const { BusinessSuggestionPrompts } = await import('./prompts/BusinessSuggestionPrompts');
-        const industryPrompt = BusinessSuggestionPrompts.getIndustrySpecificPrompt(industryMap[businessType]);
-        customSystemPrompt = industryPrompt;
+        customSystemPrompt = interpolateTemplate(template, variables);
+      } else {
+        // If no template, only default ids may fallback to industry prompt
+        const defaultIds = new Set(['saas', 'retail', 'course']);
+        if (defaultIds.has(id)) {
+          const { BusinessSuggestionPrompts } = await import('./prompts/BusinessSuggestionPrompts');
+          const industryMap: Record<string, string> = { saas: 'technology', retail: 'retail', course: 'education' };
+          customSystemPrompt = BusinessSuggestionPrompts.getIndustrySpecificPrompt(industryMap[id]);
+        } else {
+          const err: Error & { code?: string; meta?: unknown } = new Error(`Template not found for id: ${id}`);
+          err.code = 'template_error';
+          err.meta = { id };
+          throw err;
+        }
       }
       
       // Call the original service with the custom prompt

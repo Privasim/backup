@@ -17,6 +17,11 @@ export type BusinessTemplate = z.infer<typeof templateSchema>;
 // Storage key for localStorage
 const STORAGE_KEY = 'business_suggestion_templates';
 
+// Normalize template identifiers to avoid case/whitespace drift
+function normalizeTemplateId(id: string): string {
+  return id.trim().toLowerCase();
+}
+
 // Default templates
 const DEFAULT_TEMPLATES: BusinessTemplate[] = [
   {
@@ -77,26 +82,29 @@ export const getTemplates = async (): Promise<BusinessTemplate[]> => {
  */
 export const saveTemplate = async (template: BusinessTemplate): Promise<void> => {
   try {
-    // Validate the template
-    templateSchema.parse(template);
-    
+    // Normalize and validate the template
+    const normalized: BusinessTemplate = { ...template, id: normalizeTemplateId(template.id) };
+    templateSchema.parse(normalized);
+
     // Get existing custom templates
     const storedTemplatesJson = localStorage.getItem(STORAGE_KEY);
-    const existingTemplates: BusinessTemplate[] = storedTemplatesJson 
+    const existingTemplates: BusinessTemplate[] = storedTemplatesJson
       ? JSON.parse(storedTemplatesJson)
       : [];
-    
-    // Check if template with same ID already exists
-    const templateIndex = existingTemplates.findIndex(t => t.id === template.id);
-    
+
+    // Check if template with same ID already exists (case-insensitive)
+    const templateIndex = existingTemplates.findIndex(
+      (t) => normalizeTemplateId(t.id) === normalized.id
+    );
+
     if (templateIndex >= 0) {
       // Update existing template
-      existingTemplates[templateIndex] = template;
+      existingTemplates[templateIndex] = normalized;
     } else {
       // Add new template
-      existingTemplates.push(template);
+      existingTemplates.push(normalized);
     }
-    
+
     // Save back to storage
     localStorage.setItem(STORAGE_KEY, JSON.stringify(existingTemplates));
   } catch (err) {
@@ -136,13 +144,14 @@ export const deleteTemplate = async (id: string): Promise<void> => {
  * Gets a template by ID
  */
 export const getTemplateById = async (id: string): Promise<BusinessTemplate | undefined> => {
-  // Check default templates first
-  const defaultTemplate = DEFAULT_TEMPLATES.find(t => t.id === id);
+  const nid = normalizeTemplateId(id);
+  // Check default templates first (case-insensitive)
+  const defaultTemplate = DEFAULT_TEMPLATES.find((t) => normalizeTemplateId(t.id) === nid);
   if (defaultTemplate) return defaultTemplate;
-  
+
   // Check custom templates
   const templates = await getTemplates();
-  return templates.find(t => t.id === id);
+  return templates.find((t) => normalizeTemplateId(t.id) === nid);
 };
 
 /**

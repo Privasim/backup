@@ -37,7 +37,7 @@ interface BusinessSuggestionProviderProps {
 }
 
 export function BusinessSuggestionProvider({ children }: BusinessSuggestionProviderProps) {
-  const [businessType, setBusinessType] = useState<string>('SaaS');
+  const [businessType, setBusinessTypeState] = useState<string>('saas');
   const [templates, setTemplates] = useState<BusinessTemplate[]>([]);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [suggestions, setSuggestions] = useState<BusinessSuggestion[]>([]);
@@ -116,6 +116,10 @@ export function BusinessSuggestionProvider({ children }: BusinessSuggestionProvi
       setIsGenerating(false);
     }
   }, [businessType, chatboxContext]);
+
+  const setBusinessType = useCallback((type: string) => {
+    setBusinessTypeState(type.trim().toLowerCase());
+  }, []);
 
   const value = {
     businessType,

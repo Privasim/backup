@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useChatbox } from './ChatboxProvider';
 import { useBusinessSuggestion } from '@/contexts/BusinessSuggestionContext';
+
 import { SparklesIcon, ArrowRightIcon, PlusIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { TemplateEditor } from '@/components/business/TemplateEditor';
 
@@ -13,8 +14,7 @@ interface QuickActionBarProps {
 export const QuickActionBar: React.FC<QuickActionBarProps> = ({ className = '' }) => {
   const { 
     status, 
-    currentAnalysis, 
-    businessSuggestions 
+    currentAnalysis
   } = useChatbox();
   
   const {
@@ -23,17 +23,19 @@ export const QuickActionBar: React.FC<QuickActionBarProps> = ({ className = '' }
     templates,
     addTemplate,
     generateSuggestions,
-    isGenerating
+    isGenerating,
+    suggestions,
+    error
   } = useBusinessSuggestion();
   
   const [isTemplateModalOpen, setTemplateModalOpen] = useState(false);
 
   // Only show if analysis is completed and we haven't generated suggestions yet
   const shouldShow = status === 'completed' && 
-                    currentAnalysis && 
-                    businessSuggestions.suggestionStatus === 'idle';
+                    !!currentAnalysis && 
+                    suggestions.length === 0;
 
-  const hasError = businessSuggestions.suggestionStatus === 'error';
+  const hasError = Boolean(error);
 
   if (!shouldShow && !isGenerating && !hasError) {
     return null;
@@ -146,7 +148,7 @@ export const QuickActionBar: React.FC<QuickActionBarProps> = ({ className = '' }
             <div>
               <h4 className="text-sm font-medium text-red-800">Generation Failed</h4>
               <p className="text-xs text-red-700 mt-1">
-                {businessSuggestions.suggestionError || 'Failed to generate business suggestions'}
+                {error || 'Failed to generate business suggestions'}
               </p>
               <button
                 onClick={handleGenerateSuggestions}

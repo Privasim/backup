@@ -28,6 +28,14 @@ export class BusinessSuggestionService {
     });
 
     try {
+      // Basic config validation
+      if (!config?.apiKey || !config?.model) {
+        const err: Error & { code?: string; meta?: unknown } = new Error('API key and model are required');
+        err.code = 'config_error';
+        err.meta = { hasApiKey: !!config?.apiKey, hasModel: !!config?.model };
+        throw err;
+      }
+
       const prompt = this.buildBusinessSuggestionPrompt(analysisResult, profileData, customSystemPrompt);
       
       // Create OpenRouter client instance
@@ -51,7 +59,21 @@ export class BusinessSuggestionService {
 
       // Extract content from OpenRouter response
       const content = response?.choices?.[0]?.message?.content || '';
+      if (!content) {
+        const err: Error & { code?: string; meta?: unknown } = new Error('Empty response from model');
+        err.code = 'api_error';
+        err.meta = { responseSummary: JSON.stringify(response)?.slice(0, 500) };
+        throw err;
+      }
+
       const suggestions = this.parseBusinessSuggestions(content);
+      // Validate suggestions
+      if (!Array.isArray(suggestions) || suggestions.length === 0) {
+        const err: Error & { code?: string; meta?: unknown } = new Error('No suggestions returned');
+        err.code = 'validation_error';
+        err.meta = { contentSnippet: content.slice(0, 500) };
+        throw err;
+      }
       
       chatboxDebug.success('business-suggestion', 'Business suggestions generated successfully', {
         count: suggestions.length
@@ -59,9 +81,14 @@ export class BusinessSuggestionService {
 
       return suggestions;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      chatboxDebug.error('business-suggestion', 'Failed to generate business suggestions', error);
-      throw new Error(`Business suggestion generation failed: ${errorMessage}`);
+      const errObj = error as Error & { code?: string; meta?: unknown };
+      const code = errObj.code || 'api_error';
+      const message = errObj.message || 'Business suggestion generation failed';
+      chatboxDebug.error('business-suggestion', 'Failed to generate business suggestions', { code, message, meta: errObj.meta });
+      const wrapped: Error & { code?: string; meta?: unknown } = new Error(message);
+      wrapped.code = code;
+      wrapped.meta = errObj.meta;
+      throw wrapped;
     }
   }
 
@@ -80,82 +107,47 @@ export class BusinessSuggestionService {
       // Clean the content to extract JSON
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
-        throw new Error('No JSON found in response');
+        const err: Error & { code?: string; meta?: unknown } = new Error('No JSON found in response');
+        err.code = 'parsing_error';
+        err.meta = { contentSnippet: content.slice(0, 200) };
+        throw err;
       }
 
       const parsed = JSON.parse(jsonMatch[0]);
       
       if (!parsed.suggestions || !Array.isArray(parsed.suggestions)) {
-        throw new Error('Invalid response format: missing suggestions array');
+        const err: Error & { code?: string; meta?: unknown } = new Error('Invalid response format: missing suggestions array');
+        err.code = 'validation_error';
+        err.meta = { keys: Object.keys(parsed || {}) };
+        throw err;
       }
 
-      return parsed.suggestions.map((suggestion: Record<string, unknown>, index: number) => ({
-        id: suggestion.id || `suggestion-${Date.now()}-${index}`,
-        title: suggestion.title || 'Untitled Business',
-        description: suggestion.description || 'No description provided',
-        category: suggestion.category || 'General',
-        viabilityScore: Math.min(95, Math.max(60, suggestion.viabilityScore || 75)),
-        keyFeatures: Array.isArray(suggestion.keyFeatures) ? suggestion.keyFeatures : [],
-        targetMarket: suggestion.targetMarket || 'General market',
-        estimatedStartupCost: suggestion.estimatedStartupCost || 'Not specified',
-        metadata: suggestion.metadata || {}
+      const mapped = parsed.suggestions.map((suggestion: Record<string, unknown>, index: number) => ({
+        id: (suggestion as any).id || `suggestion-${Date.now()}-${index}`,
+        title: (suggestion as any).title || 'Untitled Business',
+        description: (suggestion as any).description || 'No description provided',
+        category: (suggestion as any).category || 'General',
+        viabilityScore: Math.min(95, Math.max(60, Number((suggestion as any).viabilityScore ?? 75))),
+        keyFeatures: Array.isArray((suggestion as any).keyFeatures) ? (suggestion as any).keyFeatures : [],
+        targetMarket: (suggestion as any).targetMarket || 'General market',
+        estimatedStartupCost: (suggestion as any).estimatedStartupCost || 'Not specified',
+        metadata: (suggestion as any).metadata || {}
       }));
-    } catch (error) {
-      chatboxDebug.error('business-suggestion', 'Failed to parse business suggestions', error);
-      
-      // Return fallback suggestions
-      return this.getFallbackSuggestions();
-    }
-  }
 
-  private getFallbackSuggestions(): BusinessSuggestion[] {
-    return [
-      {
-        id: `fallback-1-${Date.now()}`,
-        title: 'Consulting Service',
-        description: 'Leverage your expertise to provide consulting services in your field of experience.',
-        category: 'Professional Services',
-        viabilityScore: 80,
-        keyFeatures: ['Low startup cost', 'Flexible schedule', 'High profit margins'],
-        targetMarket: 'Small to medium businesses',
-        estimatedStartupCost: '$1,000 - $5,000',
-        metadata: {
-          timeToMarket: '1-2 months',
-          skillsRequired: ['Domain expertise', 'Communication'],
-          marketSize: 'Large'
-        }
-      },
-      {
-        id: `fallback-2-${Date.now()}`,
-        title: 'Online Course Creation',
-        description: 'Create and sell online courses based on your skills and knowledge.',
-        category: 'Education Technology',
-        viabilityScore: 75,
-        keyFeatures: ['Scalable income', 'Passive revenue', 'Global reach'],
-        targetMarket: 'Professionals seeking skill development',
-        estimatedStartupCost: '$2,000 - $10,000',
-        metadata: {
-          timeToMarket: '2-4 months',
-          skillsRequired: ['Teaching', 'Content creation', 'Marketing'],
-          marketSize: 'Large'
-        }
-      },
-      {
-        id: `fallback-3-${Date.now()}`,
-        title: 'Digital Service Business',
-        description: 'Offer digital services such as design, development, or marketing to businesses.',
-        category: 'Digital Services',
-        viabilityScore: 85,
-        keyFeatures: ['Remote work', 'Recurring revenue', 'High demand'],
-        targetMarket: 'Small businesses and startups',
-        estimatedStartupCost: '$3,000 - $15,000',
-        metadata: {
-          timeToMarket: '1-3 months',
-          skillsRequired: ['Technical skills', 'Client management'],
-          marketSize: 'Very Large'
-        }
+      // Basic validation on mapped results
+      if (!mapped.every(this.validateSuggestion)) {
+        const err: Error & { code?: string; meta?: unknown } = new Error('One or more suggestions failed validation');
+        err.code = 'validation_error';
+        err.meta = { suggestionCount: mapped.length };
+        throw err;
       }
-    ];
+
+      return mapped;
+    } catch (error) {
+      const errObj = error as Error & { code?: string; meta?: unknown };
+      chatboxDebug.error('business-suggestion', 'Failed to parse/validate business suggestions', { message: errObj.message, code: errObj.code, meta: errObj.meta });
+      throw errObj;
+    }
   }
 
   validateSuggestion(suggestion: Record<string, unknown>): boolean {
