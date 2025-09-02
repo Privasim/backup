@@ -105,11 +105,11 @@ const TimelineItemComponent: React.FC<{
   const getStatusIcon = () => {
     switch (item.status) {
       case 'completed':
-        return <CheckCircleIcon className="h-5 w-5 text-green-600" />;
+        return <CheckCircleIcon className="h-4 w-4 text-green-600" />;
       case 'current':
-        return <PlayCircleIcon className="h-5 w-5 text-blue-600" />;
+        return <PlayCircleIcon className="h-4 w-4 text-blue-600" />;
       default:
-        return <ClockIcon className="h-5 w-5 text-gray-400" />;
+        return <ClockIcon className="h-4 w-4 text-gray-400" />;
     }
   };
 
@@ -141,13 +141,13 @@ const TimelineItemComponent: React.FC<{
     <div className="relative">
       {/* Timeline line */}
       {!isLast && (
-        <div className="absolute left-6 top-12 w-0.5 h-full bg-gray-200" />
+        <div className="absolute left-4 top-8 w-px h-full bg-gray-200" />
       )}
       
       {/* Timeline item */}
       <div className="flex items-start space-x-4">
         {/* Status indicator */}
-        <div className={`flex-shrink-0 w-12 h-12 rounded-full border-2 flex items-center justify-center ${getStatusColor()}`}>
+        <div className={`flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center ${getStatusColor()}`}>
           {getStatusIcon()}
         </div>
         
@@ -159,25 +159,25 @@ const TimelineItemComponent: React.FC<{
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                <h3 className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
                   {item.title}
                 </h3>
-                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getTypeColor()}`}>
+                <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded-full ${getTypeColor()}`}>
                   {item.type}
                 </span>
               </div>
               
               <div className="flex items-center space-x-2">
                 {item.duration && (
-                  <span className="text-sm text-gray-500 flex items-center">
-                    <CalendarIcon className="h-4 w-4 mr-1" />
+                  <span className="text-xs text-gray-500 flex items-center">
+                    <CalendarIcon className="h-3 w-3 mr-1" />
                     {item.duration}
                   </span>
                 )}
                 {isExpanded ? (
-                  <ChevronDownIcon className="h-5 w-5 text-gray-400" />
+                  <ChevronDownIcon className="h-4 w-4 text-gray-400" />
                 ) : (
-                  <ChevronRightIcon className="h-5 w-5 text-gray-400" />
+                  <ChevronRightIcon className="h-4 w-4 text-gray-400" />
                 )}
               </div>
             </div>
@@ -191,9 +191,9 @@ const TimelineItemComponent: React.FC<{
           
           {/* Expanded content */}
           {isExpanded && (
-            <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div className="mt-3 p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
               <div className="prose prose-sm max-w-none">
-                <pre className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed font-sans">
+                <pre className="whitespace-pre-wrap text-xs text-gray-700 leading-relaxed font-sans">
                   {item.content}
                 </pre>
               </div>
@@ -264,8 +264,8 @@ export const VerticalTimeline: React.FC<VisualizationProps> = React.memo(({
             </div>
           </div>
           <div className="text-center">
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">Building Your Timeline</h3>
-            <p className="text-sm text-slate-600">
+            <h3 className="text-base font-semibold text-slate-900 mb-2">Building Your Timeline</h3>
+            <p className="text-xs text-slate-600">
               Creating a visual timeline of your implementation plan...
             </p>
           </div>
@@ -278,10 +278,10 @@ export const VerticalTimeline: React.FC<VisualizationProps> = React.memo(({
     return (
       <div className={`flex flex-col items-center justify-center h-full text-center p-8 ${className}`}>
         <div className="rounded-full bg-purple-50 p-4 mb-4">
-          <ClockIcon className="h-12 w-12 text-purple-500" />
+          <ClockIcon className="h-10 w-10 text-purple-500" />
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">No Timeline Data</h3>
-        <p className="text-gray-600 mb-4 max-w-md">
+        <h3 className="text-base font-semibold text-gray-900 mb-2">No Timeline Data</h3>
+        <p className="text-sm text-gray-600 mb-4 max-w-md">
           Generate an implementation plan to see it visualized as a timeline with phases and milestones.
         </p>
       </div>
@@ -295,8 +295,8 @@ export const VerticalTimeline: React.FC<VisualizationProps> = React.memo(({
         <div className="p-4 sm:p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Implementation Timeline</h2>
-              <p className="text-sm text-gray-600 mt-1">
+              <h2 className="text-lg font-bold text-gray-900">Implementation Timeline</h2>
+              <p className="text-xs text-gray-600 mt-1">
                 {timelineItems.length} items • Visual roadmap of your plan
               </p>
             </div>
@@ -305,13 +305,13 @@ export const VerticalTimeline: React.FC<VisualizationProps> = React.memo(({
             <div className="flex items-center space-x-2">
               <button
                 onClick={expandAll}
-                className="px-3 py-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors"
+                className="px-2.5 py-1 text-[11px] font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors"
               >
                 Expand All
               </button>
               <button
                 onClick={collapseAll}
-                className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+                className="px-2.5 py-1 text-[11px] font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
               >
                 Collapse All
               </button>
@@ -321,7 +321,7 @@ export const VerticalTimeline: React.FC<VisualizationProps> = React.memo(({
         
         {/* Timeline */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-          <div className="space-y-8">
+          <div className="space-y-6">
             {timelineItems.map((item, index) => (
               <TimelineItemComponent
                 key={item.id}
@@ -336,18 +336,18 @@ export const VerticalTimeline: React.FC<VisualizationProps> = React.memo(({
         
         {/* Footer */}
         <div className="p-4 border-t border-gray-200 bg-gray-50">
-          <div className="flex items-center justify-between text-sm text-gray-600">
+          <div className="flex items-center justify-between text-xs text-gray-600">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
                 <span>Completed</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
                 <span>Current</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full bg-gray-400"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-gray-400"></div>
                 <span>Upcoming</span>
               </div>
             </div>

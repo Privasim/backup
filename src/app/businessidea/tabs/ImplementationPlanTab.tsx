@@ -80,11 +80,11 @@ export default function ImplementationPlanTab({ className = '' }: Implementation
   // Empty state when no plan exists
   const renderEmptyState = () => (
     <div className="flex flex-col items-center justify-center h-full text-center p-8">
-      <div className="rounded-full bg-blue-50 p-4 mb-4">
-        <ClipboardDocumentCheckIcon className="h-12 w-12 text-blue-500" />
+      <div className="rounded-full bg-blue-50 p-4 mb-3">
+        <ClipboardDocumentCheckIcon className="h-10 w-10 text-blue-500" />
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Implementation Plan</h3>
-      <p className="text-gray-600 mb-4 max-w-md">
+      <h3 className="text-base font-semibold text-gray-900 mb-1.5">No Implementation Plan</h3>
+      <p className="text-sm text-gray-600 mb-3.5 max-w-md">
         Generate an implementation plan by clicking "Create Implementation Plan" on a business suggestion card.
       </p>
       <div className="text-sm text-gray-500">
@@ -106,8 +106,8 @@ export default function ImplementationPlanTab({ className = '' }: Implementation
           </div>
         </div>
         <div className="text-center">
-          <h3 className="text-lg font-semibold text-slate-900 mb-2">Crafting Your Implementation Plan</h3>
-          <p className="text-sm text-slate-600">
+          <h3 className="text-base font-semibold text-slate-900 mb-2">Crafting Your Implementation Plan</h3>
+          <p className="text-xs text-slate-600">
             Analyzing your business idea and creating a comprehensive roadmap...
           </p>
         </div>
@@ -120,12 +120,12 @@ export default function ImplementationPlanTab({ className = '' }: Implementation
     <div className="flex flex-col items-center justify-center h-full p-8">
       <div className="bg-white rounded-xl shadow-sm border border-red-200 p-8 max-w-md">
         <div className="flex items-center justify-center mb-4">
-          <div className="p-3 bg-red-50 rounded-full">
-            <ExclamationTriangleIcon className="h-8 w-8 text-red-600" />
+          <div className="p-2.5 bg-red-50 rounded-full">
+            <ExclamationTriangleIcon className="h-6 w-6 text-red-600" />
           </div>
         </div>
-        <h3 className="text-xl font-semibold text-slate-900 mb-2 text-center">Generation Failed</h3>
-        <p className="text-base text-slate-600 mb-6 text-center leading-relaxed">
+        <h3 className="text-lg font-semibold text-slate-900 mb-2 text-center">Generation Failed</h3>
+        <p className="text-sm text-slate-600 mb-5 text-center leading-relaxed">
           {error || 'There was an error generating your implementation plan. Please try again.'}
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -135,14 +135,14 @@ export default function ImplementationPlanTab({ className = '' }: Implementation
               // Retry by refreshing the plan sync
               window.location.reload();
             }}
-            className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+            className="inline-flex items-center justify-center px-3 py-2 border border-transparent text-xs font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
           >
-            <ArrowPathIcon className="h-4 w-4 mr-2" />
+            <ArrowPathIcon className="h-4 w-4 mr-1.5" />
             Try Again
           </button>
           <button
             onClick={() => setError(null)}
-            className="inline-flex items-center justify-center px-4 py-2.5 border border-slate-300 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors duration-200"
+            className="inline-flex items-center justify-center px-3 py-2 border border-slate-300 text-xs font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors duration-200"
           >
             Dismiss
           </button>
@@ -160,9 +160,9 @@ export default function ImplementationPlanTab({ className = '' }: Implementation
             navigator.clipboard.writeText(planContent);
           }
         }}
-        className="inline-flex items-center px-4 py-2.5 border border-slate-200 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow"
+        className="inline-flex items-center px-3 py-2 border border-slate-200 text-xs font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow"
       >
-        <ClipboardDocumentCheckIcon className="h-4 w-4 mr-2" />
+        <ClipboardDocumentCheckIcon className="h-4 w-4 mr-1.5" />
         Copy
       </button>
       <button
@@ -177,9 +177,9 @@ export default function ImplementationPlanTab({ className = '' }: Implementation
             URL.revokeObjectURL(url);
           }
         }}
-        className="inline-flex items-center px-4 py-2.5 border border-slate-200 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow"
+        className="inline-flex items-center px-3 py-2 border border-slate-200 text-xs font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow"
       >
-        <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
+        <ArrowDownTrayIcon className="h-4 w-4 mr-1.5" />
         Download
       </button>
       <button
@@ -187,20 +187,20 @@ export default function ImplementationPlanTab({ className = '' }: Implementation
           // TODO: Implement regenerate logic - would need access to original suggestion
           console.log('Regenerate plan - feature to be implemented');
         }}
-        className="inline-flex items-center px-4 py-2.5 border border-slate-200 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow"
+        className="inline-flex items-center px-3 py-2 border border-slate-200 text-xs font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow"
       >
-        <ArrowPathIcon className="h-4 w-4 mr-2" />
+        <ArrowPathIcon className="h-4 w-4 mr-1.5" />
         Regenerate
       </button>
       <button
         onClick={() => setShowSettings(!showSettings)}
-        className={`inline-flex items-center px-4 py-2.5 border text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 shadow-sm hover:shadow ${
+        className={`inline-flex items-center px-3 py-2 border text-xs font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 shadow-sm hover:shadow ${
           showSettings 
             ? 'border-blue-300 bg-blue-50 text-blue-700 focus:ring-blue-500' 
             : 'border-slate-200 text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:ring-blue-500'
         }`}
       >
-        <CogIcon className="h-4 w-4 mr-2" />
+        <CogIcon className="h-4 w-4 mr-1.5" />
         View Settings
       </button>
     </div>
@@ -224,8 +224,8 @@ export default function ImplementationPlanTab({ className = '' }: Implementation
       <div className="h-full flex flex-col">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Implementation Plan</h2>
-            <p className="text-sm text-slate-600 mt-1">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900">Implementation Plan</h2>
+            <p className="text-xs text-slate-600 mt-1">
               {getVisualizationDisplayName(settings.visualizationType)} • {processedPlanData?.length || 0} characters
             </p>
           </div>
@@ -238,10 +238,10 @@ export default function ImplementationPlanTab({ className = '' }: Implementation
         {showSettings && (
           <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-medium text-gray-900">Visualization Settings</h3>
+              <h3 className="text-xs font-medium text-gray-900">Visualization Settings</h3>
               <button
                 onClick={() => setShowSettings(false)}
-                className="text-gray-400 hover:text-gray-600 text-sm"
+                className="text-gray-400 hover:text-gray-600 text-xs"
                 aria-label="Close settings"
               >
                 ✕
