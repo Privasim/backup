@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   ChevronDownIcon, 
   ChevronRightIcon,
@@ -199,15 +199,34 @@ const TimelineItemComponent: React.FC<{
           
           {/* Expanded content */}
           {isExpanded && (
-            <div className="mt-2 rounded-md border border-slate-200/70 bg-slate-50 p-2">
+            <div className="mt-2 rounded-md border border-slate-200/70 bg-slate-50 p-3">
               <ReactMarkdown
                 components={{
-                  h1: ({ node, ...props }) => <h4 className="text-xs font-semibold text-slate-900 mt-2 mb-1" {...props} />,
-                  h2: ({ node, ...props }) => <h5 className="text-[11px] font-semibold text-slate-900 mt-2 mb-1" {...props} />,
-                  h3: ({ node, ...props }) => <h6 className="text-[11px] font-semibold text-slate-900 mt-2 mb-1" {...props} />,
-                  p: ({ node, ...props }) => <p className="text-[11px] text-slate-700 leading-5 mb-1" {...props} />,
-                  ul: ({ node, ...props }) => <ul className="ml-4 list-disc space-y-1 mb-1" {...props} />,
-                  ol: ({ node, ...props }) => <ol className="ml-4 list-decimal space-y-1 mb-1" {...props} />,
+                  h1: ({ node, ...props }) => <h4 className="text-xs font-semibold text-slate-900 mt-2 mb-2" {...props} />,
+                  h2: ({ node, ...props }) => <h5 className="text-[11px] font-semibold text-slate-900 mt-2 mb-2" {...props} />,
+                  h3: ({ node, ...props }) => <h6 className="text-[11px] font-semibold text-slate-900 mt-2 mb-2" {...props} />,
+                  p: ({ node, ...props }) => {
+                    const text = String(props.children || '');
+                    
+                    // Style phase metadata lines (Timeline:, Tools:, Channels:, Description:)
+                    if (text.match(/^(Timeline|Tools|Channels|Description):/i)) {
+                      const parts = text.split(':');
+                      const label = parts[0].trim();
+                      const value = parts.slice(1).join(':').trim();
+                      
+                      return (
+                        <div className="flex mb-3 last:mb-1 text-[11px] leading-5">
+                          <span className="font-bold text-slate-800 min-w-[90px] flex-shrink-0">{label}:</span>
+                          <span className="text-slate-700">{value}</span>
+                        </div>
+                      );
+                    }
+                    
+                    // Default paragraph style
+                    return <p className="text-[11px] text-slate-700 leading-5 mb-3 last:mb-1" {...props} />;
+                  },
+                  ul: ({ node, ...props }) => <ul className="ml-4 list-disc space-y-1.5 mb-3" {...props} />,
+                  ol: ({ node, ...props }) => <ol className="ml-4 list-decimal space-y-1.5 mb-3" {...props} />,
                   li: ({ node, ...props }) => <li className="text-[11px] text-slate-700 leading-5" {...props} />,
                   strong: ({ node, ...props }) => <strong className="font-semibold text-slate-900" {...props} />,
                   em: ({ node, ...props }) => <em className="italic text-slate-700" {...props} />,
@@ -236,8 +255,6 @@ export const VerticalTimeline: React.FC<VisualizationProps> = React.memo(({
   onError,
   className = '',
 }) => {
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
-
   // Parse timeline items from content
   const timelineItems = useMemo(() => {
     try {
@@ -248,6 +265,8 @@ export const VerticalTimeline: React.FC<VisualizationProps> = React.memo(({
       return [];
     }
   }, [planContent, onError]);
+
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
   // Toggle item expansion
   const toggleItem = (itemId: string) => {
@@ -262,15 +281,13 @@ export const VerticalTimeline: React.FC<VisualizationProps> = React.memo(({
     });
   };
 
-  // Expand all items
-  const expandAll = () => {
-    setExpandedItems(new Set(timelineItems.map(item => item.id)));
-  };
+  // Set all items expanded by default when timelineItems changes
+  useEffect(() => {
+    if (timelineItems.length > 0) {
+      setExpandedItems(new Set(timelineItems.map(item => item.id)));
+    }
+  }, [timelineItems]);
 
-  // Collapse all items
-  const collapseAll = () => {
-    setExpandedItems(new Set());
-  };
 
   if (isLoading) {
     return (
@@ -316,22 +333,6 @@ export const VerticalTimeline: React.FC<VisualizationProps> = React.memo(({
             <div>
               <h2 className="text-base font-semibold text-gray-900">Timeline</h2>
               <p className="text-[9px] text-gray-500">{timelineItems.length} items</p>
-            </div>
-            
-            {/* Controls */}
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={expandAll}
-                className="px-2.5 py-1 text-[11px] font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors"
-              >
-                Expand All
-              </button>
-              <button
-                onClick={collapseAll}
-                className="px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors"
-              >
-                Collapse All
-              </button>
             </div>
           </div>
         </div>

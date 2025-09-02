@@ -77,14 +77,18 @@ function buildSystemPrompt({
     systemParts.push(`Implementation Plan Requirements (Override):\n${systemPromptOverride.trim()}`);
   } else {
     const baseRequirements = `Implementation Plan Requirements (Strict):
-- Output MUST be markdown.
-- Produce EXACTLY 3 phases. Never use fewer or more than 3 phases.
-- For EACH phase, use the exact keys and order below (one per line):
-  Phase [number] - [Name]
-  Timeline: [duration]
-  Tools: [comma-separated list with pricing if applicable]
-  Channels: [comma-separated list]
-  Description: [one concise sentence]\n
+
+1. Output MUST be markdown.
+
+2. Produce EXACTLY 3 phases. Never use fewer or more than 3 phases.
+
+3. For EACH phase, use the exact keys and order below (one per line):
+   • Phase [number] - [Name]
+   • Timeline: [duration]
+   • Tools: [comma-separated list with pricing if applicable]
+   • Channels: [comma-separated list]
+   • Description: [one concise sentence]
+
 Example (format template):
 
 Phase 1 - Build
