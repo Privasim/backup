@@ -303,12 +303,7 @@ export const VerticalTimeline: React.FC<VisualizationProps> = React.memo(({
               >
                 Expand All
               </button>
-              <button
-                onClick={collapseAll}
-                className="px-2.5 py-1 text-[11px] font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
-              >
-                Collapse All
-              </button>
+            
             </div>
           </div>
         </div>
