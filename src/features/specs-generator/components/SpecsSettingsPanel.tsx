@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { SpecsSettings } from '../types';
 import { DOC_PROFILES, LANGUAGE_OPTIONS } from '../constants';
+import { ChevronDownIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
 interface SpecsSettingsPanelProps {
   settings: SpecsSettings;
@@ -122,24 +123,23 @@ export function SpecsSettingsPanel({
   }, [currentProfile.tone]);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 md:p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-3 md:p-4">
       {showHeader && (
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Specification Settings</h2>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        <div className="mb-4">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-white">Specification Settings</h2>
+          <p className="mt-0.5 text-xs text-gray-600 dark:text-gray-400">
             Configure how your technical specification is generated
           </p>
         </div>
-      )
-}
+      )}
       
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Document Profile Selection */}
         <div>
-          <label id="document-profile-label" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label id="document-profile-label" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
             Document Profile
           </label>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3" role="radiogroup" aria-labelledby="document-profile-label">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2" role="radiogroup" aria-labelledby="document-profile-label">
             {profileKeys.map((profileKey) => {
               const profile = DOC_PROFILES[profileKey];
               return (
@@ -148,7 +148,7 @@ export function SpecsSettingsPanel({
                   type="button"
                   onClick={() => handleDocProfileChange(profileKey)}
                   disabled={disabled}
-                  className={`text-left p-3 rounded-lg border text-sm ${
+                  className={`text-left p-2 rounded-lg border text-xs ${
                     settings.docProfile === profileKey
                       ? 'border-indigo-500 ring-2 ring-indigo-200 dark:ring-indigo-900 bg-indigo-50 dark:bg-indigo-900/20'
                       : 'border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50'
@@ -157,14 +157,14 @@ export function SpecsSettingsPanel({
                   role="radio"
                   aria-checked={settings.docProfile === profileKey}
                 >
-                  <div className="font-medium text-gray-900 dark:text-white">{profile.name}</div>
-                  <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">{profile.description}</div>
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100">
-                      ~{profile.pageTarget} pages
+                  <div className="font-medium text-gray-900 dark:text-white text-xs">{profile.name}</div>
+                  <div className="mt-0.5 text-xs text-gray-600 dark:text-gray-400 line-clamp-2">{profile.description}</div>
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100">
+                      ~{profile.pageTarget}p
                     </span>
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
-                      {profile.tokenBudget} tokens
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
+                      {profile.tokenBudget}t
                     </span>
                   </div>
                 </button>
@@ -175,7 +175,7 @@ export function SpecsSettingsPanel({
         
         {/* Language Selection */}
         <div>
-          <label id="language-label" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label id="language-label" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
             Language
           </label>
           <div className="relative">
@@ -184,7 +184,7 @@ export function SpecsSettingsPanel({
               value={languageSearch}
               onChange={(e) => setLanguageSearch(e.target.value)}
               placeholder="Search languages..."
-              className="w-full rounded-md border border-gray-300 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm pl-3 pr-10 py-2"
+              className="w-full rounded-md border border-gray-300 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-xs pl-2.5 pr-8 py-1.5"
               disabled={disabled}
               aria-autocomplete="list"
               aria-controls="language-options"
@@ -197,18 +197,16 @@ export function SpecsSettingsPanel({
                 onClick={() => setLanguageSearch('')}
                 aria-label="Clear search"
               >
-                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
+                <XCircleIcon className="h-4 w-4" />
               </button>
             )}
           </div>
           
-          <div id="language-options" className="mt-2 max-h-60 overflow-y-auto border border-gray-200 dark:border-gray-600 rounded-md" role="listbox" aria-label="Available languages">
+          <div id="language-options" className="mt-1.5 max-h-48 overflow-y-auto border border-gray-200 dark:border-gray-600 rounded-md" role="listbox" aria-label="Available languages">
             {/* Recent Languages */}
             {recentLanguageOptions.length > 0 && (
               <div className="border-b border-gray-200 dark:border-gray-600">
-                <div className="px-3 py-2 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50">
+                <div className="px-2 py-1 text-[10px] font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50">
                   Recent
                 </div>
                 {recentLanguageOptions.map((option) => (
@@ -217,7 +215,7 @@ export function SpecsSettingsPanel({
                     type="button"
                     onClick={() => handleLanguageSelect(option.value)}
                     disabled={disabled}
-                    className={`w-full text-left px-3 py-2 text-sm ${
+                    className={`w-full text-left px-2 py-1.5 text-xs ${
                       settings.language === option.value
                         ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-200'
                         : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
@@ -239,7 +237,7 @@ export function SpecsSettingsPanel({
                   type="button"
                   onClick={() => handleLanguageSelect(option.value)}
                   disabled={disabled}
-                  className={`w-full text-left px-3 py-2 text-sm ${
+                  className={`w-full text-left px-2 py-1.5 text-xs ${
                     settings.language === option.value
                       ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-200'
                       : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
@@ -253,7 +251,7 @@ export function SpecsSettingsPanel({
             </div>
             
             {filteredLanguages.length === 0 && languageSearch && (
-              <div className="px-3 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+              <div className="px-2 py-3 text-center text-xs text-gray-500 dark:text-gray-400">
                 No languages found matching "{languageSearch}"
               </div>
             )}
@@ -261,11 +259,11 @@ export function SpecsSettingsPanel({
         </div>
         
         {/* Derived Profile Information */}
-        <div className="pt-4 border-t border-gray-200 dark:border-gray-700" role="region" aria-labelledby="profile-details-heading">
-          <h3 id="profile-details-heading" className="text-sm font-medium text-gray-900 dark:text-white mb-2">Profile Details</h3>
-          <div className="grid grid-cols-2 gap-4 text-sm">
+        <div className="pt-3 border-t border-gray-200 dark:border-gray-700" role="region" aria-labelledby="profile-details-heading">
+          <h3 id="profile-details-heading" className="text-xs font-medium text-gray-900 dark:text-white mb-1.5">Profile Details</h3>
+          <div className="grid grid-cols-4 gap-2 text-xs">
             <div>
-              <div className="text-gray-600 dark:text-gray-400">Outline Style</div>
+              <div className="text-gray-600 dark:text-gray-400 text-[10px]">Style</div>
               <div className="font-medium text-gray-900 dark:text-white">
                 {isOutlineStyle('numbered') && 'Numbered'}
                 {isOutlineStyle('bulleted') && 'Bulleted'}
@@ -273,7 +271,7 @@ export function SpecsSettingsPanel({
               </div>
             </div>
             <div>
-              <div className="text-gray-600 dark:text-gray-400">Audience</div>
+              <div className="text-gray-600 dark:text-gray-400 text-[10px]">Audience</div>
               <div className="font-medium text-gray-900 dark:text-white">
                 {isAudienceLevel('engineer') && 'Engineers'}
                 {isAudienceLevel('pm') && 'Project Managers'}
@@ -281,7 +279,7 @@ export function SpecsSettingsPanel({
               </div>
             </div>
             <div>
-              <div className="text-gray-600 dark:text-gray-400">Tone</div>
+              <div className="text-gray-600 dark:text-gray-400 text-[10px]">Tone</div>
               <div className="font-medium text-gray-900 dark:text-white">
                 {isTone('concise') && 'Concise'}
                 {isTone('detailed') && 'Detailed'}
@@ -290,14 +288,14 @@ export function SpecsSettingsPanel({
               </div>
             </div>
             <div>
-              <div className="text-gray-600 dark:text-gray-400">Token Budget</div>
-              <div className="font-medium text-gray-900 dark:text-white">{currentProfile.tokenBudget} tokens</div>
+              <div className="text-gray-600 dark:text-gray-400 text-[10px]">Tokens</div>
+              <div className="font-medium text-gray-900 dark:text-white">{currentProfile.tokenBudget}</div>
             </div>
           </div>
         </div>
         
         {/* Advanced Settings */}
-        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
           <button
             type="button"
             className="flex items-center justify-between w-full text-left"
@@ -305,34 +303,29 @@ export function SpecsSettingsPanel({
             aria-expanded={expandedSections.advanced}
             aria-controls="advanced-settings-content"
           >
-            <span className="text-sm font-medium text-gray-900 dark:text-white">Advanced Settings</span>
-            <svg
-              className={`h-5 w-5 text-gray-500 dark:text-gray-400 transform ${expandedSections.advanced ? 'rotate-180' : ''}`}
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
+            <span className="text-xs font-medium text-gray-900 dark:text-white">Advanced Settings</span>
+            <ChevronDownIcon
+              className={`h-4 w-4 text-gray-500 dark:text-gray-400 transform ${expandedSections.advanced ? 'rotate-180' : ''}`}
               aria-hidden="true"
-            >
-              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
+            />
           </button>
           
           {expandedSections.advanced && (
-            <div id="advanced-settings-content" className="mt-4 space-y-4">
+            <div id="advanced-settings-content" className="mt-3 space-y-3">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label id="sections-include-label" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label id="sections-include-label" className="block text-xs font-medium text-gray-700 dark:text-gray-300">
                     Sections to Include
                   </label>
                   <button
                     type="button"
                     onClick={handleResetToDefaults}
-                    className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                    className="text-xs text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
                   >
                     Reset to defaults
                   </button>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-x-2 gap-y-1">
                   {Object.entries(settings.include).map(([section, enabled]) => (
                     <div key={section} className="flex items-center">
                       <input
@@ -347,7 +340,7 @@ export function SpecsSettingsPanel({
                       />
                       <label
                         htmlFor={`include-${section}`}
-                        className="ml-2 block text-sm text-gray-900 dark:text-white"
+                        className="ml-1.5 block text-xs text-gray-900 dark:text-white"
                       >
                         {section.charAt(0).toUpperCase() + section.slice(1)}
                       </label>
@@ -357,7 +350,7 @@ export function SpecsSettingsPanel({
               </div>
               
               <div>
-                <label id="token-budget-label" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label id="token-budget-label" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                   Token Budget Override
                 </label>
                 <div className="flex items-center space-x-2">
@@ -368,13 +361,13 @@ export function SpecsSettingsPanel({
                     value={settings.tokenBudget || ''}
                     onChange={handleTokenBudgetChange}
                     disabled={disabled}
-                    className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-xs py-1.5"
                     aria-labelledby="token-budget-label"
                   />
-                  <span className="text-sm text-gray-600 dark:text-gray-400">tokens</span>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">tokens</span>
                 </div>
-                <p id="token-budget-description" className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Min: 500, Max: 8000. Profile default: {currentProfile.tokenBudget}
+                <p id="token-budget-description" className="mt-0.5 text-[10px] text-gray-500 dark:text-gray-400">
+                  Min: 500, Max: 8000. Default: {currentProfile.tokenBudget}
                 </p>
               </div>
             </div>

@@ -45,7 +45,7 @@ function TabContent({ onTabChange }: { onTabChange?: (tab: TabId) => void }) {
   }, [activeTab, onTabChange]);
 
   return (
-    <div className="max-w-4xl mx-auto h-[500px] overflow-y-auto">
+    <div className="max-w-4xl mx-auto h-[625px] overflow-y-auto">
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 h-full">
         <ActiveComponent />
       </div>

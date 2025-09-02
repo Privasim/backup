@@ -32,7 +32,7 @@ export function SpecsSettingsDialog({ isOpen, onClose }: SpecsSettingsDialogProp
   
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose} initialFocus={closeRef}>
+      <Dialog as="div" className="relative z-50" onClose={() => {/* Prevent closing on outside click */}} initialFocus={closeRef}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
