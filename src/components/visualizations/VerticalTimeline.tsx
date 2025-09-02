@@ -10,6 +10,7 @@ import {
   CalendarIcon
 } from '@heroicons/react/24/outline';
 import type { VisualizationProps } from './visualizationRegistry';
+import ReactMarkdown from 'react-markdown';
 
 // Timeline item interface
 interface TimelineItem {
@@ -32,59 +33,66 @@ const parsePlanContent = (content: string): TimelineItem[] => {
   const lines = content.split('\n');
   const items: TimelineItem[] = [];
   let currentPhase: TimelineItem | null = null;
+  let currentContent: string[] = [];
   let itemId = 0;
 
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
+  const commitCurrentPhase = () => {
+    if (currentPhase) {
+      currentPhase.content = currentContent.join('\n').trim();
+      currentContent = [];
+    }
+  };
+
+  for (const rawLine of lines) {
+    const trimmed = rawLine.trim();
+
+    // Preserve blank lines inside a phase for Markdown paragraph separation
+    if (trimmed.length === 0) {
+      if (currentPhase) currentContent.push('');
+      continue;
+    }
 
     // Phase headers (## or # followed by text)
     if (trimmed.match(/^#{1,2}\s+(.+)/)) {
-      const title = trimmed.replace(/^#{1,2}\s+/, '');
-      if (title.toLowerCase().includes('phase') || 
-          title.toLowerCase().includes('stage') ||
-          title.toLowerCase().includes('step')) {
+      const titleText = trimmed.replace(/^#{1,2}\s+/, '');
+      const lower = titleText.toLowerCase();
+      if (lower.includes('phase') || lower.includes('stage') || lower.includes('step')) {
+        // Finalize previous phase
+        commitCurrentPhase();
+        // Start new phase; we don't include the header itself in content to avoid duplication
         currentPhase = {
           id: `phase-${itemId++}`,
-          title,
-          content: trimmed,
+          title: titleText,
+          content: '',
           type: 'phase',
           status: itemId === 1 ? 'current' : 'upcoming',
         };
         items.push(currentPhase);
+        continue;
       }
     }
-    
-    // Milestones and tasks (bullet points or numbered lists)
-    else if (trimmed.match(/^[-*+]\s+(.+)/) || trimmed.match(/^\d+\.\s+(.+)/)) {
-      const title = trimmed.replace(/^[-*+\d.]\s+/, '');
-      const isTask = title.toLowerCase().includes('implement') || 
-                    title.toLowerCase().includes('create') ||
-                    title.toLowerCase().includes('develop') ||
-                    title.toLowerCase().includes('build');
-      
-      items.push({
-        id: `item-${itemId++}`,
-        title,
-        content: trimmed,
-        type: isTask ? 'task' : 'milestone',
-        status: 'upcoming',
-      });
+
+    // Accumulate any other lines under the current phase
+    if (currentPhase) {
+      currentContent.push(rawLine);
+      continue;
     }
   }
 
-  // If no phases were found, create a default structure
+  // Finalize last phase content
+  commitCurrentPhase();
+
+  // If no phases were found, create a default structure using paragraph sections
   if (items.length === 0) {
     const sections = content.split(/\n\s*\n/);
     sections.forEach((section, index) => {
       if (section.trim()) {
-        const lines = section.trim().split('\n');
-        const title = lines[0].replace(/^#{1,6}\s*/, '') || `Section ${index + 1}`;
-        
+        const secLines = section.trim().split('\n');
+        const title = secLines[0].replace(/^#{1,6}\s*/, '') || `Section ${index + 1}`;
         items.push({
           id: `section-${index}`,
           title,
-          content: section,
+          content: section.trim(),
           type: 'phase',
           status: index === 0 ? 'current' : 'upcoming',
         });
@@ -158,11 +166,11 @@ const TimelineItemComponent: React.FC<{
             onClick={onToggle}
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-1">
-                <h3 className="text-xs font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+              <div className="flex items-center space-x-1.5">
+                <h3 className="text-xs font-semibold text-gray-900 group-hover:text-blue-600 transition-colors tracking-tight truncate">
                   {item.title}
                 </h3>
-                <span className={`px-1 py-px text-[8px] font-medium rounded ${getTypeColor()}`}>
+                <span className={`px-1.5 py-px text-[8px] font-medium rounded-md capitalize border border-current/20 ${getTypeColor()}`}>
                   {item.type}
                 </span>
               </div>
@@ -191,10 +199,25 @@ const TimelineItemComponent: React.FC<{
           
           {/* Expanded content */}
           {isExpanded && (
-            <div className="mt-2 bg-gray-50 rounded p-2">
-              <pre className="whitespace-pre-wrap text-[11px] text-gray-700 leading-relaxed font-sans">
+            <div className="mt-2 rounded-md border border-slate-200/70 bg-slate-50 p-2">
+              <ReactMarkdown
+                components={{
+                  h1: ({ node, ...props }) => <h4 className="text-xs font-semibold text-slate-900 mt-2 mb-1" {...props} />,
+                  h2: ({ node, ...props }) => <h5 className="text-[11px] font-semibold text-slate-900 mt-2 mb-1" {...props} />,
+                  h3: ({ node, ...props }) => <h6 className="text-[11px] font-semibold text-slate-900 mt-2 mb-1" {...props} />,
+                  p: ({ node, ...props }) => <p className="text-[11px] text-slate-700 leading-5 mb-1" {...props} />,
+                  ul: ({ node, ...props }) => <ul className="ml-4 list-disc space-y-1 mb-1" {...props} />,
+                  ol: ({ node, ...props }) => <ol className="ml-4 list-decimal space-y-1 mb-1" {...props} />,
+                  li: ({ node, ...props }) => <li className="text-[11px] text-slate-700 leading-5" {...props} />,
+                  strong: ({ node, ...props }) => <strong className="font-semibold text-slate-900" {...props} />,
+                  em: ({ node, ...props }) => <em className="italic text-slate-700" {...props} />,
+                  code: ({ node, inline, className, children, ...props }) => (
+                    <code className="rounded bg-slate-100 px-1 py-0.5 text-[10px]" {...props}>{children}</code>
+                  ),
+                }}
+              >
                 {item.content}
-              </pre>
+              </ReactMarkdown>
             </div>
           )}
         </div>
@@ -303,7 +326,12 @@ export const VerticalTimeline: React.FC<VisualizationProps> = React.memo(({
               >
                 Expand All
               </button>
-            
+              <button
+                onClick={collapseAll}
+                className="px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors"
+              >
+                Collapse All
+              </button>
             </div>
           </div>
         </div>
