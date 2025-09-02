@@ -76,15 +76,38 @@ function buildSystemPrompt({
   if (systemPromptOverride?.trim()) {
     systemParts.push(`Implementation Plan Requirements (Override):\n${systemPromptOverride.trim()}`);
   } else {
-    const baseRequirements = `Implementation Plan Requirements:
-- Create a comprehensive business implementation plan in markdown format
-- Use clear headers, bullet points, and engaging formatting
-- Include: executive summary, phases with objectives/timelines, key tasks, milestones, resources, budget, risks, KPIs
-- Be practical and actionable with specific steps
-- Use encouraging language and emojis to make it engaging
-- Focus on real-world implementation details`;
+    const baseRequirements = `Implementation Plan Requirements (Strict):
+- Output MUST be markdown.
+- Produce EXACTLY 3 phases. Never use fewer or more than 3 phases.
+- For EACH phase, use the exact keys and order below (one per line):
+  Phase [number] - [Name]
+  Timeline: [duration]
+  Tools: [comma-separated list with pricing if applicable]
+  Channels: [comma-separated list]
+  Description: [one concise sentence]\n
+Example (format template):
+
+Phase 1 - Build
+Timeline: 7-14 days
+Tools: Lovable.dev ($0), bolt.new ($0), V0
+Channels: 
+Description: Create specs and build prototype
+
+Phase 2 - Marketing Automation
+Timeline: 7-14 days
+Tools: make.com, n8n, zapier
+Channels: Facebook, LinkedIn
+Description: Setup automated marketing campaigns
+
+Phase 3 - Feedback and Iteration
+Timeline: 14-30 days
+Tools: CRM Tools
+Channels: Facebook, Email
+Description: Collect user feedback and iterate\n
+- Do NOT add extra sections before, between, or after the 3 phases unless explicitly requested.
+- Keep names and keys exactly as shown (Phase N - Name, Timeline, Tools, Channels, Description).`;
     
-    // Add length preset constraints
+    // Add length preset constraints (must not alter phase count)
     const lengthInstructions = getLengthInstructions(lengthPreset, compactMode, compactMaxPhaseCards);
     
     systemParts.push(`${baseRequirements}\n${lengthInstructions}`);
@@ -130,32 +153,36 @@ function getLengthInstructions(
   if (lengthPreset === 'brief') {
     return `
 Length Requirements (Brief):
-- Keep the entire response concise and focused
-- Produce exactly 1-2 main phases with key tasks only
-- Focus on core execution steps only
-- Aim for practical, actionable content without excessive detail`;
+- Keep each phase extremely concise.
+- Timeline: short range only (e.g., 7-14 days).
+- Tools: max 2-3 items total; prefer free/low-cost.
+- Channels: max 1-2.
+- Description: 1 short sentence.
+- Do NOT change the number of phases (must remain 3).`;
   }
   
   if (lengthPreset === 'standard') {
     return `
 Length Requirements (Standard):
-- Produce at most 2-3 clearly separated phases
-- Keep content concise and focused
-- Include key tasks, milestones, and risks
-- Balance detail with readability`;
+- Keep content concise and focused.
+- Timeline: short, readable ranges.
+- Tools: 3-4 items.
+- Channels: 2-3 items.
+- Description: 1 sentence with concrete action.
+- Do NOT change the number of phases (must remain 3).`;
   }
   
   if (compactMode) {
     return `
-Length Requirements (Compact):
-- Produce at most ${compactMaxPhaseCards || 4} clearly separated phases
-- Keep content concise and focused
-- Prioritize most important elements`;
+Length Requirements (Compact Mode):
+- Favor brevity and clarity across all fields.
+- Tools and Channels should list only the most important items.
+- Do NOT add or remove phases; always 3 phases.`;
   }
   
   return `
 Length Requirements (Comprehensive):
-- Provide a complete implementation plan with all relevant details
-- Include comprehensive phases, tasks, and supporting information
-- Be thorough while maintaining readability`;
+- Provide clear but sufficiently detailed entries for each field.
+- Keep structure strict; do not add sections beyond the 3 phases.
+- Always exactly 3 phases.`;
 }

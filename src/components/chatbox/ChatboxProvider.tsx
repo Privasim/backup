@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+
 import { 
   ChatboxState, 
   ChatboxMessageData, 
@@ -23,6 +24,7 @@ import { ImplementationPlan } from '@/features/implementation-plan/types';
 import { PlanStreamBridge, getPlanStreamBridge } from '@/features/implementation-plan/bridge/PlanStreamBridge';
 import { OpenRouterClient } from '@/lib/openrouter/client';
 import { chatboxDebug } from '@/app/businessidea/utils/logStore';
+import { buildTextPrompts } from '@/features/implementation-plan/promptBuilder';
 
 interface PlanOutline {
   title: string;
@@ -697,14 +699,18 @@ features=${suggestion.keyFeatures.join(', ')}`;
 
     try {
       const client = new OpenRouterClient(state.config.apiKey);
-      
-      const lengthInstructions = lengthPreset === 'brief' 
-        ? '- Keep the entire response to 4-5 sentences maximum\n- Produce exactly 1 phase with key tasks only\n- Focus on core execution steps only'
-        : lengthPreset === 'standard'
-        ? '- Produce at most 2 clearly separated phases\n- Keep content concise and focused\n- Include key tasks, milestones, and risks'
-        : '- Provide a complete implementation plan with all relevant details';
-      
-      const prompt = `Create a clear, actionable implementation plan in markdown format with exactly 3 phases. Each phase must have the following structure:\n\nPhase [number] - [Name]\nTimeline: [duration]\nTools: [comma-separated list of tools with pricing]\nChannels: [comma-separated list of marketing channels]\nDescription: [1-sentence description]\n\nExample:\n\nPhase 1 - Build\nTimeline: 7-14 days\nTools: Lovable.dev ($0), bolt.new ($0), V0\nChannels: \nDescription: Create specs and build prototype\n\nPhase 2 - Marketing Automation\nTimeline: 7-14 days\nTools: make.com, n8n, zapier\nChannels: Facebook, LinkedIn\nDescription: Setup automated marketing campaigns\n\nPhase 3 - Feedback and Iteration\nTimeline: 14-30 days\nTools: CRM Tools\nChannels: Facebook, Email\nDescription: Collect user feedback and iterate\n\nNow, generate the plan for the following business suggestion: ${outline.title}\n\n${outline.overview}\n\n${lengthInstructions}`;
+
+      // Build unified prompts using centralized prompt builder
+      const suggestionForPrompt = {
+        title: outline.title,
+        description: outline.overview,
+        keyFeatures: Array.isArray(outline.keyPhases) ? outline.keyPhases : []
+      } as any;
+
+      const { systemPrompt, userPrompt } = buildTextPrompts({
+        suggestion: suggestionForPrompt,
+        lengthPreset: lengthPreset || 'long'
+      });
 
       if (onChunk) {
         // Streaming generation
@@ -715,11 +721,11 @@ features=${suggestion.keyFeatures.join(', ')}`;
           messages: [
             {
               role: 'system',
-              content: 'You are a helpful business planning expert. Create detailed, actionable implementation plans in clear, conversational markdown format. Be encouraging and practical. Use emojis and clear formatting to make the content engaging and easy to read.'
+              content: systemPrompt
             },
             {
               role: 'user',
-              content: prompt
+              content: userPrompt
             }
           ],
           temperature: state.config.temperature || 0.7,
@@ -785,11 +791,11 @@ features=${suggestion.keyFeatures.join(', ')}`;
           messages: [
             {
               role: 'system',
-              content: 'You are a helpful business planning expert. Create detailed, actionable implementation plans in clear, conversational markdown format. Be encouraging and practical. Use emojis and clear formatting to make the content engaging and easy to read.'
+              content: systemPrompt
             },
             {
               role: 'user',
-              content: prompt
+              content: userPrompt
             }
           ],
           temperature: state.config.temperature || 0.7,

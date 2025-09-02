@@ -105,11 +105,11 @@ const TimelineItemComponent: React.FC<{
   const getStatusIcon = () => {
     switch (item.status) {
       case 'completed':
-        return <CheckCircleIcon className="h-4 w-4 text-green-600" />;
+        return <CheckCircleIcon className="h-3 w-3 text-green-600" />;
       case 'current':
-        return <PlayCircleIcon className="h-4 w-4 text-blue-600" />;
+        return <PlayCircleIcon className="h-3 w-3 text-blue-600" />;
       default:
-        return <ClockIcon className="h-4 w-4 text-gray-400" />;
+        return <ClockIcon className="h-3 w-3 text-gray-400" />;
     }
   };
 
@@ -141,13 +141,13 @@ const TimelineItemComponent: React.FC<{
     <div className="relative">
       {/* Timeline line */}
       {!isLast && (
-        <div className="absolute left-4 top-8 w-px h-full bg-gray-200" />
+        <div className="absolute left-2.5 top-5 w-px h-full bg-gray-100"></div>
       )}
       
       {/* Timeline item */}
-      <div className="flex items-start space-x-4">
+      <div className="flex items-start space-x-2">
         {/* Status indicator */}
-        <div className={`flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center ${getStatusColor()}`}>
+        <div className={`flex-shrink-0 w-4 h-4 mt-0.5 rounded-full flex items-center justify-center ${getStatusColor()}`}>
           {getStatusIcon()}
         </div>
         
@@ -158,26 +158,26 @@ const TimelineItemComponent: React.FC<{
             onClick={onToggle}
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <h3 className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+              <div className="flex items-center space-x-1">
+                <h3 className="text-xs font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
                   {item.title}
                 </h3>
-                <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded-full ${getTypeColor()}`}>
+                <span className={`px-1 py-px text-[8px] font-medium rounded ${getTypeColor()}`}>
                   {item.type}
                 </span>
               </div>
               
               <div className="flex items-center space-x-2">
                 {item.duration && (
-                  <span className="text-xs text-gray-500 flex items-center">
-                    <CalendarIcon className="h-3 w-3 mr-1" />
+                  <span className="text-[10px] text-gray-500 flex items-center">
+                    <CalendarIcon className="h-2.5 w-2.5 mr-1" />
                     {item.duration}
                   </span>
                 )}
                 {isExpanded ? (
-                  <ChevronDownIcon className="h-4 w-4 text-gray-400" />
+                  <ChevronDownIcon className="h-3 w-3 text-gray-400" />
                 ) : (
-                  <ChevronRightIcon className="h-4 w-4 text-gray-400" />
+                  <ChevronRightIcon className="h-3 w-3 text-gray-400" />
                 )}
               </div>
             </div>
@@ -191,12 +191,10 @@ const TimelineItemComponent: React.FC<{
           
           {/* Expanded content */}
           {isExpanded && (
-            <div className="mt-3 p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
-              <div className="prose prose-sm max-w-none">
-                <pre className="whitespace-pre-wrap text-xs text-gray-700 leading-relaxed font-sans">
-                  {item.content}
-                </pre>
-              </div>
+            <div className="mt-2 bg-gray-50 rounded p-2">
+              <pre className="whitespace-pre-wrap text-[11px] text-gray-700 leading-relaxed font-sans">
+                {item.content}
+              </pre>
             </div>
           )}
         </div>
@@ -256,18 +254,16 @@ export const VerticalTimeline: React.FC<VisualizationProps> = React.memo(({
       <div className={`flex flex-col items-center justify-center h-full p-8 ${className}`}>
         <div className="space-y-4 w-full max-w-md">
           <div className="animate-pulse">
-            <div className="h-8 bg-gradient-to-r from-purple-200 to-blue-300 rounded-lg w-3/4 mb-4"></div>
+            <div className="h-6 bg-gradient-to-r from-purple-200 to-blue-300 rounded-lg w-3/4 mb-4"></div>
             <div className="space-y-3">
-              <div className="h-4 bg-purple-200 rounded w-full"></div>
-              <div className="h-4 bg-purple-200 rounded w-5/6"></div>
-              <div className="h-4 bg-purple-200 rounded w-4/6"></div>
+              <div className="h-3 bg-purple-200 rounded w-full"></div>
+              <div className="h-3 bg-purple-200 rounded w-5/6"></div>
+              <div className="h-3 bg-purple-200 rounded w-4/6"></div>
             </div>
           </div>
           <div className="text-center">
-            <h3 className="text-base font-semibold text-slate-900 mb-2">Building Your Timeline</h3>
-            <p className="text-xs text-slate-600">
-              Creating a visual timeline of your implementation plan...
-            </p>
+            <h3 className="text-sm font-medium text-slate-900 mb-1">Building Your Timeline</h3>
+            <p className="text-[10px] text-slate-600">Parsing implementation plan...</p>
           </div>
         </div>
       </div>
@@ -278,10 +274,10 @@ export const VerticalTimeline: React.FC<VisualizationProps> = React.memo(({
     return (
       <div className={`flex flex-col items-center justify-center h-full text-center p-8 ${className}`}>
         <div className="rounded-full bg-purple-50 p-4 mb-4">
-          <ClockIcon className="h-10 w-10 text-purple-500" />
+          <ClockIcon className="h-8 w-8 text-purple-500 mb-2" />
         </div>
-        <h3 className="text-base font-semibold text-gray-900 mb-2">No Timeline Data</h3>
-        <p className="text-sm text-gray-600 mb-4 max-w-md">
+        <h3 className="text-sm font-medium text-gray-900 mb-1">No Timeline Data</h3>
+        <p className="text-xs text-gray-600 mb-3 max-w-md">
           Generate an implementation plan to see it visualized as a timeline with phases and milestones.
         </p>
       </div>
@@ -290,15 +286,13 @@ export const VerticalTimeline: React.FC<VisualizationProps> = React.memo(({
 
   return (
     <div className={`h-full ${className}`}>
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm h-full flex flex-col">
+      <div className="bg-white h-full flex flex-col">
         {/* Header */}
-        <div className="p-4 sm:p-6 border-b border-gray-200">
+        <div className="px-4 py-2">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Implementation Timeline</h2>
-              <p className="text-xs text-gray-600 mt-1">
-                {timelineItems.length} items • Visual roadmap of your plan
-              </p>
+              <h2 className="text-base font-semibold text-gray-900">Timeline</h2>
+              <p className="text-[9px] text-gray-500">{timelineItems.length} items</p>
             </div>
             
             {/* Controls */}
@@ -320,8 +314,8 @@ export const VerticalTimeline: React.FC<VisualizationProps> = React.memo(({
         </div>
         
         {/* Timeline */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-          <div className="space-y-6">
+        <div className="flex-1 overflow-y-auto px-4 py-2">
+          <div className="space-y-3">
             {timelineItems.map((item, index) => (
               <TimelineItemComponent
                 key={item.id}
