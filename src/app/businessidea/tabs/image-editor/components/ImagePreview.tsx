@@ -26,34 +26,34 @@ export default function ImagePreview({
 
   if (!imageSrc) {
     return (
-      <div className="bg-white border border-gray-200 rounded-md p-4 flex flex-col items-center justify-center h-64">
+      <div className="card-base p-6 flex flex-col items-center justify-center h-80">
         <div className="text-center">
-          <p className="text-sm text-gray-500">No image selected</p>
-          <p className="text-xs text-gray-400 mt-1">Generate an image to preview it here</p>
+          <p className="text-body text-primary">No image selected</p>
+          <p className="text-body-sm text-secondary mt-2">Generate an image to preview it here</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-md p-4">
-      <div className="flex justify-between items-center mb-3">
-        <h3 className="text-sm font-medium text-gray-700">Image Preview</h3>
-        <div className="flex space-x-2">
+    <div className="card-base p-6">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-subheading text-primary">Image Preview</h3>
+        <div className="flex space-x-3">
           <button
             type="button"
             onClick={handleCopy}
-            className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="btn-secondary focus-ring"
             aria-label="Copy image to clipboard"
           >
             {isCopied ? (
               <>
-                <CheckIcon className="h-4 w-4 mr-1 text-green-500" />
-                <span className="text-green-500">Copied</span>
+                <CheckIcon className="h-4 w-4 mr-1.5 text-success-500" />
+                <span className="text-success-500">Copied</span>
               </>
             ) : (
               <>
-                <ClipboardDocumentIcon className="h-4 w-4 mr-1" />
+                <ClipboardDocumentIcon className="h-4 w-4 mr-1.5" />
                 <span>Copy</span>
               </>
             )}
@@ -61,16 +61,16 @@ export default function ImagePreview({
           <button
             type="button"
             onClick={onDownload}
-            className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="btn-secondary focus-ring"
             aria-label="Download image"
           >
-            <ArrowDownTrayIcon className="h-4 w-4 mr-1" />
+            <ArrowDownTrayIcon className="h-4 w-4 mr-1.5" />
             <span>Download</span>
           </button>
         </div>
       </div>
       <div className="flex justify-center">
-        <div className="relative max-w-full max-h-[500px] overflow-hidden rounded-md">
+        <div className="relative max-w-full max-h-[500px] overflow-hidden rounded-lg shadow-md">
           <img
             src={imageSrc}
             alt="Generated image preview"

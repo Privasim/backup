@@ -40,16 +40,16 @@ export default function PromptPanel({
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-md p-4 mb-4">
-      <div className="mb-2">
-        <label htmlFor="prompt-input" className="block text-sm font-medium text-gray-700 mb-1">
+    <div className="card-base p-6">
+      <div className="mb-4">
+        <label htmlFor="prompt-input" className="text-label block mb-2 text-primary">
           Image Prompt
         </label>
-        <div className={`relative rounded-md shadow-sm ${isFocused ? 'ring-2 ring-indigo-500' : ''}`}>
+        <div className={`relative ${isFocused ? 'focus-visible' : ''}`}>
           <textarea
             id="prompt-input"
             rows={3}
-            className="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="input-base focus-ring w-full"
             placeholder="Describe the image you want to generate..."
             value={prompt}
             onChange={handlePromptChange}
@@ -59,14 +59,14 @@ export default function PromptPanel({
             disabled={isGenerating}
             aria-label="Image prompt"
           />
-          <div className="absolute bottom-2 right-2 flex items-center">
-            <span className={`text-xs ${promptLength > maxLength * 0.8 ? 'text-amber-500' : 'text-gray-400'}`}>
+          <div className="absolute bottom-3 right-3 flex items-center">
+            <span className={`text-body-sm ${promptLength > maxLength * 0.8 ? 'text-warning-600' : 'text-secondary'}`}>
               {promptLength}/{maxLength}
             </span>
           </div>
         </div>
         {disabled && !isGenerating && (
-          <p className="mt-1 text-xs text-amber-500">
+          <p className="mt-2 text-body-sm text-warning-600">
             Please add and validate your API key before generating images.
           </p>
         )}
@@ -76,11 +76,7 @@ export default function PromptPanel({
           type="button"
           onClick={onGenerate}
           disabled={isButtonDisabled}
-          className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
-            isButtonDisabled
-              ? 'bg-indigo-300 cursor-not-allowed'
-              : 'bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
-          }`}
+          className={`btn-base ${isButtonDisabled ? 'bg-neutral-300 text-neutral-500 cursor-not-allowed' : 'btn-primary'}`}
         >
           {isGenerating ? (
             <>

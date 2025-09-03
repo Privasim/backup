@@ -148,17 +148,17 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
   }, [images, selectedImageIndex]);
 
   const renderEmptyState = () => (
-    <div className="flex flex-col items-center justify-center h-full text-center p-8">
-      <div className="rounded-full bg-blue-50 p-3 mb-3">
-        <PhotoIcon className="h-6 w-6 text-blue-500" />
+    <div className="flex flex-col items-center justify-center h-full text-center p-8 animate-fade-in">
+      <div className="rounded-full bg-primary-100 p-4 mb-4">
+        <PhotoIcon className="h-8 w-8 text-primary-600" />
       </div>
-      <h3 className="text-sm font-medium text-gray-900 mb-2">No Image Selected</h3>
-      <p className="text-xs text-gray-600 mb-4 max-w-md">
+      <h3 className="text-heading mb-2">No Image Selected</h3>
+      <p className="text-body text-secondary mb-6 max-w-md">
         Upload an image to start editing. Supported formats: JPG, PNG, SVG, GIF.
       </p>
       <label 
         htmlFor="image-upload" 
-        className="inline-flex items-center px-3 py-2 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
+        className="btn-primary focus-ring cursor-pointer"
       >
         Upload Image
         <input
@@ -175,10 +175,10 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
   const renderLoadingState = () => (
     <div className="flex flex-col items-center justify-center h-full p-8">
       <div className="animate-pulse">
-        <div className="h-48 w-48 bg-slate-200 rounded-lg mb-4"></div>
-        <div className="h-4 bg-slate-200 rounded w-32 mx-auto"></div>
+        <div className="h-48 w-48 bg-neutral-200 rounded-lg mb-4"></div>
+        <div className="h-4 bg-neutral-200 rounded w-32 mx-auto"></div>
       </div>
-      <p className="text-xs text-slate-600 mt-4">
+      <p className="text-body-sm text-secondary mt-4">
         Loading image...
       </p>
     </div>
@@ -284,19 +284,21 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
   const renderContent = () => {
     // Show the image generation UI
     return (
-      <div className="flex flex-col space-y-4">
+      <div className="flex flex-col space-y-6">
         {/* Prompt input and generate button */}
-        <PromptPanel
-          prompt={prompt}
-          isGenerating={isGenerating}
-          onPromptChange={handlePromptChange}
-          onGenerate={handleGenerate}
-          disabled={!apiKey}
-        />
+        <div className="animate-fade-in">
+          <PromptPanel
+            prompt={prompt}
+            isGenerating={isGenerating}
+            onPromptChange={handlePromptChange}
+            onGenerate={handleGenerate}
+            disabled={!apiKey}
+          />
+        </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main preview area */}
-          <div className="md:col-span-2">
+          <div className="lg:col-span-2 animate-slide-up">
             <ImagePreview
               imageSrc={images.length > 0 && selectedImageIndex >= 0 ? images[selectedImageIndex] : null}
               onDownload={handleDownloadImage}
@@ -305,7 +307,7 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
           </div>
           
           {/* Results gallery */}
-          <div>
+          <div className="animate-slide-up" style={{animationDelay: '0.1s'}}>
             <ResultGallery
               images={images}
               selectedIndex={selectedImageIndex}
@@ -318,30 +320,36 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
   };
 
   return (
-    <div className={`h-full ${className}`}>
+    <div className={`h-full flex flex-col ${className}`}>
       {/* API Key Configuration Panel */}
-      <ConfigPanel
-        apiKey={apiKey}
-        model={model}
-        availableModels={availableModels}
-        isValidating={status === 'loading' && !selectedImage}
-        validationError={error}
-        onApiKeyChange={handleApiKeyChange}
-        onValidateKey={handleValidateKey}
-        onPersistToggle={handlePersistToggle}
-        onRemoveKey={handleRemoveKey}
-        onModelChange={handleModelChange}
-      />
+      <div className="card-base mb-4">
+        <ConfigPanel
+          apiKey={apiKey}
+          model={model}
+          availableModels={availableModels}
+          isValidating={status === 'loading' && !selectedImage}
+          validationError={error}
+          onApiKeyChange={handleApiKeyChange}
+          onValidateKey={handleValidateKey}
+          onPersistToggle={handlePersistToggle}
+          onRemoveKey={handleRemoveKey}
+          onModelChange={handleModelChange}
+        />
+      </div>
       
-      {renderContent()}
+      <div className="flex-1 overflow-auto">
+        {renderContent()}
+      </div>
       
       {/* Status Bar */}
-      <StatusBar
-        status={status}
-        error={error}
-        usage={usage}
-        onCancel={cancelOperation}
-      />
+      <div className="mt-4">
+        <StatusBar
+          status={status}
+          error={error}
+          usage={usage}
+          onCancel={cancelOperation}
+        />
+      </div>
     </div>
   );
 }
