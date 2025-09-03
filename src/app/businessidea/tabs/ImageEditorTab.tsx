@@ -296,9 +296,9 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
           />
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="space-y-6">
           {/* Main preview area */}
-          <div className="lg:col-span-2 animate-slide-up">
+          <div className="animate-slide-up">
             <ImagePreview
               imageSrc={images.length > 0 && selectedImageIndex >= 0 ? images[selectedImageIndex] : null}
               onDownload={handleDownloadImage}

@@ -16,21 +16,21 @@ export default function ResultGallery({
 }: ResultGalleryProps) {
   if (images.length === 0) {
     return (
-      <div className="card-base p-6 flex flex-col items-center justify-center h-40">
-        <PhotoIcon className="h-10 w-10 text-neutral-400" />
-        <p className="text-body text-secondary mt-3">No images generated yet</p>
+      <div className="card-base p-2 flex flex-col items-center justify-center h-14">
+        <PhotoIcon className="h-4 w-4 text-neutral-400" />
+        <p className="text-[10px] text-secondary">No images yet</p>
       </div>
     );
   }
 
   return (
-    <div className="card-base p-6">
-      <h3 className="text-subheading text-primary mb-4">Generated Images</h3>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+    <div className="card-base p-2">
+      <h3 className="text-xs font-medium text-primary mb-1">Results</h3>
+      <div className="grid grid-cols-6 sm:grid-cols-8 gap-1">
         {images.map((image, index) => (
           <div
             key={`image-${index}`}
-            className={`relative aspect-square cursor-pointer rounded-lg overflow-hidden shadow-sm transition-all duration-200 hover:shadow-md ${selectedIndex === index ? 'ring-2 ring-primary-500 transform scale-[1.02]' : 'border border-neutral-200'}`}
+            className={`relative aspect-square cursor-pointer rounded-sm overflow-hidden shadow-xs ${selectedIndex === index ? 'ring-1 ring-primary-500' : 'border border-neutral-200'}`}
             onClick={() => onSelect(index)}
           >
             <img
@@ -39,7 +39,7 @@ export default function ResultGallery({
               className="w-full h-full object-cover"
               loading="lazy"
             />
-            <div className="absolute bottom-2 right-2 bg-black bg-opacity-60 text-white text-xs font-medium px-2 py-1 rounded-full">
+            <div className="absolute bottom-0.5 right-0.5 bg-black/80 text-white text-[8px] font-medium px-0.5 rounded-[2px]">
               {index + 1}
             </div>
           </div>
