@@ -321,7 +321,12 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
 
   return (
     <div className={`h-full flex flex-col ${className}`}>
-      {/* API Key Configuration Panel */}
+      {/* Main Content Area - Image Editor */}
+      <div className="flex-1 overflow-auto mb-4">
+        {renderContent()}
+      </div>
+      
+      {/* API Key Configuration Panel - Moved to bottom */}
       <div className="card-base mb-4">
         <ConfigPanel
           apiKey={apiKey}
@@ -337,12 +342,8 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
         />
       </div>
       
-      <div className="flex-1 overflow-auto">
-        {renderContent()}
-      </div>
-      
       {/* Status Bar */}
-      <div className="mt-4">
+      <div className="mt-2">
         <StatusBar
           status={status}
           error={error}
