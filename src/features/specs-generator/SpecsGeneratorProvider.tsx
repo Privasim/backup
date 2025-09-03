@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import './specs-font-reduction.css';
 import { useChatbox } from '../../components/chatbox/ChatboxProvider';
 import { useImplementationPlan } from '../implementation-plan/useImplementationPlan';
 import { generateSpecs } from './service';

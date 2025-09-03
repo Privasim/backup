@@ -1,4 +1,5 @@
 import React from 'react';
+import '../specs-font-reduction.css'; // Import comprehensive font reduction CSS
 import { SpecsStatus, SpecsGenerationResult } from '../types';
 
 interface SpecsContentViewProps {
@@ -40,7 +41,7 @@ export function SpecsContentView({
   // Render errors if present
   if (errors && errors.length > 0) {
     return (
-      <div className="badge-error p-4 mb-4 rounded-md">
+      <div className="badge-error p-4 mb-4 rounded-md specs-content-view">
         <div className="flex">
           <div className="flex-shrink-0">
             <svg className="h-5 w-5 text-error-800" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -66,7 +67,7 @@ export function SpecsContentView({
   switch (status) {
     case 'idle':
       return (
-        <div className="space-y-6">
+        <div className="space-y-6 specs-content-view">
           {/* Profile Information */}
           {profileInfo && (
             <div className="badge-info p-4 mb-4 rounded-md">

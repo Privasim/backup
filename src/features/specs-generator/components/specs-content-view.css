@@ -1,0 +1,64 @@
+/* 
+ * SpecsContentView Font Size Reduction
+ * Reduces all font sizes by 50% for the specs generator view component
+ */
+
+/* Apply 50% font size reduction to all text within the component */
+.specs-content-view {
+  font-size: 0.5rem !important;
+}
+
+/* Heading text - 50% of original size */
+.specs-content-view h1,
+.specs-content-view h2,
+.specs-content-view h3,
+.specs-content-view .text-title,
+.specs-content-view .text-heading-1,
+.specs-content-view .text-heading-2,
+.specs-content-view .text-heading-3 {
+  font-size: calc(var(--font-size-xl) * 0.5) !important;
+}
+
+/* Body text - 50% of original size */
+.specs-content-view p,
+.specs-content-view .text-body {
+  font-size: calc(var(--font-size-base) * 0.5) !important;
+}
+
+/* Label text - 50% of original size */
+.specs-content-view .text-label {
+  font-size: calc(var(--font-size-sm) * 0.5) !important;
+}
+
+/* Button text size reduction */
+.specs-content-view button {
+  font-size: calc(var(--font-size-sm) * 0.5) !important;
+}
+
+/* Icon size reduction */
+.specs-content-view svg {
+  height: 0.625rem !important; /* 50% of 1.25rem (h-5) */
+  width: 0.625rem !important; /* 50% of 1.25rem (w-5) */
+}
+
+/* Ensure all child components inherit the reduced font size */
+.specs-content-view * {
+  font-size: inherit !important;
+}
+
+/* Specific overrides for different text elements */
+.specs-content-view .text-caption,
+.specs-content-view .text-caption-sm {
+  font-size: calc(var(--font-size-xs) * 0.5) !important;
+}
+
+/* Monospace text in code blocks */
+.specs-content-view .font-mono {
+  font-size: calc(var(--font-size-sm) * 0.5) !important;
+}
+
+/* Ensure whitespace and formatting is preserved */
+.specs-content-view pre,
+.specs-content-view .whitespace-pre-wrap {
+  font-size: calc(var(--font-size-sm) * 0.5) !important;
+}

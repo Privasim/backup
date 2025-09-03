@@ -1,0 +1,62 @@
+/* 
+ * Specs Content Font Size Reduction
+ * Reduces all font sizes by 50% for the specs generator components
+ */
+
+.specs-reduced-font {
+  /* Apply 50% font size reduction to all text within the component */
+  font-size: 0.5rem;
+}
+
+.specs-reduced-font .specs-heading {
+  /* Heading text - 50% of original size */
+  font-size: calc(var(--font-size-2xl) * 0.5);
+}
+
+.specs-reduced-font .specs-text {
+  /* Body text - 50% of original size */
+  font-size: calc(var(--font-size-base) * 0.5);
+}
+
+.specs-reduced-font .text-title {
+  /* Title text - 50% of original size */
+  font-size: calc(var(--font-size-xl) * 0.5);
+}
+
+.specs-reduced-font .text-body {
+  /* Body text - 50% of original size */
+  font-size: calc(var(--font-size-base) * 0.5);
+}
+
+.specs-reduced-font .text-label {
+  /* Label text - 50% of original size */
+  font-size: calc(var(--font-size-sm) * 0.5);
+}
+
+.specs-reduced-font .text-caption {
+  /* Caption text - 50% of original size */
+  font-size: calc(var(--font-size-sm) * 0.5);
+}
+
+.specs-reduced-font .text-caption-sm {
+  /* Small caption text - 50% of original size */
+  font-size: calc(var(--font-size-xs) * 0.5);
+}
+
+/* Button text size reduction */
+.specs-reduced-font .btn-primary,
+.specs-reduced-font .btn-secondary,
+.specs-reduced-font .btn-ghost {
+  font-size: calc(var(--font-size-sm) * 0.5);
+}
+
+/* Icon size reduction */
+.specs-reduced-font svg {
+  height: 0.625rem !important; /* 50% of 1.25rem (h-5) */
+  width: 0.625rem !important; /* 50% of 1.25rem (w-5) */
+}
+
+/* Ensure all child components inherit the reduced font size */
+.specs-reduced-font * {
+  font-size: inherit;
+}

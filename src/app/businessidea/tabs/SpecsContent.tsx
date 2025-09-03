@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import '../../../features/specs-generator/specs-font-reduction.css'; // Import comprehensive font reduction CSS
 import { useSpecsGenerator } from '../../../features/specs-generator/useSpecsGenerator';
 import { useImplementationPlan } from '../../../features/implementation-plan/useImplementationPlan';
 import { useChatbox } from '../../../components/chatbox/ChatboxProvider';
@@ -84,11 +85,11 @@ export function SpecsContent() {
   };
   
   return (
-    <div className="card-base p-4 md:p-6 max-w-4xl mx-auto">
+    <div className="card-base p-4 md:p-6 max-w-4xl mx-auto specs-reduced-font">
       <div className="mb-6 flex justify-between items-start">
         <div>
-          <h1 className="text-title text-primary">Technical Specification Generator</h1>
-          <p className="mt-1 text-body text-secondary">
+          <h1 className="text-title text-primary specs-heading">Technical Specification Generator</h1>
+          <p className="mt-1 text-body text-secondary specs-text">
             Generate technical specifications from your implementation plan
           </p>
         </div>

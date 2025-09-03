@@ -1,0 +1,146 @@
+/* 
+ * Specs Generator Font Size Adjustment
+ * Sets font sizes to 85% of original for better readability
+ * Matches design system typography
+ */
+
+/* Target all specs generator components */
+.specs-reduced-font,
+.specs-content-view,
+.specs-generator-provider {
+  /* Base font size (85% of original) */
+  font-size: 0.85rem !important;
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+  line-height: 1.5;
+}
+
+/* Apply to specific components by their class names */
+.card-base.specs-reduced-font,
+.specs-content-view {
+  /* Ensure all child elements inherit the reduced font size */
+  & * {
+    font-size: inherit !important;
+  }
+
+  /* Specific text element overrides */
+  & h1, & h2, & h3, & h4, & h5, & h6,
+  & .text-title, & .text-heading-1, & .text-heading-2, & .text-heading-3, & .text-heading-4 {
+    font-size: calc(var(--font-size-xl) * 0.85) !important;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  & p, & .text-body {
+    font-size: calc(var(--font-size-base) * 0.85) !important;
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  & .text-label {
+    font-size: calc(var(--font-size-sm) * 0.85) !important;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  & .text-caption, & .text-caption-sm {
+    font-size: calc(var(--font-size-xs) * 0.85) !important;
+    font-weight: 400;
+    color: var(--color-text-muted);
+  }
+
+  /* Button text size reduction */
+  & button {
+    font-size: calc(var(--font-size-sm) * 0.85) !important;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  /* Icon size reduction */
+  & svg {
+    height: 1.0625rem !important; /* 85% of 1.25rem (h-5) */
+    width: 1.0625rem !important; /* 85% of 1.25rem (w-5) */
+    color: currentColor;
+  }
+
+  /* Monospace text in code blocks */
+  & .font-mono, & pre, & code {
+    font-size: calc(var(--font-size-sm) * 0.85) !important;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  /* Ensure whitespace and formatting is preserved */
+  & pre, & .whitespace-pre-wrap {
+    font-size: calc(var(--font-size-sm) * 0.85) !important;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+}
+
+/* Target specific components by their DOM structure */
+.badge-error, .badge-warning, .badge-info {
+  &.specs-content-view {
+    font-size: calc(var(--font-size-sm) * 0.85) !important;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+}
+
+/* Target all elements in the SpecsContent component */
+#root .specs-content {
+  font-size: 0.65rem !important;
+}
+
+/* Target all elements in the SpecsContentView component */
+.SpecsContentView,
+#root [class*="SpecsContentView"],
+#root .space-y-4,
+#root .space-y-6 {
+  font-size: 0.65rem !important;
+  
+  /* Apply to all child elements */
+  & * {
+    font-size: 0.85rem !important;
+  }
+  
+  /* Specific text element overrides */
+  & h1, & h2, & h3, & h4, & h5, & h6 {
+    font-size: calc(var(--font-size-xl) * 0.85) !important;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  
+  & .text-title, & .text-heading-1, & .text-heading-2, & .text-heading-3, & .text-heading-4 {
+    font-size: calc(var(--font-size-xl) * 0.85) !important;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  
+  & p, & .text-body {
+    font-size: calc(var(--font-size-base) * 0.85) !important;
+    font-weight: 400;
+    line-height: 1.5;
+  }
+  
+  & .text-label {
+    font-size: calc(var(--font-size-sm) * 0.85) !important;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+  
+  & svg {
+    height: 1.0625rem !important; /* 85% of 1.25rem (h-5) */
+    width: 1.0625rem !important; /* 85% of 1.25rem (w-5) */
+    color: currentColor;
+  }
+}
+
+/* Ensure compatibility with older browsers */
+@media all {
+  .specs-reduced-font *,
+  .specs-content-view *,
+  .specs-generator-provider * {
+    font-size: 85% !important;
+  }
+}
