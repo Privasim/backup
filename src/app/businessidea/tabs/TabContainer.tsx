@@ -24,9 +24,7 @@ import ArtifactStudio from './artifact-studio';
 const tabComponents = {
   businessplan: BusinessPlanContent,
   userprofile: UserProfileTab,
-  financials: FinancialsContent,
   tools: ToolsContent,
-  visualization: VisualizationContent,
   jobrisk: JobRiskAnalysisTab,
   list: ListTab,
   mobile: MobileTab,
@@ -38,7 +36,7 @@ const tabComponents = {
 
 function TabContent({ onTabChange }: { onTabChange?: (tab: TabId) => void }) {
   const { activeTab } = useTab();
-  const ActiveComponent = tabComponents[activeTab as keyof typeof tabComponents];
+  const ActiveComponent = tabComponents[activeTab as keyof typeof tabComponents] || tabComponents.businessplan;
 
   useEffect(() => {
     if (onTabChange) onTabChange(activeTab);
@@ -68,8 +66,9 @@ function TabContainerContent({ onTabChange }: { onTabChange?: (tab: TabId) => vo
 }
 
 export default function TabContainer({ initialTab, onTabChange }: { initialTab?: string; onTabChange?: (tab: TabId) => void }) {
+  const safeInitialTab = initialTab === 'financials' || initialTab === 'visualization' ? 'businessplan' : initialTab;
   return (
-    <TabProvider initialTab={initialTab}>
+    <TabProvider initialTab={safeInitialTab}>
       <TabContainerContent onTabChange={onTabChange} />
     </TabProvider>
   );

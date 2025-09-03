@@ -31,20 +31,10 @@ const TabIcons = {
     solid: SolidClipboardDocumentCheckIcon,
     label: 'Plan'
   },
-  financials: {
-    outline: CurrencyDollarIcon,
-    solid: SolidCurrencyDollarIcon,
-    label: 'Financials'
-  },
   tools: {
     outline: WrenchScrewdriverIcon,
     solid: SolidWrenchScrewdriverIcon,
     label: 'Tools'
-  },
-  visualization: {
-    outline: ChartBarIcon,
-    solid: SolidChartBarIcon,
-    label: 'Visualization'
   },
   'gotomarket-v2': {
     outline: RocketLaunchIcon,
