@@ -20,7 +20,7 @@ export const initialImageControllerState: ImageControllerState = {
   
   // Results
   images: [],
-  selectedImageIndex: 0,
+  selectedImageIndex: -1, // -1 indicates no image is selected (empty array)
   
   // Operation metadata
   lastPrompt: '',

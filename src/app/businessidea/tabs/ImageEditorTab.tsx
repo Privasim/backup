@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 
   PhotoIcon,
   ArrowsPointingOutIcon,
@@ -9,29 +9,80 @@ import {
   ArrowUturnRightIcon,
   PaintBrushIcon
 } from '@heroicons/react/24/outline';
+import { useImageController } from '@/providers/ImageController';
+import { ApiKeyStorage } from '@/services/image/ApiKeyStorage';
+import ConfigPanel from './image-editor/components/ConfigPanel';
+import StatusBar from './image-editor/components/StatusBar';
 
 interface ImageEditorTabProps {
   className?: string;
 }
 
 export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) {
+  // Use the ImageController context
+  const {
+    apiKey,
+    model,
+    availableModels,
+    status,
+    error,
+    images,
+    selectedImageIndex,
+    usage,
+    setApiKey,
+    setModel,
+    validateApiKey,
+    cancelOperation,
+    clearError
+  } = useImageController();
+  
+  // Local state for UI
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const isLoading = status === 'loading';
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsLoading(true);
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (event) => {
         setSelectedImage(event.target?.result as string);
-        setIsLoading(false);
       };
       reader.readAsDataURL(file);
-    } else {
-      setIsLoading(false);
     }
   };
+  
+  // API key management handlers
+  const handleApiKeyChange = useCallback((newApiKey: string) => {
+    setApiKey(newApiKey);
+    clearError();
+  }, [setApiKey, clearError]);
+  
+  const handleValidateKey = useCallback(async () => {
+    return await validateApiKey();
+  }, [validateApiKey]);
+  
+  const handlePersistToggle = useCallback((enabled: boolean) => {
+    if (enabled && apiKey) {
+      ApiKeyStorage.storeApiKey(model, apiKey);
+    } else {
+      ApiKeyStorage.removeApiKey(model);
+    }
+  }, [apiKey, model]);
+  
+  const handleRemoveKey = useCallback(() => {
+    setApiKey('');
+    ApiKeyStorage.removeApiKey(model);
+    clearError();
+  }, [setApiKey, model, clearError]);
+  
+  const handleModelChange = useCallback((newModel: string) => {
+    setModel(newModel);
+    // Check if we have a stored API key for this model
+    const storedApiKey = ApiKeyStorage.getApiKey(newModel);
+    if (storedApiKey && storedApiKey !== apiKey) {
+      setApiKey(storedApiKey);
+    }
+  }, [setModel, setApiKey, apiKey]);
 
   const renderEmptyState = () => (
     <div className="flex flex-col items-center justify-center h-full text-center p-8">
@@ -181,7 +232,29 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
 
   return (
     <div className={`h-full ${className}`}>
+      {/* API Key Configuration Panel */}
+      <ConfigPanel
+        apiKey={apiKey}
+        model={model}
+        availableModels={availableModels}
+        isValidating={status === 'loading' && !selectedImage}
+        validationError={error}
+        onApiKeyChange={handleApiKeyChange}
+        onValidateKey={handleValidateKey}
+        onPersistToggle={handlePersistToggle}
+        onRemoveKey={handleRemoveKey}
+        onModelChange={handleModelChange}
+      />
+      
       {renderContent()}
+      
+      {/* Status Bar */}
+      <StatusBar
+        status={status}
+        error={error}
+        usage={usage}
+        onCancel={cancelOperation}
+      />
     </div>
   );
 }
