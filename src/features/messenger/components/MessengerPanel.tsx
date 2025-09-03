@@ -51,7 +51,13 @@ export const MessengerPanel: React.FC<MessengerPanelProps> = ({
   // Handle sending a message
   const handleSendMessage = () => {
     if (!messageInput.trim() || status === 'streaming') return;
-    
+
+    // Prevent sending when configuration is incomplete; surface UI to configure
+    if (!config.apiKey || !config.model) {
+      setIsSettingsExpanded(true);
+      return;
+    }
+
     sendMessage({ content: messageInput.trim() });
     setMessageInput('');
   };

@@ -6,6 +6,7 @@ import { OpenRouterClient } from '@/lib/openrouter/client';
 import { getAvailableModels } from '@/lib/openrouter/client';
 import { debugLog } from '@/components/debug/DebugConsole';
 import { MessengerConfig, MessengerContextType, MessengerMessage, MessengerStatus, SendMessageOptions } from '../types';
+import { ChatboxSettingsManager } from '@/components/chatbox/utils/settings-utils';
 
 // Default configuration
 const defaultConfig: MessengerConfig = {
@@ -32,6 +33,29 @@ export const MessengerProvider = ({ children }: { children: ReactNode }) => {
   // For cancellation
   const abortControllerRef = React.useRef<AbortController | null>(null);
 
+  // Initialize configuration from persisted Chatbox settings on mount
+  useEffect(() => {
+    try {
+      const prefs = ChatboxSettingsManager.getPreferences();
+      const model = prefs.defaultModel || '';
+      const apiKey = model ? (ChatboxSettingsManager.getApiKey(model) || '') : '';
+
+      if (model || apiKey) {
+        const initial: Partial<MessengerConfig> = {
+          model,
+          apiKey,
+          temperature: defaultConfig.temperature,
+          maxTokens: defaultConfig.maxTokens,
+        };
+
+        setConfig(prev => ({ ...prev, ...initial }));
+        debugLog.info('Messenger', 'Initialized config from storage', { model, hasApiKey: !!apiKey });
+      }
+    } catch (e) {
+      debugLog.warn('Messenger', 'Failed to initialize config from storage', { error: (e as Error).message });
+    }
+  }, []);
+
   // Update configuration
   const updateConfig = useCallback((partialConfig: Partial<MessengerConfig>) => {
     debugLog.info('Messenger', 'Updating configuration', { 
@@ -39,16 +63,44 @@ export const MessengerProvider = ({ children }: { children: ReactNode }) => {
       changes: partialConfig 
     });
     
-    setConfig(prev => ({
-      ...prev,
-      ...partialConfig
-    }));
+    setConfig(prev => {
+      const next = { ...prev, ...partialConfig } as MessengerConfig;
+
+      // Persist updates to preferences and API key storage
+      try {
+        if (next.model) {
+          ChatboxSettingsManager.savePreferences({ defaultModel: next.model });
+        }
+        if (next.model && next.apiKey) {
+          ChatboxSettingsManager.saveApiKey(next.model, next.apiKey);
+        }
+      } catch (e) {
+        debugLog.warn('Messenger', 'Failed to persist updated configuration', { error: (e as Error).message });
+      }
+
+      return next;
+    });
     
     // Clear error when config changes
     if (error) {
       setError(undefined);
     }
   }, [config, error]);
+
+  // When model changes and apiKey is missing, auto-load saved key for that model
+  useEffect(() => {
+    if (config.model && !config.apiKey) {
+      try {
+        const savedKey = ChatboxSettingsManager.getApiKey(config.model);
+        if (savedKey) {
+          setConfig(prev => ({ ...prev, apiKey: savedKey }));
+          debugLog.info('Messenger', 'Loaded API key for selected model from storage', { model: config.model });
+        }
+      } catch (e) {
+        debugLog.warn('Messenger', 'Failed to load API key for model', { model: config.model, error: (e as Error).message });
+      }
+    }
+  }, [config.model, config.apiKey]);
 
   // Add a new message
   const addMessage = useCallback((message: Omit<MessengerMessage, 'id' | 'timestamp'>) => {
