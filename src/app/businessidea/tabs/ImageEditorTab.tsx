@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { PhotoIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { Dialog } from '@headlessui/react';
 import PromptPanel from './image-editor/components/PromptPanel';
@@ -43,6 +43,19 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const isLoading = status === 'loading';
   const isGenerating = isLoading && operationType === 'generate';
+
+  // Prefill prompt from sessionStorage when navigating from SuggestionCard
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem('imageEditorPrompt');
+      if (stored && typeof stored === 'string') {
+        setPrompt(stored);
+        sessionStorage.removeItem('imageEditorPrompt');
+      }
+    } catch {
+      // no-op: storage may be unavailable; keep prompt as-is
+    }
+  }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -328,7 +341,7 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
               isGenerating={isGenerating}
               onPromptChange={handlePromptChange}
               onGenerate={handleGenerate}
-              disabled={!apiKey}
+              disabled={false}
             />
           </div>
           

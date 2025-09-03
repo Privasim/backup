@@ -149,9 +149,10 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
             type="button"
             aria-label="Create Implementation Plan"
             onClick={() => {
-              // Switch to implementation-plan tab to show loading state
-              console.log('SuggestionCard: Switching to implementation-plan tab and creating plan for:', suggestion.title);
-              setActiveTab('implementation-plan');
+              // Prefill Image Editor prompt with suggestion description and switch tab
+              try { sessionStorage.setItem('imageEditorPrompt', suggestion.description || ''); } catch {}
+              console.log('SuggestionCard: Switching to image-editor tab and creating plan for:', suggestion.title);
+              setActiveTab('image-editor');
               // Pass visualization type from settings
               onCreatePlan?.(suggestion, undefined, settings.visualizationType);
             }}
