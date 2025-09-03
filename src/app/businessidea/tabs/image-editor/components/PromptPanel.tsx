@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PaperAirplaneIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { enhancePrompt } from '@/components/chatbox/ChatboxControls';
 
@@ -10,6 +10,7 @@ interface PromptPanelProps {
   onPromptChange: (prompt: string) => void;
   onGenerate: () => void;
   disabled: boolean;
+  autoImproveTriggerId?: string;
 }
 
 export default function PromptPanel({
@@ -17,13 +18,15 @@ export default function PromptPanel({
   isGenerating,
   onPromptChange,
   onGenerate,
-  disabled
+  disabled,
+  autoImproveTriggerId
 }: PromptPanelProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [isImproving, setIsImproving] = useState(false);
   const [improveError, setImproveError] = useState<string | null>(null);
+  const lastProcessedTriggerId = useRef<string | undefined>(undefined);
   
-  const maxLength = 1000;
+  const maxLength = 3000;
   const promptLength = prompt.length;
   const isPromptEmpty = prompt.trim().length === 0;
   const isButtonDisabled = disabled || isGenerating || isPromptEmpty;
@@ -57,13 +60,26 @@ export default function PromptPanel({
         length: 'medium'
       });
       
-      onPromptChange(result.improved);
+      const improved = (result.improved || '').slice(0, maxLength);
+      onPromptChange(improved);
     } catch (error) {
       setImproveError(error instanceof Error ? error.message : 'Failed to improve prompt');
     } finally {
       setIsImproving(false);
     }
   };
+
+  // Auto-run improve once when a new trigger id is received and conditions are safe
+  useEffect(() => {
+    if (!autoImproveTriggerId) return;
+    if (lastProcessedTriggerId.current === autoImproveTriggerId) return;
+    if (disabled || isGenerating || isImproving) return;
+    if (isFocused) return; // do not override user typing
+    if (isPromptEmpty) return;
+
+    lastProcessedTriggerId.current = autoImproveTriggerId;
+    void handleImprovePrompt();
+  }, [autoImproveTriggerId, disabled, isGenerating, isImproving, isFocused, isPromptEmpty]);
 
   return (
     <div className="space-y-4">

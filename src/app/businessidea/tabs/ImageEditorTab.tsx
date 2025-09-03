@@ -40,6 +40,7 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
   // Local state for UI
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [prompt, setPrompt] = useState<string>('');
+  const [autoImproveTriggerId, setAutoImproveTriggerId] = useState<string | undefined>(undefined);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const isLoading = status === 'loading';
   const isGenerating = isLoading && operationType === 'generate';
@@ -51,6 +52,8 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
       if (stored && typeof stored === 'string') {
         setPrompt(stored);
         sessionStorage.removeItem('imageEditorPrompt');
+        // Signal PromptPanel to auto-improve this prefilled prompt once
+        setAutoImproveTriggerId(String(Date.now()));
       }
     } catch {
       // no-op: storage may be unavailable; keep prompt as-is
@@ -342,6 +345,7 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
               onPromptChange={handlePromptChange}
               onGenerate={handleGenerate}
               disabled={false}
+              autoImproveTriggerId={autoImproveTriggerId}
             />
           </div>
           
