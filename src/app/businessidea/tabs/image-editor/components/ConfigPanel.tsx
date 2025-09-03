@@ -66,57 +66,92 @@ export default function ConfigPanel({
   };
 
   return (
-    <div className="p-5">
-      <h3 className="text-subheading text-primary mb-4">API Configuration</h3>
-      
-      <div className="space-y-4 md:grid md:grid-cols-3 md:gap-6 md:space-y-0">
-        {/* API Key Input */}
-        <div className="md:col-span-2">
-          <label htmlFor="api-key" className="text-label block mb-2 text-primary">
-            OpenRouter API Key
+    <div className="p-1.5">
+      <div className="flex items-center justify-between mb-0.5">
+        <h3 className="text-[11px] font-medium text-primary leading-none">API Configuration</h3>
+        <div className="flex items-center">
+          <input
+            id="persist-key"
+            name="persist-key"
+            type="checkbox"
+            className="h-2 w-2 rounded-sm border-neutral-300 text-primary-600 focus:ring-1 focus:ring-primary-500"
+            checked={isPersisted}
+            onChange={handlePersistToggle}
+          />
+          <label htmlFor="persist-key" className="ml-0.5 text-[9px] text-neutral-600 leading-none">
+            Remember
           </label>
-          <div className="relative">
-            <input
-              type={showApiKey ? 'text' : 'password'}
-              id="api-key"
-              className="input-base focus-ring w-full"
-              placeholder="Enter your OpenRouter API key"
-              value={apiKey}
-              onChange={handleApiKeyChange}
-            />
-            <button
-              type="button"
-              className="absolute inset-y-0 right-0 flex items-center pr-3 focus-ring-inset"
-              onClick={() => setShowApiKey(!showApiKey)}
-              aria-label={showApiKey ? "Hide API key" : "Show API key"}
-            >
-              {showApiKey ? (
-                <EyeSlashIcon className="h-4 w-4 text-neutral-400" />
-              ) : (
-                <EyeIcon className="h-4 w-4 text-neutral-400" />
-              )}
-            </button>
+        </div>
+      </div>
+      
+      <div className="space-y-1.5">
+        {/* API Key Input Row */}
+        <div className="flex gap-0.5">
+          <div className="flex-1">
+            <div className="relative">
+              <input
+                type={showApiKey ? 'text' : 'password'}
+                id="api-key"
+                className="input-base focus-ring w-full text-[11px] h-5 px-1.5 py-0.5"
+                placeholder="OpenRouter API key"
+                value={apiKey}
+                onChange={handleApiKeyChange}
+              />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 flex items-center pr-1"
+                onClick={() => setShowApiKey(!showApiKey)}
+                aria-label={showApiKey ? "Hide API key" : "Show API key"}
+              >
+                {showApiKey ? (
+                  <EyeSlashIcon className="h-2.5 w-2.5 text-neutral-400" />
+                ) : (
+                  <EyeIcon className="h-2.5 w-2.5 text-neutral-400" />
+                )}
+              </button>
+            </div>
           </div>
           
-          {/* Validation Status */}
-          {validationStatus === 'valid' && (
-            <p className="mt-2 text-body-sm text-success-600">API key is valid</p>
-          )}
-          {validationStatus === 'invalid' && (
-            <p className="mt-2 text-body-sm text-error-600">
-              {validationError || 'API key is invalid'}
-            </p>
-          )}
+          <div className="flex items-center gap-0.5">
+            <button
+              type="button"
+              className={`text-[9px] h-5 px-1.5 rounded-sm leading-none ${
+                isValidating || !apiKey
+                  ? 'bg-neutral-200 text-neutral-500 cursor-not-allowed'
+                  : 'bg-primary-600 hover:bg-primary-700 text-white'
+              }`}
+              onClick={handleValidateClick}
+              disabled={isValidating || !apiKey}
+            >
+              {isValidating ? '...' : 'Check'}
+            </button>
+            
+            <button
+              type="button"
+              className="text-[9px] h-5 px-1.5 rounded-sm border border-neutral-300 hover:bg-neutral-50 leading-none"
+              onClick={handleRemoveKey}
+              disabled={!apiKey}
+            >
+              Clear
+            </button>
+          </div>
         </div>
+
+        {/* Validation Status */}
+        {validationStatus === 'valid' && (
+          <p className="text-[9px] text-success-600 -mt-0.5 leading-none">✓ Valid API key</p>
+        )}
+        {validationStatus === 'invalid' && (
+          <p className="text-[9px] text-error-600 -mt-0.5 leading-none">
+            {validationError || 'Invalid API key'}
+          </p>
+        )}
 
         {/* Model Selection */}
         <div>
-          <label htmlFor="model-select" className="text-label block mb-2 text-primary">
-            Image Model
-          </label>
           <select
             id="model-select"
-            className="select-base focus-ring w-full"
+            className="select-base focus-ring w-full text-[11px] h-5 px-1.5 py-0.5"
             value={model}
             onChange={handleModelChange}
           >
@@ -128,42 +163,7 @@ export default function ConfigPanel({
           </select>
         </div>
 
-        {/* Action Buttons */}
-        <div className="md:col-span-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              className={`btn-base ${isValidating || !apiKey ? 'bg-neutral-300 text-neutral-500 cursor-not-allowed' : 'btn-primary'}`}
-              onClick={handleValidateClick}
-              disabled={isValidating || !apiKey}
-            >
-              {isValidating ? 'Validating...' : 'Validate Key'}
-            </button>
-            
-            <button
-              type="button"
-              className="btn-secondary focus-ring"
-              onClick={handleRemoveKey}
-              disabled={!apiKey}
-            >
-              Remove Key
-            </button>
-          </div>
-          
-          <div className="flex items-center">
-            <input
-              id="persist-key"
-              name="persist-key"
-              type="checkbox"
-              className="checkbox-base"
-              checked={isPersisted}
-              onChange={handlePersistToggle}
-            />
-            <label htmlFor="persist-key" className="ml-2 text-body-sm text-secondary">
-              Remember API key
-            </label>
-          </div>
-        </div>
+        {/* No action buttons here - they've been moved to the API key row */}
       </div>
     </div>
   );
