@@ -45,7 +45,7 @@ interface ChatboxLayoutProps {
 export const ChatboxLayout: React.FC<ChatboxLayoutProps> = ({
   children,
   position = 'right',
-  width = '24rem', // 384px (w-96)
+  width = '19.2rem', // 307.2px (80% of original 24rem)
   className = ''
 }) => {
   const { isVisible, closeChatbox } = useChatbox();
@@ -78,8 +78,8 @@ export const ChatboxLayout: React.FC<ChatboxLayoutProps> = ({
           transition-all duration-300 ease-in-out
           ${isVisible 
             ? position === 'right' 
-              ? 'lg:mr-96' 
-              : 'lg:ml-96'
+              ? 'lg:mr-80' 
+              : 'lg:ml-80'
             : ''
           }
           ${isAnimating && isVisible ? 'lg:overflow-hidden' : ''}

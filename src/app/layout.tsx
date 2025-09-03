@@ -34,7 +34,7 @@ export default function RootLayout({
         <ChatboxProvider>
           <BusinessSuggestionProvider>
             <PlanSettingsProvider>
-              <ChatboxLayout position="right" width="24rem">
+              <ChatboxLayout position="right" width="19.2rem">
                 {children}
               </ChatboxLayout>
             </PlanSettingsProvider>
