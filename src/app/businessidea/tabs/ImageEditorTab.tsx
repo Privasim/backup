@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { PhotoIcon } from '@heroicons/react/24/outline';
+import { PhotoIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
+import { Dialog } from '@headlessui/react';
 import PromptPanel from './image-editor/components/PromptPanel';
 import ResultGallery from './image-editor/components/ResultGallery';
 import ImagePreview from './image-editor/components/ImagePreview';
@@ -39,6 +40,7 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
   // Local state for UI
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [prompt, setPrompt] = useState<string>('');
+  const [isConfigOpen, setIsConfigOpen] = useState(false);
   const isLoading = status === 'loading';
   const isGenerating = isLoading && operationType === 'generate';
 
@@ -284,7 +286,7 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
   const renderContent = () => {
     // Show the image generation UI
     return (
-      <div className="flex flex-col space-y-6">
+      <div className="flex flex-col space-y-4">
         {/* Image preview and results */}
         <div className="space-y-4">
           {/* Main preview area */}
@@ -305,17 +307,6 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
             />
           </div>
         </div>
-
-        {/* Prompt input and generate button - Moved below image preview */}
-        <div className="animate-fade-in">
-          <PromptPanel
-            prompt={prompt}
-            isGenerating={isGenerating}
-            onPromptChange={handlePromptChange}
-            onGenerate={handleGenerate}
-            disabled={!apiKey}
-          />
-        </div>
       </div>
     );
   };
@@ -327,21 +318,73 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
         {renderContent()}
       </div>
       
-      {/* API Key Configuration Panel - Moved to bottom */}
+      {/* Combined Controls Panel */}
       <div className="card-base mb-4">
-        <ConfigPanel
-          apiKey={apiKey}
-          model={model}
-          availableModels={availableModels}
-          isValidating={status === 'loading' && !selectedImage}
-          validationError={error}
-          onApiKeyChange={handleApiKeyChange}
-          onValidateKey={handleValidateKey}
-          onPersistToggle={handlePersistToggle}
-          onRemoveKey={handleRemoveKey}
-          onModelChange={handleModelChange}
-        />
+        <div className="relative">
+          {/* Prompt Panel */}
+          <div className="animate-fade-in px-4 pb-10">
+            <PromptPanel
+              prompt={prompt}
+              isGenerating={isGenerating}
+              onPromptChange={handlePromptChange}
+              onGenerate={handleGenerate}
+              disabled={!apiKey}
+            />
+          </div>
+          
+          {/* Settings Button - Bottom Left */}
+          <button
+            type="button"
+            onClick={() => setIsConfigOpen(true)}
+            className="absolute left-4 bottom-2 p-1.5 rounded-full text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            title="Settings"
+          >
+            <Cog6ToothIcon className="h-5 w-5" />
+          </button>
+        </div>
       </div>
+      
+      {/* Config Panel Modal */}
+      <Dialog
+        open={isConfigOpen}
+        onClose={() => setIsConfigOpen(false)}
+        className="relative z-50"
+      >
+        {/* Backdrop */}
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        
+        {/* Modal Panel */}
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <Dialog.Title className="text-lg font-medium text-gray-900 mb-4">
+              API Configuration
+            </Dialog.Title>
+            
+            <ConfigPanel
+              apiKey={apiKey}
+              model={model}
+              availableModels={availableModels}
+              isValidating={status === 'loading' && !selectedImage}
+              validationError={error}
+              onApiKeyChange={handleApiKeyChange}
+              onValidateKey={handleValidateKey}
+              onPersistToggle={handlePersistToggle}
+              onRemoveKey={handleRemoveKey}
+              onModelChange={handleModelChange}
+            />
+            
+            <div className="mt-6">
+              <button
+                type="button"
+                onClick={() => setIsConfigOpen(false)}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Close
+              </button>
+            </div>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
       
       {/* Status Bar */}
       <div className="mt-2">
