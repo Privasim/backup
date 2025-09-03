@@ -28,6 +28,11 @@ import {
 } from '@heroicons/react/24/solid';
 
 const TabIcons = {
+  'image-editor': {
+    outline: PhotoIcon,
+    solid: SolidPhotoIcon,
+    label: 'Images'
+  },
   'implementation-plan': {
     outline: ClipboardDocumentCheckIcon,
     solid: SolidClipboardDocumentCheckIcon,
@@ -52,11 +57,6 @@ const TabIcons = {
     outline: ClipboardDocumentListIcon,
     solid: SolidClipboardDocumentListIcon,
     label: 'Specs'
-  },
-  'image-editor': {
-    outline: PhotoIcon,
-    solid: SolidPhotoIcon,
-    label: 'Images'
   },
 } as const;
 
