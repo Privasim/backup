@@ -1,14 +1,10 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { 
-  PhotoIcon,
-  ArrowsPointingOutIcon,
-  ArrowsPointingInIcon,
-  ArrowUturnLeftIcon,
-  ArrowUturnRightIcon,
-  PaintBrushIcon
-} from '@heroicons/react/24/outline';
+import { PhotoIcon } from '@heroicons/react/24/outline';
+import PromptPanel from './image-editor/components/PromptPanel';
+import ResultGallery from './image-editor/components/ResultGallery';
+import ImagePreview from './image-editor/components/ImagePreview';
 import { useImageController } from '@/providers/ImageController';
 import { ApiKeyStorage } from '@/services/image/ApiKeyStorage';
 import ConfigPanel from './image-editor/components/ConfigPanel';
@@ -29,16 +25,22 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
     images,
     selectedImageIndex,
     usage,
+    operationType,
     setApiKey,
     setModel,
     validateApiKey,
+    generateImage,
+    editImage,
+    selectImage,
     cancelOperation,
     clearError
   } = useImageController();
   
   // Local state for UI
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [prompt, setPrompt] = useState<string>('');
   const isLoading = status === 'loading';
+  const isGenerating = isLoading && operationType === 'generate';
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -83,6 +85,67 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
       setApiKey(storedApiKey);
     }
   }, [setModel, setApiKey, apiKey]);
+
+  // Image generation handlers
+  const handlePromptChange = useCallback((newPrompt: string) => {
+    setPrompt(newPrompt);
+  }, []);
+
+  const handleGenerate = useCallback(async () => {
+    if (!prompt.trim() || !apiKey) return;
+    
+    try {
+      await generateImage({
+        prompt: prompt.trim(),
+        model
+      });
+    } catch (err) {
+      console.error('Error generating image:', err);
+    }
+  }, [prompt, apiKey, model, generateImage]);
+
+  const handleSelectImage = useCallback((index: number) => {
+    selectImage(index);
+  }, [selectImage]);
+
+  // Image download and copy handlers
+  const handleDownloadImage = useCallback(() => {
+    if (!images.length || selectedImageIndex < 0) return;
+    
+    const link = document.createElement('a');
+    link.href = images[selectedImageIndex];
+    link.download = `generated-image-${Date.now()}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }, [images, selectedImageIndex]);
+
+  const handleCopyImage = useCallback(async () => {
+    if (!images.length || selectedImageIndex < 0) return false;
+    
+    try {
+      // Try to copy as image if browser supports it
+      const response = await fetch(images[selectedImageIndex]);
+      const blob = await response.blob();
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          [blob.type]: blob
+        })
+      ]);
+      return true;
+    } catch (err) {
+      console.error('Error copying image to clipboard:', err);
+      
+      // Fallback: try to copy as URL
+      try {
+        await navigator.clipboard.writeText(images[selectedImageIndex]);
+        return true;
+      } catch (fallbackErr) {
+        console.error('Error copying image URL to clipboard:', fallbackErr);
+        return false;
+      }
+    }
+  }, [images, selectedImageIndex]);
 
   const renderEmptyState = () => (
     <div className="flex flex-col items-center justify-center h-full text-center p-8">
@@ -219,15 +282,39 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
   );
 
   const renderContent = () => {
-    if (isLoading) {
-      return renderLoadingState();
-    }
-
-    if (!selectedImage) {
-      return renderEmptyState();
-    }
-
-    return renderEditor();
+    // Show the image generation UI
+    return (
+      <div className="flex flex-col space-y-4">
+        {/* Prompt input and generate button */}
+        <PromptPanel
+          prompt={prompt}
+          isGenerating={isGenerating}
+          onPromptChange={handlePromptChange}
+          onGenerate={handleGenerate}
+          disabled={!apiKey}
+        />
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Main preview area */}
+          <div className="md:col-span-2">
+            <ImagePreview
+              imageSrc={images.length > 0 && selectedImageIndex >= 0 ? images[selectedImageIndex] : null}
+              onDownload={handleDownloadImage}
+              onCopy={handleCopyImage}
+            />
+          </div>
+          
+          {/* Results gallery */}
+          <div>
+            <ResultGallery
+              images={images}
+              selectedIndex={selectedImageIndex}
+              onSelect={handleSelectImage}
+            />
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
