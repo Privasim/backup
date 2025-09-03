@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useChatbox } from './ChatboxProvider';
 import { getAvailableModels } from '@/lib/openrouter';
 import { useChatboxSettings } from './utils/settings-utils';
@@ -22,6 +22,171 @@ import { getMockProfile } from '@/data/mockProfiles';
 import { chatboxDebug } from '@/app/businessidea/utils/logStore';
 import { AnalysisConfig } from './types';
 import { getAnalysisStatus } from './utils/profile-transformation';
+
+// Prompt Enhancer Registry
+type EnhancerOptions = {
+  tone?: string;
+  detail?: 'concise' | 'balanced' | 'rich';
+  length?: 'short' | 'medium' | 'long';
+};
+
+type EnhancerResult = {
+  improved: string;
+  meta?: Record<string, unknown>;
+};
+
+type EnhancerFunction = (input: string, options?: EnhancerOptions) => Promise<EnhancerResult>;
+
+// Module-level enhancer registry
+let currentEnhancer: EnhancerFunction | null = null;
+let enhancerRegistrationId: string | null = null;
+
+/**
+ * Register a function that can enhance prompts using AI
+ * @param enhancer Function that takes input text and options, returns improved text
+ * @returns Registration ID that can be used to clear this specific enhancer
+ */
+export function registerEnhancer(enhancer: EnhancerFunction): string {
+  const registrationId = Math.random().toString(36).substring(2, 15);
+  currentEnhancer = enhancer;
+  enhancerRegistrationId = registrationId;
+  return registrationId;
+}
+
+/**
+ * Clear the registered enhancer
+ * @param registrationId Optional ID to only clear if it matches the current registration
+ */
+export function clearEnhancer(registrationId?: string): void {
+  if (!registrationId || registrationId === enhancerRegistrationId) {
+    currentEnhancer = null;
+    enhancerRegistrationId = null;
+  }
+}
+
+/**
+ * Enhance a prompt using the registered enhancer or fallback to saved settings
+ * @param input Original prompt text
+ * @param options Optional configuration for enhancement style
+ * @returns Promise with improved text and metadata
+ */
+export async function enhancePrompt(input: string, options?: EnhancerOptions): Promise<EnhancerResult> {
+  if (!input || input.trim().length === 0) {
+    throw new Error('Cannot enhance empty prompt');
+  }
+  
+  // Use registered enhancer if available
+  if (currentEnhancer) {
+    return currentEnhancer(input, options);
+  }
+  
+  // Fallback: Try to use saved settings
+  try {
+    // This uses the existing utilities in ChatboxControls
+    const { getApiKey } = await import('./utils/settings-utils');
+    const { getAvailableModels } = await import('@/lib/openrouter');
+    
+    // Get first available model and its saved API key
+    const models = getAvailableModels();
+    if (!models.length) {
+      throw new Error('No AI models available');
+    }
+    
+    const model = models[0];
+    const apiKey = getApiKey(model);
+    
+    if (!apiKey) {
+      throw new Error('Please configure your API key in the Chatbox settings');
+    }
+    
+    // Create a one-time enhancer with the saved settings
+    return enhancePromptWithOpenRouter(input, apiKey, model, options);
+  } catch (error) {
+    throw new Error(
+      'No prompt enhancer is registered. Please open the Chatbox to configure API settings.'
+    );
+  }
+}
+
+/**
+ * Implementation of prompt enhancement using OpenRouter
+ */
+async function enhancePromptWithOpenRouter(
+  input: string,
+  apiKey: string,
+  model: string,
+  options?: EnhancerOptions
+): Promise<EnhancerResult> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 second timeout
+  
+  try {
+    // Build system prompt for enhancement
+    const systemPrompt = `You are an expert at improving image generation prompts. 
+    Your task is to enhance the given prompt to create more detailed, vivid, and effective image generation instructions.
+    ${options?.tone ? `Use a ${options.tone} tone.` : ''}
+    ${options?.detail === 'concise' ? 'Be concise and focused.' : 
+      options?.detail === 'rich' ? 'Add rich, vivid details.' : 
+      'Use a balanced amount of detail.'}
+    ${options?.length === 'short' ? 'Keep the result brief.' : 
+      options?.length === 'long' ? 'Create a comprehensive prompt.' : 
+      'Use a moderate length.'}
+    Respond ONLY with the improved prompt text. Do not include explanations or other text.`;
+    
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'HTTP-Referer': window.location.origin,
+        'X-Title': 'Prompt Enhancer'
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: input }
+        ]
+      }),
+      signal: controller.signal
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        `API error (${response.status}): ${errorData.error?.message || response.statusText}`
+      );
+    }
+    
+    const data = await response.json();
+    const improved = data.choices?.[0]?.message?.content?.trim() || '';
+    
+    if (!improved) {
+      throw new Error('Received empty response from AI');
+    }
+    
+    // Normalize and enforce length limit
+    const normalized = improved
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 1000);
+    
+    return {
+      improved: normalized,
+      meta: {
+        model: data.model || model,
+        tokens: data.usage?.total_tokens
+      }
+    };
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error('Request timed out. Please try again.');
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
 
 /**
  * External configuration interface for when ChatboxControls is used outside of ChatboxProvider
@@ -97,6 +262,7 @@ const ChatboxControlsContext: React.FC<Omit<ChatboxControlsProps, 'controlSource
 }) => {
   const { config, status, updateConfig, startAnalysis, profileData, useMockData, setProfileData } = useChatbox();
   const { saveApiKey, getApiKey } = useChatboxSettings();
+  const enhancerIdRef = useRef<string | null>(null);
 
   const [activeTab, setActiveTab] = useState<TabType>('analyze');
   const [showKey, setShowKey] = useState(false);
@@ -199,6 +365,45 @@ const ChatboxControlsContext: React.FC<Omit<ChatboxControlsProps, 'controlSource
       setProfileData(mockData);
     }
   }, [useMockData, setProfileData]);
+  
+  // Register enhancer when component mounts
+  useEffect(() => {
+    // Create an enhancer function that uses the current config
+    const enhancer = async (input: string, options?: EnhancerOptions): Promise<EnhancerResult> => {
+      if (!config.apiKey || !config.model) {
+        throw new Error('Please configure API key and model in the Chatbox settings');
+      }
+      
+      chatboxDebug.debug('chatbox:enhancer', 'Enhancing prompt', { 
+        inputLength: input.length,
+        model: config.model,
+        options
+      });
+      
+      try {
+        const result = await enhancePromptWithOpenRouter(input, config.apiKey, config.model, options);
+        chatboxDebug.success('chatbox:enhancer', 'Prompt enhanced successfully', { 
+          resultLength: result.improved.length,
+          meta: result.meta
+        });
+        return result;
+      } catch (error) {
+        chatboxDebug.error('chatbox:enhancer', 'Prompt enhancement failed', error);
+        throw error;
+      }
+    };
+    
+    // Register this enhancer
+    enhancerIdRef.current = registerEnhancer(enhancer);
+    
+    // Clean up on unmount
+    return () => {
+      if (enhancerIdRef.current) {
+        clearEnhancer(enhancerIdRef.current);
+        enhancerIdRef.current = null;
+      }
+    };
+  }, [config.apiKey, config.model]);
 
   const handleStartAnalysis = useCallback(async () => {
     if (!validate()) {
@@ -533,6 +738,7 @@ const ChatboxControlsExternalApi: React.FC<{
   onValidationChange 
 }) => {
   const { saveApiKey, getApiKey } = useChatboxSettings();
+  const enhancerIdRef = useRef<string | null>(null);
   
   const [showKey, setShowKey] = useState(false);
   const [touched, setTouched] = useState(false);
@@ -633,6 +839,39 @@ const ChatboxControlsExternalApi: React.FC<{
   }, [externalConfig.apiKey, onExternalConfigChange, getApiKey]);
 
   const selectedModel = availableModels.find(m => m.value === externalConfig.model);
+  
+  // Register enhancer when component mounts
+  useEffect(() => {
+    // Create an enhancer function that uses the external config
+    const enhancer = async (input: string, options?: EnhancerOptions): Promise<EnhancerResult> => {
+      if (!externalConfig.apiKey || !externalConfig.model) {
+        throw new Error('Please configure API key and model in the settings');
+      }
+      
+      try {
+        return await enhancePromptWithOpenRouter(
+          input, 
+          externalConfig.apiKey, 
+          externalConfig.model, 
+          options
+        );
+      } catch (error) {
+        console.error('Prompt enhancement failed:', error);
+        throw error;
+      }
+    };
+    
+    // Register this enhancer
+    enhancerIdRef.current = registerEnhancer(enhancer);
+    
+    // Clean up on unmount
+    return () => {
+      if (enhancerIdRef.current) {
+        clearEnhancer(enhancerIdRef.current);
+        enhancerIdRef.current = null;
+      }
+    };
+  }, [externalConfig.apiKey, externalConfig.model]);
 
   return (
     <div className={`bg-white border border-gray-200 rounded-lg ${className}`}>

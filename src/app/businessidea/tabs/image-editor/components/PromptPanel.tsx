@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
+import { PaperAirplaneIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { enhancePrompt } from '@/components/chatbox/ChatboxControls';
 
 interface PromptPanelProps {
   prompt: string;
@@ -19,10 +20,14 @@ export default function PromptPanel({
   disabled
 }: PromptPanelProps) {
   const [isFocused, setIsFocused] = useState(false);
+  const [isImproving, setIsImproving] = useState(false);
+  const [improveError, setImproveError] = useState<string | null>(null);
+  
   const maxLength = 1000;
   const promptLength = prompt.length;
   const isPromptEmpty = prompt.trim().length === 0;
   const isButtonDisabled = disabled || isGenerating || isPromptEmpty;
+  const isImproveButtonDisabled = disabled || isGenerating || isImproving || isPromptEmpty;
 
   const handlePromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -36,6 +41,27 @@ export default function PromptPanel({
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && !isButtonDisabled) {
       e.preventDefault();
       onGenerate();
+    }
+  };
+  
+  const handleImprovePrompt = async () => {
+    if (isImproveButtonDisabled) return;
+    
+    setIsImproving(true);
+    setImproveError(null);
+    
+    try {
+      const result = await enhancePrompt(prompt, {
+        tone: 'neutral',
+        detail: 'rich',
+        length: 'medium'
+      });
+      
+      onPromptChange(result.improved);
+    } catch (error) {
+      setImproveError(error instanceof Error ? error.message : 'Failed to improve prompt');
+    } finally {
+      setIsImproving(false);
     }
   };
 
@@ -71,9 +97,40 @@ export default function PromptPanel({
               Please add and validate your API key
             </p>
           )}
+          {improveError && (
+            <p className="mt-1 text-[10px] text-warning-600">
+              {improveError}
+            </p>
+          )}
         </div>
       </div>
-      <div className="flex justify-end">
+      <div className="flex justify-between items-center">  
+        <button
+          type="button"
+          onClick={handleImprovePrompt}
+          disabled={isImproveButtonDisabled}
+          aria-busy={isImproving}
+          className={`inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded shadow-sm ${
+            isImproveButtonDisabled
+              ? 'bg-gray-100 text-gray-400 border-gray-200'
+              : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500'
+          }`}
+        >
+          {isImproving ? (
+            <>
+              <svg className="animate-spin -ml-0.5 mr-1.5 h-3 w-3 text-gray-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Improving...
+            </>
+          ) : (
+            <>
+              <SparklesIcon className="-ml-0.5 mr-1.5 h-3.5 w-3.5" />
+              Improve
+            </>
+          )}
+        </button>
         <button
           type="button"
           onClick={onGenerate}
