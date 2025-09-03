@@ -20,6 +20,7 @@ import UserProfileTab from './user-profile';
 import JobRiskAnalysisTab from './job-risk';
 import GoToMarketV2Content from './GoToMarketV2Content';
 import ArtifactStudio from './artifact-studio';
+import ImageEditor from './image-editor';
 
 const tabComponents = {
   businessplan: BusinessPlanContent,
@@ -32,6 +33,7 @@ const tabComponents = {
   'artifact-studio': ArtifactStudio,
   specs: SpecsContent,
   'implementation-plan': ImplementationPlanTab,
+  'image-editor': ImageEditor,
 } as const;
 
 function TabContent({ onTabChange }: { onTabChange?: (tab: TabId) => void }) {
