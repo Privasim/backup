@@ -10,6 +10,7 @@ import { useImageController } from '@/providers/ImageController';
 import { ApiKeyStorage } from '@/services/image/ApiKeyStorage';
 import ConfigPanel from './image-editor/components/ConfigPanel';
 import StatusBar from './image-editor/components/StatusBar';
+import { TemplateSettings } from './image-editor/utils/promptTemplate';
 
 interface ImageEditorTabProps {
   className?: string;
@@ -42,6 +43,13 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
   const [prompt, setPrompt] = useState<string>('');
   const [autoImproveTriggerId, setAutoImproveTriggerId] = useState<string | undefined>(undefined);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
+  const [templateSettings, setTemplateSettings] = useState<TemplateSettings>({
+    enabled: true,
+    deviceModel: 'iphone-16-pro',
+    angle: 'portrait',
+    background: 'outdoor',
+    lighting: 'natural'
+  });
   const isLoading = status === 'loading';
   const isGenerating = isLoading && operationType === 'generate';
 
@@ -346,6 +354,7 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
               onGenerate={handleGenerate}
               disabled={false}
               autoImproveTriggerId={autoImproveTriggerId}
+              templateSettings={templateSettings}
             />
           </div>
           
@@ -388,6 +397,8 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
               onPersistToggle={handlePersistToggle}
               onRemoveKey={handleRemoveKey}
               onModelChange={handleModelChange}
+              templateSettings={templateSettings}
+              onTemplateSettingsChange={setTemplateSettings}
             />
             
             <div className="mt-6">

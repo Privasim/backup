@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { PaperAirplaneIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { enhancePrompt } from '@/components/chatbox/ChatboxControls';
+import { TemplateSettings, applyTemplate, isTemplated, stripTemplate } from '../utils/promptTemplate';
 
 interface PromptPanelProps {
   prompt: string;
@@ -11,6 +12,7 @@ interface PromptPanelProps {
   onGenerate: () => void;
   disabled: boolean;
   autoImproveTriggerId?: string;
+  templateSettings: TemplateSettings;
 }
 
 export default function PromptPanel({
@@ -19,7 +21,8 @@ export default function PromptPanel({
   onPromptChange,
   onGenerate,
   disabled,
-  autoImproveTriggerId
+  autoImproveTriggerId,
+  templateSettings
 }: PromptPanelProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [isImproving, setIsImproving] = useState(false);
@@ -60,8 +63,17 @@ export default function PromptPanel({
         length: 'medium'
       });
       
-      const improved = (result.improved || '').slice(0, maxLength);
-      onPromptChange(improved);
+      const improved = (result.improved || '').trim();
+
+      // Apply device/hand template based on settings and avoid duplication
+      const keywordTemplated = /iphone\s*1[56]\s*pro/i.test(improved) || /dynamic\s*island/i.test(improved);
+      const alreadyTemplated = isTemplated(improved) || keywordTemplated;
+      const composed = templateSettings.enabled && !alreadyTemplated
+        ? applyTemplate(improved, templateSettings)
+        : improved;
+
+      const finalText = composed.slice(0, maxLength);
+      onPromptChange(finalText);
     } catch (error) {
       setImproveError(error instanceof Error ? error.message : 'Failed to improve prompt');
     } finally {
@@ -108,6 +120,21 @@ export default function PromptPanel({
               </span>
             </div>
           </div>
+          {isTemplated(prompt) && (
+            <div className="mt-1 flex items-center gap-1">
+              <span className="inline-flex items-center rounded-full bg-blue-50 text-blue-700 border border-blue-200 px-1.5 py-0.5 text-[10px]">
+                Templated framing applied
+              </span>
+              <button
+                type="button"
+                className="text-[10px] text-blue-700 hover:underline"
+                onClick={() => onPromptChange(stripTemplate(prompt).slice(0, maxLength))}
+                aria-label="Remove templated framing"
+              >
+                Remove framing
+              </button>
+            </div>
+          )}
           {disabled && !isGenerating && (
             <p className="mt-1 text-[10px] text-warning-600">
               Please add and validate your API key
