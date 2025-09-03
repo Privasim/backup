@@ -285,18 +285,8 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
     // Show the image generation UI
     return (
       <div className="flex flex-col space-y-6">
-        {/* Prompt input and generate button */}
-        <div className="animate-fade-in">
-          <PromptPanel
-            prompt={prompt}
-            isGenerating={isGenerating}
-            onPromptChange={handlePromptChange}
-            onGenerate={handleGenerate}
-            disabled={!apiKey}
-          />
-        </div>
-        
-        <div className="space-y-6">
+        {/* Image preview and results */}
+        <div className="space-y-4">
           {/* Main preview area */}
           <div className="animate-slide-up">
             <ImagePreview
@@ -314,6 +304,17 @@ export default function ImageEditorTab({ className = '' }: ImageEditorTabProps) 
               onSelect={handleSelectImage}
             />
           </div>
+        </div>
+
+        {/* Prompt input and generate button - Moved below image preview */}
+        <div className="animate-fade-in">
+          <PromptPanel
+            prompt={prompt}
+            isGenerating={isGenerating}
+            onPromptChange={handlePromptChange}
+            onGenerate={handleGenerate}
+            disabled={!apiKey}
+          />
         </div>
       </div>
     );
