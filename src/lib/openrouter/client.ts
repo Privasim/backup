@@ -1,37 +1,11 @@
 import { debugLog } from '@/components/debug/DebugConsole';
-
-interface OpenRouterMessage {
-  role: 'system' | 'user' | 'assistant';
-  content: string;
-}
-
-interface OpenRouterRequest {
-  model: string;
-  messages: OpenRouterMessage[];
-  stream?: boolean;
-  temperature?: number;
-  max_tokens?: number;
-}
-
-interface OpenRouterResponse {
-  id: string;
-  object: string;
-  created: number;
-  model: string;
-  choices: {
-    index: number;
-    message: {
-      role: string;
-      content: string;
-    };
-    finish_reason: string;
-  }[];
-  usage: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
-  };
-}
+import {
+  OpenRouterMessage,
+  OpenRouterRequest,
+  OpenRouterResponse,
+  OpenRouterChoice,
+  OpenRouterDelta
+} from './types';
 
 export class OpenRouterClient {
   private apiKey: string;
@@ -48,7 +22,11 @@ export class OpenRouterClient {
 
   async chat(
     request: OpenRouterRequest,
-    options?: { stream?: boolean; onChunk?: (chunk: string) => void; signal?: AbortSignal }
+    options?: { 
+      stream?: boolean; 
+      onChunk?: (chunk: string, parsedChunk?: any) => void; 
+      signal?: AbortSignal 
+    }
   ): Promise<OpenRouterResponse | void> {
     const isStreaming = options?.stream === true;
     
@@ -135,12 +113,21 @@ export class OpenRouterClient {
                 
                 try {
                   const parsed = JSON.parse(data);
-                  const content = parsed.choices?.[0]?.delta?.content;
-                  if (content) {
+                  const delta = parsed.choices?.[0]?.delta;
+                  
+                  // Handle text content
+                  if (delta?.content) {
                     totalChunks++;
-                    totalContent += content;
-                    debugLog.debug('OpenRouter', `Chunk ${totalChunks}: ${content.length} chars`);
-                    options.onChunk(content);
+                    totalContent += delta.content;
+                    debugLog.debug('OpenRouter', `Chunk ${totalChunks}: ${delta.content.length} chars`);
+                    options.onChunk(delta.content, parsed);
+                  }
+                  
+                  // Handle image content
+                  if (delta?.images?.length) {
+                    debugLog.debug('OpenRouter', `Received image chunk with ${delta.images.length} images`);
+                    // Pass empty string for text content but include the parsed chunk with images
+                    options.onChunk('', parsed);
                   }
                 } catch (e) {
                   debugLog.warn('OpenRouter', 'Error parsing streaming chunk', { error: e, data });
