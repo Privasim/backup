@@ -3,7 +3,9 @@
 import React, { useMemo, useState, useCallback, useId, useEffect } from 'react';
 import { DataDrivenInsightsModel } from '../insights/types';
 import { AutomationExposureBar } from './automation-exposure-bar';
-import { AlertCircle, Info, ChevronDown, ChevronUp, Copy, Check, ExternalLink } from 'lucide-react';
+import { Zap, ChevronDown, ChevronUp, Copy, ExternalLink, AlertCircle, Info, PieChart, Check } from 'lucide-react';
+import { Skeleton } from '../ui/skeleton';
+import { ClipboardUtils } from '../chatbox/utils/clipboard-utils';
 
 interface AutomationExposureCardProps {
   insights?: DataDrivenInsightsModel;
@@ -145,7 +147,7 @@ export function AutomationExposureCard({
   }, [contextStats, insights, minExposure, topN]);
 
   const handleCopy = useCallback(() => {
-    navigator.clipboard?.writeText(contextCopyText)
+    ClipboardUtils.copyToClipboard(contextCopyText)
       .then(() => {
         setCopied(true);
         setTimeout(() => setCopied(false), 1500);
@@ -154,7 +156,7 @@ export function AutomationExposureCard({
         // Silently ignore copy failures
       });
   }, [contextCopyText]);
- 
+
   // Derived severity and top-3 tasks for additional context
   const severityLabel = useMemo<'Low' | 'Moderate' | 'High'>(() => {
     const a = contextStats.avg;
@@ -168,18 +170,24 @@ export function AutomationExposureCard({
       : 'badge-base badge-success'
   ), [severityLabel]);
   const topThree = useMemo(() => barItems.slice(0, Math.min(3, barItems.length)), [barItems]);
-  
+
   // Import the CardSkeletonLoader component
   const { CardSkeletonLoader } = require('@/components/ui/SkeletonLoader');
-  
+
   if (loading) {
     return (
-      <div className={`card-elevated overflow-hidden ${className}`}>
-        <div className="px-4 py-3 border-b border-default">
-          <h3 className="text-heading text-primary">{title}</h3>
+      <div className={`card-elevated p-4 animate-fade-in transition-all duration-300 ${className}`}>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="bg-accent-100 p-2 rounded-full">
+            <PieChart className="h-5 w-5 text-accent-600" />
+          </div>
+          <h3 className="text-subheading text-primary">Automation Exposure</h3>
         </div>
-        <div className="p-4">
-          <CardSkeletonLoader />
+        <div className="space-y-3">
+          <Skeleton className="h-6 w-full rounded-md" />
+          <Skeleton className="h-24 w-full rounded-md" />
+          <Skeleton className="h-24 w-full rounded-md" />
+          <Skeleton className="h-4 w-1/2 rounded-md" />
         </div>
       </div>
     );
@@ -200,7 +208,33 @@ export function AutomationExposureCard({
       </div>
     );
   }
-  
+
+  const validAutomationData = useMemo(() => {
+    if (!insights || !insights.automationExposure) return [];
+    return insights.automationExposure.filter(item => typeof item.exposure === 'number');
+  }, [insights]);
+
+  const stats = useMemo(() => {
+    if (!validAutomationData.length) return { avg: 0, high: 0, medium: 0, low: 0, total: 0 };
+    
+    const total = validAutomationData.length;
+    const sum = validAutomationData.reduce((acc, item) => acc + item.exposure, 0);
+    const avg = Math.round(sum / total);
+    
+    const high = validAutomationData.filter(item => item.exposure > 70).length;
+    const medium = validAutomationData.filter(item => item.exposure > 40 && item.exposure <= 70).length;
+    const low = validAutomationData.filter(item => item.exposure <= 40).length;
+    
+    return { avg, high, medium, low, total };
+  }, [validAutomationData]);
+
+  const displayedTasks = useMemo(() => {
+    if (!validAutomationData.length) return [];
+    return expanded ? validAutomationData : validAutomationData.slice(0, topN);
+  }, [validAutomationData, expanded, topN]);
+
+  // Second handleCopy function removed to fix duplication
+
   return (
     <div className={`card-elevated overflow-hidden animate-fade-in ${className}`}>
       <div className="px-4 py-3 border-b border-default">

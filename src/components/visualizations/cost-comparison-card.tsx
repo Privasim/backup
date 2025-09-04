@@ -1,354 +1,332 @@
 // File: src/components/visualizations/cost-comparison-card.tsx
 "use client";
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { DataDrivenInsightsModel } from '@/components/insights/types';
-import { resolveCurrencyAndLocale, formatCurrency } from '@/components/insights/cost/locale';
-import { CostModelConfig } from '@/components/insights/cost/types';
-import { useCostComparison } from '@/components/insights/cost/useCostComparison';
-import { InformationCircleIcon, ClipboardIcon } from '@heroicons/react/24/outline';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useCostComparison, CostComparisonConfig } from '@/hooks/use-cost-comparison';
+import { Skeleton } from '../ui/skeleton';
+import { AlertCircle, Copy, Info, Settings, ChevronDown, ChevronUp, X, DollarSign, BarChart3 } from 'lucide-react';
 
 export interface CostComparisonCardProps {
-  insights?: DataDrivenInsightsModel;
+  insights?: any;
   profileLocation?: string;
   title?: string;
   className?: string;
   loading?: boolean;
   error?: string;
+  defaultConfig?: CostComparisonConfig;
+  persistKey?: string;
+  showSettings?: boolean;
 }
 
+export interface CostComparisonConfig {
+  humanHourlyCost: number;
+  aiHourlyCost: number;
+  hoursPerWeek: number;
+  weeksPerYear: number;
+}
+
+// Subcomponent for number inputs with labels
 function LabeledNumberInput({
-  id,
   label,
   value,
   onChange,
   min = 0,
-  step = 1,
-  placeholder,
-  help,
+  max = 1000,
 }: {
-  id: string;
   label: string;
-  value: number | undefined;
-  onChange: (v: number | undefined) => void;
+  value: number;
+  onChange: (value: number) => void;
   min?: number;
-  step?: number;
-  placeholder?: string;
-  help?: string;
+  max?: number;
 }) {
   return (
-    <label htmlFor={id} className="block text-sm">
-      <span className="text-gray-700">{label}</span>
+    <div className="flex flex-col">
+      <label className="text-caption text-secondary mb-1">{label}</label>
       <input
-        id={id}
         type="number"
-        value={value ?? ''}
-        inputMode="decimal"
-        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-sm"
-        min={min}
-        step={step}
-        placeholder={placeholder}
+        value={value}
         onChange={(e) => {
-          const raw = e.target.value;
-          if (raw.trim() === '') onChange(undefined);
-          else onChange(Number(raw));
+          const newValue = parseFloat(e.target.value);
+          if (!isNaN(newValue) && newValue >= min && newValue <= max) {
+            onChange(newValue);
+          }
         }}
-        aria-describedby={help ? `${id}-help` : undefined}
+        min={min}
+        max={max}
+        className="border border-default rounded-md px-3 py-2 text-body focus-ring"
       />
-      {help && (
-        <div id={`${id}-help`} className="mt-1 text-xs text-gray-500 flex items-start gap-1">
-          <InformationCircleIcon className="h-4 w-4 mt-0.5" />
-          <span>{help}</span>
-        </div>
-      )}
-    </label>
+    </div>
   );
 }
 
-export function CostComparisonCard({ insights, profileLocation, title = 'Human vs AI Cost Comparison', className, loading = false, error }: CostComparisonCardProps) {
-  const loc = useMemo(() => resolveCurrencyAndLocale(profileLocation), [profileLocation]);
+export function CostComparisonCard({
+  className = '',
+  defaultConfig,
+  persistKey = 'cost-comparison-config',
+  showSettings = true,
+  insights,
+  profileLocation,
+  title = 'Cost Comparison',
+  loading: externalLoading,
+  error: externalError,
+}: CostComparisonCardProps) {
+  // State for configuration panel
+  const [showConfig, setShowConfig] = useState(false);
+  const [config, setConfig] = useState<CostComparisonConfig>(defaultConfig || {
+    humanHourlyCost: 50,
+    aiHourlyCost: 15,
+    hoursPerWeek: 40,
+    weeksPerYear: 50,
+  });
 
-  const [persist, setPersist] = useState<boolean>(false);
-  const storageKey = useMemo(() => `cost-cfg:${profileLocation ?? 'unknown'}`, [profileLocation]);
-
-  const [cfg, setCfg] = useState<CostModelConfig | undefined>(undefined);
-
-  // Initialize config from profile location and (optionally) localStorage
+  // Load saved configuration from localStorage if available
   useEffect(() => {
-    // Provide sensible defaults for the cost model configuration
-    const baseCfg: CostModelConfig = {
-      currency: loc.currency,
-      locale: loc.locale,
-      human: {
-        baseMonthly: 5000, // Default monthly salary
-        benefitsRate: 0.3, // 30% benefits
-        overheadRate: 0.2, // 20% overhead
-        toolingMonthly: 100,
-        trainingMonthly: 200,
-        managementOversightHours: 10,
-        hourlyRate: 50
-      },
-      ai: {
-        modelUsagePer1kTokens: 0.002, // Default token cost
-        estTokensPerTask: 1000,
-        tasksPerMonth: 500,
-        subscriptionsMonthly: 50,
-        infraMonthly: 100,
-        orchestrationMonthly: 50,
-        oversightHours: 5,
-        oversightHourlyRate: 50,
-        oneOffSetupCost: 2000
-      },
-      analysis: { automationWeighting: 'mean' },
-    };
-    if (persist) {
+    if (typeof window === 'undefined' || !persistKey) return;
+    
+    const savedConfig = localStorage.getItem(persistKey);
+    if (savedConfig) {
       try {
-        const saved = localStorage.getItem(storageKey);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          setCfg({ ...baseCfg, ...parsed, currency: loc.currency, locale: loc.locale });
-          return;
-        }
-      } catch {}
+        const parsed = JSON.parse(savedConfig);
+        setConfig((prev: CostComparisonConfig) => ({
+          ...prev,
+          ...parsed,
+        }));
+      } catch (e) {
+        console.error('Failed to parse saved cost comparison config', e);
+      }
     }
-    setCfg(baseCfg);
-  }, [loc.currency, loc.locale, persist, storageKey]);
+  }, [persistKey]);
 
-  // Persist changes when enabled
+  // Save configuration to localStorage when it changes
   useEffect(() => {
-    if (!persist || !cfg) return;
-    try {
-      const toSave = JSON.stringify(cfg);
-      localStorage.setItem(storageKey, toSave);
-    } catch {}
-  }, [persist, cfg, storageKey]);
+    if (typeof window === 'undefined' || !persistKey) return;
+    localStorage.setItem(persistKey, JSON.stringify(config));
+  }, [config, persistKey]);
 
-  const { state, result } = useCostComparison(insights, cfg);
+  // Use the cost comparison hook
+  const { data, loading: internalLoading, error: internalError } = useCostComparison(config);
   
-  // Debug logging to help identify issues
-  useEffect(() => {
-    if (!state.ok && state.errors.length > 0) {
-      console.debug('CostComparisonCard: Errors in cost comparison calculation', {
-        errors: state.errors,
-        warnings: state.warnings,
-        insights: !!insights,
-        cfg: cfg
-      });
-    }
-  }, [state, insights, cfg]);
+  // Combine internal and external loading/error states
+  const loading = externalLoading || internalLoading;
+  const error = externalError || internalError;
 
-  const copySummary = () => {
-    if (!result) return;
-    const lines: string[] = [];
-    lines.push(`${title}`);
-    lines.push(`Coverage: ${result.coverage.automationCoveragePct.toFixed(1)}% (${result.coverage.method})`);
-    lines.push(`Human monthly: ${formatCurrency(result.human.totalMonthly, result.currency, loc.locale)}`);
-    lines.push(`AI monthly: ${formatCurrency(result.ai.totalMonthly, result.currency, loc.locale)}`);
-    lines.push(`Savings monthly: ${formatCurrency(result.savings.absoluteMonthly, result.currency, loc.locale)} (${result.savings.relativePct.toFixed(1)}%)`);
-    if (result.oneOff.aiSetupCost) {
-      lines.push(`AI Setup (one-off): ${formatCurrency(result.oneOff.aiSetupCost, result.currency, loc.locale)}`);
-      if (result.oneOff.breakEvenMonths) lines.push(`Break-even: ${result.oneOff.breakEvenMonths} months`);
-    }
-    navigator.clipboard?.writeText(lines.join('\n')).catch(() => {});
+  // Handle copy summary to clipboard
+  const [copied, setCopied] = useState(false);
+  
+  const handleCopy = () => {
+    if (!data) return;
+    
+    const summaryText = `Cost Comparison Summary\n\n` +
+      `Human Cost: $${data.humanCost.toLocaleString()} per year\n` +
+      `AI Cost: $${data.aiCost.toLocaleString()} per year\n` +
+      `Savings: $${data.savings.toLocaleString()} per year (${data.savingsPercentage}%)\n\n` +
+      `Configuration:\n` +
+      `- Human Hourly Cost: $${config.humanHourlyCost}\n` +
+      `- AI Hourly Cost: $${config.aiHourlyCost}\n` +
+      `- Hours Per Week: ${config.hoursPerWeek}\n` +
+      `- Weeks Per Year: ${config.weeksPerYear}`;
+    
+    navigator.clipboard?.writeText(summaryText)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(err => {
+        console.error('Failed to copy text: ', err);
+      });
   };
 
-  const ready = state.ok && !!result;
-
-  // Import the CardSkeletonLoader component
-  const { CardSkeletonLoader } = require('@/components/ui/SkeletonLoader');
+  // Update a single config value
+  const updateConfig = (key: keyof CostComparisonConfig, value: number) => {
+    setConfig((prev: CostComparisonConfig) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
 
   if (loading) {
     return (
-      <section className={`card-elevated p-4 animate-fade-in ${className ?? ''}`} aria-labelledby="cost-card-title">
-        <div className="flex items-center justify-between mb-4">
-          <h3 id="cost-card-title" className="text-heading text-primary">{title}</h3>
+      <div className={`card-elevated p-4 animate-fade-in transition-all duration-300 ${className}`}>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="bg-brand-100 p-2 rounded-full">
+            <DollarSign className="h-5 w-5 text-brand-600" />
+          </div>
+          <h3 className="text-subheading text-primary">Cost Comparison</h3>
         </div>
-        <CardSkeletonLoader />
-      </section>
+        <div className="space-y-3">
+          <Skeleton className="h-6 w-full rounded-md" />
+          <Skeleton className="h-24 w-full rounded-md" />
+          <Skeleton className="h-24 w-full rounded-md" />
+          <Skeleton className="h-4 w-1/2 rounded-md" />
+        </div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <section className={`card-elevated p-4 animate-fade-in ${className ?? ''}`} aria-labelledby="cost-card-title">
-        <div className="flex items-center justify-between mb-4">
-          <h3 id="cost-card-title" className="text-heading text-primary">{title}</h3>
+      <div className={`card-elevated p-4 animate-fade-in transition-all duration-300 ${className}`}>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="bg-error-100 p-2 rounded-full">
+            <AlertCircle className="h-5 w-5 text-error-600" />
+          </div>
+          <h3 className="text-subheading text-primary">Cost Comparison</h3>
         </div>
-        <div className="card-base p-4">
-          <p className="text-primary">{error}</p>
-          <p className="text-body text-secondary mt-2">Please try again or contact support if the issue persists.</p>
+        <div className="rounded-lg p-3 border border-error-200 bg-error-50">
+          <p className="text-body text-error-700">{error}</p>
         </div>
-      </section>
+      </div>
     );
   }
 
   return (
-    <section className={`card-elevated p-4 animate-fade-in ${className ?? ''}`} aria-labelledby="cost-card-title">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 id="cost-card-title" className="text-heading text-primary">{title}</h3>
-          <div className="mt-1 text-body-sm text-secondary flex items-center gap-2">
-            <span className="badge-base badge-neutral">{loc.currency} • {loc.locale}</span>
-            {loc.warning && <span className="text-warning-700">{loc.warning}</span>}
-          </div>
+    <div className={`card-elevated p-4 animate-fade-in transition-all duration-300 ${className}`}>
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-4">
+        <div className="bg-brand-100 p-2 rounded-full">
+          <DollarSign className="h-5 w-5 text-brand-600" />
         </div>
-        <div className="flex items-center gap-2">
-          <label className="text-body-sm text-secondary inline-flex items-center gap-2">
-            <input type="checkbox" className="rounded border-gray-300" checked={persist} onChange={(e) => setPersist(e.target.checked)} />
-            Persist config
-          </label>
-          <button
-            type="button"
-            onClick={copySummary}
-            className="btn-secondary inline-flex items-center gap-1"
-            aria-label="Copy cost comparison summary"
+        <h3 className="text-subheading text-primary">{title}</h3>
+        <div className="ml-auto flex items-center gap-2">
+          {showSettings && (
+            <button 
+              onClick={() => setShowConfig(!showConfig)} 
+              className="p-2 text-secondary hover:text-primary hover:bg-neutral-100 rounded-full transition-colors focus-ring"
+              aria-label="Toggle configuration panel"
+              aria-expanded={showConfig}
+            >
+              <Settings className="h-4 w-4" />
+            </button>
+          )}
+          <button 
+            onClick={handleCopy} 
+            className="p-2 text-secondary hover:text-primary hover:bg-neutral-100 rounded-full transition-colors focus-ring"
+            aria-label="Copy summary to clipboard"
           >
-            <ClipboardIcon className="h-4 w-4" /> Copy
+            <Copy className="h-4 w-4" />
+            {copied && <span className="sr-only">Copied!</span>}
           </button>
         </div>
       </div>
 
-      {/* Inline Config */}
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="space-y-3">
-          <div className="text-label text-primary">Coverage method</div>
-          <label className="block text-body">
-            <span className="text-secondary">Automation weighting</span>
-            <select
-              className="mt-1 input-base"
-              value={cfg?.analysis.automationWeighting ?? 'mean'}
-              onChange={(e) => setCfg((prev) => prev ? { ...prev, analysis: { ...prev.analysis, automationWeighting: e.target.value as any } } : prev)}
+      {/* Configuration Panel */}
+      {showConfig && (
+        <div className="bg-hero rounded-lg p-4 border border-default mb-4">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-label text-primary">Configuration</h4>
+            <button 
+              onClick={() => setShowConfig(false)}
+              className="p-1.5 text-secondary hover:text-primary rounded-full focus-ring"
+              aria-label="Close configuration panel"
             >
-              <option value="mean">Mean</option>
-              <option value="topN">Top N</option>
-              <option value="threshold">Threshold</option>
-            </select>
-          </label>
-          {cfg?.analysis.automationWeighting === 'topN' && (
-            <LabeledNumberInput id="topN" label="Top N tasks" value={cfg.analysis.topN} min={1} step={1} onChange={(v) => setCfg((p) => p ? { ...p, analysis: { ...p.analysis, topN: v } } : p)} />
-          )}
-          {cfg?.analysis.automationWeighting === 'threshold' && (
-            <LabeledNumberInput id="threshold" label="Exposure threshold (0-100)" value={cfg.analysis.exposureThreshold} min={0} step={1} onChange={(v) => setCfg((p) => p ? { ...p, analysis: { ...p.analysis, exposureThreshold: v } } : p)} />
-          )}
-        </div>
-
-        <div className="space-y-3">
-          <div className="text-label text-primary">Human (monthly)</div>
-          <LabeledNumberInput id="human-base" label="Base salary" value={cfg?.human.baseMonthly} step={100} onChange={(v) => setCfg((p) => p ? { ...p, human: { ...p.human, baseMonthly: v } } : p)} />
-          <LabeledNumberInput id="human-benefits" label="Benefits rate (0-1)" value={cfg?.human.benefitsRate} step={0.01} onChange={(v) => setCfg((p) => p ? { ...p, human: { ...p.human, benefitsRate: v } } : p)} />
-          <LabeledNumberInput id="human-overhead" label="Overhead rate (0-1)" value={cfg?.human.overheadRate} step={0.01} onChange={(v) => setCfg((p) => p ? { ...p, human: { ...p.human, overheadRate: v } } : p)} />
-          <LabeledNumberInput id="human-tooling" label="Tooling" value={cfg?.human.toolingMonthly} step={10} onChange={(v) => setCfg((p) => p ? { ...p, human: { ...p.human, toolingMonthly: v } } : p)} />
-          <LabeledNumberInput id="human-training" label="Training" value={cfg?.human.trainingMonthly} step={10} onChange={(v) => setCfg((p) => p ? { ...p, human: { ...p.human, trainingMonthly: v } } : p)} />
-          <LabeledNumberInput id="human-mgmt-hours" label="Mgmt oversight hours" value={cfg?.human.managementOversightHours} step={1} onChange={(v) => setCfg((p) => p ? { ...p, human: { ...p.human, managementOversightHours: v } } : p)} />
-          <LabeledNumberInput id="human-hourly" label="Hourly rate (for oversight)" value={cfg?.human.hourlyRate} step={10} onChange={(v) => setCfg((p) => p ? { ...p, human: { ...p.human, hourlyRate: v } } : p)} />
-        </div>
-
-        <div className="space-y-3">
-          <div className="text-label text-primary">AI (monthly)</div>
-          <LabeledNumberInput id="ai-per1k" label="Model price per 1k tokens" value={cfg?.ai.modelUsagePer1kTokens} step={0.001} onChange={(v) => setCfg((p) => p ? { ...p, ai: { ...p.ai, modelUsagePer1kTokens: v } } : p)} />
-          <LabeledNumberInput id="ai-tokens-per-task" label="Tokens per task" value={cfg?.ai.estTokensPerTask} step={10} onChange={(v) => setCfg((p) => p ? { ...p, ai: { ...p.ai, estTokensPerTask: v } } : p)} />
-          <LabeledNumberInput id="ai-tasks-per-month" label="Tasks per month" value={cfg?.ai.tasksPerMonth} step={1} onChange={(v) => setCfg((p) => p ? { ...p, ai: { ...p.ai, tasksPerMonth: v } } : p)} />
-          <LabeledNumberInput id="ai-subs" label="Subscriptions" value={cfg?.ai.subscriptionsMonthly} step={10} onChange={(v) => setCfg((p) => p ? { ...p, ai: { ...p.ai, subscriptionsMonthly: v } } : p)} />
-          <LabeledNumberInput id="ai-infra" label="Infrastructure" value={cfg?.ai.infraMonthly} step={10} onChange={(v) => setCfg((p) => p ? { ...p, ai: { ...p.ai, infraMonthly: v } } : p)} />
-          <LabeledNumberInput id="ai-orch" label="Orchestration" value={cfg?.ai.orchestrationMonthly} step={10} onChange={(v) => setCfg((p) => p ? { ...p, ai: { ...p.ai, orchestrationMonthly: v } } : p)} />
-          <LabeledNumberInput id="ai-oversight-hours" label="Oversight hours" value={cfg?.ai.oversightHours} step={1} onChange={(v) => setCfg((p) => p ? { ...p, ai: { ...p.ai, oversightHours: v } } : p)} />
-          <LabeledNumberInput id="ai-oversight-rate" label="Oversight hourly rate" value={cfg?.ai.oversightHourlyRate} step={10} onChange={(v) => setCfg((p) => p ? { ...p, ai: { ...p.ai, oversightHourlyRate: v } } : p)} />
-          <LabeledNumberInput id="ai-setup" label="One-off setup cost" value={cfg?.ai.oneOffSetupCost} step={100} onChange={(v) => setCfg((p) => p ? { ...p, ai: { ...p.ai, oneOffSetupCost: v } } : p)} />
-        </div>
-      </div>
-
-      {/* States */}
-      {!ready && (
-        <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3 text-amber-800" role="status" aria-live="polite">
-          <div className="text-label text-primary">Insufficient data</div>
-          <ul className="list-disc ml-5 mt-1 text-body text-secondary">
-            {state.errors.map((e, idx) => (<li key={idx}>{e}</li>))}
-          </ul>
-        </div>
-      )}
-
-      {ready && result && (
-        <div className="mt-6">
-          <div className="flex flex-wrap items-center gap-2 text-body text-secondary">
-            <span className="badge-base badge-neutral">Automation coverage: {result.coverage.automationCoveragePct.toFixed(1)}% ({result.coverage.method})</span>
-            {state.warnings.map((w, i) => (
-              <span key={i} className="text-warning-700">{w}</span>
-            ))}
+              <X className="h-4 w-4" />
+            </button>
           </div>
-
-          {/* Comparison bars */}
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-3 rounded border-default border">
-              <div className="text-label text-primary">Human monthly</div>
-              <div className="mt-1 text-2xl text-primary font-semibold">{formatCurrency(result.human.totalMonthly, result.currency, loc.locale)}</div>
-              <div className="mt-2 progress-base" aria-hidden="true">
-                <div className="progress-bar-error" style={{ width: '100%' }} aria-label="Human cost bar" />
-              </div>
-            </div>
-            <div className="p-3 rounded border-default border">
-              <div className="text-label text-primary">AI monthly</div>
-              <div className="mt-1 text-2xl text-primary font-semibold">{formatCurrency(result.ai.totalMonthly, result.currency, loc.locale)}</div>
-              <div className="mt-2 progress-base" aria-hidden="true">
-                <div className="progress-bar-success" style={{ width: `${Math.max(2, Math.min(100, (result.ai.totalMonthly / Math.max(1, result.human.totalMonthly)) * 100))}%` }} aria-label="AI cost bar" />
-              </div>
-            </div>
-          </div>
-
-          {/* Savings */}
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <span className="badge-base badge-success">Monthly savings: {formatCurrency(result.savings.absoluteMonthly, result.currency, loc.locale)} ({result.savings.relativePct.toFixed(1)}%)</span>
-            {typeof result.oneOff.aiSetupCost === 'number' && (
-              <span className="badge-base badge-primary">Break-even: {result.oneOff.breakEvenMonths ?? '—'} months</span>
-            )}
-          </div>
-
-          {/* Breakdown tables */}
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <div className="text-label text-primary">Human breakdown</div>
-              <table className="mt-2 w-full text-body">
-                <thead>
-                  <tr className="text-secondary">
-                    <th className="text-left font-normal">Item</th>
-                    <th className="text-right font-normal">Monthly</th>
-                    <th className="text-right font-normal">Annual</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {result.human.breakdown.slice(0, 6).map((b, i) => (
-                    <tr key={i} className="border-t border-default text-primary">
-                      <td className="py-1 pr-2">{b.label}</td>
-                      <td className="py-1 text-right">{formatCurrency(b.monthly, result.currency, loc.locale)}</td>
-                      <td className="py-1 text-right">{formatCurrency(b.annual, result.currency, loc.locale)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <div>
-              <div className="text-label text-primary">AI breakdown</div>
-              <table className="mt-2 w-full text-body">
-                <thead>
-                  <tr className="text-secondary">
-                    <th className="text-left font-normal">Item</th>
-                    <th className="text-right font-normal">Monthly</th>
-                    <th className="text-right font-normal">Annual</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {result.ai.breakdown.slice(0, 8).map((b, i) => (
-                    <tr key={i} className="border-t border-default text-primary">
-                      <td className="py-1 pr-2">{b.label}</td>
-                      <td className="py-1 text-right">{formatCurrency(b.monthly, result.currency, loc.locale)}</td>
-                      <td className="py-1 text-right">{formatCurrency(b.annual, result.currency, loc.locale)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <LabeledNumberInput 
+              label="Human Hourly Cost ($)"
+              value={config.humanHourlyCost}
+              onChange={(value) => updateConfig('humanHourlyCost', value)}
+              min={1}
+              max={1000}
+            />
+            <LabeledNumberInput 
+              label="AI Hourly Cost ($)"
+              value={config.aiHourlyCost}
+              onChange={(value) => updateConfig('aiHourlyCost', value)}
+              min={1}
+              max={1000}
+            />
+            <LabeledNumberInput 
+              label="Hours Per Week"
+              value={config.hoursPerWeek}
+              onChange={(value) => updateConfig('hoursPerWeek', value)}
+              min={1}
+              max={168}
+            />
+            <LabeledNumberInput 
+              label="Weeks Per Year"
+              value={config.weeksPerYear}
+              onChange={(value) => updateConfig('weeksPerYear', value)}
+              min={1}
+              max={52}
+            />
           </div>
         </div>
       )}
-    </section>
+
+      {/* Cost Comparison */}
+      {data && (
+        <div className="space-y-4">
+          {/* Summary */}
+          <div className="bg-success-50 rounded-lg p-3 border border-success-200">
+            <div className="flex items-center gap-2">
+              <Info className="h-4 w-4 text-success-600" />
+              <p className="text-label text-primary">
+                Potential savings of ${data.savings.toLocaleString()} per year 
+                <span className="badge-base badge-success ml-1">{data.savingsPercentage}%</span>
+              </p>
+            </div>
+          </div>
+          
+          {/* Human Cost */}
+          <div className="p-3 rounded-lg border border-default bg-surface">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-label text-primary">Human Cost</span>
+              <span className="text-label text-primary font-medium">
+                ${data.humanCost.toLocaleString()}/year
+              </span>
+            </div>
+            <div className="progress-base" role="progressbar" aria-valuenow={100} aria-valuemin={0} aria-valuemax={100}>
+              <div 
+                className="progress-bar-brand"
+                style={{ width: '100%' }}
+              />
+            </div>
+          </div>
+          
+          {/* AI Cost */}
+          <div className="p-3 rounded-lg border border-default bg-surface">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-label text-primary">AI Cost</span>
+              <span className="text-label text-primary font-medium">
+                ${data.aiCost.toLocaleString()}/year
+              </span>
+            </div>
+            <div className="progress-base" role="progressbar" aria-valuenow={100 - data.savingsPercentage} aria-valuemin={0} aria-valuemax={100}>
+              <div 
+                className="progress-bar-success"
+                style={{ width: `${100 - data.savingsPercentage}%` }}
+              />
+            </div>
+          </div>
+          
+          {/* Detailed Breakdown */}
+          <div className="mt-3 card-base p-3">
+            <h4 className="text-label text-primary mb-2">Cost Details</h4>
+            <table className="w-full text-body">
+              <tbody>
+                <tr className="border-b border-default">
+                  <td className="py-2 text-secondary">Human Hourly Rate</td>
+                  <td className="py-2 text-right text-primary font-medium">${config.humanHourlyCost}</td>
+                </tr>
+                <tr className="border-b border-default">
+                  <td className="py-2 text-secondary">AI Hourly Rate</td>
+                  <td className="py-2 text-right text-primary font-medium">${config.aiHourlyCost}</td>
+                </tr>
+                <tr className="border-b border-default">
+                  <td className="py-2 text-secondary">Hours Per Week</td>
+                  <td className="py-2 text-right text-primary font-medium">{config.hoursPerWeek}</td>
+                </tr>
+                <tr>
+                  <td className="py-2 text-secondary">Weeks Per Year</td>
+                  <td className="py-2 text-right text-primary font-medium">{config.weeksPerYear}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

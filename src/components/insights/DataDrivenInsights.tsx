@@ -1,6 +1,6 @@
 import React from 'react';
 import { Skeleton } from '../ui/skeleton';
-import { AlertCircle, Zap, Info, ChevronRight, BarChart3 } from 'lucide-react';
+import { AlertCircle, Zap, Info, ChevronRight, BarChart3, PieChart } from 'lucide-react';
 import type { DataDrivenInsightsModel, AutomationExposureItem } from './types';
 
 interface DataDrivenInsightsProps {
@@ -23,20 +23,22 @@ export function DataDrivenInsights({
     return (
       <div
         aria-busy="true"
-        className="rounded-xl border border-gray-200 bg-white shadow-md p-2 sm:p-3 transition-all duration-300"
+        className="card-elevated p-4 animate-fade-in transition-all duration-300"
       >
-        <div className="flex justify-between items-center mb-2">
+        <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
-            <BarChart3 className="h-5 w-5 text-blue-600" />
-            <h2 className="text-base font-semibold tracking-tight text-gray-900">Job Risk Insights</h2>
+            <div className="bg-accent p-1.5 rounded-full">
+              <PieChart className="h-5 w-5 text-brand" />
+            </div>
+            <h2 className="text-heading text-primary">Job Risk Insights</h2>
           </div>
           {slots?.headerRight}
         </div>
-        <div className="flex items-center gap-2 px-2 py-2 bg-blue-50 rounded-lg mb-2">
-          <Info className="h-4 w-4 text-blue-600 animate-pulse" />
-          <p className="text-sm text-gray-700 font-medium">Analyzing job risk data...</p>
+        <div className="flex items-center gap-2 px-3 py-2 bg-hero rounded-lg mb-4 border border-default">
+          <Info className="h-4 w-4 text-brand animate-pulse" />
+          <p className="text-label text-primary">Analyzing job risk data...</p>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Skeleton className="h-6 w-2/3 rounded-md" />
           <Skeleton className="h-4 w-full rounded-md" />
           <Skeleton className="h-28 w-full rounded-md" />
@@ -48,16 +50,18 @@ export function DataDrivenInsights({
 
   if (errors.length > 0) {
     return (
-      <div className="rounded-xl border border-red-100 bg-white shadow-md p-2 sm:p-3 transition-all duration-300">
-        <div className="flex items-center gap-2 mb-2">
-          <AlertCircle className="h-5 w-5 text-red-600" />
-          <h3 className="text-base font-medium text-gray-900">Analysis Error</h3>
+      <div className="card-elevated p-4 animate-fade-in transition-all duration-300">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="bg-error-100 p-1.5 rounded-full">
+            <AlertCircle className="h-5 w-5 text-error-600" />
+          </div>
+          <h3 className="text-heading text-primary">Analysis Error</h3>
         </div>
-        <div className="bg-red-50 rounded-lg p-3 border border-red-100">
-          <ul className="space-y-1 text-sm text-gray-700">
+        <div className="rounded-lg p-3 border border-error-200 bg-error-50">
+          <ul className="space-y-2 text-body text-primary" role="list">
             {errors.map((error: string, index: number) => (
-              <li key={index} className="flex items-start gap-2">
-                <ChevronRight className="h-4 w-4 text-red-400 mt-0.5 flex-shrink-0" />
+              <li key={index} className="flex items-start gap-2" role="listitem">
+                <ChevronRight className="h-4 w-4 text-error-500 mt-0.5 flex-shrink-0" />
                 <span>{error}</span>
               </li>
             ))}
@@ -69,13 +73,13 @@ export function DataDrivenInsights({
 
   if (!insights) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white shadow-md p-3 sm:p-4 transition-all duration-300">
-        <div className="flex flex-col items-center justify-center py-6 text-center">
-          <div className="bg-gray-100 p-3 rounded-full mb-2">
-            <Zap className="h-6 w-6 text-gray-500" />
+      <div className="card-elevated p-4 animate-fade-in transition-all duration-300">
+        <div className="flex flex-col items-center justify-center py-8 text-center">
+          <div className="gradient-subtle p-4 rounded-full mb-3">
+            <Zap className="h-6 w-6 text-secondary" />
           </div>
-          <h3 className="text-base font-medium text-gray-700 mb-1">No insights available</h3>
-          <p className="text-sm text-gray-500 max-w-sm">Generate insights to see your job risk analysis and recommendations</p>
+          <h3 className="text-subheading text-primary mb-2">No insights available</h3>
+          <p className="text-body text-secondary max-w-sm">Generate insights to see your job risk analysis and recommendations</p>
         </div>
       </div>
     );
@@ -87,59 +91,64 @@ export function DataDrivenInsights({
   } = insights;
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white shadow-md p-2 sm:p-3 transition-all duration-300">
-      <div className="flex justify-between items-center mb-2">
+    <div className="card-elevated p-4 animate-fade-in transition-all duration-300">
+      <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
-          <BarChart3 className="h-5 w-5 text-blue-600" />
-          <h2 className="text-base font-semibold tracking-tight text-gray-900">Job Risk Insights</h2>
+          <div className="bg-accent p-1.5 rounded-full">
+            <PieChart className="h-5 w-5 text-brand" />
+          </div>
+          <h2 className="text-heading text-primary">Job Risk Insights</h2>
         </div>
         {slots?.headerRight}
       </div>
-      <div className="space-y-2">
+      <div className="space-y-4">
 
       
 
       {/* Automation Exposure */}
       {(automationExposure && automationExposure.length > 0) || narratives?.automationNarrative ? (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-2">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="bg-purple-100 p-1.5 rounded-full">
-              <Zap className="h-5 w-5 text-purple-600" />
+        <div className="card-base p-4">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="bg-accent-100 p-2 rounded-full">
+              <Zap className="h-5 w-5 text-accent-600" />
             </div>
-            <h3 className="text-base font-medium text-gray-900">Automation Exposure</h3>
+            <h3 className="text-subheading text-primary">Automation Exposure</h3>
           </div>
           {narratives?.automationNarrative ? (
-            <div className="bg-gray-50 rounded-lg p-2 border border-gray-100 mb-2">
-              <p className="text-sm leading-relaxed text-gray-700">{narratives.automationNarrative}</p>
+            <div className="bg-hero rounded-lg p-3 border border-default mb-3">
+              <p className="text-body leading-relaxed text-primary">{narratives.automationNarrative}</p>
             </div>
           ) : null}
           
           {automationExposure && automationExposure.length > 0 ? (
-            <div className="space-y-2 mt-1" role="list">
+            <div className="space-y-3 mt-2" role="list">
               {automationExposure.map((item: AutomationExposureItem, index: number) => (
                 <div 
                   key={index} 
                   role="listitem" 
-                  className="p-2 rounded-lg border border-gray-100 bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
+                  className="p-3 rounded-lg border border-default bg-surface hover:bg-neutral-50 transition-colors duration-200"
                 >
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm font-medium text-gray-800">{item.task}</span>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-label text-primary">{item.task}</span>
                     <span 
-                      className={`text-xs font-medium px-2 py-1 rounded-full ${
-                        item.exposure > 70 ? 'bg-red-100 text-gray-800' : 
-                        item.exposure > 40 ? 'bg-yellow-100 text-gray-800' : 'bg-green-100 text-gray-800'
-                      }`}
+                      className={`${item.exposure > 70 ? 'badge-base badge-error' : 
+                        item.exposure > 40 ? 'badge-base badge-warning' : 'badge-base badge-success'}`}
+                      aria-label={`Exposure level: ${item.exposure}%`}
                     >
                       {item.exposure}% Exposure
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="progress-base" 
+                    role="progressbar" 
+                    aria-valuenow={item.exposure} 
+                    aria-valuemin={0} 
+                    aria-valuemax={100}
+                  >
                     <div 
-                      className={`h-2 rounded-full transition-all duration-500 ${
-                        item.exposure > 70 ? 'bg-red-600' : 
-                        item.exposure > 40 ? 'bg-yellow-500' : 'bg-green-500'
-                      }`}
-                      style={{ width: `${item.exposure}%` }}
+                      className={`${item.exposure > 70 ? 'progress-bar-error' : 
+                        item.exposure > 40 ? 'progress-bar-warning' : 'progress-bar-success'}`}
+                      style={{ width: `${Math.max(0, Math.min(100, item.exposure))}%` }}
                     />
                   </div>
                 </div>
@@ -151,7 +160,7 @@ export function DataDrivenInsights({
 
 
       {slots?.footer && (
-        <div className="border-t border-gray-100 pt-2 mt-2">
+        <div className="border-t border-default pt-3 mt-4">
           {slots.footer}
         </div>
       )}
