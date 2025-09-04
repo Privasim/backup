@@ -1,7 +1,7 @@
 import React from 'react';
 import { Skeleton } from '../ui/skeleton';
-import { AlertCircle, ExternalLink, TrendingDown, TrendingUp, Shield, Zap, Info, ChevronRight, BarChart3 } from 'lucide-react';
-import type { DataDrivenInsightsModel, AutomationExposureItem, SkillImpactItem, MitigationItem, InsightSource } from './types';
+import { AlertCircle, Zap, Info, ChevronRight, BarChart3 } from 'lucide-react';
+import type { DataDrivenInsightsModel, AutomationExposureItem } from './types';
 
 interface DataDrivenInsightsProps {
   insights?: DataDrivenInsightsModel;
@@ -82,13 +82,7 @@ export function DataDrivenInsights({
   }
 
   const { 
-    summary, 
-    riskScore, 
-    threatDrivers, 
     automationExposure, 
-    skillImpacts, 
-    mitigation, 
-    sources,
     narratives
   } = insights;
 
@@ -103,71 +97,7 @@ export function DataDrivenInsights({
       </div>
       <div className="space-y-2">
 
-      {/* Summary Section */}
-      {(summary || narratives?.riskNarrative) && (
-        <div className="bg-gradient-to-r from-blue-50 to-white p-2 rounded-xl border border-blue-100">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="bg-blue-100 p-1.5 rounded-full">
-              <Shield className="h-5 w-5 text-blue-600" />
-            </div>
-            <h3 className="text-base font-medium text-gray-900">Executive Summary</h3>
-          </div>
-          <p className="text-sm leading-relaxed text-gray-700 mb-2">{summary || narratives?.riskNarrative}</p>
-          {riskScore !== undefined && (
-            <div className="bg-white p-2 rounded-lg border border-gray-100 shadow-sm">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-medium text-gray-700">Overall Risk Score</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-2xl font-bold text-red-600">{riskScore}</span>
-                  <span className="text-sm text-red-600">/100</span>
-                </div>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2" role="progressbar" aria-label="Overall risk score" aria-valuenow={riskScore} aria-valuemin={0} aria-valuemax={100}>
-                <div 
-                  className="bg-red-600 h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${riskScore}%` }}
-                />
-              </div>
-              <div className="flex justify-between mt-1 text-xs text-gray-500">
-                <span>Low Risk</span>
-                <span>High Risk</span>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Threat Drivers */}
-      {(threatDrivers && threatDrivers.length > 0) || narratives?.threatNarrative ? (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-2">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="bg-red-100 p-1.5 rounded-full">
-              <TrendingDown className="h-5 w-5 text-red-600" />
-            </div>
-            <h3 className="text-base font-medium text-gray-900">Threat Drivers</h3>
-          </div>
-          {narratives?.threatNarrative ? (
-            <div className="bg-gray-50 rounded-lg p-2 border border-gray-100">
-              <p className="text-sm leading-relaxed text-gray-700">{narratives.threatNarrative}</p>
-            </div>
-          ) : threatDrivers && threatDrivers.length > 0 ? (
-            <div className="grid gap-1 sm:grid-cols-2" role="list">
-              {threatDrivers.map((driver: string, index: number) => (
-                <div 
-                  key={index} 
-                  role="listitem" 
-                  className="flex items-center gap-2 p-2 rounded-lg border border-red-50 bg-red-50 hover:bg-red-100 transition-colors duration-200"
-                >
-                  <div className="bg-white p-1 rounded-full">
-                    <TrendingDown className="h-4 w-4 text-red-500" />
-                  </div>
-                  <span className="text-sm text-gray-800">{driver}</span>
-                </div>
-              ))}
-            </div>
-          ) : null}
-        </div>
-      ) : null}
+      
 
       {/* Automation Exposure */}
       {(automationExposure && automationExposure.length > 0) || narratives?.automationNarrative ? (
@@ -219,135 +149,6 @@ export function DataDrivenInsights({
         </div>
       ) : null}
 
-      {/* Skill Impacts */}
-      {(skillImpacts && skillImpacts.length > 0) || narratives?.skillsNarrative ? (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-2">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="bg-blue-100 p-1.5 rounded-full">
-              <BarChart3 className="h-5 w-5 text-blue-600" />
-            </div>
-            <h3 className="text-base font-medium text-gray-900">Skill Impacts</h3>
-          </div>
-          
-          {narratives?.skillsNarrative ? (
-            <div className="bg-gray-50 rounded-lg p-2 border border-gray-100 mb-2">
-              <p className="text-sm leading-relaxed text-gray-700">{narratives.skillsNarrative}</p>
-            </div>
-          ) : null}
-          
-          {skillImpacts && skillImpacts.length > 0 ? (
-            <div className="grid gap-2 sm:grid-cols-2 mt-1" role="list">
-              {skillImpacts.map((item: SkillImpactItem, index: number) => (
-                <div 
-                  key={index} 
-                  role="listitem" 
-                  className="p-2 rounded-lg border shadow-sm bg-gradient-to-br from-white to-gray-50 hover:shadow-md transition-all duration-200"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-900">{item.skill}</span>
-                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
-                      item.impact === 'high' ? 'bg-red-100 text-gray-800' :
-                      item.impact === 'medium' ? 'bg-yellow-100 text-gray-800' :
-                      'bg-green-100 text-gray-800'
-                    }`}>
-                      {item.impact.charAt(0).toUpperCase() + item.impact.slice(1)} Impact
-                    </span>
-                  </div>
-                  {item.rationale && (
-                    <div className="bg-white p-2 rounded border border-gray-100">
-                      <p className="text-xs leading-relaxed text-gray-700">{item.rationale}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-
-      {/* Mitigation Strategies */}
-      {(mitigation && mitigation.length > 0) || narratives?.mitigationNarrative ? (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-2">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="bg-green-100 p-1.5 rounded-full">
-              <TrendingUp className="h-5 w-5 text-green-600" />
-            </div>
-            <h3 className="text-base font-medium text-gray-900">Mitigation Strategies</h3>
-          </div>
-          
-          {narratives?.mitigationNarrative ? (
-            <div className="bg-gray-50 rounded-lg p-2 border border-gray-100 mb-2">
-              <p className="text-sm leading-relaxed text-gray-700">{narratives.mitigationNarrative}</p>
-            </div>
-          ) : null}
-          
-          {mitigation && mitigation.length > 0 ? (
-            <div className="grid gap-2 sm:grid-cols-2 mt-1" role="list">
-              {mitigation.map((item: MitigationItem, index: number) => (
-                <div 
-                  key={index} 
-                  role="listitem" 
-                  className="p-2 rounded-lg border shadow-sm bg-gradient-to-br from-green-50 to-white hover:shadow-md transition-all duration-200"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <div className="bg-white p-1 rounded-full border border-green-100">
-                        <TrendingUp className="h-4 w-4 text-green-600" />
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">{item.action}</span>
-                    </div>
-                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
-                      item.priority === 'high' ? 'bg-red-100 text-gray-800' :
-                      item.priority === 'medium' ? 'bg-yellow-100 text-gray-800' :
-                      'bg-green-100 text-gray-800'
-                    }`}>
-                      {item.priority.charAt(0).toUpperCase() + item.priority.slice(1)} Priority
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-
-      {/* Sources */}
-      {sources && sources.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-2">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="bg-gray-100 p-1.5 rounded-full">
-              <ExternalLink className="h-5 w-5 text-gray-600" />
-            </div>
-            <h3 className="text-base font-medium text-gray-900">Sources</h3>
-          </div>
-          
-          <div className="grid gap-1 sm:grid-cols-2" role="list">
-            {sources.map((source: InsightSource, index: number) => (
-              <div 
-                key={index} 
-                role="listitem" 
-                className="flex items-center gap-2 p-2 rounded-lg border border-gray-100 bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
-              >
-                <div className="bg-white p-1 rounded-full">
-                  <ExternalLink className="h-4 w-4 text-blue-500" />
-                </div>
-                {source.url ? (
-                  <a
-                    href={source.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-gray-800 hover:text-gray-900 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded transition-colors duration-200"
-                  >
-                    {source.title}
-                  </a>
-                ) : (
-                  <span className="text-sm text-gray-700">{source.title}</span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {slots?.footer && (
         <div className="border-t border-gray-100 pt-2 mt-2">
