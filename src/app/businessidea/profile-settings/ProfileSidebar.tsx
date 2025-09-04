@@ -4,77 +4,70 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  UserIcon,
-  Cog6ToothIcon,
-  LockClosedIcon,
-  ArrowLeftOnRectangleIcon,
-} from "@heroicons/react/24/outline";
+import { Cog6ToothIcon, ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 import ConversationsCard from "./ConversationsCard";
 import { useChatbox } from "@/components/chatbox/ChatboxProvider";
+import IconDrawer from "@/components/ide-drawer/IconDrawer";
 
 export default function ProfileSidebar() {
   const { conversations, createConversation, openConversation } = useChatbox();
   const router = useRouter();
-  const [isCollapsed, setIsCollapsed] = React.useState(false);
-  
+
   // Map conversations to the format expected by ConversationsCard
-  const conversationItems = conversations?.map(conv => ({
+  const conversationItems = conversations?.map((conv) => ({
     id: conv.id,
     title: conv.title,
-    unread: conv.unread || 0
+    unread: conv.unread || 0,
   })) || [];
-  
-  const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed);
-  };
-  
+
+  const unreadTotal = conversationItems.reduce((sum, c) => sum + (c.unread || 0), 0);
+
   const handleNewChat = () => {
-    const id = createConversation('New Business Plan');
+    const id = createConversation("New Business Plan");
     openConversation(id);
-    router.push('/businessidea');
+    router.push("/businessidea");
   };
 
   const handleOpenConversation = (id: string) => {
     openConversation(id);
-    router.push('/businessidea');
+    router.push("/businessidea");
   };
-  
-  return (
-    <>
-      <aside 
-        className={`relative bg-white transition-all duration-300 ease-in-out ${isCollapsed ? 'w-0 opacity-0' : 'w-64 opacity-100'}`} 
-        aria-label="Profile sidebar"
-      >
-        <div className="sticky top-0 mt-4 h-[calc(100vh-2rem)]">
-          <div className="flex h-full flex-col gap-4">
-            <ProfileSettingsCard onToggle={toggleSidebar} isCollapsed={isCollapsed} />
-            <ConversationsCard 
-              conversations={conversationItems}
-              onNewChat={handleNewChat}
-              onOpenConversation={handleOpenConversation}
-            />
-          </div>
+
+  const views = [
+    {
+      id: "profile",
+      label: "Profile Settings",
+      icon: <Cog6ToothIcon className="h-5 w-5" />,
+      render: () => (
+        <div className="mt-2">
+          {/* Pass no-op toggle and static collapsed=false to reuse existing card UI */}
+          <ProfileSettingsCard onToggle={() => {}} isCollapsed={false} />
         </div>
-      </aside>
-      
-      {/* Toggle button that stays visible when collapsed */}
-      <button
-        onClick={toggleSidebar}
-        className={`fixed left-0 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-r-lg bg-white shadow-md transition-all duration-300 hover:bg-gray-100 ${isCollapsed ? 'ml-0' : 'ml-64'}`}
-        aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-      >
-        {isCollapsed ? (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-          </svg>
-        ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M12.707 14.707a1 1 0 01-1.414 0L5.293 10l6.293-6.293a1 1 0 011.414 1.414L8.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-          </svg>
-        )}
-      </button>
-    </>
+      ),
+    },
+    {
+      id: "conversations",
+      label: "Conversations",
+      icon: <ChatBubbleLeftRightIcon className="h-5 w-5" />,
+      badge: unreadTotal,
+      render: () => (
+        <ConversationsCard
+          conversations={conversationItems}
+          onNewChat={handleNewChat}
+          onOpenConversation={handleOpenConversation}
+        />
+      ),
+    },
+  ];
+
+  return (
+    <IconDrawer
+      views={views}
+      storageKey="profile-sidebar"
+      widthPx={264}
+      activityBarWidthPx={52}
+      className="bg-surface"
+    />
   );
 }
 
