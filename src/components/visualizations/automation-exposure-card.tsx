@@ -160,12 +160,12 @@ export function AutomationExposureCard({
     const a = contextStats.avg;
     return a > 70 ? 'High' : a > 40 ? 'Moderate' : 'Low';
   }, [contextStats.avg]);
-  const severityColor = useMemo(() => (
+  const severityClass = useMemo(() => (
     severityLabel === 'High'
-      ? 'text-red-700 bg-red-50 ring-red-600/20'
+      ? 'badge-base badge-error'
       : severityLabel === 'Moderate'
-      ? 'text-amber-700 bg-amber-50 ring-amber-600/20'
-      : 'text-emerald-700 bg-emerald-50 ring-emerald-600/20'
+      ? 'badge-base badge-warning'
+      : 'badge-base badge-success'
   ), [severityLabel]);
   const topThree = useMemo(() => barItems.slice(0, Math.min(3, barItems.length)), [barItems]);
   
@@ -174,9 +174,9 @@ export function AutomationExposureCard({
   
   if (loading) {
     return (
-      <div className={`bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden ${className}`}>
-        <div className="px-4 py-3 border-b border-gray-100">
-          <h3 className="text-base font-semibold text-gray-800">{title}</h3>
+      <div className={`card-elevated overflow-hidden ${className}`}>
+        <div className="px-4 py-3 border-b border-default">
+          <h3 className="text-heading text-primary">{title}</h3>
         </div>
         <div className="p-4">
           <CardSkeletonLoader />
@@ -187,14 +187,14 @@ export function AutomationExposureCard({
 
   if (error) {
     return (
-      <div className={`bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden ${className}`}>
-        <div className="px-4 py-3 border-b border-gray-100">
-          <h3 className="text-base font-semibold text-gray-800">{title}</h3>
+      <div className={`card-elevated overflow-hidden ${className}`}>
+        <div className="px-4 py-3 border-b border-default">
+          <h3 className="text-heading text-primary">{title}</h3>
         </div>
         <div className="p-4">
-          <div className="p-4 rounded-md bg-red-50 border border-red-200">
-            <p className="text-red-700">{error}</p>
-            <p className="text-sm text-red-600 mt-2">Please try again or contact support if the issue persists.</p>
+          <div className="card-base p-4">
+            <p className="text-primary">{error}</p>
+            <p className="text-body mt-2 text-secondary">Please try again or contact support if the issue persists.</p>
           </div>
         </div>
       </div>
@@ -202,17 +202,17 @@ export function AutomationExposureCard({
   }
   
   return (
-    <div className={`bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden ${className}`}>
-      <div className="px-4 py-3 border-b border-gray-100">
-        <h3 className="text-base font-semibold text-gray-800">{title}</h3>
+    <div className={`card-elevated overflow-hidden animate-fade-in ${className}`}>
+      <div className="px-4 py-3 border-b border-default">
+        <h3 className="text-heading text-primary">{title}</h3>
       </div>
       
       <div className="p-4">
         {isEmpty ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
-            <AlertCircle className="h-8 w-8 text-gray-400 mb-2" />
-            <p className="text-gray-500 text-sm">No automation exposure data available</p>
-            <p className="text-gray-400 text-xs mt-1">Complete your profile analysis to see insights</p>
+            <AlertCircle className="h-8 w-8 text-secondary mb-2" />
+            <p className="text-body text-secondary">No automation exposure data available</p>
+            <p className="text-body-sm text-secondary mt-1">Complete your profile analysis to see insights</p>
           </div>
         ) : (
           <AutomationExposureBar 
@@ -227,9 +227,9 @@ export function AutomationExposureCard({
           <div className="mt-4" role="region" aria-labelledby={contextHeadingId}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Info className="h-4 w-4 text-gray-600" />
-                <h4 id={contextHeadingId} className="text-sm font-medium text-gray-900">Context</h4>
-                <span className={`ml-2 inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${severityColor}`} aria-label={`Overall exposure: ${severityLabel}`}>
+                <Info className="h-4 w-4 text-secondary" />
+                <h4 id={contextHeadingId} className="text-label text-primary">Context</h4>
+                <span className={`ml-2 ${severityClass}`} aria-label={`Overall exposure: ${severityLabel}`}>
                   Overall: {severityLabel}
                 </span>
               </div>
@@ -237,53 +237,53 @@ export function AutomationExposureCard({
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="inline-flex items-center gap-1 text-xs text-gray-600 hover:text-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded px-2 py-1"
+                  className="btn-ghost btn-sm focus-ring inline-flex items-center gap-1"
                   aria-label="Copy context"
                 >
                   {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                  <span>{copied ? 'Copied' : 'Copy'}</span>
+                  <span className="text-body-sm text-secondary">{copied ? 'Copied' : 'Copy'}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setExpanded(prev => !prev)}
                   aria-expanded={expanded}
-                  className="inline-flex items-center gap-1 text-xs text-gray-600 hover:text-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded px-2 py-1"
+                  className="btn-ghost btn-sm focus-ring inline-flex items-center gap-1"
                 >
                   {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-                  <span>{expanded ? 'Collapse' : 'Expand'}</span>
+                  <span className="text-body-sm text-secondary">{expanded ? 'Collapse' : 'Expand'}</span>
                 </button>
               </div>
             </div>
 
             {expanded && insights?.narratives?.automationNarrative && (
-              <div className="bg-gray-50 rounded-lg p-2 border border-gray-100 mt-2">
-                <p className="text-sm leading-relaxed text-gray-700">{insights.narratives.automationNarrative}</p>
+              <div className="bg-hero rounded-lg p-2 border border-default mt-2">
+                <p className="text-body leading-relaxed text-primary">{insights.narratives.automationNarrative}</p>
               </div>
             )}
 
             {expanded && (
               <ul role="list" className="mt-2 space-y-1">
                 {contextStats.topTaskLabel && (
-                  <li role="listitem" className="text-sm text-gray-700">
-                    <span className="font-medium text-gray-800">Top task:</span> {contextStats.topTaskLabel} ({contextStats.topTaskValue}%)
+                  <li role="listitem" className="text-body text-primary">
+                    <span className="font-medium text-primary">Top task:</span> {contextStats.topTaskLabel} ({contextStats.topTaskValue}%)
                   </li>
                 )}
                 {topThree.length > 0 && (
-                  <li role="listitem" className="text-sm text-gray-700">
-                    <span className="font-medium text-gray-800">Top tasks:</span> {topThree.map(t => `${t.label} (${t.value}%)`).join(', ')}
+                  <li role="listitem" className="text-body text-primary">
+                    <span className="font-medium text-primary">Top tasks:</span> {topThree.map(t => `${t.label} (${t.value}%)`).join(', ')}
                   </li>
                 )}
-                <li role="listitem" className="text-sm text-gray-700">
-                  <span className="font-medium text-gray-800">Average exposure:</span> {contextStats.avg}%
+                <li role="listitem" className="text-body text-primary">
+                  <span className="font-medium text-primary">Average exposure:</span> {contextStats.avg}%
                 </li>
-                <li role="listitem" className="text-sm text-gray-700">
-                  <span className="font-medium text-gray-800">Median:</span> {contextStats.median}% · <span className="font-medium text-gray-800">P90:</span> {contextStats.p90}%
+                <li role="listitem" className="text-body text-primary">
+                  <span className="font-medium text-primary">Median:</span> {contextStats.median}% · <span className="font-medium text-primary">P90:</span> {contextStats.p90}%
                 </li>
-                <li role="listitem" className="text-sm text-gray-700">
-                  <span className="font-medium text-gray-800">Counts:</span> High {contextStats.counts.high}, Moderate {contextStats.counts.moderate}, Low {contextStats.counts.low} (Total {contextStats.counts.total})
+                <li role="listitem" className="text-body text-primary">
+                  <span className="font-medium text-primary">Counts:</span> High {contextStats.counts.high}, Moderate {contextStats.counts.moderate}, Low {contextStats.counts.low} (Total {contextStats.counts.total})
                 </li>
                 {(minExposure > 0 || contextStats.truncatedFrom > 0) && (
-                  <li role="listitem" className="text-xs text-gray-600">
+                  <li role="listitem" className="text-body-sm text-secondary">
                     {minExposure > 0 && (<span className="mr-2">Filtered by minimum exposure ≥ {minExposure}%.</span>)}
                     {contextStats.truncatedFrom > 0 && (<span>Showing top {topN} of {contextStats.truncatedFrom} eligible tasks.</span>)}
                   </li>
@@ -294,28 +294,28 @@ export function AutomationExposureCard({
             {expanded && insights?.sources && insights.sources.length > 0 && (
               <div className="mt-2">
                 <div className="flex items-center gap-2 mb-1">
-                  <div className="bg-gray-100 p-1 rounded-full">
-                    <ExternalLink className="h-3.5 w-3.5 text-gray-600" />
+                  <div className="bg-surface p-1 rounded-full border border-default">
+                    <ExternalLink className="h-3.5 w-3.5 text-secondary" />
                   </div>
-                  <span className="text-xs font-medium text-gray-800">Sources</span>
+                  <span className="text-label-sm text-primary">Sources</span>
                 </div>
                 <div className="grid gap-1 sm:grid-cols-2" role="list">
                   {insights.sources.slice(0, 2).map((s, idx) => (
-                    <div key={idx} role="listitem" className="flex items-center gap-2 p-1.5 rounded border border-gray-100 bg-gray-50">
-                      <div className="bg-white p-0.5 rounded-full">
-                        <ExternalLink className="h-3.5 w-3.5 text-blue-500" />
+                    <div key={idx} role="listitem" className="flex items-center gap-2 p-1.5 rounded border border-default bg-surface">
+                      <div className="bg-surface p-0.5 rounded-full border border-default">
+                        <ExternalLink className="h-3.5 w-3.5 text-brand" />
                       </div>
                       {s.url ? (
                         <a
                           href={s.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs text-gray-800 hover:text-gray-900 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+                          className="text-body-sm link-primary focus-ring rounded"
                         >
                           {s.title}
                         </a>
                       ) : (
-                        <span className="text-xs text-gray-700">{s.title}</span>
+                        <span className="text-body-sm text-primary">{s.title}</span>
                       )}
                     </div>
                   ))}
@@ -326,7 +326,7 @@ export function AutomationExposureCard({
         )}
       </div>
       
-      <div className="px-4 py-2 bg-gray-50 border-t border-gray-100 text-xs text-gray-500">
+      <div className="px-4 py-2 bg-surface border-t border-default text-body-sm text-secondary">
         Showing top {topN} tasks with highest automation exposure
       </div>
     </div>

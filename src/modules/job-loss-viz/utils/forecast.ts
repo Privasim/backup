@@ -32,7 +32,7 @@ export function createForecastUntil2028(historicalData: Datum[]): ForecastResult
   const trend = calculateTrend(recentData);
 
   // Generate forecast points until 2028
-  const forecast: DataPoint[] = [];
+  const forecast: Datum[] = [];
   let currentDate = new Date(lastDate);
   const endDate = new Date('2028-12-31');
 

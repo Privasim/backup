@@ -101,7 +101,7 @@ export function AutomationExposureBar({
         return d.label;
       })
       .style('font-size', '12px')
-      .style('fill', '#374151'); // gray-700 for good contrast
+      .style('fill', 'var(--neutral-700)'); // design token for good contrast
     
     // Value labels (percentages, right side)
     g.selectAll('.value')
@@ -115,7 +115,7 @@ export function AutomationExposureBar({
       .text(d => `${Math.round(d.value)}%`)
       .style('font-size', '12px')
       .style('font-weight', '600')
-      .style('fill', '#111827'); // gray-900 for strong contrast
+      .style('fill', 'var(--neutral-900)'); // design token for strong contrast
     
     // X-axis
     const xAxis = d3.axisBottom(xScale)
@@ -128,12 +128,12 @@ export function AutomationExposureBar({
       .call(xAxis)
       .selectAll('text')
       .style('font-size', '11px')
-      .style('fill', '#6B7280'); // gray-600 for axis ticks
+      .style('fill', 'var(--neutral-600)'); // design token for axis ticks
 
     // Style axis line and ticks for visibility
     g.select('.x-axis')
       .selectAll('path, line')
-      .style('stroke', '#E5E7EB'); // gray-200 grid/axis
+      .style('stroke', 'var(--neutral-200)'); // design token for grid/axis
       
     // X-axis label
     g.append('text')
@@ -144,12 +144,12 @@ export function AutomationExposureBar({
       .text('Automation Risk')
       .style('font-size', '12px')
       .style('font-weight', '500')
-      .style('fill', '#4B5563'); // gray-600/700 label
+      .style('fill', 'var(--neutral-600)'); // design token label
       
   }, [clampedItems, width, height]);
   
   return (
-    <div className={`w-full ${className}`}>
+    <div className={`w-full animate-fade-in ${className}`}>
       <svg 
         ref={svgRef}
         width="100%" 

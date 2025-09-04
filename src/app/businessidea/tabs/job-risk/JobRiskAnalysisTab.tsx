@@ -20,6 +20,8 @@ import { MitigationItem } from '@/components/insights/types';
 import { ConfirmDialog, VisualizationOption } from '@/components/ui/ConfirmDialog';
 import QuickActionBar from '@/components/chatbox/QuickActionBar';
 import ProfileAnalysisTrigger from '@/components/chatbox/ProfileAnalysisTrigger';
+import { KpiTile } from '@/components/insights/infographic/kpi-tile';
+import { RingProgress } from '@/components/insights/infographic/ring-progress';
 
 interface ProfileReadiness {
   ready: boolean;
@@ -327,6 +329,45 @@ const JobRiskAnalysisContent = () => {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {insights && (
+                  <div className="lg:col-span-2">
+                    {/* KPI header: infographic-style */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {/* Risk Score Ring */}
+                      <div className="card-elevated p-3 sm:p-4 flex items-center justify-center">
+                        <RingProgress
+                          value={typeof insights?.riskScore === 'number' ? Math.max(0, Math.min(100, Math.round(insights.riskScore))) : 0}
+                          label="Risk Score"
+                        />
+                      </div>
+                      {/* Tasks Assessed */}
+                      <KpiTile
+                        title="Tasks Assessed"
+                        value={Array.isArray(insights?.automationExposure) ? insights.automationExposure.length : 0}
+                        emphasis="neutral"
+                      />
+                      {/* High-risk tasks (>= 70%) */}
+                      <KpiTile
+                        title="High-risk Tasks"
+                        value={Array.isArray(insights?.automationExposure) ? insights.automationExposure.filter((i: any) => typeof i?.exposure === 'number' && i.exposure >= 70).length : 0}
+                        caption=">= 70% exposure"
+                        emphasis="error"
+                      />
+                      {/* Average Exposure */}
+                      <KpiTile
+                        title="Avg Exposure"
+                        value={`${(() => {
+                          const items = Array.isArray(insights?.automationExposure) ? insights.automationExposure : [];
+                          const valid = items.filter((i: any) => typeof i?.exposure === 'number');
+                          if (valid.length === 0) return 0;
+                          const total = valid.reduce((sum: number, i: any) => sum + i.exposure, 0);
+                          return Math.round(total / valid.length);
+                        })()}%`}
+                        emphasis="warning"
+                      />
+                    </div>
+                  </div>
+                )}
                 <div className="lg:col-span-2">
                   <DataDrivenInsights 
                     insights={insights}
