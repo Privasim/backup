@@ -10,8 +10,9 @@ export interface CostComparisonConfig {
 export interface CostComparisonData {
   humanCost: number;
   aiCost: number;
-  savings: number;
-  savingsPercentage: number;
+  jobDisplacementCost: number;
+  jobDisplacementPercentage: number;
+  costRatio: number; // AI cost as a percentage of human cost
 }
 
 /**
@@ -32,16 +33,18 @@ export function useCostComparison(config: CostComparisonConfig) {
       const humanCost = config.humanHourlyCost * annualHours;
       const aiCost = config.aiHourlyCost * annualHours;
       
-      // Calculate savings
-      const savings = humanCost - aiCost;
-      const savingsPercentage = Math.round((savings / humanCost) * 100);
+      // Calculate job displacement metrics
+      const jobDisplacementCost = humanCost - aiCost;
+      const jobDisplacementPercentage = Math.round((jobDisplacementCost / humanCost) * 100);
+      const costRatio = Math.round((aiCost / humanCost) * 100);
 
       // Set the calculated data
       setData({
         humanCost,
         aiCost,
-        savings,
-        savingsPercentage
+        jobDisplacementCost,
+        jobDisplacementPercentage,
+        costRatio
       });
     } catch (err) {
       setError('Failed to calculate cost comparison');
