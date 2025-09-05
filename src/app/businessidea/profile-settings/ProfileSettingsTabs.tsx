@@ -52,7 +52,7 @@ function LocalTabContent() {
     }
   }, [activeTab]);
 
-  const tabContainerClass = "max-w-[627px] mx-auto min-h-[200px]";
+  const tabContainerClass = "max-w-[900px] mx-auto min-h-[200px]";
   const tabContentClass = "bg-white rounded-xl shadow-sm border border-gray-100 p-3";
 
   if (activeTab === 'userprofile') {
