@@ -142,19 +142,19 @@ export function CostComparisonCard({
 
   if (loading) {
     return (
-      <div className={`bg-white p-6 animate-fade-in transition-all duration-300 ${className}`}>
-        <div className="flex items-center gap-3 mb-6">
-          <div className="bg-red-100 p-2 rounded-full">
-            <AlertTriangle className="h-5 w-5 text-red-600" />
+      <div className={`bg-white p-4 animate-fade-in transition-all duration-300 ${className}`}>
+        <div className="flex items-center gap-2 mb-3">
+          <div className="bg-red-100 p-1.5 rounded-full">
+            <AlertTriangle className="h-4 w-4 text-red-600" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-800">{title || 'Job Displacement Analysis'}</h3>
+          <h3 className="text-lg font-medium text-gray-800">{title || 'Job Displacement Analysis'}</h3>
         </div>
-        <div className="space-y-6">
-          <Skeleton className="h-8 w-full rounded-lg" />
-          <Skeleton className="h-48 w-full rounded-lg" />
-          <Skeleton className="h-36 w-full rounded-lg" />
-          <Skeleton className="h-36 w-full rounded-lg" />
-          <Skeleton className="h-6 w-1/2 rounded-lg" />
+        <div className="space-y-3">
+          <Skeleton className="h-6 w-full rounded-md" />
+          <Skeleton className="h-32 w-full rounded-md" />
+          <Skeleton className="h-24 w-full rounded-md" />
+          <Skeleton className="h-24 w-full rounded-md" />
+          <Skeleton className="h-4 w-1/2 rounded-md" />
         </div>
       </div>
     );
@@ -162,48 +162,48 @@ export function CostComparisonCard({
 
   if (error) {
     return (
-      <div className={`bg-white p-6 animate-fade-in transition-all duration-300 ${className}`}>
-        <div className="flex items-center gap-3 mb-6">
-          <div className="bg-red-100 p-2 rounded-full">
-            <AlertCircle className="h-5 w-5 text-red-600" />
+      <div className={`bg-white p-4 animate-fade-in transition-all duration-300 ${className}`}>
+        <div className="flex items-center gap-2 mb-3">
+          <div className="bg-red-100 p-1.5 rounded-full">
+            <AlertCircle className="h-4 w-4 text-red-600" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-800">{title || 'Job Displacement Analysis'}</h3>
+          <h3 className="text-lg font-medium text-gray-800">{title || 'Job Displacement Analysis'}</h3>
         </div>
-        <div className="p-4 bg-red-50 rounded-lg">
-          <p className="text-lg text-red-700">{error}</p>
-          <p className="text-base mt-3 text-gray-700">Please try again or contact support if the issue persists.</p>
+        <div className="p-3 bg-red-50 rounded-md">
+          <p className="text-base text-red-700">{error}</p>
+          <p className="text-sm mt-2 text-gray-700">Please try again or contact support if the issue persists.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`bg-white p-6 animate-fade-in ${className}`}>
+    <div className={`bg-white p-4 animate-fade-in ${className}`}>
       {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3">
-          <div className="bg-red-100 p-2 rounded-full">
-            <AlertTriangle className="h-5 w-5 text-red-600" />
+      <div className="mb-3">
+        <div className="flex items-center gap-2">
+          <div className="bg-red-100 p-1.5 rounded-full">
+            <AlertTriangle className="h-4 w-4 text-red-600" />
           </div>
-          <h3 className="text-2xl font-semibold text-gray-800">{title || 'Job Displacement Analysis'}</h3>
-          <div className="ml-auto flex items-center gap-2">
+          <h3 className="text-lg font-medium text-gray-800">{title || 'Job Displacement Analysis'}</h3>
+          <div className="ml-auto flex items-center gap-1">
             {showSettings && (
               <button 
                 onClick={() => setShowConfig(!showConfig)} 
-                className="px-3 py-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-2 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500"
                 aria-label="Toggle configuration panel"
                 aria-expanded={showConfig}
               >
-                <Settings className="h-4 w-4" />
+                <Settings className="h-3.5 w-3.5" />
               </button>
             )}
             <button 
               onClick={handleCopy} 
-              className="px-3 py-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors inline-flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-2 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors inline-flex items-center gap-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
               aria-label="Copy job displacement analysis to clipboard"
             >
-              <Copy className="h-4 w-4" />
-              <span className="text-sm">{copied ? 'Copied' : 'Copy'}</span>
+              <Copy className="h-3.5 w-3.5" />
+              <span className="text-xs">{copied ? 'Copied' : 'Copy'}</span>
               {copied && <span className="sr-only">Copied!</span>}
             </button>
           </div>
@@ -212,18 +212,18 @@ export function CostComparisonCard({
 
       {/* Configuration Panel */}
       {showConfig && (
-        <div className="bg-blue-50 rounded-lg p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="text-xl font-medium text-gray-800">Configuration</h4>
+        <div className="bg-blue-50 rounded-md p-3 mb-3">
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-base font-medium text-gray-800">Configuration</h4>
             <button 
               onClick={() => setShowConfig(false)}
-              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500"
               aria-label="Close configuration panel"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <LabeledNumberInput 
               label="Human Hourly Cost ($)"
               value={config.humanHourlyCost}
@@ -258,31 +258,31 @@ export function CostComparisonCard({
 
       {/* Job Displacement Analysis */}
       {data && (
-        <div className="space-y-8">
+        <div className="space-y-4">
           {/* Summary - Warning about job displacement */}
-          <div className="bg-red-50 rounded-lg p-5">
-            <div className="flex items-center gap-3 mb-2">
-              <AlertTriangle className="h-5 w-5 text-red-600" />
-              <h4 className="text-lg font-medium text-red-800">Job Displacement Warning</h4>
+          <div className="bg-red-50 rounded-md p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <AlertTriangle className="h-4 w-4 text-red-600" />
+              <h4 className="text-sm font-medium text-red-800">Job Displacement Warning</h4>
             </div>
-            <p className="text-base text-red-700">
-              Potential job displacement cost of <span className="font-bold">${data.jobDisplacementCost.toLocaleString()}</span> per year 
-              <span className="ml-2 px-2 py-0.5 bg-red-100 text-red-800 rounded-full text-sm font-medium">{data.jobDisplacementPercentage}%</span>
+            <p className="text-xs text-red-700">
+              Potential job displacement cost of <span className="font-medium">${data.jobDisplacementCost.toLocaleString()}</span> per year 
+              <span className="ml-1 px-1.5 py-0.5 bg-red-100 text-red-800 rounded-full text-xs font-medium">{data.jobDisplacementPercentage}%</span>
             </p>
           </div>
           
           {/* Gauge Chart for Job Displacement */}
-          <div className="bg-gray-50 p-6 rounded-lg">
-            <div className="flex items-center gap-2 mb-5">
-              <TrendingDown className="h-6 w-6 text-red-600" />
-              <h4 className="text-xl font-medium text-gray-800">Job Displacement Impact</h4>
+          <div className="bg-gray-50 p-3 rounded-md">
+            <div className="flex items-center gap-1.5 mb-2">
+              <TrendingDown className="h-4 w-4 text-red-600" />
+              <h4 className="text-base font-medium text-gray-800">Job Displacement Impact</h4>
             </div>
-            <div className="relative h-48 w-full">
+            <div className="relative h-32 w-full">
               {/* Semi-circular gauge */}
               <div className="flex justify-center">
-                <div className="relative w-full max-w-sm">
+                <div className="relative w-full max-w-xs">
                   {/* Gauge background */}
-                  <div className="h-40 w-full bg-gray-200 rounded-t-full overflow-hidden">
+                  <div className="h-28 w-full bg-gray-200 rounded-t-full overflow-hidden">
                     {/* Gauge fill - represents job displacement percentage */}
                     <div 
                       className="h-full bg-gradient-to-r from-amber-500 to-red-600 rounded-t-full"
@@ -292,14 +292,14 @@ export function CostComparisonCard({
                   
                   {/* Gauge needle */}
                   <div 
-                    className="absolute bottom-0 left-1/2 h-36 w-1.5 bg-red-700 origin-bottom transform -translate-x-1/2"
+                    className="absolute bottom-0 left-1/2 h-24 w-1 bg-red-700 origin-bottom transform -translate-x-1/2"
                     style={{ transform: `translateX(-50%) rotate(${(data.jobDisplacementPercentage / 100) * 180 - 90}deg)` }}
                   >
-                    <div className="absolute -top-1.5 -left-1.5 w-4 h-4 bg-red-700 rounded-full" />
+                    <div className="absolute -top-1 -left-1 w-2.5 h-2.5 bg-red-700 rounded-full" />
                   </div>
                   
                   {/* Percentage display */}
-                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-2xl font-bold text-red-700">
+                  <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 text-lg font-bold text-red-700">
                     {data.jobDisplacementPercentage}%
                   </div>
                 </div>
@@ -308,18 +308,18 @@ export function CostComparisonCard({
           </div>
           
           {/* Cost Comparison Chart */}
-          <div className="bg-gray-50 p-6 rounded-lg">
-            <h4 className="text-xl font-medium text-gray-800 mb-5">Cost Comparison</h4>
+          <div className="bg-gray-50 p-3 rounded-md">
+            <h4 className="text-base font-medium text-gray-800 mb-3">Cost Comparison</h4>
             
             {/* Human Cost */}
-            <div className="mb-6">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-lg text-gray-700">Human Labor Cost</span>
-                <span className="text-lg font-semibold text-gray-800">
+            <div className="mb-3">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-sm text-gray-700">Human Labor Cost</span>
+                <span className="text-sm font-medium text-gray-800">
                   ${data.humanCost.toLocaleString()}/year
                 </span>
               </div>
-              <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden" role="progressbar" aria-valuenow={100} aria-valuemin={0} aria-valuemax={100}>
+              <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden" role="progressbar" aria-valuenow={100} aria-valuemin={0} aria-valuemax={100}>
                 <div 
                   className="h-full bg-blue-600"
                   style={{ width: '100%' }}
@@ -329,13 +329,13 @@ export function CostComparisonCard({
             
             {/* AI Cost */}
             <div>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-lg text-gray-700">AI Replacement Cost</span>
-                <span className="text-lg font-semibold text-gray-800">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-sm text-gray-700">AI Replacement Cost</span>
+                <span className="text-sm font-medium text-gray-800">
                   ${data.aiCost.toLocaleString()}/year
                 </span>
               </div>
-              <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden" role="progressbar" aria-valuenow={data.costRatio} aria-valuemin={0} aria-valuemax={100}>
+              <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden" role="progressbar" aria-valuenow={data.costRatio} aria-valuemin={0} aria-valuemax={100}>
                 <div 
                   className="h-full bg-red-600"
                   style={{ width: `${data.costRatio}%` }}
@@ -345,30 +345,30 @@ export function CostComparisonCard({
           </div>
           
           {/* Job Displacement Impact */}
-          <div className="bg-gray-50 p-6 rounded-lg">
-            <h4 className="text-xl font-medium text-gray-800 mb-5">Job Displacement Impact</h4>
-            <div className="flex flex-col space-y-4">
-              <div className="p-5 rounded-lg bg-red-50">
-                <div className="flex items-center gap-2 mb-3">
-                  <TrendingDown className="h-5 w-5 text-red-600" />
-                  <h5 className="text-lg font-medium text-red-800">Jobs at Risk</h5>
+          <div className="bg-gray-50 p-3 rounded-md">
+            <h4 className="text-base font-medium text-gray-800 mb-2">Job Displacement Impact</h4>
+            <div className="flex flex-col space-y-2">
+              <div className="p-2 rounded-md bg-red-50">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <TrendingDown className="h-3.5 w-3.5 text-red-600" />
+                  <h5 className="text-sm font-medium text-red-800">Jobs at Risk</h5>
                 </div>
-                <p className="text-base text-red-700">
+                <p className="text-xs text-red-700">
                   This AI replacement could eliminate human jobs with a cost impact of
-                  <span className="text-2xl font-bold block mt-2">
+                  <span className="text-base font-medium block mt-1">
                     ${data.jobDisplacementCost.toLocaleString()}/year
                   </span>
                 </p>
               </div>
               
-              <div className="p-5 rounded-lg bg-amber-50">
-                <div className="flex items-center gap-2 mb-3">
-                  <AlertTriangle className="h-5 w-5 text-amber-600" />
-                  <h5 className="text-lg font-medium text-amber-800">Workforce Impact</h5>
+              <div className="p-2 rounded-md bg-amber-50">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
+                  <h5 className="text-sm font-medium text-amber-800">Workforce Impact</h5>
                 </div>
-                <p className="text-base text-amber-700">
+                <p className="text-xs text-amber-700">
                   AI could replace
-                  <span className="text-2xl font-bold block mt-2">
+                  <span className="text-base font-medium block mt-1">
                     {data.jobDisplacementPercentage}% of the workforce
                   </span>
                 </p>
@@ -377,29 +377,29 @@ export function CostComparisonCard({
           </div>
           
           {/* Detailed Breakdown */}
-          <div className="bg-white p-6 rounded-lg">
-            <h4 className="text-xl font-medium text-gray-800 mb-4">Cost Details</h4>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center py-3 border-b border-gray-200">
-                <span className="text-base text-gray-600">Human Hourly Rate</span>
-                <span className="text-lg font-medium text-gray-800">${config.humanHourlyCost}</span>
+          <div className="bg-white p-3 rounded-md">
+            <h4 className="text-base font-medium text-gray-800 mb-2">Cost Details</h4>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center py-1.5 border-b border-gray-200">
+                <span className="text-xs text-gray-600">Human Hourly Rate</span>
+                <span className="text-sm font-medium text-gray-800">${config.humanHourlyCost}</span>
               </div>
-              <div className="flex justify-between items-center py-3 border-b border-gray-200">
-                <span className="text-base text-gray-600">AI Hourly Rate</span>
-                <span className="text-lg font-medium text-gray-800">${config.aiHourlyCost}</span>
+              <div className="flex justify-between items-center py-1.5 border-b border-gray-200">
+                <span className="text-xs text-gray-600">AI Hourly Rate</span>
+                <span className="text-sm font-medium text-gray-800">${config.aiHourlyCost}</span>
               </div>
-              <div className="flex justify-between items-center py-3 border-b border-gray-200">
-                <span className="text-base text-gray-600">Hours Per Week</span>
-                <span className="text-lg font-medium text-gray-800">{config.hoursPerWeek}</span>
+              <div className="flex justify-between items-center py-1.5 border-b border-gray-200">
+                <span className="text-xs text-gray-600">Hours Per Week</span>
+                <span className="text-sm font-medium text-gray-800">{config.hoursPerWeek}</span>
               </div>
-              <div className="flex justify-between items-center py-3">
-                <span className="text-base text-gray-600">Weeks Per Year</span>
-                <span className="text-lg font-medium text-gray-800">{config.weeksPerYear}</span>
+              <div className="flex justify-between items-center py-1.5">
+                <span className="text-xs text-gray-600">Weeks Per Year</span>
+                <span className="text-sm font-medium text-gray-800">{config.weeksPerYear}</span>
               </div>
             </div>
           </div>
           
-          <div className="mt-6 pt-4 text-base text-gray-500">
+          <div className="mt-3 pt-2 text-xs text-gray-500">
             Analysis based on current market rates and industry standards for AI replacement costs.
           </div>
         </div>

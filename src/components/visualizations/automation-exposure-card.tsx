@@ -174,18 +174,18 @@ export function AutomationExposureCard({
 
   if (loading) {
     return (
-      <div className={`bg-white p-6 animate-fade-in transition-all duration-300 ${className}`}>
-        <div className="flex items-center gap-3 mb-6">
-          <div className="bg-accent-100 p-2 rounded-full">
-            <PieChart className="h-5 w-5 text-accent-600" />
+      <div className={`bg-white p-4 animate-fade-in transition-all duration-300 ${className}`}>
+        <div className="flex items-center gap-2 mb-3">
+          <div className="bg-accent-100 p-1.5 rounded-full">
+            <PieChart className="h-4 w-4 text-accent-600" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-800">Automation Exposure</h3>
+          <h3 className="text-lg font-medium text-gray-800">Automation Exposure</h3>
         </div>
-        <div className="space-y-6">
-          <Skeleton className="h-8 w-full rounded-lg" />
-          <Skeleton className="h-48 w-full rounded-lg" />
-          <Skeleton className="h-48 w-full rounded-lg" />
-          <Skeleton className="h-6 w-1/2 rounded-lg" />
+        <div className="space-y-3">
+          <Skeleton className="h-6 w-full rounded-md" />
+          <Skeleton className="h-32 w-full rounded-md" />
+          <Skeleton className="h-32 w-full rounded-md" />
+          <Skeleton className="h-4 w-1/2 rounded-md" />
         </div>
       </div>
     );
@@ -193,13 +193,13 @@ export function AutomationExposureCard({
 
   if (error) {
     return (
-      <div className={`bg-white p-6 ${className}`}>
-        <div className="mb-6">
-          <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
+      <div className={`bg-white p-4 ${className}`}>
+        <div className="mb-3">
+          <h3 className="text-lg font-medium text-gray-800">{title}</h3>
         </div>
-        <div className="p-4 bg-red-50 rounded-lg">
-          <p className="text-lg text-red-700">{error}</p>
-          <p className="text-base mt-3 text-gray-700">Please try again or contact support if the issue persists.</p>
+        <div className="p-3 bg-red-50 rounded-md">
+          <p className="text-base text-red-700">{error}</p>
+          <p className="text-sm mt-2 text-gray-700">Please try again or contact support if the issue persists.</p>
         </div>
       </div>
     );
@@ -232,92 +232,92 @@ export function AutomationExposureCard({
   // Second handleCopy function removed to fix duplication
 
   return (
-    <div className={`bg-white p-6 animate-fade-in ${className}`}>
-      <div className="mb-6">
+    <div className={`bg-white p-4 animate-fade-in ${className}`}>
+      <div className="mb-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <h3 className="text-2xl font-semibold text-gray-800">{title}</h3>
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${severityLabel === 'High' ? 'bg-red-100 text-red-800' : severityLabel === 'Moderate' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'}`} aria-label={`Overall exposure: ${severityLabel}`}>
+          <div className="flex items-center gap-2">
+            <h3 className="text-lg font-medium text-gray-800">{title}</h3>
+            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${severityLabel === 'High' ? 'bg-red-100 text-red-800' : severityLabel === 'Moderate' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'}`} aria-label={`Overall exposure: ${severityLabel}`}>
               {severityLabel}
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={handleCopy}
-              className="px-3 py-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors inline-flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-2 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors inline-flex items-center gap-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
               aria-label="Copy insights"
             >
-              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-              <span className="text-sm">{copied ? 'Copied' : 'Copy'}</span>
+              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              <span className="text-xs">{copied ? 'Copied' : 'Copy'}</span>
             </button>
           </div>
         </div>
       </div>
       
-      <div className="space-y-8">
+      <div className="space-y-4">
         {isEmpty ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <AlertCircle className="h-10 w-10 text-gray-500 mb-4" />
-            <p className="text-lg text-gray-700">No automation exposure data available</p>
-            <p className="text-base text-gray-600 mt-2">Complete your profile analysis to see insights</p>
+          <div className="flex flex-col items-center justify-center py-4 text-center">
+            <AlertCircle className="h-8 w-8 text-gray-500 mb-2" />
+            <p className="text-base text-gray-700">No automation exposure data available</p>
+            <p className="text-sm text-gray-600 mt-1">Complete your profile analysis to see insights</p>
           </div>
         ) : (
           <>
-            {/* KPI Tiles - Now vertical */}
-            <div className="flex flex-col space-y-4">
-              <h4 className="text-xl font-medium text-gray-800">Exposure Metrics</h4>
+            {/* KPI Tiles - Now vertical and more compact */}
+            <div className="flex flex-col space-y-2">
+              <h4 className="text-base font-medium text-gray-800">Exposure Metrics</h4>
               
-              <div className={`p-4 rounded-lg ${severityLabel === 'High' ? 'bg-red-50' : severityLabel === 'Moderate' ? 'bg-amber-50' : 'bg-green-50'}`}>
+              <div className={`p-3 rounded-md ${severityLabel === 'High' ? 'bg-red-50' : severityLabel === 'Moderate' ? 'bg-amber-50' : 'bg-green-50'}`}>
                 <div className="flex justify-between items-center">
                   <div>
-                    <h5 className="text-lg font-medium ${severityLabel === 'High' ? 'text-red-800' : severityLabel === 'Moderate' ? 'text-amber-800' : 'text-green-800'}">Average Exposure</h5>
-                    <p className="text-sm text-gray-600">Overall automation risk</p>
+                    <h5 className="text-sm font-medium ${severityLabel === 'High' ? 'text-red-800' : severityLabel === 'Moderate' ? 'text-amber-800' : 'text-green-800'}">Average Exposure</h5>
+                    <p className="text-xs text-gray-600">Overall automation risk</p>
                   </div>
-                  <span className="text-2xl font-bold ${severityLabel === 'High' ? 'text-red-700' : severityLabel === 'Moderate' ? 'text-amber-700' : 'text-green-700'}">${contextStats.avg}%</span>
+                  <span className="text-lg font-bold ${severityLabel === 'High' ? 'text-red-700' : severityLabel === 'Moderate' ? 'text-amber-700' : 'text-green-700'}">${contextStats.avg}%</span>
                 </div>
               </div>
               
-              <div className="bg-red-50 p-4 rounded-lg">
+              <div className="bg-red-50 p-3 rounded-md">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h5 className="text-lg font-medium text-red-800">High-risk Tasks</h5>
-                    <p className="text-sm text-gray-600">{'>'} 70% exposure</p>
+                    <h5 className="text-sm font-medium text-red-800">High-risk Tasks</h5>
+                    <p className="text-xs text-gray-600">{'>'} 70% exposure</p>
                   </div>
-                  <span className="text-2xl font-bold text-red-700">{contextStats.counts.high}</span>
+                  <span className="text-lg font-bold text-red-700">{contextStats.counts.high}</span>
                 </div>
               </div>
               
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-gray-50 p-3 rounded-md">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h5 className="text-lg font-medium text-gray-800">Tasks Assessed</h5>
-                    <p className="text-sm text-gray-600">Total tasks analyzed</p>
+                    <h5 className="text-sm font-medium text-gray-800">Tasks Assessed</h5>
+                    <p className="text-xs text-gray-600">Total tasks analyzed</p>
                   </div>
-                  <span className="text-2xl font-bold text-gray-700">{contextStats.counts.total}</span>
+                  <span className="text-lg font-bold text-gray-700">{contextStats.counts.total}</span>
                 </div>
               </div>
               
-              <div className="bg-amber-50 p-4 rounded-lg">
+              <div className="bg-amber-50 p-3 rounded-md">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h5 className="text-lg font-medium text-amber-800">Above Threshold</h5>
-                    <p className="text-sm text-gray-600">Tasks over 50% exposure</p>
+                    <h5 className="text-sm font-medium text-amber-800">Above Threshold</h5>
+                    <p className="text-xs text-gray-600">Tasks over 50% exposure</p>
                   </div>
-                  <span className="text-2xl font-bold text-amber-700">{exposureStats.aboveThresholdPercent}%</span>
+                  <span className="text-lg font-bold text-amber-700">{exposureStats.aboveThresholdPercent}%</span>
                 </div>
               </div>
             </div>
             
             {/* Main Visualization Area - Now vertical */}
-            <div className="flex flex-col space-y-8">
+            <div className="flex flex-col space-y-4">
               {/* Bar Chart */}
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <div className="flex items-center gap-2 mb-5">
-                  <BarChart3 className="h-6 w-6 text-gray-700" />
-                  <h4 className="text-xl font-medium text-gray-800">Highest Exposure Tasks</h4>
+              <div className="bg-gray-50 p-3 rounded-md">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <BarChart3 className="h-4 w-4 text-gray-700" />
+                  <h4 className="text-base font-medium text-gray-800">Highest Exposure Tasks</h4>
                 </div>
-                <p className="text-base text-gray-600 mb-5">Highest exposure tasks prioritized for automation</p>
+                <p className="text-xs text-gray-600 mb-3">Highest exposure tasks prioritized for automation</p>
                 <AutomationExposureBar 
                   items={barItems} 
                   maxBars={topN}
@@ -326,70 +326,70 @@ export function AutomationExposureCard({
               </div>
               
               {/* Gauge */}
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <div className="flex items-center gap-2 mb-5">
-                  <PieChart className="h-6 w-6 text-gray-700" />
-                  <h4 className="text-xl font-medium text-gray-800">Overall Exposure</h4>
+              <div className="bg-gray-50 p-4 rounded-md">
+                <div className="flex items-center gap-2 mb-3">
+                  <PieChart className="h-4 w-4 text-gray-700" />
+                  <h4 className="text-base font-medium text-gray-800">Overall Exposure</h4>
                 </div>
-                <div className="flex justify-center mb-5">
+                <div className="flex justify-center mb-3">
                   <ExposureGauge 
                     value={contextStats.avg} 
-                    size={200}
+                    size={150}
                     ariaLabel={`Overall automation exposure gauge showing ${contextStats.avg}% (${severityLabel} risk)`}
                   />
                 </div>
-                <p className="text-base text-gray-600 text-center">Overall exposure indicates systemic automation pressure</p>
+                <p className="text-xs text-gray-600 text-center">Overall exposure indicates systemic automation pressure</p>
               </div>
             </div>
 
             {/* Contextual Statements */}
-            <div className="bg-gray-50 p-6 rounded-lg" role="region" aria-labelledby={contextHeadingId}>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Info className="h-5 w-5 text-gray-700" />
-                  <h4 id={contextHeadingId} className="text-xl font-medium text-gray-800">Context & Analysis</h4>
+            <div className="bg-gray-50 p-3 rounded-md" role="region" aria-labelledby={contextHeadingId}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <Info className="h-4 w-4 text-gray-700" />
+                  <h4 id={contextHeadingId} className="text-base font-medium text-gray-800">Context & Analysis</h4>
                 </div>
                 <button
                   type="button"
                   onClick={() => setExpanded(prev => !prev)}
                   aria-expanded={expanded}
-                  className="px-3 py-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors inline-flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-2 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors inline-flex items-center gap-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
-                  {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                  <span className="text-sm">{expanded ? 'Collapse' : 'Expand'}</span>
+                  {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                  <span className="text-xs">{expanded ? 'Collapse' : 'Expand'}</span>
                 </button>
               </div>
 
               {expanded && insights?.narratives?.automationNarrative && (
-                <div className="bg-blue-50 rounded-lg p-4 mb-5">
-                  <p className="text-base leading-relaxed text-gray-700">{insights.narratives.automationNarrative}</p>
+                <div className="bg-blue-50 rounded-md p-3 mb-3">
+                  <p className="text-sm leading-relaxed text-gray-700">{insights.narratives.automationNarrative}</p>
                 </div>
               )}
 
               {expanded && (
-                <div className="space-y-5">
-                  <div className="bg-white p-5 rounded-lg">
-                    <h5 className="text-lg font-medium text-gray-800 mb-3">Key Statistics</h5>
-                    <ul role="list" className="space-y-3">
+                <div className="space-y-3">
+                  <div className="bg-white p-3 rounded-md">
+                    <h5 className="text-sm font-medium text-gray-800 mb-2">Key Statistics</h5>
+                    <ul role="list" className="space-y-1.5">
                       {contextStats.topTaskLabel && (
-                        <li role="listitem" className="text-base text-gray-700">
-                          <span className="font-semibold text-gray-800">Top task:</span> {contextStats.topTaskLabel} ({contextStats.topTaskValue}%)
+                        <li role="listitem" className="text-xs text-gray-700">
+                          <span className="font-medium text-gray-800">Top task:</span> {contextStats.topTaskLabel} ({contextStats.topTaskValue}%)
                         </li>
                       )}
                       {topThree.length > 0 && (
-                        <li role="listitem" className="text-base text-gray-700">
-                          <span className="font-semibold text-gray-800">Top tasks:</span> {topThree.map(t => `${t.label} (${t.value}%)`).join(', ')}
+                        <li role="listitem" className="text-xs text-gray-700">
+                          <span className="font-medium text-gray-800">Top tasks:</span> {topThree.map(t => `${t.label} (${t.value}%)`).join(', ')}
                         </li>
                       )}
-                      <li role="listitem" className="text-base text-gray-700">
-                        <span className="font-semibold text-gray-800">Median:</span> {contextStats.median}% · <span className="font-semibold text-gray-800">P90:</span> {contextStats.p90}%
+                      <li role="listitem" className="text-xs text-gray-700">
+                        <span className="font-medium text-gray-800">Median:</span> {contextStats.median}% · <span className="font-medium text-gray-800">P90:</span> {contextStats.p90}%
                       </li>
-                      <li role="listitem" className="text-base text-gray-700">
-                        <span className="font-semibold text-gray-800">Counts:</span> High {contextStats.counts.high}, Moderate {contextStats.counts.moderate}, Low {contextStats.counts.low} (Total {contextStats.counts.total})
+                      <li role="listitem" className="text-xs text-gray-700">
+                        <span className="font-medium text-gray-800">Counts:</span> High {contextStats.counts.high}, Moderate {contextStats.counts.moderate}, Low {contextStats.counts.low} (Total {contextStats.counts.total})
                       </li>
                       {(minExposure > 0 || contextStats.truncatedFrom > 0) && (
-                        <li role="listitem" className="text-sm text-gray-600 mt-2">
-                          {minExposure > 0 && (<span className="mr-2">Filtered by minimum exposure ≥ {minExposure}%.</span>)}
+                        <li role="listitem" className="text-xs text-gray-600 mt-1">
+                          {minExposure > 0 && (<span className="mr-1">Filtered by minimum exposure ≥ {minExposure}%.</span>)}
                           {contextStats.truncatedFrom > 0 && (<span>Showing top {topN} of {contextStats.truncatedFrom} eligible tasks.</span>)}
                         </li>
                       )}
@@ -397,26 +397,26 @@ export function AutomationExposureCard({
                   </div>
 
                   {insights?.sources && insights.sources.length > 0 && (
-                    <div className="bg-white p-5 rounded-lg">
-                      <div className="flex items-center gap-2 mb-3">
-                        <ExternalLink className="h-5 w-5 text-gray-700" />
-                        <h5 className="text-lg font-medium text-gray-800">Research Sources</h5>
+                    <div className="bg-white p-3 rounded-md">
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <ExternalLink className="h-4 w-4 text-gray-700" />
+                        <h5 className="text-sm font-medium text-gray-800">Research Sources</h5>
                       </div>
-                      <div className="flex flex-col space-y-3" role="list">
+                      <div className="flex flex-col space-y-2" role="list">
                         {insights.sources.slice(0, 2).map((s, idx) => (
-                          <div key={idx} role="listitem" className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
-                            <ExternalLink className="h-5 w-5 text-blue-600" />
+                          <div key={idx} role="listitem" className="flex items-center gap-2 p-2 rounded-md bg-gray-50">
+                            <ExternalLink className="h-3.5 w-3.5 text-blue-600" />
                             {s.url ? (
                               <a
                                 href={s.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-base text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                                className="text-xs text-blue-600 hover:underline focus:outline-none focus:ring-1 focus:ring-blue-500 rounded"
                               >
                                 {s.title}
                               </a>
                             ) : (
-                              <span className="text-base text-gray-700">{s.title}</span>
+                              <span className="text-xs text-gray-700">{s.title}</span>
                             )}
                           </div>
                         ))}
@@ -430,7 +430,7 @@ export function AutomationExposureCard({
         )}
       </div>
       
-      <div className="mt-6 pt-4 text-base text-gray-500">
+      <div className="mt-3 pt-2 text-xs text-gray-500">
         Showing top {topN} tasks with highest automation exposure
       </div>
     </div>
