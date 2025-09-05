@@ -22,6 +22,7 @@ import QuickActionBar from '@/components/chatbox/QuickActionBar';
 import ProfileAnalysisTrigger from '@/components/chatbox/ProfileAnalysisTrigger';
 import { KpiTile } from '@/components/insights/infographic/kpi-tile';
 import { RingProgress } from '@/components/insights/infographic/ring-progress';
+import { JobRiskVisualScope } from './design/visual-governor';
 
 interface ProfileReadiness {
   ready: boolean;
@@ -284,8 +285,9 @@ const JobRiskAnalysisContent = () => {
         cancelLabel="Skip for Now"
         visualizationOptions={visualizationOptions}
       />
-      <div className="w-full h-full">
-        <div className="space-y-6 pb-12">
+      <JobRiskVisualScope>
+        <div className="w-full h-full">
+          <div className="space-y-6 pb-12">
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-semibold text-red-700">Job Risk Analysis</h2>
             <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">
@@ -444,7 +446,8 @@ const JobRiskAnalysisContent = () => {
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      </JobRiskVisualScope>
     </>
   );
 };
