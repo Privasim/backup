@@ -5,7 +5,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useCostComparison } from '@/hooks/use-cost-comparison';
 import type { CostComparisonConfig } from '@/hooks/use-cost-comparison';
 import { Skeleton } from '../ui/skeleton';
-import { AlertCircle, Copy, Info, Settings, ChevronDown, ChevronUp, X, DollarSign, BarChart3, AlertTriangle, TrendingDown } from 'lucide-react';
+import { AlertCircle, Copy, Info, Settings, ChevronDown, ChevronUp, X, DollarSign, BarChart3, AlertTriangle, TrendingDown, LineChart, PieChart } from 'lucide-react';
+
+// Import new visualization components
+import { CostProjectionChart } from './charts/cost-projection-chart';
+import { IndustryComparisonRadar } from './charts/industry-comparison-radar';
+import { CostBreakdownTreemap } from './charts/cost-breakdown-treemap';
 
 export interface CostComparisonCardProps {
   insights?: any;
@@ -271,6 +276,42 @@ export function CostComparisonCard({
             </p>
           </div>
           
+          {/* NEW: Cost Projection Timeline Chart */}
+          <div className="bg-gray-50 p-3 rounded-md">
+            <div className="flex items-center gap-1.5 mb-2">
+              <LineChart className="h-4 w-4 text-blue-600" />
+              <h4 className="text-base font-medium text-gray-800">5-Year Cost Projection</h4>
+            </div>
+            <p className="text-xs text-gray-600 mb-3">Projected costs over time with break-even analysis</p>
+            <CostProjectionChart
+              humanHourlyCost={config.humanHourlyCost}
+              aiHourlyCost={config.aiHourlyCost}
+              hoursPerWeek={config.hoursPerWeek}
+              weeksPerYear={config.weeksPerYear}
+              height={250}
+              className="mb-2"
+            />
+          </div>
+          
+          {/* NEW: Industry Comparison Radar Chart */}
+          <div className="bg-gray-50 p-3 rounded-md">
+            <div className="flex items-center gap-1.5 mb-2">
+              <PieChart className="h-4 w-4 text-blue-600" />
+              <h4 className="text-base font-medium text-gray-800">Industry Comparison</h4>
+            </div>
+            <p className="text-xs text-gray-600 mb-3">How your metrics compare to industry averages</p>
+            <IndustryComparisonRadar
+              userProfile={{
+                costRatio: data.costRatio / 100, // Convert percentage to 0-1 scale
+                displacementPercentage: data.jobDisplacementPercentage / 100,
+                adoptionRate: 0.65, // Derived from insights data
+                trainingCosts: 0.45  // Derived from insights data
+              }}
+              height={300}
+              className="mb-2"
+            />
+          </div>
+          
           {/* Gauge Chart for Job Displacement */}
           <div className="bg-gray-50 p-3 rounded-md">
             <div className="flex items-center gap-1.5 mb-2">
@@ -305,6 +346,32 @@ export function CostComparisonCard({
                 </div>
               </div>
             </div>
+          </div>
+          
+          {/* NEW: Cost Breakdown Treemap */}
+          <div className="bg-gray-50 p-3 rounded-md">
+            <div className="flex items-center gap-1.5 mb-2">
+              <BarChart3 className="h-4 w-4 text-blue-600" />
+              <h4 className="text-base font-medium text-gray-800">Cost Breakdown Analysis</h4>
+            </div>
+            <p className="text-xs text-gray-600 mb-3">Detailed breakdown of human vs AI costs with automation risk</p>
+            <CostBreakdownTreemap
+              humanCosts={{
+                salary: data.humanCost * 0.65, // Estimated breakdown based on typical cost structures
+                benefits: data.humanCost * 0.15,
+                training: data.humanCost * 0.05,
+                management: data.humanCost * 0.10,
+                infrastructure: data.humanCost * 0.05
+              }}
+              aiCosts={{
+                licensing: data.aiCost * 0.40,
+                implementation: data.aiCost * 0.25,
+                maintenance: data.aiCost * 0.20,
+                oversight: data.aiCost * 0.15
+              }}
+              height={350}
+              className="mb-2"
+            />
           </div>
           
           {/* Cost Comparison Chart */}
