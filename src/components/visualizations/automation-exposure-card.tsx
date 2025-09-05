@@ -3,9 +3,12 @@
 import React, { useMemo, useState, useCallback, useId, useEffect } from 'react';
 import { DataDrivenInsightsModel } from '../insights/types';
 import { AutomationExposureBar } from './automation-exposure-bar';
-import { Zap, ChevronDown, ChevronUp, Copy, ExternalLink, AlertCircle, Info, PieChart, Check } from 'lucide-react';
+import { Zap, ChevronDown, ChevronUp, Copy, ExternalLink, AlertCircle, Info, PieChart, Check, BarChart3 } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 import { ClipboardUtils } from '../chatbox/utils/clipboard-utils';
+import { ExposureGauge } from './charts/exposure/exposure-gauge';
+import { calculateExposureStats, getSeverityClass, getSeverityLabel, formatExposure } from './charts/exposure/exposure-helpers';
+import { KpiTile } from '../insights/infographic/kpi-tile';
 
 interface AutomationExposureCardProps {
   insights?: DataDrivenInsightsModel;
@@ -66,6 +69,23 @@ export function AutomationExposureCard({
     }
   }, [insights, barItems, minExposure, topN]);
 
+  // Derived context statistics using the helper function
+  const exposureStats = useMemo(() => {
+    if (!insights?.automationExposure || insights.automationExposure.length === 0) {
+      return {
+        avg: 0,
+        median: 0,
+        p90: 0,
+        counts: { high: 0, moderate: 0, low: 0, total: 0 },
+        topTask: null,
+        aboveThreshold: 0,
+        aboveThresholdPercent: 0
+      };
+    }
+    
+    return calculateExposureStats(insights.automationExposure, minExposure);
+  }, [insights, minExposure]);
+  
   // Derived context statistics (based on items after filtering and slicing for display)
   const contextStats = useMemo(() => {
     const values = barItems.map(i => i.value);
@@ -74,32 +94,14 @@ export function AutomationExposureCard({
       return {
         topTaskLabel: '',
         topTaskValue: 0,
-        avg: 0,
-        median: 0,
-        p90: 0,
-        counts: { high: 0, moderate: 0, low: 0, total: 0 },
+        avg: exposureStats.avg,
+        median: exposureStats.median,
+        p90: exposureStats.p90,
+        counts: exposureStats.counts,
         filteredEligible: 0,
         truncatedFrom: 0
       };
     }
-
-    const sortedAsc = [...values].sort((a, b) => a - b);
-    const avg = Math.round(values.reduce((a, b) => a + b, 0) / total);
-    const median = total % 2 === 1
-      ? sortedAsc[(total - 1) / 2]
-      : Math.round((sortedAsc[total / 2 - 1] + sortedAsc[total / 2]) / 2);
-    const p90Index = Math.max(0, Math.ceil(0.9 * total) - 1);
-    const p90 = sortedAsc[p90Index];
-
-    const counts = values.reduce(
-      (acc, v) => {
-        if (v > 70) acc.high += 1;
-        else if (v > 40) acc.moderate += 1;
-        else acc.low += 1;
-        return acc;
-      },
-      { high: 0, moderate: 0, low: 0 }
-    );
 
     // Determine filtering/truncation based on full dataset
     const full = insights?.automationExposure ?? [];
@@ -110,14 +112,14 @@ export function AutomationExposureCard({
     return {
       topTaskLabel: barItems[0]?.label ?? '',
       topTaskValue: barItems[0]?.value ?? 0,
-      avg,
-      median,
-      p90,
-      counts: { ...counts, total },
+      avg: exposureStats.avg,
+      median: exposureStats.median,
+      p90: exposureStats.p90,
+      counts: exposureStats.counts,
       filteredEligible,
       truncatedFrom
     };
-  }, [barItems, insights, minExposure, topN]);
+  }, [barItems, exposureStats, insights, minExposure, topN]);
 
   // Expand/Collapse and Copy-to-Clipboard
   const [expanded, setExpanded] = useState<boolean>(true);
@@ -159,16 +161,12 @@ export function AutomationExposureCard({
 
   // Derived severity and top-3 tasks for additional context
   const severityLabel = useMemo<'Low' | 'Moderate' | 'High'>(() => {
-    const a = contextStats.avg;
-    return a > 70 ? 'High' : a > 40 ? 'Moderate' : 'Low';
+    return getSeverityLabel(contextStats.avg);
   }, [contextStats.avg]);
-  const severityClass = useMemo(() => (
-    severityLabel === 'High'
-      ? 'badge-base badge-error'
-      : severityLabel === 'Moderate'
-      ? 'badge-base badge-warning'
-      : 'badge-base badge-success'
-  ), [severityLabel]);
+  
+  const severityClass = useMemo(() => {
+    return `badge-base ${getSeverityClass(severityLabel.toLowerCase())}`;
+  }, [severityLabel]);
   const topThree = useMemo(() => barItems.slice(0, Math.min(3, barItems.length)), [barItems]);
 
   // Import the CardSkeletonLoader component
@@ -238,7 +236,25 @@ export function AutomationExposureCard({
   return (
     <div className={`card-elevated overflow-hidden animate-fade-in ${className}`}>
       <div className="px-4 py-3 border-b border-default">
-        <h3 className="text-heading text-primary">{title}</h3>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h3 className="text-heading text-primary">{title}</h3>
+            <span className={severityClass} aria-label={`Overall exposure: ${severityLabel}`}>
+              {severityLabel}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="btn-ghost btn-sm focus-ring inline-flex items-center gap-1"
+              aria-label="Copy insights"
+            >
+              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              <span className="text-body-sm text-secondary">{copied ? 'Copied' : 'Copy'}</span>
+            </button>
+          </div>
+        </div>
       </div>
       
       <div className="p-4">
@@ -249,34 +265,80 @@ export function AutomationExposureCard({
             <p className="text-body-sm text-secondary mt-1">Complete your profile analysis to see insights</p>
           </div>
         ) : (
-          <AutomationExposureBar 
-            items={barItems} 
-            maxBars={topN}
-            ariaLabel={`${title} chart showing automation risk for top ${topN} tasks`}
-          />
-        )}
-
-        {/* Contextual Statements */}
-        {!isEmpty && (
-          <div className="mt-4" role="region" aria-labelledby={contextHeadingId}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Info className="h-4 w-4 text-secondary" />
-                <h4 id={contextHeadingId} className="text-label text-primary">Context</h4>
-                <span className={`ml-2 ${severityClass}`} aria-label={`Overall exposure: ${severityLabel}`}>
-                  Overall: {severityLabel}
-                </span>
+          <>
+            {/* KPI Tiles Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+              <KpiTile
+                title="Average Exposure"
+                value={`${contextStats.avg}%`}
+                emphasis={severityLabel === 'High' ? 'error' : severityLabel === 'Moderate' ? 'warning' : 'success'}
+                caption="Overall automation risk"
+              />
+              
+              <KpiTile
+                title="High-risk Tasks"
+                value={contextStats.counts.high}
+                emphasis="error"
+                caption=">70% exposure"
+              />
+              
+              <KpiTile
+                title="Tasks Assessed"
+                value={contextStats.counts.total}
+                emphasis="neutral"
+                caption="Total tasks analyzed"
+              />
+              
+              <KpiTile
+                title="Above Threshold"
+                value={`${exposureStats.aboveThresholdPercent}%`}
+                emphasis="warning"
+                caption="Tasks over 50% exposure"
+              />
+            </div>
+            
+            {/* Main Visualization Area */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left Column: Bar Chart */}
+              <div className="card-base p-4 rounded-lg border border-default">
+                <div className="flex items-center gap-2 mb-4">
+                  <BarChart3 className="h-5 w-5 text-secondary" />
+                  <h4 className="text-subheading text-primary">Highest Exposure Tasks</h4>
+                </div>
+                <div className="mb-2">
+                  <p className="text-body-sm text-secondary mb-3">Highest exposure tasks prioritized for automation</p>
+                  <AutomationExposureBar 
+                    items={barItems} 
+                    maxBars={topN}
+                    ariaLabel={`${title} chart showing automation risk for top ${topN} tasks`}
+                  />
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleCopy}
-                  className="btn-ghost btn-sm focus-ring inline-flex items-center gap-1"
-                  aria-label="Copy context"
-                >
-                  {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                  <span className="text-body-sm text-secondary">{copied ? 'Copied' : 'Copy'}</span>
-                </button>
+              
+              {/* Right Column: Gauge */}
+              <div className="card-base p-4 rounded-lg border border-default">
+                <div className="flex items-center gap-2 mb-4">
+                  <PieChart className="h-5 w-5 text-secondary" />
+                  <h4 className="text-subheading text-primary">Overall Exposure</h4>
+                </div>
+                <div className="flex justify-center">
+                  <ExposureGauge 
+                    value={contextStats.avg} 
+                    size={180}
+                    ariaLabel={`Overall automation exposure gauge showing ${contextStats.avg}% (${severityLabel} risk)`}
+                  />
+                </div>
+                <p className="text-body-sm text-secondary text-center mt-2">Overall exposure indicates systemic automation pressure</p>
+              </div>
+            </div>
+
+            {/* Contextual Statements */}
+            <div className="mt-6" role="region" aria-labelledby={contextHeadingId}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Info className="h-4 w-4 text-secondary" />
+                  <h4 id={contextHeadingId} className="text-label text-primary">Context & Analysis</h4>
+                </div>
                 <button
                   type="button"
                   onClick={() => setExpanded(prev => !prev)}
@@ -287,76 +349,76 @@ export function AutomationExposureCard({
                   <span className="text-body-sm text-secondary">{expanded ? 'Collapse' : 'Expand'}</span>
                 </button>
               </div>
-            </div>
 
-            {expanded && insights?.narratives?.automationNarrative && (
-              <div className="bg-hero rounded-lg p-2 border border-default mt-2">
-                <p className="text-body leading-relaxed text-primary">{insights.narratives.automationNarrative}</p>
-              </div>
-            )}
-
-            {expanded && (
-              <ul role="list" className="mt-2 space-y-1">
-                {contextStats.topTaskLabel && (
-                  <li role="listitem" className="text-body text-primary">
-                    <span className="font-medium text-primary">Top task:</span> {contextStats.topTaskLabel} ({contextStats.topTaskValue}%)
-                  </li>
-                )}
-                {topThree.length > 0 && (
-                  <li role="listitem" className="text-body text-primary">
-                    <span className="font-medium text-primary">Top tasks:</span> {topThree.map(t => `${t.label} (${t.value}%)`).join(', ')}
-                  </li>
-                )}
-                <li role="listitem" className="text-body text-primary">
-                  <span className="font-medium text-primary">Average exposure:</span> {contextStats.avg}%
-                </li>
-                <li role="listitem" className="text-body text-primary">
-                  <span className="font-medium text-primary">Median:</span> {contextStats.median}% · <span className="font-medium text-primary">P90:</span> {contextStats.p90}%
-                </li>
-                <li role="listitem" className="text-body text-primary">
-                  <span className="font-medium text-primary">Counts:</span> High {contextStats.counts.high}, Moderate {contextStats.counts.moderate}, Low {contextStats.counts.low} (Total {contextStats.counts.total})
-                </li>
-                {(minExposure > 0 || contextStats.truncatedFrom > 0) && (
-                  <li role="listitem" className="text-body-sm text-secondary">
-                    {minExposure > 0 && (<span className="mr-2">Filtered by minimum exposure ≥ {minExposure}%.</span>)}
-                    {contextStats.truncatedFrom > 0 && (<span>Showing top {topN} of {contextStats.truncatedFrom} eligible tasks.</span>)}
-                  </li>
-                )}
-              </ul>
-            )}
-
-            {expanded && insights?.sources && insights.sources.length > 0 && (
-              <div className="mt-2">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="bg-surface p-1 rounded-full border border-default">
-                    <ExternalLink className="h-3.5 w-3.5 text-secondary" />
-                  </div>
-                  <span className="text-label-sm text-primary">Sources</span>
+              {expanded && insights?.narratives?.automationNarrative && (
+                <div className="bg-hero rounded-lg p-3 border border-default mt-3">
+                  <p className="text-body leading-relaxed text-primary">{insights.narratives.automationNarrative}</p>
                 </div>
-                <div className="grid gap-1 sm:grid-cols-2" role="list">
-                  {insights.sources.slice(0, 2).map((s, idx) => (
-                    <div key={idx} role="listitem" className="flex items-center gap-2 p-1.5 rounded border border-default bg-surface">
-                      <div className="bg-surface p-0.5 rounded-full border border-default">
-                        <ExternalLink className="h-3.5 w-3.5 text-brand" />
-                      </div>
-                      {s.url ? (
-                        <a
-                          href={s.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-body-sm link-primary focus-ring rounded"
-                        >
-                          {s.title}
-                        </a>
-                      ) : (
-                        <span className="text-body-sm text-primary">{s.title}</span>
+              )}
+
+              {expanded && (
+                <div className="mt-3 space-y-3">
+                  <div className="card-base p-3 rounded-lg border border-default">
+                    <h5 className="text-label mb-2 text-primary">Key Statistics</h5>
+                    <ul role="list" className="space-y-1">
+                      {contextStats.topTaskLabel && (
+                        <li role="listitem" className="text-body text-primary">
+                          <span className="font-medium text-primary">Top task:</span> {contextStats.topTaskLabel} ({contextStats.topTaskValue}%)
+                        </li>
                       )}
+                      {topThree.length > 0 && (
+                        <li role="listitem" className="text-body text-primary">
+                          <span className="font-medium text-primary">Top tasks:</span> {topThree.map(t => `${t.label} (${t.value}%)`).join(', ')}
+                        </li>
+                      )}
+                      <li role="listitem" className="text-body text-primary">
+                        <span className="font-medium text-primary">Median:</span> {contextStats.median}% · <span className="font-medium text-primary">P90:</span> {contextStats.p90}%
+                      </li>
+                      <li role="listitem" className="text-body text-primary">
+                        <span className="font-medium text-primary">Counts:</span> High {contextStats.counts.high}, Moderate {contextStats.counts.moderate}, Low {contextStats.counts.low} (Total {contextStats.counts.total})
+                      </li>
+                      {(minExposure > 0 || contextStats.truncatedFrom > 0) && (
+                        <li role="listitem" className="text-body-sm text-secondary">
+                          {minExposure > 0 && (<span className="mr-2">Filtered by minimum exposure ≥ {minExposure}%.</span>)}
+                          {contextStats.truncatedFrom > 0 && (<span>Showing top {topN} of {contextStats.truncatedFrom} eligible tasks.</span>)}
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+
+                  {insights?.sources && insights.sources.length > 0 && (
+                    <div className="card-base p-3 rounded-lg border border-default">
+                      <div className="flex items-center gap-2 mb-2">
+                        <ExternalLink className="h-3.5 w-3.5 text-secondary" />
+                        <span className="text-label text-primary">Sources</span>
+                      </div>
+                      <div className="grid gap-2 sm:grid-cols-2" role="list">
+                        {insights.sources.slice(0, 2).map((s, idx) => (
+                          <div key={idx} role="listitem" className="flex items-center gap-2 p-2 rounded border border-default bg-surface">
+                            <div className="bg-surface p-0.5 rounded-full border border-default">
+                              <ExternalLink className="h-3.5 w-3.5 text-brand" />
+                            </div>
+                            {s.url ? (
+                              <a
+                                href={s.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-body-sm link-primary focus-ring rounded"
+                              >
+                                {s.title}
+                              </a>
+                            ) : (
+                              <span className="text-body-sm text-primary">{s.title}</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  ))}
+                  )}
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          </>
         )}
       </div>
       

@@ -20,6 +20,13 @@ export function KpiTile({
   emphasis = "primary",
   className,
 }: KpiTileProps) {
+  // Use React.useState to ensure consistent rendering between server and client
+  const [mounted, setMounted] = React.useState(false);
+  
+  // Only run on client-side
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
   const colorMap: Record<NonNullable<KpiTileProps["emphasis"]>, { bg: string; fg: string; ring: string }> = {
     primary: { bg: "var(--primary-50)", fg: "var(--primary-700)", ring: "var(--primary-200)" },
     neutral: { bg: "var(--neutral-50)", fg: "var(--neutral-700)", ring: "var(--neutral-200)" },
@@ -28,8 +35,31 @@ export function KpiTile({
     error: { bg: "var(--error-50)", fg: "var(--error-700)", ring: "var(--error-200)" },
   };
 
-  const colors = colorMap[emphasis];
+  // Ensure we have a valid emphasis value that exists in the colorMap
+  const safeEmphasis = emphasis && emphasis in colorMap ? emphasis : 'neutral';
+  const colors = colorMap[safeEmphasis];
 
+  // Use a basic version during SSR to avoid hydration mismatches
+  if (!mounted) {
+    return (
+      <div
+        className={`card-elevated p-3 sm:p-4 animate-fade-in ${className || ""}`}
+        role="group"
+        aria-label={`${title} ${value}`}
+      >
+        <div className="flex items-center justify-between mb-1">
+          <div className="text-label">{title}</div>
+          {icon ? <div className="ml-2" aria-hidden>{icon}</div> : null}
+        </div>
+        <div className="flex items-end gap-2">
+          <div className="text-title">{value}</div>
+          {caption ? <div className="text-body-sm">{caption}</div> : null}
+        </div>
+      </div>
+    );
+  }
+  
+  // Full version with styles for client-side rendering
   return (
     <div
       className={`card-elevated p-3 sm:p-4 animate-fade-in ${className || ""}`}
