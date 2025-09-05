@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { DataDrivenInsights } from '@/components/insights/DataDrivenInsights';
 import { AutomationExposureCard } from '@/components/visualizations/automation-exposure-card';
 import { CostComparisonCard } from '@/components/visualizations/cost-comparison-card';
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
@@ -370,31 +369,6 @@ const JobRiskAnalysisContent = () => {
                     </div>
                   </div>
                 )}
-                <div className="lg:col-span-2">
-                  <DataDrivenInsights 
-                    insights={insights}
-                    loading={generating}
-                    errors={errors}
-                    slots={{
-                      headerRight: (
-                        <div className="text-sm text-gray-500">
-                          {profileReadiness.ready ? `Preset: ${promptSettings.name}` : 'Complete profile to unlock'}
-                        </div>
-                      ),
-                      footer: insights && !analysisStarted ? (
-                        <div className="mt-4 p-3 bg-gray-50 rounded-md border border-gray-200">
-                          <p className="text-sm text-gray-700">Want to see more detailed visualizations?</p>
-                          <button
-                            onClick={handleResumeAnalysis}
-                            className="mt-2 px-4 py-1.5 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-all"
-                          >
-                            Generate Visualizations
-                          </button>
-                        </div>
-                      ) : null
-                    }}
-                  />
-                </div>
                 
                 {insights && (
                   <div className="lg:col-span-2">

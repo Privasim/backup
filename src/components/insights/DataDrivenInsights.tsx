@@ -103,62 +103,6 @@ export function DataDrivenInsights({
       </div>
       <div className="space-y-4">
 
-      
-
-      {/* Automation Exposure */}
-      {(automationExposure && automationExposure.length > 0) || narratives?.automationNarrative ? (
-        <div className="card-base p-4">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="bg-accent-100 p-2 rounded-full">
-              <Zap className="h-5 w-5 text-accent-600" />
-            </div>
-            <h3 className="text-subheading text-primary">Automation Exposure</h3>
-          </div>
-          {narratives?.automationNarrative ? (
-            <div className="bg-hero rounded-lg p-3 border border-default mb-3">
-              <p className="text-body leading-relaxed text-primary">{narratives.automationNarrative}</p>
-            </div>
-          ) : null}
-          
-          {automationExposure && automationExposure.length > 0 ? (
-            <div className="space-y-3 mt-2" role="list">
-              {automationExposure.map((item: AutomationExposureItem, index: number) => (
-                <div 
-                  key={index} 
-                  role="listitem" 
-                  className="p-3 rounded-lg border border-default bg-surface hover:bg-neutral-50 transition-colors duration-200"
-                >
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-label text-primary">{item.task}</span>
-                    <span 
-                      className={`${item.exposure > 70 ? 'badge-base badge-error' : 
-                        item.exposure > 40 ? 'badge-base badge-warning' : 'badge-base badge-success'}`}
-                      aria-label={`Exposure level: ${item.exposure}%`}
-                    >
-                      {item.exposure}% Exposure
-                    </span>
-                  </div>
-                  <div 
-                    className="progress-base" 
-                    role="progressbar" 
-                    aria-valuenow={item.exposure} 
-                    aria-valuemin={0} 
-                    aria-valuemax={100}
-                  >
-                    <div 
-                      className={`${item.exposure > 70 ? 'progress-bar-error' : 
-                        item.exposure > 40 ? 'progress-bar-warning' : 'progress-bar-success'}`}
-                      style={{ width: `${Math.max(0, Math.min(100, item.exposure))}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-
-
       {slots?.footer && (
         <div className="border-t border-default pt-3 mt-4">
           {slots.footer}
