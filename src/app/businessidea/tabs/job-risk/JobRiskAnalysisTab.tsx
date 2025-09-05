@@ -297,12 +297,7 @@ const JobRiskAnalysisContent = () => {
           <div className="mt-4">
             <div className="p-6">
               <div className="mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Job Risk Analysis</h2>
-                    <p className="text-gray-600">Analyze your job risk based on your profile and current market trends</p>
-                  </div>
-                  
+                <div className="flex justify-end mb-2">
                   <div className="flex gap-2">
                     <button
                       onClick={() => setIsSettingsOpen(true)}

@@ -232,7 +232,7 @@ export function AutomationExposureCard({
   // Second handleCopy function removed to fix duplication
 
   return (
-    <div className={`bg-white p-4 animate-fade-in ${className}`}>
+    <div className={`bg-white p-3 animate-fade-in ${className}`}>
       <div className="mb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -255,7 +255,7 @@ export function AutomationExposureCard({
         </div>
       </div>
       
-      <div className="space-y-4">
+      <div className="space-y-3">
         {isEmpty ? (
           <div className="flex flex-col items-center justify-center py-4 text-center">
             <AlertCircle className="h-8 w-8 text-gray-500 mb-2" />
@@ -430,7 +430,7 @@ export function AutomationExposureCard({
         )}
       </div>
       
-      <div className="mt-3 pt-2 text-xs text-gray-500">
+      <div className="mt-2 pt-1 text-xs text-gray-500">
         Showing top {topN} tasks with highest automation exposure
       </div>
     </div>
