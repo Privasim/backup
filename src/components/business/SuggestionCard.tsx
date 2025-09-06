@@ -126,9 +126,9 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
               setActiveTab('image-editor');
               onCreatePlan?.(suggestion, undefined, settings.visualizationType);
             }}
-            className="flex-1 inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="flex-1 inline-flex items-center justify-center rounded-xl bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
           >
-            <ClipboardDocumentCheckIcon className="h-4 w-4 mr-2" />
+            <ClipboardDocumentCheckIcon className="h-4 w-4 mr-2 text-white" />
             Create Implementation Plan
           </button>
           <button
