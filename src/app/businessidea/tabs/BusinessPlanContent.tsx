@@ -4,14 +4,13 @@ import React, { useState } from 'react';
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
 import { useBusinessSuggestion } from '@/contexts';
 import { useImplementationPlanContext } from '@/features/implementation-plan/ImplementationPlanProvider';
-import { BusinessSuggestionSelector } from '@/features/go-to-market/components/BusinessSuggestionSelector';
 import SuggestionCard from '@/components/business/SuggestionCard';
 import BusinessPlanSettings from '@/components/business/BusinessPlanSettings';
 import { SparklesIcon, LightBulbIcon, CogIcon } from '@heroicons/react/24/outline';
 
 export default function BusinessPlanContent() {
   const { createPlanConversation, openChatbox } = useChatbox();
-  const { suggestions, isGenerating, error: suggestionError } = useBusinessSuggestion();
+  const { suggestions, isGenerating, error: suggestionError, generateSuggestions } = useBusinessSuggestion();
   const implementationPlanContext = useImplementationPlanContext();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
@@ -81,8 +80,9 @@ export default function BusinessPlanContent() {
     </div>
   );
 
-  // Track selected suggestion for the selector
-  const [selectedSuggestion, setSelectedSuggestion] = useState(suggestions[0]);
+  const handleGenerateSuggestions = () => {
+    generateSuggestions();
+  };
 
   return (
     <div className="space-y-4">
@@ -112,6 +112,22 @@ export default function BusinessPlanContent() {
               </div>
             )}
             
+            {/* Generate Button */}
+            <button
+              onClick={handleGenerateSuggestions}
+              disabled={isGenerating}
+              className="text-xs px-3 py-1 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100 disabled:opacity-50 transition-colors"
+            >
+              {isGenerating ? (
+                <>
+                  <div className="inline-block animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1" />
+                  Generating...
+                </>
+              ) : (
+                'Generate New'
+              )}
+            </button>
+            
             {/* Settings Button */}
             <button
               onClick={() => setIsSettingsOpen(true)}
@@ -123,15 +139,7 @@ export default function BusinessPlanContent() {
           </div>
         </div>
         
-        {/* Business Suggestion Selector */}
-        <div className="mb-4">
-          <BusinessSuggestionSelector
-            selectedSuggestion={selectedSuggestion}
-            availableSuggestions={suggestions}
-            onSuggestionSelect={setSelectedSuggestion}
-          />
-        </div>
-        
+        {/* Content area */}
         <div className="flex flex-col gap-3 h-[calc(100vh-240px)] overflow-y-auto">
           {isLoading && (
             <div className="space-y-4">
@@ -150,9 +158,6 @@ export default function BusinessPlanContent() {
               <SuggestionCard
                 suggestion={suggestion}
                 onCreatePlan={(suggestion, _lengthPreset, visualizationType) => {
-                  // Create a new conversation with the plan and open the chatbox
-                  // Use the lengthPreset from the context
-                  // Note: visualizationType is handled by the plan generation system
                   createPlanConversation(suggestion, lengthPreset);
                   openChatbox();
                 }}
