@@ -17,12 +17,15 @@ import { InsightsPromptProvider, useInsightsPrompt } from '@/components/insights
 import { PromptSettingsDialog } from '@/components/insights/prompt/prompt-settings-dialog';
 import { generateNarratives } from '@/components/insights/prompt/narrative-service';
 import { MitigationItem } from '@/components/insights/types';
-import { ConfirmDialog, VisualizationOption } from '@/components/ui/ConfirmDialog';
 import QuickActionBar from '@/components/chatbox/QuickActionBar';
 import ProfileAnalysisTrigger from '@/components/chatbox/ProfileAnalysisTrigger';
 import { KpiTile } from '@/components/insights/infographic/kpi-tile';
 import { RingProgress } from '@/components/insights/infographic/ring-progress';
 import { JobRiskVisualScope } from './design/visual-governor';
+import { useTimedProgress } from './hooks/useTimedProgress';
+import { useStaggeredReveal } from './hooks/useStaggeredReveal';
+import { AnalysisProgressBar } from './components/AnalysisProgressBar';
+import { PROGRESS_MESSAGES } from './progress-messages';
 
 interface ProfileReadiness {
   ready: boolean;
@@ -67,13 +70,12 @@ const JobRiskAnalysisContent = () => {
   const [generating, setGenerating] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [lastResearchData, setLastResearchData] = useState<ResearchData | null>(null);
-  const [visualizationSelections, setVisualizationSelections] = useState<VisualizationSelections>({});
-  const [visualizationLoadStates, setVisualizationLoadStates] = useState<VisualizationLoadState>({});
-  const [visualizationErrors, setVisualizationErrors] = useState<Record<string, string>>({});
-  const [analysisStarted, setAnalysisStarted] = useState(false);
   const [analysisComplete, setAnalysisComplete] = useState(false);
+
+  // Timed progress and staggered reveal state
+  const { running, progress, elapsedSeconds, start: startProgress, reset: resetProgress } = useTimedProgress();
+  const { revealedCount, focusedItem, begin: beginReveal, reset: resetReveal } = useStaggeredReveal(1000);
 
   const profileReadiness = profileData ? getAnalysisReadiness(profileData) : { ready: false, completionLevel: 0, missing: [], requirements: { minCompletion: 0.8, autoTrigger: false } };
 
@@ -90,9 +92,15 @@ const JobRiskAnalysisContent = () => {
 
     setGenerating(true);
     setErrors([]);
-    // Reset visualization states for heavy visuals
-    setVisualizationLoadStates({});
-    setVisualizationErrors({});
+    // Reset progress and reveal
+    resetProgress();
+    resetReveal();
+    // Start 10s progress immediately; when done, reveal visualization sections (5):
+    // 1) Career risk summary, 2) Cost projection, 3) Industry radar, 4) Cost treemap, 5) Automation exposure
+    startProgress(10000, () => {
+      const totalSections = 5;
+      beginReveal(totalSections);
+    });
 
     try {
       // Combine research data from hooks
@@ -155,8 +163,7 @@ const JobRiskAnalysisContent = () => {
       // Store research data for later use in visualizations
       setLastResearchData(researchData);
       
-      // Show confirmation modal for visualizations
-      setShowConfirmModal(true);
+      // Cards will be revealed after the progress completes via onComplete callback
     } catch (error) {
       setErrors([error instanceof Error ? error.message : 'Failed to generate insights']);
       chatboxDebug.error('backend-analysis', 'Failed to generate insights', {
@@ -166,125 +173,10 @@ const JobRiskAnalysisContent = () => {
       setGenerating(false);
     }
   };
-  
-  const handleVisualizationConfirm = (selections: Record<string, boolean>) => {
-    setVisualizationSelections(selections);
-    
-    // Start loading selected visualizations for heavy visuals only
-    loadSelectedVisualizations(selections);
-  };
-  
-  const loadSelectedVisualizations = async (selections: Record<string, boolean>) => {
-    // Only proceed if we have research data
-    if (!lastResearchData) {
-      chatboxDebug.error('visualization-loading', 'No research data available');
-      return;
-    }
-    
-    // Get only the heavy visual keys that are selected
-    const selectedHeavyVisuals = Object.keys(selections).filter(key => selections[key]);
-    if (selectedHeavyVisuals.length === 0) {
-      return;
-    }
-    
-    // Update load states for selected heavy visualizations using immutable updates
-    setVisualizationLoadStates(prev => {
-      const newStates = { ...prev };
-      selectedHeavyVisuals.forEach(key => {
-        newStates[key] = 'loading';
-      });
-      return newStates;
-    });
-    
-    // Start backend analysis if not already started
-    if (!analysisStarted) {
-      try {
-        chatboxDebug.info('backend-analysis', 'Starting backend analysis for visualizations');
-        await startAnalysis(true, lastResearchData);
-        chatboxDebug.success('backend-analysis', 'Backend analysis started');
-        setAnalysisStarted(true);
-      } catch (error) {
-        chatboxDebug.error('backend-analysis', 'Failed to start backend analysis', {
-          message: error instanceof Error ? error.message : String(error)
-        });
-        
-        // Set errors for all selected heavy visualizations using immutable updates
-        setVisualizationLoadStates(prev => {
-          const newStates = { ...prev };
-          selectedHeavyVisuals.forEach(key => {
-            newStates[key] = 'error';
-          });
-          return newStates;
-        });
-        
-        setVisualizationErrors(prev => {
-          const newErrors = { ...prev };
-          selectedHeavyVisuals.forEach(key => {
-            newErrors[key] = 'Failed to start analysis';
-          });
-          return newErrors;
-        });
-        return;
-      }
-    }
-    
-    // Process each heavy visualization with proper error handling and immutable updates
-    for (const key of selectedHeavyVisuals) {
-      try {
-        // Simulate API call with timeout for heavy visuals
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        setVisualizationLoadStates(prev => ({
-          ...prev,
-          [key]: 'success'
-        }));
-      } catch (error) {
-        chatboxDebug.error('visualization-loading', `Failed to load visualization: ${key}`, {
-          message: error instanceof Error ? error.message : String(error)
-        });
-        
-        setVisualizationLoadStates(prev => ({
-          ...prev,
-          [key]: 'error'
-        }));
-        
-        setVisualizationErrors(prev => ({
-          ...prev,
-          [key]: `Failed to load ${key} data`
-        }));
-      }
-    }
-  };
-  
-  const handleResumeAnalysis = () => {
-    setShowConfirmModal(true);
-  };
-
-  // Define visualization options for the confirmation modal (heavy visuals only)
-  const visualizationOptions: VisualizationOption[] = [
-    // Add heavy visual options here when available
-    // Example:
-    // {
-    //   id: 'marketTrends',
-    //   label: 'Market Trends Analysis',
-    //   description: 'Deep analysis of market trends and future projections',
-    //   selected: visualizationSelections.marketTrends || false
-    // }
-  ];
 
   return (
     <>
       <PromptSettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
-      <ConfirmDialog
-        isOpen={showConfirmModal}
-        onClose={() => setShowConfirmModal(false)}
-        onConfirm={handleVisualizationConfirm}
-        title="Generate Advanced Visualizations"
-        description="Select which visualizations you'd like to generate. This will perform additional analysis and may take a moment."
-        confirmLabel="Generate Selected"
-        cancelLabel="Skip for Now"
-        visualizationOptions={visualizationOptions}
-      />
       <JobRiskVisualScope>
         <div className="w-full h-full">
           <div className="space-y-6 pb-12">
@@ -326,8 +218,11 @@ const JobRiskAnalysisContent = () => {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {insights && (
-                  <div className="lg:col-span-2">
+                {insights && revealedCount >= 1 && (
+                  <div 
+                    id="reveal-section-1"
+                    className={`lg:col-span-2 transition-all duration-500 ease-out transform animate-fade-in motion-reduce:animate-none ${focusedItem === 1 ? 'ring-4 ring-blue-400 shadow-lg rounded-lg' : ''}`}
+                  >
                     <CareerRiskSummaryCard
                       insights={insights}
                       title="Career Risk Summary"
@@ -337,20 +232,28 @@ const JobRiskAnalysisContent = () => {
                   </div>
                 )}
 
-                {insights && (
-                  <div className="lg:col-span-2">
+                {insights && revealedCount >= 2 && (
+                  <div 
+                    id="reveal-section-2"
+                    className={`lg:col-span-2 transition-all duration-500 ease-out transform animate-fade-in motion-reduce:animate-none ${focusedItem === 2 ? 'ring-4 ring-blue-400 shadow-lg rounded-lg' : ''}`}
+                  >
                     <CostComparisonCard 
                       insights={insights}
                       profileLocation={profileData?.profile?.location}
                       title="Human vs AI Cost Comparison"
                       loading={false}
                       error={undefined}
+                      revealBaseIndex={2}
+                      currentReveal={revealedCount}
                     />
                   </div>
                 )}
 
-                {insights && (
-                  <div className="lg:col-span-2">
+                {insights && revealedCount >= 5 && (
+                  <div 
+                    id="reveal-section-5"
+                    className={`lg:col-span-2 transition-all duration-500 ease-out transform animate-fade-in motion-reduce:animate-none ${focusedItem === 5 ? 'ring-4 ring-blue-400 shadow-lg rounded-lg' : ''}`}
+                  >
                     <AutomationExposureCard 
                       insights={insights}
                       title="Automation Exposure Risk"
@@ -388,6 +291,14 @@ const JobRiskAnalysisContent = () => {
           </div>
         </div>
         </div>
+        {/* Bottom progress bar */}
+        <AnalysisProgressBar
+          running={running}
+          progress={progress}
+          elapsedSeconds={elapsedSeconds}
+          totalSeconds={10}
+          messages={PROGRESS_MESSAGES}
+        />
       </JobRiskVisualScope>
     </>
   );
