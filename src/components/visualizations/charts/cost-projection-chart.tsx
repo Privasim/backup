@@ -10,10 +10,10 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
   aiHourlyCost,
   hoursPerWeek,
   weeksPerYear,
-  config,
   width = '100%',
-  height = 300,
-  className = ''
+  height = 325, // Increased by 30%
+  className = '',
+  config
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -50,8 +50,8 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove(); // Clear previous rendering
     
-    // Chart dimensions - increased margins to prevent overlapping
-    const margin = { top: 40, right: 40, bottom: 60, left: 70 };
+    // Chart dimensions - adjusted margins to maximize chart area and increase chart size by 20%
+    const margin = { top: 30, right: 40, bottom: 50, left: 60 };
     const width = dimensions.width - margin.left - margin.right;
     const height = dimensions.height - margin.top - margin.bottom;
     
@@ -135,36 +135,37 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
       .style('font-size', '12px')
       .style('font-weight', '500'); // Slightly bolder
     
-    // Draw cumulative savings area if enabled
+    // Draw cost difference area if enabled (renamed from cumulative savings)
     if (config?.showCumulativeSavings !== false) {
       chart.append('path')
         .datum(data)
         .attr('fill', d => {
-          // Green for positive savings, red for negative
+          // More alarming colors to reflect job replacement message
+          // Red for all cost differences to emphasize job replacement threat
           const lastValue = d[d.length - 1].cumulativeSavings;
-          return lastValue >= 0 ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)';
+          return lastValue >= 0 ? 'rgba(220, 38, 38, 0.15)' : 'rgba(239, 68, 68, 0.25)';
         })
         .attr('stroke', 'none')
         .attr('d', savingsArea);
     }
     
-    // Draw human cost line
+    // Draw human cost line with updated colors
     chart.append('path')
       .datum(data)
       .attr('fill', 'none')
-      .attr('stroke', '#3b82f6') // Blue
-      .attr('stroke-width', 2.5) // Slightly thicker
+      .attr('stroke', '#3b82f6') // Blue for human labor
+      .attr('stroke-width', 3) // Thicker for better visibility
       .attr('d', humanLine);
     
-    // Draw AI cost line
+    // Draw AI cost line with more alarming color
     chart.append('path')
       .datum(data)
       .attr('fill', 'none')
-      .attr('stroke', '#ef4444') // Red
-      .attr('stroke-width', 2.5) // Slightly thicker
+      .attr('stroke', '#dc2626') // More intense red for AI replacement
+      .attr('stroke-width', 3) // Thicker for better visibility
       .attr('d', aiLine);
     
-    // Add dots for each data point
+    // Add dots for each data point with updated colors and sizes
     chart.selectAll('.human-dot')
       .data(data)
       .enter()
@@ -172,10 +173,10 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
       .attr('class', 'human-dot')
       .attr('cx', d => (x(d.period) || 0) + x.bandwidth() / 2)
       .attr('cy', d => y(d.humanCost))
-      .attr('r', 5) // Slightly larger
-      .attr('fill', '#3b82f6')
+      .attr('r', 6) // Larger for better visibility
+      .attr('fill', '#3b82f6') // Blue for human labor
       .attr('stroke', '#ffffff')
-      .attr('stroke-width', 1.5);
+      .attr('stroke-width', 2);
     
     chart.selectAll('.ai-dot')
       .data(data)
@@ -184,10 +185,10 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
       .attr('class', 'ai-dot')
       .attr('cx', d => (x(d.period) || 0) + x.bandwidth() / 2)
       .attr('cy', d => y(d.aiCost))
-      .attr('r', 5) // Slightly larger
-      .attr('fill', '#ef4444')
+      .attr('r', 6) // Larger for better visibility
+      .attr('fill', '#dc2626') // More intense red for AI replacement
       .attr('stroke', '#ffffff')
-      .attr('stroke-width', 1.5);
+      .attr('stroke-width', 2);
     
     // Add milestone annotations if enabled with improved visibility
     if (config?.showAnnotations !== false && milestones.length > 0) {
@@ -201,23 +202,23 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
           ? ySavings(0) 
           : y(closestPoint.aiCost);
         
-        // Add milestone background for better visibility
+        // Add milestone background with more alarming colors
         chart.append('rect')
           .attr('x', mx - 40)
           .attr('y', my - 35)
           .attr('width', 80)
           .attr('height', 20)
           .attr('rx', 4)
-          .attr('fill', milestone.type === 'break-even' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)')
-          .attr('stroke', milestone.type === 'break-even' ? '#10b981' : '#f59e0b')
+          .attr('fill', milestone.type === 'break-even' ? 'rgba(220, 38, 38, 0.1)' : 'rgba(234, 88, 12, 0.1)')
+          .attr('stroke', milestone.type === 'break-even' ? '#b91c1c' : '#c2410c')
           .attr('stroke-width', 1);
         
-        // Add milestone marker with improved visibility
+        // Add milestone marker with updated colors
         chart.append('circle')
           .attr('cx', mx)
           .attr('cy', my)
-          .attr('r', 7) // Larger radius
-          .attr('fill', milestone.type === 'break-even' ? '#10b981' : '#f59e0b')
+          .attr('r', 8) // Even larger radius for better visibility
+          .attr('fill', milestone.type === 'break-even' ? '#b91c1c' : '#c2410c') // More alarming colors
           .attr('stroke', '#ffffff')
           .attr('stroke-width', 2);
         
@@ -228,74 +229,74 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
           .attr('text-anchor', 'middle')
           .attr('font-size', '12px')
           .attr('font-weight', 'bold')
-          .attr('fill', milestone.type === 'break-even' ? '#10b981' : '#f59e0b')
+          .attr('fill', milestone.type === 'break-even' ? '#b91c1c' : '#c2410c') // More alarming colors
           .text(milestone.label);
       });
     }
     
-    // Add legend with improved styling
+    // Add legend with more compact styling in upper right corner
     const legend = chart.append('g')
       .attr('class', 'legend')
-      .attr('transform', `translate(${width - 150}, 10)`);
+      .attr('transform', `translate(${width - 120}, 5)`);
     
-    // Add legend background
+    // Add legend background with improved styling
     legend.append('rect')
-      .attr('x', -10)
+      .attr('x', -8)
       .attr('y', -5)
-      .attr('width', 160)
-      .attr('height', 80)
+      .attr('width', 125)
+      .attr('height', 70)
       .attr('rx', 4)
-      .attr('fill', 'rgba(255, 255, 255, 0.9)')
-      .attr('stroke', '#e5e7eb')
+      .attr('fill', 'rgba(255, 255, 255, 0.95)')
+      .attr('stroke', '#d1d5db')
       .attr('stroke-width', 1);
     
-    // Human cost legend
+    // Human cost legend with updated styling
     legend.append('line')
       .attr('x1', 0)
-      .attr('y1', 15)
-      .attr('x2', 20)
-      .attr('y2', 15)
+      .attr('y1', 12)
+      .attr('x2', 15)
+      .attr('y2', 12)
       .attr('stroke', '#3b82f6')
-      .attr('stroke-width', 2.5);
+      .attr('stroke-width', 3);
     
     legend.append('text')
-      .attr('x', 30)
-      .attr('y', 19)
-      .attr('font-size', '12px')
-      .attr('font-weight', '500')
+      .attr('x', 22)
+      .attr('y', 15)
+      .attr('font-size', '10px')
+      .attr('font-weight', '600')
       .text('Human Labor');
     
-    // AI cost legend
+    // AI cost legend with updated styling and colors
     legend.append('line')
       .attr('x1', 0)
-      .attr('y1', 40)
-      .attr('x2', 20)
-      .attr('y2', 40)
-      .attr('stroke', '#ef4444')
-      .attr('stroke-width', 2.5);
+      .attr('y1', 32)
+      .attr('x2', 15)
+      .attr('y2', 32)
+      .attr('stroke', '#dc2626') // More intense red
+      .attr('stroke-width', 3);
     
     legend.append('text')
-      .attr('x', 30)
-      .attr('y', 44)
-      .attr('font-size', '12px')
-      .attr('font-weight', '500')
+      .attr('x', 22)
+      .attr('y', 35)
+      .attr('font-size', '10px')
+      .attr('font-weight', '600')
       .text('AI Replacement');
     
-    // Savings area legend
+    // Cost difference area legend (renamed from savings)
     if (config?.showCumulativeSavings !== false) {
       legend.append('rect')
         .attr('x', 0)
-        .attr('y', 55)
-        .attr('width', 20)
-        .attr('height', 10)
-        .attr('fill', 'rgba(34, 197, 94, 0.2)');
+        .attr('y', 47)
+        .attr('width', 15)
+        .attr('height', 8)
+        .attr('fill', 'rgba(220, 38, 38, 0.15)');
       
       legend.append('text')
-        .attr('x', 30)
-        .attr('y', 64)
-        .attr('font-size', '12px')
-        .attr('font-weight', '500')
-        .text('Cumulative Savings');
+        .attr('x', 22)
+        .attr('y', 54)
+        .attr('font-size', '10px')
+        .attr('font-weight', '600')
+        .text('Cost Difference'); // Changed from 'Cumulative Savings'
     }
     
     // Add axis labels with improved positioning
@@ -343,8 +344,8 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
                 <div class="font-medium text-base mb-1">${d.period}</div>
                 <div class="text-blue-600 font-medium">Human: $${d3.format(',.0f')(d.humanCost)}</div>
                 <div class="text-red-600 font-medium">AI: $${d3.format(',.0f')(d.aiCost)}</div>
-                <div class="${d.cumulativeSavings >= 0 ? 'text-green-600' : 'text-red-600'} font-medium mt-1">
-                  Cumulative ${d.cumulativeSavings >= 0 ? 'Savings' : 'Loss'}: $${d3.format(',.0f')(Math.abs(d.cumulativeSavings))}
+                <div class="text-red-600 font-medium mt-1">
+                  Cost Difference: $${d3.format(',.0f')(Math.abs(d.cumulativeSavings))}
                 </div>
               </div>
             `);

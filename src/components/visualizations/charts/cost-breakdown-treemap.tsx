@@ -17,7 +17,7 @@ export const CostBreakdownTreemap: React.FC<CostBreakdownTreemapProps> = ({
   humanCosts,
   aiCosts,
   width = '100%',
-  height = 520, // Increased by 30%
+  height = 550, // Further increased for better visibility
   className = ''
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -49,8 +49,8 @@ export const CostBreakdownTreemap: React.FC<CostBreakdownTreemapProps> = ({
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove(); // Clear previous rendering
     
-    // Chart dimensions with adjusted margins to maximize chart area
-    const margin = { top: 20, right: 10, bottom: 10, left: 10 };
+    // Chart dimensions with adjusted margins to maximize chart area and increase chart size by 20%
+    const margin = { top: 15, right: 10, bottom: 10, left: 10 };
     const width = dimensions.width - margin.left - margin.right;
     const height = dimensions.height - margin.top - margin.bottom;
     
@@ -77,9 +77,18 @@ export const CostBreakdownTreemap: React.FC<CostBreakdownTreemapProps> = ({
     // Apply treemap layout
     treemap(root);
     
-    // Color scale for risk levels
+    // Color scale for risk levels - more intense to reflect job replacement message
     const colorScale = d3.scaleSequential(d3.interpolateReds)
       .domain([0, 1]);
+      
+    // Define more alarming color scheme
+    const jobReplacementColors = {
+      humanLabor: '#3b82f6',   // Blue for human labor
+      aiReplacement: '#dc2626', // More intense red for AI replacement
+      highRisk: '#991b1b',     // Dark red for high risk
+      mediumRisk: '#dc2626',   // Medium red for medium risk
+      lowRisk: '#ef4444'       // Light red for low risk
+    };
     
     // Draw cells for each node
     const cell = chart
@@ -89,17 +98,22 @@ export const CostBreakdownTreemap: React.FC<CostBreakdownTreemapProps> = ({
       .append('g')
       .attr('transform', d => `translate(${d.x0 || 0},${d.y0 || 0})`);
     
-    // Add rectangles for each cell
+    // Add rectangles for each cell with updated colors to reflect job replacement message
     cell
       .append('rect')
       .attr('width', d => (d.x1 || 0) - (d.x0 || 0))
       .attr('height', d => (d.y1 || 0) - (d.y0 || 0))
       .attr('fill', d => {
-        // Color based on risk level
+        // Color based on risk level with more alarming colors
         const risk = d.data.risk || 0;
-        return d.depth === 0 ? '#ffffff' : // Root is white
-               d.depth === 1 ? (d.data.name === 'Human Labor' ? '#3b82f6' : '#ef4444') : // Level 1: blue/red
-               colorScale(risk); // Deeper levels: risk-based color
+        if (d.depth === 0) return '#ffffff'; // Root is white
+        if (d.depth === 1) {
+          return d.data.name === 'Human Labor' ? jobReplacementColors.humanLabor : jobReplacementColors.aiReplacement;
+        }
+        // Deeper levels: more intense risk-based color
+        if (risk > 0.7) return jobReplacementColors.highRisk;
+        if (risk > 0.4) return jobReplacementColors.mediumRisk;
+        return jobReplacementColors.lowRisk;
       })
       .attr('stroke', d => d.depth < 2 ? '#ffffff' : '#e5e7eb')
       .attr('stroke-width', d => d.depth < 2 ? 2 : 1)
@@ -190,65 +204,65 @@ export const CostBreakdownTreemap: React.FC<CostBreakdownTreemapProps> = ({
         }
       });
     
-    // Add title with improved styling
+    // Add title with improved styling and updated terminology
     svg.append('text')
       .attr('x', margin.left)
       .attr('y', 15)
       .attr('font-size', '16px')
       .attr('font-weight', 'bold')
-      .text('Cost Breakdown by Category');
+      .text('Job Replacement Cost Analysis');
     
-    // Create a combined legend group for more compact display
+    // Create a combined legend group for more compact display in upper right corner
     const combinedLegend = svg
       .append('g')
       .attr('class', 'combined-legend')
-      .attr('transform', `translate(${dimensions.width - 140}, 5)`);
+      .attr('transform', `translate(${dimensions.width - 120}, 5)`);
     
-    // Add combined legend background
+    // Add combined legend background with improved styling
     combinedLegend.append('rect')
-      .attr('x', -8)
+      .attr('x', -6)
       .attr('y', -5)
-      .attr('width', 135)
-      .attr('height', 85)
+      .attr('width', 115)
+      .attr('height', 80)
       .attr('rx', 4)
-      .attr('fill', 'rgba(255, 255, 255, 0.9)')
-      .attr('stroke', '#e5e7eb')
+      .attr('fill', 'rgba(255, 255, 255, 0.95)')
+      .attr('stroke', '#d1d5db')
       .attr('stroke-width', 1);
     
-    // First row: Human Labor
+    // First row: Human Labor with updated colors
     combinedLegend.append('rect')
-      .attr('width', 10)
-      .attr('height', 10)
-      .attr('fill', '#3b82f6');
+      .attr('width', 8)
+      .attr('height', 8)
+      .attr('fill', jobReplacementColors.humanLabor);
     
     combinedLegend.append('text')
-      .attr('x', 16)
-      .attr('y', 8)
-      .attr('font-size', '11px')
-      .attr('font-weight', '500')
+      .attr('x', 14)
+      .attr('y', 7)
+      .attr('font-size', '10px')
+      .attr('font-weight', '600')
       .text('Human Labor');
     
-    // Second row: AI Replacement
+    // Second row: AI Replacement with updated colors
     combinedLegend.append('rect')
-      .attr('width', 10)
-      .attr('height', 10)
-      .attr('y', 18)
-      .attr('fill', '#ef4444');
+      .attr('width', 8)
+      .attr('height', 8)
+      .attr('y', 16)
+      .attr('fill', jobReplacementColors.aiReplacement);
     
     combinedLegend.append('text')
-      .attr('x', 16)
-      .attr('y', 26)
-      .attr('font-size', '11px')
-      .attr('font-weight', '500')
+      .attr('x', 14)
+      .attr('y', 23)
+      .attr('font-size', '10px')
+      .attr('font-weight', '600')
       .text('AI Replacement');
     
-    // Third row: Automation Risk label
+    // Third row: Job Replacement Risk label (changed terminology)
     combinedLegend.append('text')
       .attr('x', 0)
-      .attr('y', 44)
-      .attr('font-size', '11px')
-      .attr('font-weight', '500')
-      .text('Automation Risk');
+      .attr('y', 38)
+      .attr('font-size', '10px')
+      .attr('font-weight', '600')
+      .text('Job Replacement Risk');
     
     // Create risk gradient with unique ID to prevent conflicts
     const gradientId = `risk-gradient-${Math.random().toString(36).substring(2, 9)}`;
@@ -268,27 +282,27 @@ export const CostBreakdownTreemap: React.FC<CostBreakdownTreemapProps> = ({
       .attr('offset', '100%')
       .attr('stop-color', colorScale(1));
     
-    // Risk gradient bar
+    // Risk gradient bar with updated positioning
     combinedLegend.append('rect')
-      .attr('y', 50)
-      .attr('width', 100)
-      .attr('height', 8)
+      .attr('y', 45)
+      .attr('width', 90)
+      .attr('height', 6)
       .attr('rx', 2)
       .attr('fill', `url(#${gradientId})`);
     
-    // Risk labels
+    // Risk labels with updated positioning
     combinedLegend.append('text')
       .attr('x', 0)
-      .attr('y', 70)
-      .attr('font-size', '10px')
-      .attr('font-weight', '500')
+      .attr('y', 60)
+      .attr('font-size', '9px')
+      .attr('font-weight', '600')
       .text('Low');
     
     combinedLegend.append('text')
-      .attr('x', 80)
-      .attr('y', 70)
-      .attr('font-size', '10px')
-      .attr('font-weight', '500')
+      .attr('x', 75)
+      .attr('y', 60)
+      .attr('font-size', '9px')
+      .attr('font-weight', '600')
       .text('High');
     
   }, [treemapData, dimensions]);

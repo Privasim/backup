@@ -9,7 +9,7 @@ export const IndustryComparisonRadar: React.FC<IndustryComparisonRadarProps> = (
   userProfile,
   industryData,
   width = '100%',
-  height = 390, // Increased by 30%
+  height = 450, // Further increased for better visibility
   className = ''
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -18,6 +18,14 @@ export const IndustryComparisonRadar: React.FC<IndustryComparisonRadarProps> = (
   
   // Get comparison data from hook
   const radarData = useIndustryComparison(userProfile, industryData);
+  
+  // Define more alarming color scheme to reflect job replacement message
+  const colorScheme = {
+    userProfile: '#3b82f6', // Keep user profile blue
+    technology: '#dc2626', // More intense red for technology
+    finance: '#ea580c',    // Orange for finance
+    healthcare: '#059669'  // Green for healthcare
+  };
   
   // Set up resize observer for responsive behavior
   useEffect(() => {
@@ -41,8 +49,8 @@ export const IndustryComparisonRadar: React.FC<IndustryComparisonRadarProps> = (
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove(); // Clear previous rendering
     
-    // Chart dimensions with adjusted margins to maximize chart area
-    const margin = { top: 40, right: 60, bottom: 40, left: 60 };
+    // Chart dimensions with adjusted margins to maximize chart area and increase chart size by 20%
+    const margin = { top: 30, right: 50, bottom: 30, left: 50 };
     const width = dimensions.width - margin.left - margin.right;
     const height = dimensions.height - margin.top - margin.bottom;
     const radius = Math.min(width, height) / 2;
@@ -62,9 +70,10 @@ export const IndustryComparisonRadar: React.FC<IndustryComparisonRadarProps> = (
       .range([0, 2 * Math.PI]);
     
     // Radius scale with padding to keep data away from center but maximize chart area
+    // Increased by 20% for better visibility
     const radiusScale = d3.scaleLinear()
       .domain([0, 1])
-      .range([radius * 0.05, radius * 0.9]); // Expanded to use more space
+      .range([radius * 0.05, radius * 1.08]); // Further expanded to increase chart size by 20%
     
     // Draw radar grid with improved styling
     const gridLevels = 4; // Reduced to 4 levels for cleaner look
@@ -105,7 +114,7 @@ export const IndustryComparisonRadar: React.FC<IndustryComparisonRadarProps> = (
         .attr('x2', x)
         .attr('y2', y)
         .attr('stroke', '#d1d5db')
-        .attr('stroke-width', 1);
+        .attr('stroke-width', 1.5); // Slightly thicker for better visibility
       
       // Calculate label position with better spacing
       const labelDistance = 1.15; // Increased distance for labels
@@ -141,31 +150,43 @@ export const IndustryComparisonRadar: React.FC<IndustryComparisonRadarProps> = (
       .radius(d => radiusScale(d.value))
       .curve(d3.curveCardinalClosed.tension(0.6)); // Smoother curve
     
-    // Draw radar paths for each series with improved styling
+    // Draw radar paths for each series with improved styling and updated colors
     allSeries.forEach(series => {
+      // Determine color based on series name
+      const color = series.name === 'Your Profile' ? colorScheme.userProfile :
+                   series.name === 'Technology' ? colorScheme.technology :
+                   series.name === 'Finance' ? colorScheme.finance :
+                   colorScheme.healthcare;
+      
       // Draw filled area
       chart.append('path')
         .datum(series.data)
         .attr('d', radarLine as any)
-        .attr('fill', series.color)
-        .attr('fill-opacity', 0.15) // Slightly reduced opacity
-        .attr('stroke', series.color)
-        .attr('stroke-width', 2.5); // Slightly thicker
+        .attr('fill', color)
+        .attr('fill-opacity', series.name === 'Your Profile' ? 0.2 : 0.15) // Highlight user profile
+        .attr('stroke', color)
+        .attr('stroke-width', series.name === 'Your Profile' ? 3 : 2.5); // Emphasize user profile
       
-      // Draw data points with improved styling
+      // Draw data points with improved styling and updated colors
       series.data.forEach(point => {
         const angle = angleScale(point.metric) || 0;
         const r = radiusScale(point.value);
         const x = r * Math.sin(angle);
         const y = -r * Math.cos(angle);
         
+        // Determine color based on series name
+        const color = series.name === 'Your Profile' ? colorScheme.userProfile :
+                     series.name === 'Technology' ? colorScheme.technology :
+                     series.name === 'Finance' ? colorScheme.finance :
+                     colorScheme.healthcare;
+        
         chart.append('circle')
           .attr('cx', x)
           .attr('cy', y)
-          .attr('r', 5) // Slightly larger
-          .attr('fill', series.color)
+          .attr('r', series.name === 'Your Profile' ? 6 : 5) // Larger for user profile
+          .attr('fill', color)
           .attr('stroke', '#ffffff')
-          .attr('stroke-width', 2)
+          .attr('stroke-width', series.name === 'Your Profile' ? 2.5 : 2) // Thicker for user profile
           .on('mouseover', (event) => {
             const tooltip = d3.select(tooltipRef.current);
             const metricInfo = radarData.metrics[point.metric];
@@ -188,41 +209,41 @@ export const IndustryComparisonRadar: React.FC<IndustryComparisonRadarProps> = (
       });
     });
     
-    // Add legend with more compact styling and positioning at the top-right
+    // Add legend with more compact styling and positioning at the top-right corner
     const legend = svg
       .append('g')
       .attr('class', 'legend')
-      .attr('transform', `translate(${width + margin.left - 100}, 10)`);
+      .attr('transform', `translate(${width + margin.left - 90}, 5)`);
     
-    // Add legend background
-    const legendWidth = 100;
-    const legendHeight = allSeries.length * 20 + 8; // More compact
+    // Add legend background with improved styling
+    const legendWidth = 90;
+    const legendHeight = allSeries.length * 18 + 6; // Even more compact
     
     legend.append('rect')
-      .attr('x', -8)
-      .attr('y', -8)
+      .attr('x', -6)
+      .attr('y', -6)
       .attr('width', legendWidth)
       .attr('height', legendHeight)
       .attr('rx', 4)
-      .attr('fill', 'rgba(255, 255, 255, 0.9)')
-      .attr('stroke', '#e5e7eb')
+      .attr('fill', 'rgba(255, 255, 255, 0.95)')
+      .attr('stroke', '#d1d5db')
       .attr('stroke-width', 1);
     
     // Add legend items with more compact spacing
     allSeries.forEach((series, i) => {
       const legendItem = legend.append('g')
-        .attr('transform', `translate(0, ${i * 20})`);
+        .attr('transform', `translate(0, ${i * 18})`);
       
       legendItem.append('rect')
-        .attr('width', 10)
-        .attr('height', 10)
+        .attr('width', 8)
+        .attr('height', 8)
         .attr('fill', series.color);
       
       legendItem.append('text')
-        .attr('x', 16)
-        .attr('y', 8)
-        .attr('font-size', '11px')
-        .attr('font-weight', '500')
+        .attr('x', 14)
+        .attr('y', 7)
+        .attr('font-size', '10px')
+        .attr('font-weight', '600')
         .text(series.name);
     });
     
