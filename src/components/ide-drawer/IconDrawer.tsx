@@ -7,6 +7,7 @@ export interface DrawerView {
   label: string;
   icon: React.ReactNode;
   badge?: number;
+  onClick?: () => void;
   render: () => React.ReactNode;
 }
 
@@ -98,7 +99,13 @@ export default function IconDrawer({
             <button
               key={v.id}
               type="button"
-              onClick={() => setActive(v.id)}
+              onClick={() => {
+                if (v.onClick) {
+                  v.onClick();
+                  return;
+                }
+                setActive(v.id);
+              }}
               className={[
                 "relative flex h-10 w-10 items-center justify-center rounded-lg focus-ring transition",
                 isActive ? "bg-indigo-600 text-white" : "hover:bg-gray-100 text-primary",

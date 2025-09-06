@@ -4,7 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Cog6ToothIcon, ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
+import { Cog6ToothIcon, ChatBubbleLeftRightIcon, ClipboardDocumentListIcon } from "@heroicons/react/24/outline";
 import ConversationsCard from "./ConversationsCard";
 import { useChatbox } from "@/components/chatbox/ChatboxProvider";
 import IconDrawer from "@/components/ide-drawer/IconDrawer";
@@ -56,6 +56,25 @@ export default function ProfileSidebar() {
           onNewChat={handleNewChat}
           onOpenConversation={handleOpenConversation}
         />
+      ),
+    },
+    {
+      id: "tasks",
+      label: "Task Management",
+      icon: <ClipboardDocumentListIcon className="h-5 w-5" />,
+      onClick: () => router.push("/businessidea/task-management"),
+      render: () => (
+        <section className="rounded-2xl bg-white/90 p-3 shadow-sm backdrop-blur">
+          <div className="mt-0 px-0">
+            <Link
+              href="/businessidea/task-management"
+              className="inline-flex items-center justify-center w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              aria-label="Open Task Management"
+            >
+              Open Task Management
+            </Link>
+          </div>
+        </section>
       ),
     },
   ];
