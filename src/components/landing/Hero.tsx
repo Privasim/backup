@@ -10,7 +10,7 @@ export default function Hero() {
   const router = useRouter();
 
   const handleQuizClick = () => {
-    router.push('/quiz');
+    router.push('/businessidea/profile-settings?step=1');
   };
 
   return (

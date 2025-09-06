@@ -13,8 +13,8 @@ import { Role, INTEREST_OPTIONS_BY_INDUSTRY, INTEREST_OPTIONS } from "./types";
 import { useChatbox } from '@/components/chatbox/ChatboxProvider';
 import { adaptUserProfileToFormData } from '@/components/chatbox/utils/profile-transformation';
 
-export default function UserProfileTab() {
-  const { state, actions, isStepComplete } = useUserProfileForm();
+export default function UserProfileTab({ initialStep }: { initialStep?: number }) {
+  const { state, actions, isStepComplete } = useUserProfileForm(initialStep);
   const { setProfileData } = useChatbox();
   const [prunedInterestsBackup, setPrunedInterestsBackup] = useState<string[] | null>(null);
   const [prunedRemovedCount, setPrunedRemovedCount] = useState<number>(0);

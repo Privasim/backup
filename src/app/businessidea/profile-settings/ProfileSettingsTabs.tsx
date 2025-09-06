@@ -43,7 +43,7 @@ function LocalTabNav() {
   );
 }
 
-function LocalTabContent() {
+function LocalTabContent({ initialStep }: { initialStep?: number }) {
   const { activeTab } = useTab();
 
   useEffect(() => {
@@ -59,7 +59,7 @@ function LocalTabContent() {
     return (
       <div className={tabContainerClass}>
         <div className={tabContentClass}>
-          <UserProfileTab />
+          <UserProfileTab initialStep={initialStep} />
         </div>
       </div>
     );
@@ -87,14 +87,14 @@ function LocalTabContent() {
   );
 }
 
-export default function ProfileSettingsTabs() {
+export default function ProfileSettingsTabs({ initialStep }: { initialStep?: number }) {
   const initialTab = useMemo(() => getProfileSettingsTab() || 'userprofile', []);
 
   return (
     <TabProvider initialTab={initialTab}>
       <div className="space-y-2">
         <LocalTabNav />
-        <LocalTabContent />
+        <LocalTabContent initialStep={initialStep} />
       </div>
     </TabProvider>
   );

@@ -3,7 +3,9 @@ import ProfileSettingsTabs from './ProfileSettingsTabs';
 import Link from 'next/link';
 import { ChatboxToggle } from '@/components/chatbox/ChatboxToggle';
 
-export default function ProfileSettingsPage() {
+export default function ProfileSettingsPage({ searchParams }: { searchParams: { step?: string } }) {
+  const initialStep = searchParams.step ? parseInt(searchParams.step) : undefined;
+  
   return (
     <div className="flex-1 relative">
       {/* Chatbox Toggle in bottom right corner */}
@@ -13,7 +15,7 @@ export default function ProfileSettingsPage() {
       
       <div className="flex items-center justify-between mb-4">
       </div>
-      <ProfileSettingsTabs />
+      <ProfileSettingsTabs initialStep={initialStep} />
     </div>
   );
 }

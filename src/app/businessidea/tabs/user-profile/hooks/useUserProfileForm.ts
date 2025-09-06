@@ -13,8 +13,8 @@ import {
 
 export type FormErrors = Record<string, string | undefined>;
 
-export function useUserProfileForm() {
-  const [currentStep, setCurrentStep] = useState<number>(1);
+export function useUserProfileForm(initialStep?: number) {
+  const [currentStep, setCurrentStep] = useState<number>(initialStep || 1);
   const [maxStepVisited, setMaxStepVisited] = useState<number>(1);
   const [data, setData] = useState<UserProfileData>({ skills: [] });
   const [errors, setErrors] = useState<FormErrors>({});
