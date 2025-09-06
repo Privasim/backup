@@ -15,10 +15,8 @@ import {
   COMPANY_SIZE_OPTIONS,
   SECTOR_OPTIONS,
   TEAM_SIZE_OPTIONS,
-  GOAL_OPTIONS_STUDENT,
-  GOAL_OPTIONS_PROFESSIONAL,
-  GOAL_OPTIONS_BUSINESS,
-  GOAL_OPTIONS_SHIFTER,
+  INTEREST_OPTIONS,
+  INTEREST_OPTIONS_BY_INDUSTRY,
 } from "../types";
 
 // We'll need to create these compact components
@@ -315,18 +313,24 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
         
         <div className="mt-1 pt-1 border-t border-gray-100">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-medium text-gray-700">Academic Goals</span>
+            <span className="text-xs font-medium text-gray-700">Personal Interests</span>
             <span className="text-[10px] text-gray-400 px-1.5 py-0.5 bg-gray-50 rounded">optional</span>
           </div>
           <PillMultiSelect
             label=""
-            options={GOAL_OPTIONS_STUDENT}
-            value={s.studentGoals ?? []}
-            onChange={(v) => handlePatch({ studentGoals: v })}
-            recommended={GOAL_OPTIONS_STUDENT.slice(0,3)}
+            options={INTEREST_OPTIONS}
+            value={profileData.interests ?? []}
+            onChange={(v) => setProfileData({ interests: v })}
+            recommended={(industry && INTEREST_OPTIONS_BY_INDUSTRY[industry]) ? INTEREST_OPTIONS_BY_INDUSTRY[industry] : INTEREST_OPTIONS.slice(0, 6)}
             initialVisibleCount={3}
             showSearch
-            onSelectAllRecommended={() => handlePatch({ studentGoals: Array.from(new Set([...(s.studentGoals ?? []), ...GOAL_OPTIONS_STUDENT.slice(0,3)])) })}
+            onSelectAllRecommended={() => {
+              const base = Array.isArray(profileData.interests) ? profileData.interests : [];
+              const rec = (industry && INTEREST_OPTIONS_BY_INDUSTRY[industry]) ? INTEREST_OPTIONS_BY_INDUSTRY[industry] : INTEREST_OPTIONS.slice(0, 6);
+              setProfileData({ interests: Array.from(new Set([...
+                base, ...rec
+              ])) });
+            }}
           />
         </div>
         {experienceRenderer}
@@ -383,18 +387,24 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
         
         <div className="mt-1 pt-1 border-t border-gray-100">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-medium text-gray-700">Professional Goals</span>
+            <span className="text-xs font-medium text-gray-700">Personal Interests</span>
             <span className="text-[10px] text-gray-400 px-1.5 py-0.5 bg-gray-50 rounded">optional</span>
           </div>
           <PillMultiSelect
             label=""
-            options={GOAL_OPTIONS_PROFESSIONAL}
-            value={p.professionalGoals ?? []}
-            onChange={(v) => handlePatch({ professionalGoals: v })}
-            recommended={GOAL_OPTIONS_PROFESSIONAL.slice(0,3)}
+            options={INTEREST_OPTIONS}
+            value={profileData.interests ?? []}
+            onChange={(v) => setProfileData({ interests: v })}
+            recommended={(industry && INTEREST_OPTIONS_BY_INDUSTRY[industry]) ? INTEREST_OPTIONS_BY_INDUSTRY[industry] : INTEREST_OPTIONS.slice(0, 6)}
             initialVisibleCount={3}
             showSearch
-            onSelectAllRecommended={() => handlePatch({ professionalGoals: Array.from(new Set([...(p.professionalGoals ?? []), ...GOAL_OPTIONS_PROFESSIONAL.slice(0,3)])) })}
+            onSelectAllRecommended={() => {
+              const base = Array.isArray(profileData.interests) ? profileData.interests : [];
+              const rec = (industry && INTEREST_OPTIONS_BY_INDUSTRY[industry]) ? INTEREST_OPTIONS_BY_INDUSTRY[industry] : INTEREST_OPTIONS.slice(0, 6);
+              setProfileData({ interests: Array.from(new Set([...
+                base, ...rec
+              ])) });
+            }}
           />
         </div>
         {experienceRenderer}
@@ -449,18 +459,24 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
         
         <div className="mt-1 pt-1 border-t border-gray-100">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-medium text-gray-700">Business Goals</span>
+            <span className="text-xs font-medium text-gray-700">Personal Interests</span>
             <span className="text-[10px] text-gray-400 px-1.5 py-0.5 bg-gray-50 rounded">optional</span>
           </div>
           <PillMultiSelect
             label=""
-            options={GOAL_OPTIONS_BUSINESS}
-            value={b.businessGoals ?? []}
-            onChange={(v) => handlePatch({ businessGoals: v })}
-            recommended={GOAL_OPTIONS_BUSINESS.slice(0,3)}
+            options={INTEREST_OPTIONS}
+            value={profileData.interests ?? []}
+            onChange={(v) => setProfileData({ interests: v })}
+            recommended={(industry && INTEREST_OPTIONS_BY_INDUSTRY[industry]) ? INTEREST_OPTIONS_BY_INDUSTRY[industry] : INTEREST_OPTIONS.slice(0, 6)}
             initialVisibleCount={3}
             showSearch
-            onSelectAllRecommended={() => handlePatch({ businessGoals: Array.from(new Set([...(b.businessGoals ?? []), ...GOAL_OPTIONS_BUSINESS.slice(0,3)])) })}
+            onSelectAllRecommended={() => {
+              const base = Array.isArray(profileData.interests) ? profileData.interests : [];
+              const rec = (industry && INTEREST_OPTIONS_BY_INDUSTRY[industry]) ? INTEREST_OPTIONS_BY_INDUSTRY[industry] : INTEREST_OPTIONS.slice(0, 6);
+              setProfileData({ interests: Array.from(new Set([...
+                base, ...rec
+              ])) });
+            }}
           />
         </div>
         {experienceRenderer}
@@ -529,18 +545,24 @@ export default function CompactRoleDetailsStep({ className = "" }: Props) {
         
         <div className="mt-1 pt-1 border-t border-gray-100">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-medium text-gray-700">Transition Goals</span>
+            <span className="text-xs font-medium text-gray-700">Personal Interests</span>
             <span className="text-[10px] text-gray-400 px-1.5 py-0.5 bg-gray-50 rounded">optional</span>
           </div>
           <PillMultiSelect
             label=""
-            options={GOAL_OPTIONS_SHIFTER}
-            value={s.transitionGoals ?? []}
-            onChange={(v) => handlePatch({ transitionGoals: v })}
-            recommended={GOAL_OPTIONS_SHIFTER.slice(0,3)}
+            options={INTEREST_OPTIONS}
+            value={profileData.interests ?? []}
+            onChange={(v) => setProfileData({ interests: v })}
+            recommended={(industry && INTEREST_OPTIONS_BY_INDUSTRY[industry]) ? INTEREST_OPTIONS_BY_INDUSTRY[industry] : INTEREST_OPTIONS.slice(0, 6)}
             initialVisibleCount={3}
             showSearch
-            onSelectAllRecommended={() => handlePatch({ transitionGoals: Array.from(new Set([...(s.transitionGoals ?? []), ...GOAL_OPTIONS_SHIFTER.slice(0,3)])) })}
+            onSelectAllRecommended={() => {
+              const base = Array.isArray(profileData.interests) ? profileData.interests : [];
+              const rec = (industry && INTEREST_OPTIONS_BY_INDUSTRY[industry]) ? INTEREST_OPTIONS_BY_INDUSTRY[industry] : INTEREST_OPTIONS.slice(0, 6);
+              setProfileData({ interests: Array.from(new Set([...
+                base, ...rec
+              ])) });
+            }}
           />
         </div>
         
