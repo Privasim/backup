@@ -11,7 +11,7 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
   hoursPerWeek,
   weeksPerYear,
   width = '100%',
-  height = 325, // Increased by 30%
+  height = 422, // Increased by 30% for better visibility
   className = '',
   config
 }) => {
@@ -50,8 +50,8 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove(); // Clear previous rendering
     
-    // Chart dimensions - adjusted margins to maximize chart area and increase chart size by 20%
-    const margin = { top: 30, right: 40, bottom: 50, left: 60 };
+    // Chart dimensions with proper margins for legend space
+    const margin = { top: 40, right: 140, bottom: 60, left: 70 };
     const width = dimensions.width - margin.left - margin.right;
     const height = dimensions.height - margin.top - margin.bottom;
     
@@ -234,69 +234,67 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
       });
     }
     
-    // Add legend with more compact styling in upper right corner
-    const legend = chart.append('g')
+    // Add legend positioned within the margin area
+    const legend = svg.append('g')
       .attr('class', 'legend')
-      .attr('transform', `translate(${width - 120}, 5)`);
+      .attr('transform', `translate(${margin.left + width + 10}, ${margin.top + 10})`);
     
-    // Add legend background with improved styling
+    // Add legend background with proper sizing
     legend.append('rect')
-      .attr('x', -8)
+      .attr('x', -5)
       .attr('y', -5)
-      .attr('width', 125)
-      .attr('height', 70)
+      .attr('width', 120)
+      .attr('height', 80)
       .attr('rx', 4)
       .attr('fill', 'rgba(255, 255, 255, 0.95)')
       .attr('stroke', '#d1d5db')
       .attr('stroke-width', 1);
     
-    // Human cost legend with updated styling
+    // Legend items with proper spacing
     legend.append('line')
-      .attr('x1', 0)
-      .attr('y1', 12)
-      .attr('x2', 15)
-      .attr('y2', 12)
+      .attr('x1', 5)
+      .attr('y1', 15)
+      .attr('x2', 20)
+      .attr('y2', 15)
       .attr('stroke', '#3b82f6')
       .attr('stroke-width', 3);
     
     legend.append('text')
-      .attr('x', 22)
-      .attr('y', 15)
-      .attr('font-size', '10px')
-      .attr('font-weight', '600')
+      .attr('x', 25)
+      .attr('y', 18)
+      .attr('font-size', '11px')
+      .attr('font-weight', '500')
       .text('Human Labor');
     
-    // AI cost legend with updated styling and colors
     legend.append('line')
-      .attr('x1', 0)
-      .attr('y1', 32)
-      .attr('x2', 15)
-      .attr('y2', 32)
-      .attr('stroke', '#dc2626') // More intense red
+      .attr('x1', 5)
+      .attr('y1', 35)
+      .attr('x2', 20)
+      .attr('y2', 35)
+      .attr('stroke', '#dc2626')
       .attr('stroke-width', 3);
     
     legend.append('text')
-      .attr('x', 22)
-      .attr('y', 35)
-      .attr('font-size', '10px')
-      .attr('font-weight', '600')
+      .attr('x', 25)
+      .attr('y', 38)
+      .attr('font-size', '11px')
+      .attr('font-weight', '500')
       .text('AI Replacement');
     
-    // Cost difference area legend (renamed from savings)
     if (config?.showCumulativeSavings !== false) {
       legend.append('rect')
-        .attr('x', 0)
-        .attr('y', 47)
+        .attr('x', 5)
+        .attr('y', 50)
         .attr('width', 15)
         .attr('height', 8)
         .attr('fill', 'rgba(220, 38, 38, 0.15)');
       
       legend.append('text')
-        .attr('x', 22)
-        .attr('y', 54)
-        .attr('font-size', '10px')
-        .attr('font-weight', '600')
-        .text('Cost Difference'); // Changed from 'Cumulative Savings'
+        .attr('x', 25)
+        .attr('y', 57)
+        .attr('font-size', '11px')
+        .attr('font-weight', '500')
+        .text('Cost Difference');
     }
     
     // Add axis labels with improved positioning
@@ -358,12 +356,14 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
   }, [data, milestones, dimensions, config]);
 
   return (
-    <div className={`relative ${className}`} style={{ width, height }}>
+    <div className={`relative w-full ${className}`} style={{ width, height }}>
       <svg 
         ref={svgRef}
         width="100%"
         height="100%"
-        className="overflow-visible"
+        className="overflow-hidden"
+        viewBox={dimensions.width > 0 ? `0 0 ${dimensions.width} ${dimensions.height}` : "0 0 100 100"}
+        preserveAspectRatio="xMidYMid meet"
       />
       <div 
         ref={tooltipRef}

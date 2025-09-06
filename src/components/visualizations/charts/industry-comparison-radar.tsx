@@ -9,7 +9,7 @@ export const IndustryComparisonRadar: React.FC<IndustryComparisonRadarProps> = (
   userProfile,
   industryData,
   width = '100%',
-  height = 450, // Further increased for better visibility
+  height = 585, // Increased by 30% for better visibility
   className = ''
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -49,11 +49,11 @@ export const IndustryComparisonRadar: React.FC<IndustryComparisonRadarProps> = (
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove(); // Clear previous rendering
     
-    // Chart dimensions with adjusted margins to maximize chart area and increase chart size by 20%
-    const margin = { top: 30, right: 50, bottom: 30, left: 50 };
+    // Chart dimensions with proper margins for legend space
+    const margin = { top: 40, right: 120, bottom: 40, left: 40 };
     const width = dimensions.width - margin.left - margin.right;
     const height = dimensions.height - margin.top - margin.bottom;
-    const radius = Math.min(width, height) / 2;
+    const radius = Math.min(width, height) / 2.5; // Reduced to prevent overflow
     
     // Create chart group with margins
     const chart = svg
@@ -69,11 +69,10 @@ export const IndustryComparisonRadar: React.FC<IndustryComparisonRadarProps> = (
       .domain(metrics)
       .range([0, 2 * Math.PI]);
     
-    // Radius scale with padding to keep data away from center but maximize chart area
-    // Increased by 20% for better visibility
+    // Radius scale with proper padding
     const radiusScale = d3.scaleLinear()
       .domain([0, 1])
-      .range([radius * 0.05, radius * 1.08]); // Further expanded to increase chart size by 20%
+      .range([radius * 0.1, radius * 0.9]); // Proper scaling within bounds
     
     // Draw radar grid with improved styling
     const gridLevels = 4; // Reduced to 4 levels for cleaner look
@@ -116,8 +115,8 @@ export const IndustryComparisonRadar: React.FC<IndustryComparisonRadarProps> = (
         .attr('stroke', '#d1d5db')
         .attr('stroke-width', 1.5); // Slightly thicker for better visibility
       
-      // Calculate label position with better spacing
-      const labelDistance = 1.15; // Increased distance for labels
+      // Calculate label position with proper spacing
+      const labelDistance = 1.1; // Proper distance for labels
       const labelX = labelDistance * x;
       const labelY = labelDistance * y;
       
@@ -209,19 +208,19 @@ export const IndustryComparisonRadar: React.FC<IndustryComparisonRadarProps> = (
       });
     });
     
-    // Add legend with more compact styling and positioning at the top-right corner
+    // Add legend positioned within the margin area
     const legend = svg
       .append('g')
       .attr('class', 'legend')
-      .attr('transform', `translate(${width + margin.left - 90}, 5)`);
+      .attr('transform', `translate(${margin.left + width + 10}, ${margin.top + 10})`);
     
-    // Add legend background with improved styling
-    const legendWidth = 90;
-    const legendHeight = allSeries.length * 18 + 6; // Even more compact
+    // Add legend background with proper sizing
+    const legendWidth = 100;
+    const legendHeight = allSeries.length * 20 + 10;
     
     legend.append('rect')
-      .attr('x', -6)
-      .attr('y', -6)
+      .attr('x', -5)
+      .attr('y', -5)
       .attr('width', legendWidth)
       .attr('height', legendHeight)
       .attr('rx', 4)
@@ -229,21 +228,21 @@ export const IndustryComparisonRadar: React.FC<IndustryComparisonRadarProps> = (
       .attr('stroke', '#d1d5db')
       .attr('stroke-width', 1);
     
-    // Add legend items with more compact spacing
+    // Add legend items with proper spacing
     allSeries.forEach((series, i) => {
       const legendItem = legend.append('g')
-        .attr('transform', `translate(0, ${i * 18})`);
+        .attr('transform', `translate(5, ${5 + i * 20})`);
       
       legendItem.append('rect')
-        .attr('width', 8)
-        .attr('height', 8)
+        .attr('width', 10)
+        .attr('height', 10)
         .attr('fill', series.color);
       
       legendItem.append('text')
-        .attr('x', 14)
-        .attr('y', 7)
-        .attr('font-size', '10px')
-        .attr('font-weight', '600')
+        .attr('x', 15)
+        .attr('y', 8)
+        .attr('font-size', '11px')
+        .attr('font-weight', '500')
         .text(series.name);
     });
     
@@ -262,12 +261,14 @@ export const IndustryComparisonRadar: React.FC<IndustryComparisonRadarProps> = (
   };
 
   return (
-    <div className={`relative ${className}`} style={{ width, height }}>
+    <div className={`relative w-full ${className}`} style={{ width, height }}>
       <svg 
         ref={svgRef}
         width="100%"
         height="100%"
-        className="overflow-visible"
+        className="overflow-hidden"
+        viewBox={dimensions.width > 0 ? `0 0 ${dimensions.width} ${dimensions.height}` : "0 0 100 100"}
+        preserveAspectRatio="xMidYMid meet"
       />
       <div 
         ref={tooltipRef}

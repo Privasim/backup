@@ -232,7 +232,7 @@ export function AutomationExposureCard({
   // Second handleCopy function removed to fix duplication
 
   return (
-    <div className={`bg-white p-3 animate-fade-in ${className}`}>
+    <div className={`bg-white p-4 animate-fade-in overflow-hidden ${className}`}>
       <div className="mb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -255,7 +255,7 @@ export function AutomationExposureCard({
         </div>
       </div>
       
-      <div className="space-y-3">
+      <div className="space-y-4">
         {isEmpty ? (
           <div className="flex flex-col items-center justify-center py-4 text-center">
             <AlertCircle className="h-8 w-8 text-gray-500 mb-2" />
@@ -266,13 +266,13 @@ export function AutomationExposureCard({
           <>
             {/* KPI Tiles - Now vertical and more compact */}
             <div className="flex flex-col space-y-2">
-              <h4 className="text-base font-medium text-gray-800">Exposure Metrics</h4>
+              <h4 className="text-sm font-medium text-gray-800">Exposure Metrics</h4>
               
               <div className={`p-3 rounded-md ${severityLabel === 'High' ? 'bg-red-50' : severityLabel === 'Moderate' ? 'bg-amber-50' : 'bg-green-50'}`}>
                 <div className="flex justify-between items-center">
                   <div>
-                    <h5 className="text-sm font-medium ${severityLabel === 'High' ? 'text-red-800' : severityLabel === 'Moderate' ? 'text-amber-800' : 'text-green-800'}">Average Exposure</h5>
-                    <p className="text-xs text-gray-600">Overall automation risk</p>
+                    <h5 className="text-[11px] font-medium ${severityLabel === 'High' ? 'text-red-800' : severityLabel === 'Moderate' ? 'text-amber-800' : 'text-green-800'}">Average Exposure</h5>
+                    <p className="text-[10px] text-gray-600">Overall automation risk</p>
                   </div>
                   <span className="text-lg font-bold ${severityLabel === 'High' ? 'text-red-700' : severityLabel === 'Moderate' ? 'text-amber-700' : 'text-green-700'}">${contextStats.avg}%</span>
                 </div>
@@ -281,8 +281,8 @@ export function AutomationExposureCard({
               <div className="bg-red-50 p-3 rounded-md">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h5 className="text-sm font-medium text-red-800">High-risk Tasks</h5>
-                    <p className="text-xs text-gray-600">{'>'} 70% exposure</p>
+                    <h5 className="text-[11px] font-medium text-red-800">High-risk Tasks</h5>
+                    <p className="text-[10px] text-gray-600">{'>'} 70% exposure</p>
                   </div>
                   <span className="text-lg font-bold text-red-700">{contextStats.counts.high}</span>
                 </div>
@@ -291,8 +291,8 @@ export function AutomationExposureCard({
               <div className="bg-gray-50 p-3 rounded-md">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h5 className="text-sm font-medium text-gray-800">Tasks Assessed</h5>
-                    <p className="text-xs text-gray-600">Total tasks analyzed</p>
+                    <h5 className="text-[11px] font-medium text-gray-800">Tasks Assessed</h5>
+                    <p className="text-[10px] text-gray-600">Total tasks analyzed</p>
                   </div>
                   <span className="text-lg font-bold text-gray-700">{contextStats.counts.total}</span>
                 </div>
@@ -301,44 +301,46 @@ export function AutomationExposureCard({
               <div className="bg-amber-50 p-3 rounded-md">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h5 className="text-sm font-medium text-amber-800">Above Threshold</h5>
-                    <p className="text-xs text-gray-600">Tasks over 50% exposure</p>
+                    <h5 className="text-[11px] font-medium text-amber-800">Above Threshold</h5>
+                    <p className="text-[10px] text-gray-600">Tasks over 50% exposure</p>
                   </div>
                   <span className="text-lg font-bold text-amber-700">{exposureStats.aboveThresholdPercent}%</span>
                 </div>
               </div>
             </div>
             
-            {/* Main Visualization Area - Now vertical */}
+            {/* Main Visualization Area */}
             <div className="flex flex-col space-y-4">
               {/* Bar Chart */}
-              <div className="bg-gray-50 p-3 rounded-md">
-                <div className="flex items-center gap-1.5 mb-2">
+              <div className="bg-gray-50 p-4 rounded-md">
+                <div className="flex items-center gap-1.5 mb-3">
                   <BarChart3 className="h-4 w-4 text-gray-700" />
-                  <h4 className="text-base font-medium text-gray-800">Highest Exposure Tasks</h4>
+                  <h4 className="text-sm font-medium text-gray-800">Highest Exposure Tasks</h4>
                 </div>
-                <p className="text-xs text-gray-600 mb-3">Highest exposure tasks prioritized for automation</p>
-                <AutomationExposureBar 
-                  items={barItems} 
-                  maxBars={topN}
-                  ariaLabel={`${title} chart showing automation risk for top ${topN} tasks`}
-                />
+                <p className="text-[10px] text-gray-600 mb-4">Highest exposure tasks prioritized for automation</p>
+                <div className="w-full overflow-hidden">
+                  <AutomationExposureBar 
+                    items={barItems} 
+                    maxBars={topN}
+                    ariaLabel={`${title} chart showing automation risk for top ${topN} tasks`}
+                  />
+                </div>
               </div>
               
               {/* Gauge */}
               <div className="bg-gray-50 p-4 rounded-md">
                 <div className="flex items-center gap-2 mb-3">
                   <PieChart className="h-4 w-4 text-gray-700" />
-                  <h4 className="text-base font-medium text-gray-800">Overall Exposure</h4>
+                  <h4 className="text-sm font-medium text-gray-800">Overall Exposure</h4>
                 </div>
-                <div className="flex justify-center mb-3">
+                <div className="flex justify-center mb-4">
                   <ExposureGauge 
                     value={contextStats.avg} 
-                    size={150}
+                    size={180}
                     ariaLabel={`Overall automation exposure gauge showing ${contextStats.avg}% (${severityLabel} risk)`}
                   />
                 </div>
-                <p className="text-xs text-gray-600 text-center">Overall exposure indicates systemic automation pressure</p>
+                <p className="text-[10px] text-gray-600 text-center">Overall exposure indicates systemic automation pressure</p>
               </div>
             </div>
 
@@ -347,7 +349,7 @@ export function AutomationExposureCard({
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5">
                   <Info className="h-4 w-4 text-gray-700" />
-                  <h4 id={contextHeadingId} className="text-base font-medium text-gray-800">Context & Analysis</h4>
+                  <h4 id={contextHeadingId} className="text-sm font-medium text-gray-800">Context & Analysis</h4>
                 </div>
                 <button
                   type="button"
@@ -362,33 +364,33 @@ export function AutomationExposureCard({
 
               {expanded && insights?.narratives?.automationNarrative && (
                 <div className="bg-blue-50 rounded-md p-3 mb-3">
-                  <p className="text-sm leading-relaxed text-gray-700">{insights.narratives.automationNarrative}</p>
+                  <p className="text-[11px] leading-relaxed text-gray-700">{insights.narratives.automationNarrative}</p>
                 </div>
               )}
 
               {expanded && (
                 <div className="space-y-3">
                   <div className="bg-white p-3 rounded-md">
-                    <h5 className="text-sm font-medium text-gray-800 mb-2">Key Statistics</h5>
+                    <h5 className="text-[11px] font-medium text-gray-800 mb-2">Key Statistics</h5>
                     <ul role="list" className="space-y-1.5">
                       {contextStats.topTaskLabel && (
-                        <li role="listitem" className="text-xs text-gray-700">
+                        <li role="listitem" className="text-[10px] text-gray-700">
                           <span className="font-medium text-gray-800">Top task:</span> {contextStats.topTaskLabel} ({contextStats.topTaskValue}%)
                         </li>
                       )}
                       {topThree.length > 0 && (
-                        <li role="listitem" className="text-xs text-gray-700">
+                        <li role="listitem" className="text-[10px] text-gray-700">
                           <span className="font-medium text-gray-800">Top tasks:</span> {topThree.map(t => `${t.label} (${t.value}%)`).join(', ')}
                         </li>
                       )}
-                      <li role="listitem" className="text-xs text-gray-700">
+                      <li role="listitem" className="text-[10px] text-gray-700">
                         <span className="font-medium text-gray-800">Median:</span> {contextStats.median}% · <span className="font-medium text-gray-800">P90:</span> {contextStats.p90}%
                       </li>
-                      <li role="listitem" className="text-xs text-gray-700">
+                      <li role="listitem" className="text-[10px] text-gray-700">
                         <span className="font-medium text-gray-800">Counts:</span> High {contextStats.counts.high}, Moderate {contextStats.counts.moderate}, Low {contextStats.counts.low} (Total {contextStats.counts.total})
                       </li>
                       {(minExposure > 0 || contextStats.truncatedFrom > 0) && (
-                        <li role="listitem" className="text-xs text-gray-600 mt-1">
+                        <li role="listitem" className="text-[10px] text-gray-600 mt-1">
                           {minExposure > 0 && (<span className="mr-1">Filtered by minimum exposure ≥ {minExposure}%.</span>)}
                           {contextStats.truncatedFrom > 0 && (<span>Showing top {topN} of {contextStats.truncatedFrom} eligible tasks.</span>)}
                         </li>
@@ -400,7 +402,7 @@ export function AutomationExposureCard({
                     <div className="bg-white p-3 rounded-md">
                       <div className="flex items-center gap-1.5 mb-2">
                         <ExternalLink className="h-4 w-4 text-gray-700" />
-                        <h5 className="text-sm font-medium text-gray-800">Research Sources</h5>
+                        <h5 className="text-[11px] font-medium text-gray-800">Research Sources</h5>
                       </div>
                       <div className="flex flex-col space-y-2" role="list">
                         {insights.sources.slice(0, 2).map((s, idx) => (
@@ -411,12 +413,12 @@ export function AutomationExposureCard({
                                 href={s.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-xs text-blue-600 hover:underline focus:outline-none focus:ring-1 focus:ring-blue-500 rounded"
+                                className="text-[10px] text-blue-600 hover:underline focus:outline-none focus:ring-1 focus:ring-blue-500 rounded"
                               >
                                 {s.title}
                               </a>
                             ) : (
-                              <span className="text-xs text-gray-700">{s.title}</span>
+                              <span className="text-[10px] text-gray-700">{s.title}</span>
                             )}
                           </div>
                         ))}
@@ -430,7 +432,7 @@ export function AutomationExposureCard({
         )}
       </div>
       
-      <div className="mt-2 pt-1 text-xs text-gray-500">
+      <div className="mt-2 pt-1 text-[10px] text-gray-500">
         Showing top {topN} tasks with highest automation exposure
       </div>
     </div>

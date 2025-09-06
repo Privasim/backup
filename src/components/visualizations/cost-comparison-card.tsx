@@ -183,7 +183,7 @@ export function CostComparisonCard({
   }
 
   return (
-    <div className={`bg-white p-4 animate-fade-in ${className}`}>
+    <div className={`bg-white p-4 animate-fade-in overflow-hidden ${className}`}>
       {/* Header */}
       <div className="mb-3">
         <div className="flex items-center gap-2">
@@ -263,60 +263,64 @@ export function CostComparisonCard({
 
       {/* Job Displacement Analysis */}
       {data && (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {/* Summary - Warning about job displacement */}
           <div className="bg-red-50 rounded-md p-3">
             <div className="flex items-center gap-2 mb-1">
               <AlertTriangle className="h-4 w-4 text-red-600" />
               <h4 className="text-sm font-medium text-red-800">Job Displacement Warning</h4>
             </div>
-            <p className="text-xs text-red-700">
+            <p className="text-[10px] text-red-700">
               Potential job displacement cost of <span className="font-medium">${data.jobDisplacementCost.toLocaleString()}</span> per year 
-              <span className="ml-1 px-1.5 py-0.5 bg-red-100 text-red-800 rounded-full text-xs font-medium">{data.jobDisplacementPercentage}%</span>
+              <span className="ml-1 px-1.5 py-0.5 bg-red-100 text-red-800 rounded-full text-[10px] font-medium">{data.jobDisplacementPercentage}%</span>
             </p>
           </div>
           
-          {/* NEW: Cost Projection Timeline Chart */}
-          <div className="bg-gray-50 p-3 rounded-md">
-            <div className="flex items-center gap-1.5 mb-2">
+          {/* Cost Projection Timeline Chart */}
+          <div className="bg-gray-50 p-4 rounded-md">
+            <div className="flex items-center gap-1.5 mb-3">
               <LineChart className="h-4 w-4 text-blue-600" />
-              <h4 className="text-base font-medium text-gray-800">5-Year Cost Projection</h4>
+              <h4 className="text-sm font-medium text-gray-800">5-Year Cost Projection</h4>
             </div>
-            <p className="text-xs text-gray-600 mb-3">Projected costs over time with break-even analysis</p>
-            <CostProjectionChart
-              humanHourlyCost={config.humanHourlyCost}
-              aiHourlyCost={config.aiHourlyCost}
-              hoursPerWeek={config.hoursPerWeek}
-              weeksPerYear={config.weeksPerYear}
-              height={250}
-              className="mb-2"
-            />
+            <p className="text-[10px] text-gray-600 mb-4">Projected costs over time with break-even analysis</p>
+            <div className="w-full overflow-hidden">
+              <CostProjectionChart
+                humanHourlyCost={config.humanHourlyCost}
+                aiHourlyCost={config.aiHourlyCost}
+                hoursPerWeek={config.hoursPerWeek}
+                weeksPerYear={config.weeksPerYear}
+                height={350}
+                className="w-full"
+              />
+            </div>
           </div>
           
-          {/* NEW: Industry Comparison Radar Chart */}
-          <div className="bg-gray-50 p-3 rounded-md">
-            <div className="flex items-center gap-1.5 mb-2">
+          {/* Industry Comparison Radar Chart */}
+          <div className="bg-gray-50 p-4 rounded-md">
+            <div className="flex items-center gap-1.5 mb-3">
               <PieChart className="h-4 w-4 text-blue-600" />
-              <h4 className="text-base font-medium text-gray-800">Industry Comparison</h4>
+              <h4 className="text-sm font-medium text-gray-800">Industry Comparison</h4>
             </div>
-            <p className="text-xs text-gray-600 mb-3">How your metrics compare to industry averages</p>
-            <IndustryComparisonRadar
-              userProfile={{
-                costRatio: data.costRatio / 100, // Convert percentage to 0-1 scale
-                displacementPercentage: data.jobDisplacementPercentage / 100,
-                adoptionRate: 0.65, // Derived from insights data
-                trainingCosts: 0.45  // Derived from insights data
-              }}
-              height={300}
-              className="mb-2"
-            />
+            <p className="text-[10px] text-gray-600 mb-4">How your metrics compare to industry averages</p>
+            <div className="w-full overflow-hidden">
+              <IndustryComparisonRadar
+                userProfile={{
+                  costRatio: data.costRatio / 100,
+                  displacementPercentage: data.jobDisplacementPercentage / 100,
+                  adoptionRate: 0.65,
+                  trainingCosts: 0.45
+                }}
+                height={400}
+                className="w-full"
+              />
+            </div>
           </div>
           
           {/* Gauge Chart for Job Displacement */}
           <div className="bg-gray-50 p-3 rounded-md">
             <div className="flex items-center gap-1.5 mb-2">
               <TrendingDown className="h-4 w-4 text-red-600" />
-              <h4 className="text-base font-medium text-gray-800">Job Displacement Impact</h4>
+              <h4 className="text-sm font-medium text-gray-800">Job Displacement Impact</h4>
             </div>
             <div className="relative h-32 w-full">
               {/* Semi-circular gauge */}
@@ -348,41 +352,43 @@ export function CostComparisonCard({
             </div>
           </div>
           
-          {/* NEW: Cost Breakdown Treemap */}
-          <div className="bg-gray-50 p-3 rounded-md">
-            <div className="flex items-center gap-1.5 mb-2">
+          {/* Cost Breakdown Treemap */}
+          <div className="bg-gray-50 p-4 rounded-md">
+            <div className="flex items-center gap-1.5 mb-3">
               <BarChart3 className="h-4 w-4 text-blue-600" />
-              <h4 className="text-base font-medium text-gray-800">Cost Breakdown Analysis</h4>
+              <h4 className="text-sm font-medium text-gray-800">Cost Breakdown Analysis</h4>
             </div>
-            <p className="text-xs text-gray-600 mb-3">Detailed breakdown of human vs AI costs with automation risk</p>
-            <CostBreakdownTreemap
-              humanCosts={{
-                salary: data.humanCost * 0.65, // Estimated breakdown based on typical cost structures
-                benefits: data.humanCost * 0.15,
-                training: data.humanCost * 0.05,
-                management: data.humanCost * 0.10,
-                infrastructure: data.humanCost * 0.05
-              }}
-              aiCosts={{
-                licensing: data.aiCost * 0.40,
-                implementation: data.aiCost * 0.25,
-                maintenance: data.aiCost * 0.20,
-                oversight: data.aiCost * 0.15
-              }}
-              height={350}
-              className="mb-2"
-            />
+            <p className="text-[10px] text-gray-600 mb-4">Detailed breakdown of human vs AI costs with automation risk</p>
+            <div className="w-full overflow-hidden">
+              <CostBreakdownTreemap
+                humanCosts={{
+                  salary: data.humanCost * 0.65,
+                  benefits: data.humanCost * 0.15,
+                  training: data.humanCost * 0.05,
+                  management: data.humanCost * 0.10,
+                  infrastructure: data.humanCost * 0.05
+                }}
+                aiCosts={{
+                  licensing: data.aiCost * 0.40,
+                  implementation: data.aiCost * 0.25,
+                  maintenance: data.aiCost * 0.20,
+                  oversight: data.aiCost * 0.15
+                }}
+                height={450}
+                className="w-full"
+              />
+            </div>
           </div>
           
           {/* Cost Comparison Chart */}
           <div className="bg-gray-50 p-3 rounded-md">
-            <h4 className="text-base font-medium text-gray-800 mb-3">Cost Comparison</h4>
+            <h4 className="text-sm font-medium text-gray-800 mb-3">Cost Comparison</h4>
             
             {/* Human Cost */}
             <div className="mb-3">
               <div className="flex justify-between items-center mb-1">
-                <span className="text-sm text-gray-700">Human Labor Cost</span>
-                <span className="text-sm font-medium text-gray-800">
+                <span className="text-[11px] text-gray-700">Human Labor Cost</span>
+                <span className="text-[11px] font-medium text-gray-800">
                   ${data.humanCost.toLocaleString()}/year
                 </span>
               </div>
@@ -397,8 +403,8 @@ export function CostComparisonCard({
             {/* AI Cost */}
             <div>
               <div className="flex justify-between items-center mb-1">
-                <span className="text-sm text-gray-700">AI Replacement Cost</span>
-                <span className="text-sm font-medium text-gray-800">
+                <span className="text-[11px] text-gray-700">AI Replacement Cost</span>
+                <span className="text-[11px] font-medium text-gray-800">
                   ${data.aiCost.toLocaleString()}/year
                 </span>
               </div>
@@ -413,16 +419,16 @@ export function CostComparisonCard({
           
           {/* Job Displacement Impact */}
           <div className="bg-gray-50 p-3 rounded-md">
-            <h4 className="text-base font-medium text-gray-800 mb-2">Job Displacement Impact</h4>
+            <h4 className="text-sm font-medium text-gray-800 mb-2">Job Displacement Impact</h4>
             <div className="flex flex-col space-y-2">
               <div className="p-2 rounded-md bg-red-50">
                 <div className="flex items-center gap-1.5 mb-1">
                   <TrendingDown className="h-3.5 w-3.5 text-red-600" />
-                  <h5 className="text-sm font-medium text-red-800">Jobs at Risk</h5>
+                  <h5 className="text-[11px] font-medium text-red-800">Jobs at Risk</h5>
                 </div>
-                <p className="text-xs text-red-700">
+                <p className="text-[10px] text-red-700">
                   This AI replacement could eliminate human jobs with a cost impact of
-                  <span className="text-base font-medium block mt-1">
+                  <span className="text-sm font-medium block mt-1">
                     ${data.jobDisplacementCost.toLocaleString()}/year
                   </span>
                 </p>
@@ -431,11 +437,11 @@ export function CostComparisonCard({
               <div className="p-2 rounded-md bg-amber-50">
                 <div className="flex items-center gap-1.5 mb-1">
                   <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
-                  <h5 className="text-sm font-medium text-amber-800">Workforce Impact</h5>
+                  <h5 className="text-[11px] font-medium text-amber-800">Workforce Impact</h5>
                 </div>
-                <p className="text-xs text-amber-700">
+                <p className="text-[10px] text-amber-700">
                   AI could replace
-                  <span className="text-base font-medium block mt-1">
+                  <span className="text-sm font-medium block mt-1">
                     {data.jobDisplacementPercentage}% of the workforce
                   </span>
                 </p>
@@ -445,28 +451,28 @@ export function CostComparisonCard({
           
           {/* Detailed Breakdown */}
           <div className="bg-white p-3 rounded-md">
-            <h4 className="text-base font-medium text-gray-800 mb-2">Cost Details</h4>
+            <h4 className="text-sm font-medium text-gray-800 mb-2">Cost Details</h4>
             <div className="space-y-2">
               <div className="flex justify-between items-center py-1.5 border-b border-gray-200">
-                <span className="text-xs text-gray-600">Human Hourly Rate</span>
-                <span className="text-sm font-medium text-gray-800">${config.humanHourlyCost}</span>
+                <span className="text-[10px] text-gray-600">Human Hourly Rate</span>
+                <span className="text-[11px] font-medium text-gray-800">${config.humanHourlyCost}</span>
               </div>
               <div className="flex justify-between items-center py-1.5 border-b border-gray-200">
-                <span className="text-xs text-gray-600">AI Hourly Rate</span>
-                <span className="text-sm font-medium text-gray-800">${config.aiHourlyCost}</span>
+                <span className="text-[10px] text-gray-600">AI Hourly Rate</span>
+                <span className="text-[11px] font-medium text-gray-800">${config.aiHourlyCost}</span>
               </div>
               <div className="flex justify-between items-center py-1.5 border-b border-gray-200">
-                <span className="text-xs text-gray-600">Hours Per Week</span>
-                <span className="text-sm font-medium text-gray-800">{config.hoursPerWeek}</span>
+                <span className="text-[10px] text-gray-600">Hours Per Week</span>
+                <span className="text-[11px] font-medium text-gray-800">{config.hoursPerWeek}</span>
               </div>
               <div className="flex justify-between items-center py-1.5">
-                <span className="text-xs text-gray-600">Weeks Per Year</span>
-                <span className="text-sm font-medium text-gray-800">{config.weeksPerYear}</span>
+                <span className="text-[10px] text-gray-600">Weeks Per Year</span>
+                <span className="text-[11px] font-medium text-gray-800">{config.weeksPerYear}</span>
               </div>
             </div>
           </div>
           
-          <div className="mt-3 pt-2 text-xs text-gray-500">
+          <div className="mt-3 pt-2 text-[10px] text-gray-500">
             Analysis based on current market rates and industry standards for AI replacement costs.
           </div>
         </div>

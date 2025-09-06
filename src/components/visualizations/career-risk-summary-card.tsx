@@ -97,7 +97,7 @@ export function CareerRiskSummaryCard({
   }`;
 
   return (
-    <div className={`bg-white p-4 animate-fade-in ${className}`}>
+    <div className={`bg-white p-4 animate-fade-in overflow-hidden ${className}`}>
       <div className="mb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -110,21 +110,21 @@ export function CareerRiskSummaryCard({
         </div>
       </div>
 
-      <div className="space-y-4">
-        {/* Donut/Ring showing overall career risk index */}
-        <div className="bg-gray-50 p-3 rounded-md">
-          <div className="flex items-center gap-1.5 mb-2">
+      <div className="space-y-5">
+        {/* Overall career risk gauge */}
+        <div className="bg-gray-50 p-4 rounded-md">
+          <div className="flex items-center gap-1.5 mb-3">
             <PieChart className="h-4 w-4 text-gray-700" />
-            <h4 className="text-base font-medium text-gray-800">Overall Career Risk</h4>
+            <h4 className="text-sm font-medium text-gray-800">Overall Career Risk</h4>
           </div>
-          <div className="flex justify-center mb-3">
+          <div className="flex justify-center mb-4">
             <ExposureGauge 
               value={careerRiskIndex} 
-              size={150}
+              size={180}
               ariaLabel={`Overall career risk gauge showing ${careerRiskIndex}% (${severityLabel})`}
             />
           </div>
-          <p className="text-xs text-gray-600 text-center">
+          <p className="text-[10px] text-gray-600 text-center">
             This score represents your aggregated career risk based on occupation trends and task automation potential.
             {severityLabel === 'High' ? ' Your profile shows significant exposure to automation.' : 
              severityLabel === 'Moderate' ? ' Your profile shows moderate exposure to automation.' : 
@@ -134,12 +134,12 @@ export function CareerRiskSummaryCard({
 
         {/* KPI tiles for bucketized exposure distribution - now vertical and more compact */}
         <div className="flex flex-col space-y-2">
-          <h4 className="text-base font-medium text-gray-800">Task Exposure Breakdown</h4>
+          <h4 className="text-sm font-medium text-gray-800">Task Exposure Breakdown</h4>
           <div className="bg-green-50 p-2.5 rounded-md">
             <div className="flex justify-between items-center">
               <div>
-                <h5 className="text-sm font-medium text-green-800">Low Exposure</h5>
-                <p className="text-xs text-gray-600">{buckets.low} tasks</p>
+                <h5 className="text-[11px] font-medium text-green-800">Low Exposure</h5>
+                <p className="text-[10px] text-gray-600">{buckets.low} tasks</p>
               </div>
               <span className="text-lg font-bold text-green-700">{buckets.percents.low}%</span>
             </div>
@@ -147,8 +147,8 @@ export function CareerRiskSummaryCard({
           <div className="bg-amber-50 p-2.5 rounded-md">
             <div className="flex justify-between items-center">
               <div>
-                <h5 className="text-sm font-medium text-amber-800">Moderate Exposure</h5>
-                <p className="text-xs text-gray-600">{buckets.moderate} tasks</p>
+                <h5 className="text-[11px] font-medium text-amber-800">Moderate Exposure</h5>
+                <p className="text-[10px] text-gray-600">{buckets.moderate} tasks</p>
               </div>
               <span className="text-lg font-bold text-amber-700">{buckets.percents.moderate}%</span>
             </div>
@@ -156,8 +156,8 @@ export function CareerRiskSummaryCard({
           <div className="bg-red-50 p-2.5 rounded-md">
             <div className="flex justify-between items-center">
               <div>
-                <h5 className="text-sm font-medium text-red-800">High Exposure</h5>
-                <p className="text-xs text-gray-600">{buckets.high} tasks</p>
+                <h5 className="text-[11px] font-medium text-red-800">High Exposure</h5>
+                <p className="text-[10px] text-gray-600">{buckets.high} tasks</p>
               </div>
               <span className="text-lg font-bold text-red-700">{buckets.percents.high}%</span>
             </div>
@@ -168,11 +168,11 @@ export function CareerRiskSummaryCard({
         <div className="bg-gray-50 p-3 rounded-md" role="region" aria-labelledby={contextHeadingId}>
           <div className="flex items-center gap-1.5 mb-2">
             <Info className="h-4 w-4 text-gray-700" />
-            <h4 id={contextHeadingId} className="text-base font-medium text-gray-800">Understanding Your Risk Profile</h4>
+            <h4 id={contextHeadingId} className="text-sm font-medium text-gray-800">Understanding Your Risk Profile</h4>
           </div>
           
           <div className="space-y-2">
-            <p className="text-xs text-gray-700">
+            <p className="text-[10px] text-gray-700">
               Your career risk assessment is based on two key factors: the overall risk to your occupation 
               and the specific tasks you perform. Tasks with higher automation exposure contribute more to your risk profile.
             </p>
@@ -181,14 +181,14 @@ export function CareerRiskSummaryCard({
               <div className="mt-2">
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <TrendingUp className="h-3.5 w-3.5 text-gray-700" />
-                  <h5 className="text-sm font-medium text-gray-800">Key Risk Factors</h5>
+                  <h5 className="text-[11px] font-medium text-gray-800">Key Risk Factors</h5>
                 </div>
                 <ul role="list" className="list-disc pl-4 space-y-1">
                   {drivers.map((d, i) => (
-                    <li key={i} role="listitem" className="text-xs text-gray-700">{d}</li>
+                    <li key={i} role="listitem" className="text-[10px] text-gray-700">{d}</li>
                   ))}
                 </ul>
-                <p className="mt-2 text-xs text-gray-600">Consider developing skills that complement these areas or exploring adjacent career paths less affected by automation.</p>
+                <p className="mt-2 text-[10px] text-gray-600">Consider developing skills that complement these areas or exploring adjacent career paths less affected by automation.</p>
               </div>
             )}
 
@@ -196,7 +196,7 @@ export function CareerRiskSummaryCard({
               <div className="mt-2">
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <ExternalLink className="h-3.5 w-3.5 text-gray-700" />
-                  <h5 className="text-sm font-medium text-gray-800">Research Sources</h5>
+                  <h5 className="text-[11px] font-medium text-gray-800">Research Sources</h5>
                 </div>
                 <div className="flex flex-col space-y-1.5" role="list">
                   {insights.sources.slice(0, 2).map((s, idx) => (
@@ -207,12 +207,12 @@ export function CareerRiskSummaryCard({
                           href={s.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs text-blue-600 hover:underline focus:outline-none focus:ring-1 focus:ring-blue-500 rounded"
+                          className="text-[10px] text-blue-600 hover:underline focus:outline-none focus:ring-1 focus:ring-blue-500 rounded"
                         >
                           {s.title}
                         </a>
                       ) : (
-                        <span className="text-xs text-gray-700">{s.title}</span>
+                        <span className="text-[10px] text-gray-700">{s.title}</span>
                       )}
                     </div>
                   ))}
@@ -225,7 +225,7 @@ export function CareerRiskSummaryCard({
         </div>
       </div>
 
-      <div className="mt-3 pt-2 text-xs text-gray-500">
+      <div className="mt-3 pt-2 text-[10px] text-gray-500">
         Analysis methodology: Tasks are categorized as Low (≤{thresholds.lowMax}%), Moderate, or High (≥{thresholds.highMin}%) exposure based on automation potential.
       </div>
     </div>

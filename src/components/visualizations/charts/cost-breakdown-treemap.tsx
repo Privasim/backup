@@ -17,7 +17,7 @@ export const CostBreakdownTreemap: React.FC<CostBreakdownTreemapProps> = ({
   humanCosts,
   aiCosts,
   width = '100%',
-  height = 550, // Further increased for better visibility
+  height = 715, // Increased by 30% for better visibility
   className = ''
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -49,8 +49,8 @@ export const CostBreakdownTreemap: React.FC<CostBreakdownTreemapProps> = ({
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove(); // Clear previous rendering
     
-    // Chart dimensions with adjusted margins to maximize chart area and increase chart size by 20%
-    const margin = { top: 15, right: 10, bottom: 10, left: 10 };
+    // Chart dimensions with proper margins for legend space
+    const margin = { top: 40, right: 140, bottom: 20, left: 20 };
     const width = dimensions.width - margin.left - margin.right;
     const height = dimensions.height - margin.top - margin.bottom;
     
@@ -204,65 +204,67 @@ export const CostBreakdownTreemap: React.FC<CostBreakdownTreemapProps> = ({
         }
       });
     
-    // Add title with improved styling and updated terminology
+    // Add title with proper positioning
     svg.append('text')
       .attr('x', margin.left)
-      .attr('y', 15)
-      .attr('font-size', '16px')
-      .attr('font-weight', 'bold')
-      .text('Job Replacement Cost Analysis');
+      .attr('y', 25)
+      .attr('font-size', '14px')
+      .attr('font-weight', '600')
+      .attr('fill', '#374151')
+      .text('Cost Analysis Breakdown');
     
-    // Create a combined legend group for more compact display in upper right corner
+    // Create legend positioned within the margin area
     const combinedLegend = svg
       .append('g')
       .attr('class', 'combined-legend')
-      .attr('transform', `translate(${dimensions.width - 120}, 5)`);
+      .attr('transform', `translate(${margin.left + width + 10}, ${margin.top + 10})`);
     
-    // Add combined legend background with improved styling
+    // Add legend background with proper sizing
     combinedLegend.append('rect')
-      .attr('x', -6)
+      .attr('x', -5)
       .attr('y', -5)
-      .attr('width', 115)
-      .attr('height', 80)
+      .attr('width', 120)
+      .attr('height', 90)
       .attr('rx', 4)
       .attr('fill', 'rgba(255, 255, 255, 0.95)')
       .attr('stroke', '#d1d5db')
       .attr('stroke-width', 1);
     
-    // First row: Human Labor with updated colors
+    // Legend items with proper spacing
     combinedLegend.append('rect')
-      .attr('width', 8)
-      .attr('height', 8)
+      .attr('x', 5)
+      .attr('y', 5)
+      .attr('width', 10)
+      .attr('height', 10)
       .attr('fill', jobReplacementColors.humanLabor);
     
     combinedLegend.append('text')
-      .attr('x', 14)
-      .attr('y', 7)
-      .attr('font-size', '10px')
-      .attr('font-weight', '600')
+      .attr('x', 20)
+      .attr('y', 13)
+      .attr('font-size', '11px')
+      .attr('font-weight', '500')
       .text('Human Labor');
     
-    // Second row: AI Replacement with updated colors
     combinedLegend.append('rect')
-      .attr('width', 8)
-      .attr('height', 8)
-      .attr('y', 16)
+      .attr('x', 5)
+      .attr('y', 25)
+      .attr('width', 10)
+      .attr('height', 10)
       .attr('fill', jobReplacementColors.aiReplacement);
     
     combinedLegend.append('text')
-      .attr('x', 14)
-      .attr('y', 23)
-      .attr('font-size', '10px')
-      .attr('font-weight', '600')
+      .attr('x', 20)
+      .attr('y', 33)
+      .attr('font-size', '11px')
+      .attr('font-weight', '500')
       .text('AI Replacement');
     
-    // Third row: Job Replacement Risk label (changed terminology)
     combinedLegend.append('text')
-      .attr('x', 0)
-      .attr('y', 38)
-      .attr('font-size', '10px')
-      .attr('font-weight', '600')
-      .text('Job Replacement Risk');
+      .attr('x', 5)
+      .attr('y', 50)
+      .attr('font-size', '11px')
+      .attr('font-weight', '500')
+      .text('Automation Risk');
     
     // Create risk gradient with unique ID to prevent conflicts
     const gradientId = `risk-gradient-${Math.random().toString(36).substring(2, 9)}`;
@@ -282,38 +284,41 @@ export const CostBreakdownTreemap: React.FC<CostBreakdownTreemapProps> = ({
       .attr('offset', '100%')
       .attr('stop-color', colorScale(1));
     
-    // Risk gradient bar with updated positioning
+    // Risk gradient bar with proper positioning
     combinedLegend.append('rect')
-      .attr('y', 45)
-      .attr('width', 90)
-      .attr('height', 6)
+      .attr('x', 5)
+      .attr('y', 55)
+      .attr('width', 100)
+      .attr('height', 8)
       .attr('rx', 2)
       .attr('fill', `url(#${gradientId})`);
     
-    // Risk labels with updated positioning
+    // Risk labels with proper positioning
     combinedLegend.append('text')
-      .attr('x', 0)
-      .attr('y', 60)
+      .attr('x', 5)
+      .attr('y', 75)
       .attr('font-size', '9px')
-      .attr('font-weight', '600')
+      .attr('font-weight', '500')
       .text('Low');
     
     combinedLegend.append('text')
-      .attr('x', 75)
-      .attr('y', 60)
+      .attr('x', 85)
+      .attr('y', 75)
       .attr('font-size', '9px')
-      .attr('font-weight', '600')
+      .attr('font-weight', '500')
       .text('High');
     
   }, [treemapData, dimensions]);
 
   return (
-    <div className={`relative ${className}`} style={{ width, height }}>
+    <div className={`relative w-full ${className}`} style={{ width, height }}>
       <svg 
         ref={svgRef}
         width="100%"
         height="100%"
-        className="overflow-visible"
+        className="overflow-hidden"
+        viewBox={dimensions.width > 0 ? `0 0 ${dimensions.width} ${dimensions.height}` : "0 0 100 100"}
+        preserveAspectRatio="xMidYMid meet"
       />
       <div 
         ref={tooltipRef}
