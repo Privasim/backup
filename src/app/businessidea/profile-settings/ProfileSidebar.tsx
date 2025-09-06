@@ -39,7 +39,7 @@ export default function ProfileSidebar() {
       label: "Profile Settings",
       icon: <Cog6ToothIcon className="h-5 w-5" />,
       render: () => (
-        <div className="mt-2">
+        <div className="mt-">
           {/* Pass no-op toggle and static collapsed=false to reuse existing card UI */}
           <ProfileSettingsCard onToggle={() => {}} isCollapsed={false} />
         </div>
@@ -74,26 +74,13 @@ export default function ProfileSidebar() {
 function ProfileSettingsCard({ onToggle, isCollapsed }: { onToggle: () => void; isCollapsed: boolean }) {
   return (
     <section
-      className="rounded-2xl bg-white/90 p-3 shadow-sm ring-1 ring-gray-200 backdrop-blur"
+      className="rounded-2xl bg-white/90 p-3 shadow-sm backdrop-blur"
       aria-labelledby="profile-settings-heading"
     >
       {/* Header */}
-      <div className="flex items-center gap-3 px-1">
-        <button 
-          onClick={onToggle}
-          className="ml-auto rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-500"
-          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-          </svg>
-        </button>
-      </div>
-
-
 
       {/* CTA */}
-      <div className="mt-3 px-1">
+      <div className="mt-0 px-0">
         <Link
           href="/businessidea/profile-settings"
           className="inline-flex items-center justify-center w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
