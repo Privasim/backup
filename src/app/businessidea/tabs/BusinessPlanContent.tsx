@@ -86,14 +86,15 @@ export default function BusinessPlanContent() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+      {/* Main card */}
+      <div className="rounded-2xl bg-white/90 p-3 shadow-sm backdrop-blur border border-gray-200">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center">
-            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
-              <span className="text-base">📋</span>
+            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center mr-3">
+              <span className="text-white text-lg">📋</span>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Business Plan</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Business Plan</h2>
               <p className="text-xs text-gray-600">
                 {hasSuggestions 
                   ? 'AI-generated business suggestions based on your profile'
@@ -103,9 +104,9 @@ export default function BusinessPlanContent() {
             </div>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             {hasSuggestions && (
-              <div className="flex items-center space-x-2 text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
+              <div className="flex items-center gap-1 text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
                 <SparklesIcon className="h-3 w-3" />
                 <span>AI Generated</span>
               </div>
@@ -114,7 +115,7 @@ export default function BusinessPlanContent() {
             {/* Settings Button */}
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
               title="Business Plan Settings"
             >
               <CogIcon className="h-5 w-5" />
@@ -131,7 +132,7 @@ export default function BusinessPlanContent() {
           />
         </div>
         
-        <div className="flex flex-col gap-4 h-[calc(100vh-240px)] overflow-y-auto">
+        <div className="flex flex-col gap-3 h-[calc(100vh-240px)] overflow-y-auto">
           {isLoading && (
             <div className="space-y-4">
               <LoadingSkeleton />

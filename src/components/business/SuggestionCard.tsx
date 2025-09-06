@@ -43,11 +43,11 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
   };
 
   return (
-    <div className={`bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col w-full ${className}`}>
+    <div className={`rounded-2xl bg-white/90 p-3 shadow-sm backdrop-blur border border-gray-200 hover:shadow-md transition-shadow flex flex-col w-full ${className}`}>
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
-          <h3 className="font-semibold text-lg text-gray-900 mb-1">
+          <h3 className="font-semibold text-gray-900 mb-1">
             {suggestion.title}
           </h3>
           <span className="inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
@@ -63,12 +63,12 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
       </div>
 
       {/* Description */}
-      <p className="text-gray-600 text-sm mb-4 flex-grow">
+      <p className="text-gray-600 text-sm mb-3 flex-grow">
         {suggestion.description}
       </p>
 
       {/* Key Features */}
-      <div className="mb-4">
+      <div className="mb-3">
         <h4 className="text-sm font-medium text-gray-900 mb-2">Key Features</h4>
         <div className="space-y-1">
           {suggestion.keyFeatures.slice(0, 3).map((feature, index) => (
@@ -81,7 +81,7 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
       </div>
 
       {/* Details Grid */}
-      <div className="grid grid-cols-1 gap-3 mb-4">
+      <div className="grid grid-cols-1 gap-2 mb-3">
         <div className="flex items-center space-x-2 text-sm">
           <UserGroupIcon className="h-4 w-4 text-gray-400" />
           <span className="text-gray-600">Target: {suggestion.targetMarket}</span>
@@ -101,7 +101,7 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
       </div>
 
       {/* Footer */}
-      <div className="mt-auto pt-4 border-t border-gray-100">
+      <div className="mt-auto pt-3 border-t border-gray-200">
         <div className="flex items-center justify-between">
           <span className={`text-xs font-medium px-2 py-1 rounded-full ${getViabilityColor(suggestion.viabilityScore)}`}>
             {getViabilityLabel(suggestion.viabilityScore)}
@@ -112,6 +112,37 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
               Market: {suggestion.metadata.marketSize}
             </span>
           )}
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="mt-3 flex flex-col gap-2">
+        <div className="flex gap-2">
+          <button
+            type="button"
+            aria-label="Create Implementation Plan"
+            onClick={() => {
+              try { sessionStorage.setItem('imageEditorPrompt', suggestion.description || ''); } catch {}
+              setActiveTab('image-editor');
+              onCreatePlan?.(suggestion, undefined, settings.visualizationType);
+            }}
+            className="flex-1 inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            <ClipboardDocumentCheckIcon className="h-4 w-4 mr-2" />
+            Create Implementation Plan
+          </button>
+          <button
+            type="button"
+            aria-label="Visualization Settings"
+            onClick={() => setShowSettings(!showSettings)}
+            className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-sm font-medium ${
+              showSettings 
+                ? 'border-blue-300 bg-blue-50 text-blue-700' 
+                : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <CogIcon className="h-4 w-4" />
+          </button>
         </div>
       </div>
 
@@ -141,51 +172,6 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
           </div>
         </div>
       )}
-
-      {/* Actions */}
-      <div className="mt-4 flex flex-col space-y-2">
-        <div className="flex space-x-2">
-          <button
-            type="button"
-            aria-label="Create Implementation Plan"
-            onClick={() => {
-              // Prefill Image Editor prompt with suggestion description and switch tab
-              try { sessionStorage.setItem('imageEditorPrompt', suggestion.description || ''); } catch {}
-              console.log('SuggestionCard: Switching to image-editor tab and creating plan for:', suggestion.title);
-              setActiveTab('image-editor');
-              // Pass visualization type from settings
-              onCreatePlan?.(suggestion, undefined, settings.visualizationType);
-            }}
-            className="flex-1 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 px-3 py-2 text-sm font-medium hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300 transition-all"
-          >
-            <ClipboardDocumentCheckIcon className="h-4 w-4 mr-2" />
-            Create Implementation Plan
-          </button>
-          <button
-            type="button"
-            aria-label="Visualization Settings"
-            onClick={() => setShowSettings(!showSettings)}
-            className={`inline-flex items-center justify-center rounded-lg border px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 transition-all ${
-              showSettings 
-                ? 'border-blue-300 bg-blue-50 text-blue-700 focus:ring-blue-300' 
-                : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 focus:ring-slate-300'
-            }`}
-          >
-            <CogIcon className="h-4 w-4" />
-          </button>
-        </div>
-        {/*
-        <button
-          type="button"
-          aria-label="Visualize App"
-          onClick={() => setActiveTab('mobile')}
-          className="w-full inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-indigo-500 to-blue-600 text-white px-3 py-2 text-sm font-medium hover:from-indigo-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-all"
-        >
-          <DevicePhoneMobileIcon className="h-4 w-4 mr-2" />
-          Visualize App
-        </button>
-        */}
-      </div>
     </div>
   );
 };
