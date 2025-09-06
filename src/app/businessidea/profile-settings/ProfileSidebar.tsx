@@ -79,12 +79,6 @@ function ProfileSettingsCard({ onToggle, isCollapsed }: { onToggle: () => void; 
     >
       {/* Header */}
       <div className="flex items-center gap-3 px-1">
-        <div className="relative h-10 w-10 overflow-hidden rounded-xl ring-1 ring-gray-200">
-          <Image src="/next.svg" alt="App" fill className="object-contain p-2" />
-        </div>
-        <h2 id="profile-settings-heading" className="text-sm font-semibold text-gray-900">
-          Profile Settings
-        </h2>
         <button 
           onClick={onToggle}
           className="ml-auto rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-500"

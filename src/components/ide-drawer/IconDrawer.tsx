@@ -62,7 +62,17 @@ export default function IconDrawer({
   const collapsed = persist.collapsed;
 
   function setActive(id: string) {
-    setPersist((s) => ({ ...s, activeId: id }));
+    setPersist(s => {
+      if (s.activeId === id) {
+        // Toggle collapsed state when clicking active icon
+        return { ...s, collapsed: !s.collapsed };
+      }
+      // Different icon: set active and expand
+      return { 
+        activeId: id, 
+        collapsed: false
+      };
+    });
   }
 
   function toggleCollapsed() {
@@ -110,23 +120,7 @@ export default function IconDrawer({
           );
         })}
 
-        {/* Spacer and collapse control at bottom */}
         <div className="flex-1" />
-        <button
-          type="button"
-          onClick={toggleCollapsed}
-          className="mb-1 flex h-10 w-10 items-center justify-center rounded-lg text-primary hover:bg-gray-100 focus-ring"
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          title={collapsed ? "Expand" : "Collapse"}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
-            {collapsed ? (
-              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-            ) : (
-              <path fillRule="evenodd" d="M12.707 14.707a1 1 0 01-1.414 0L5.293 10l6.293-6.293a1 1 0 011.414 1.414L8.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-            )}
-          </svg>
-        </button>
       </nav>
 
       {/* Sidebar Content */}
@@ -137,20 +131,8 @@ export default function IconDrawer({
       >
         {/* Sticky header */}
         <div className="sticky top-0 z-10 border-b border-default bg-white/90 backdrop-blur-sm">
-          <div className="flex h-11 items-center gap-2 px-3">
+          <div className="flex h-11 items-center px-3">
             <div className="text-sm font-semibold text-primary">{active?.label}</div>
-            <div className="ml-auto">
-              <button
-                type="button"
-                onClick={toggleCollapsed}
-                className="rounded-md p-1 text-secondary hover:bg-gray-100 focus-ring"
-                aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
-                  <path fillRule="evenodd" d="M12.707 14.707a1 1 0 01-1.414 0L5.293 10l6.293-6.293a1 1 0 011.414 1.414L8.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                </svg>
-              </button>
-            </div>
           </div>
         </div>
 
