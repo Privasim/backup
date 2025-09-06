@@ -81,14 +81,14 @@ export default function IconDrawer({
 
   return (
     <div className={[
-      "flex h-full min-h-[200px]",
+      "flex h-full",
       className || "",
     ].join(" ")}
       aria-label="IDE-style drawer"
     >
       {/* Activity Bar */}
       <nav
-        className="flex shrink-0 flex-col items-center justify-start gap-1 border-r border-default bg-surface py-2"
+        className="flex shrink-0 flex-col items-center justify-start gap-1 border-r border-default bg-surface py-2 h-full"
         style={{ width: activityBarWidthPx }}
         aria-label="Activity Bar"
       >
@@ -137,7 +137,7 @@ export default function IconDrawer({
         </div>
 
         {/* Content area */}
-        <div className="h-full overflow-y-auto p-3">
+        <div className="h-[calc(100%-44px)] overflow-y-auto p-3">
           <div className="space-y-3">
             {active?.render()}
           </div>

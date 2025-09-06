@@ -61,13 +61,15 @@ export default function ProfileSidebar() {
   ];
 
   return (
-    <IconDrawer
-      views={views}
-      storageKey="profile-sidebar"
-      widthPx={264}
-      activityBarWidthPx={52}
-      className="bg-surface"
-    />
+    <div className="h-full">
+      <IconDrawer
+        views={views}
+        storageKey="profile-sidebar"
+        widthPx={211}
+        activityBarWidthPx={42}
+        className="bg-surface h-screen"
+      />
+    </div>
   );
 }
 
