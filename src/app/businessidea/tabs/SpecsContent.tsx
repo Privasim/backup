@@ -129,44 +129,25 @@ export function SpecsContent() {
           <p className="mt-1 text-sm text-secondary">
             Generate specs from your source. Ready for: Lovable.dev, Bolt.new, Google AI Studio, Cursor, VS Code, Windsurf, or engineering teams.
           </p>
-          <div className="mt-2 flex items-center gap-2">
-            <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
-              <button
-                type="button"
-                onClick={() => setSource('plan')}
-                className={[
-                  'px-3 py-1.5 text-xs font-medium rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500',
-                  source === 'plan' ? 'bg-indigo-600 text-white' : 'hover:bg-gray-50 text-gray-700'
-                ].join(' ')}
-                aria-pressed={source === 'plan'}
-                aria-label="Use Implementation Plan as source"
-              >
-                Plan
-              </button>
-              <button
-                type="button"
-                onClick={() => setSource('suggestion')}
-                className={[
-                  'px-3 py-1.5 text-xs font-medium rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500',
-                  source === 'suggestion' ? 'bg-indigo-600 text-white' : 'hover:bg-gray-50 text-gray-700'
-                ].join(' ')}
-                aria-pressed={source === 'suggestion'}
-                aria-label="Use Business Suggestion as source"
-              >
-                Suggestion
-              </button>
-            </div>
-            <span className="text-xs text-secondary">Generating from: {source === 'plan' ? 'Implementation Plan' : 'Business Suggestion'}</span>
-          </div>
         </div>
-        <button
-          type="button"
-          onClick={() => setIsSettingsOpen(true)}
-          className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-gray-100 text-primary focus-ring transition"
-          aria-label="Specification settings"
-        >
-          <Cog6ToothIcon className="h-5 w-5" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 inline-flex items-center"
+            onClick={handleGenerate}
+            aria-label="Generate specification"
+          >
+            Generate Specification
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsSettingsOpen(true)}
+            className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-gray-100 text-primary focus-ring transition"
+            aria-label="Specification settings"
+          >
+            <Cog6ToothIcon className="h-5 w-5" />
+          </button>
+        </div>
       </div>
       
       {/* Settings Dialog */}
