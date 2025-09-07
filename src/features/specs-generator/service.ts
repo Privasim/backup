@@ -191,8 +191,8 @@ export function buildSuggestionPrompt(
   // Build features list
   const featuresList = features.length > 0 ? features.map(f => `- ${String(f)}`).join('\n') : '- (none provided)';
 
-  // Compose the prompt
-  return `Generate a technical specification document in Markdown format based on the following business suggestion context:
+  // Compose the prompt enforcing a sample-like structure
+  return `Generate a technical specification document in Markdown format based on the following business suggestion context.
 
 <SUGGESTION_DESCRIPTION>
 ${description}
@@ -202,16 +202,39 @@ ${description}
 ${featuresList}
 </KEY_FEATURES>
 
-Instructions:
-1. Provide a comprehensive technical specification based on the suggestion context above
-2. ${sectionInstructions}
-3. ${outlineStyleInstruction}
-4. ${audienceInstruction}
-5. ${toneInstruction}
-6. ${languageInstruction}
-7. ${tokenBudgetInstruction}
+Global rules:
+- Use numbered headings (1., 1.1, 1.2, etc.).
+- Write for software engineers; avoid marketing language.
+- Be specific, implementation-oriented, and consistent with modern web architectures.
+- Use clean Markdown only (no HTML), with proper heading hierarchy and bullet lists.
 
-Technical Specification (in Markdown format):`;
+Required sections (match order and structure similar to our internal sample):
+1. Introduction
+   1.1 Project Overview
+   1.2 Goals and Objectives
+   1.3 Scope
+       - In-Scope
+       - Out-of-Scope
+2. System Architecture
+   2.1 High-Level Architecture
+   2.2 Technology Stack
+3. Product Features & Requirements
+   3.1 User Stories
+   3.2 Functional Requirements (assign IDs, e.g., REQ-XXX-001)
+   3.3 Non-Functional Requirements
+4. Database Schema (collections/entities with fields; brief)
+5. API Endpoints (REST table with Method | Endpoint | Description)
+6. Milestones (phases and high-level tasks)
+
+Additional constraints:
+- ${sectionInstructions}
+- ${outlineStyleInstruction}
+- ${audienceInstruction}
+- ${toneInstruction}
+- ${languageInstruction}
+- ${tokenBudgetInstruction}
+
+Technical Specification (Markdown):`;
 }
 
 /**
@@ -327,7 +350,7 @@ export async function generateSpecs(
     const content = data.choices?.[0]?.message?.content || '';
     
     return {
-      markdown: content + '\n\nContact: [Your Name]\nEmail: [your@email.com]\nPhone: [123-456-7890]',
+      markdown: content,
       meta: {
         createdAt: new Date().toISOString(),
         tokenBudget: req.settings.tokenBudget,

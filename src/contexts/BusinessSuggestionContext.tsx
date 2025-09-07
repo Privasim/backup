@@ -20,6 +20,8 @@ interface BusinessSuggestionContextType {
   generateSuggestions: () => Promise<BusinessSuggestion[]>;
   suggestions: BusinessSuggestion[];
   error?: string;
+  activeSuggestion?: BusinessSuggestion;
+  setActiveSuggestion: (s?: BusinessSuggestion) => void;
 }
 
 const BusinessSuggestionContext = createContext<BusinessSuggestionContextType | undefined>(undefined);
@@ -42,6 +44,7 @@ export function BusinessSuggestionProvider({ children }: BusinessSuggestionProvi
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [suggestions, setSuggestions] = useState<BusinessSuggestion[]>([]);
   const [error, setError] = useState<string | undefined>(undefined);
+  const [activeSuggestion, setActiveSuggestion] = useState<BusinessSuggestion | undefined>(undefined);
   
   // Get chatbox context at the top level
   const chatboxContext = useChatbox();
@@ -130,7 +133,9 @@ export function BusinessSuggestionProvider({ children }: BusinessSuggestionProvi
     isGenerating,
     generateSuggestions,
     suggestions,
-    error
+    error,
+    activeSuggestion,
+    setActiveSuggestion
   };
 
   return (

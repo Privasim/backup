@@ -6,6 +6,8 @@ import { useSpecsDerivations } from '../../../features/specs-generator/hooks/use
 import { SpecsContentView } from '../../../features/specs-generator/components/SpecsContentView';
 import { SpecsSettingsDialog } from '../../../features/specs-generator/components/SpecsSettingsDialog';
 import { Cog6ToothIcon } from '@heroicons/react/24/outline';
+import { useBusinessSuggestion } from '../../../contexts/BusinessSuggestionContext';
+import { useEffect } from 'react';
 
 export function SpecsContent() {
   const { state, settings, actions } = useSpecsGenerator();
@@ -13,15 +15,32 @@ export function SpecsContent() {
   const { config, createConversation, addMessageToConversation, openConversation } = useChatbox();
   const { outlinePreview, warnings, profileInfo } = useSpecsDerivations(settings);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [source, setSource] = useState<'plan' | 'suggestion'>('plan');
+  const [source, setSource] = useState<'plan' | 'suggestion'>('suggestion');
+  const { activeSuggestion, suggestions, setActiveSuggestion } = useBusinessSuggestion();
+
+  // Auto-select first available suggestion when source is 'suggestion' and none is active
+  useEffect(() => {
+    if (source === 'suggestion' && !activeSuggestion && suggestions && suggestions.length > 0) {
+      setActiveSuggestion(suggestions[0]);
+    }
+  }, [source, activeSuggestion, suggestions, setActiveSuggestion]);
   
   // Check for prerequisites
   const errors: string[] = [];
   
-  // Check if implementation plan is available
+  // Check if required source inputs are available
   const planText = plan?.formattedContent || plan?.textContent || '';
-  if (!planText.trim()) {
-    errors.push('No implementation plan found. Please generate an implementation plan first in the List tab.');
+  if (source === 'plan') {
+    if (!planText.trim()) {
+      errors.push('No implementation plan found. Please generate an implementation plan first in the List tab.');
+    }
+  } else if (source === 'suggestion') {
+    const effectiveSuggestion = activeSuggestion ?? (suggestions && suggestions[0]);
+    const hasDesc = !!effectiveSuggestion?.description && effectiveSuggestion.description.trim().length > 0;
+    const hasFeatures = Array.isArray(effectiveSuggestion?.keyFeatures) && effectiveSuggestion!.keyFeatures.length > 0;
+    if (!hasDesc || !hasFeatures) {
+      errors.push('No business suggestion selected. Please pick a suggestion (with description and key features).');
+    }
   }
   
   // Check if chatbox is configured
@@ -35,7 +54,16 @@ export function SpecsContent() {
   
   // Handler functions for actions
   const handleGenerate = () => {
-    actions.generate({ streaming: true, source });
+    const effectiveSuggestion = source === 'suggestion'
+      ? (activeSuggestion ?? (suggestions && suggestions[0]))
+      : undefined;
+    actions.generate({
+      streaming: true,
+      source,
+      suggestion: source === 'suggestion' && effectiveSuggestion
+        ? { description: effectiveSuggestion.description, keyFeatures: effectiveSuggestion.keyFeatures?.slice(0, 3) || [] }
+        : undefined
+    });
   };
   
   const handleCancel = () => {
@@ -43,7 +71,16 @@ export function SpecsContent() {
   };
   
   const handleRegenerate = () => {
-    actions.generate({ streaming: true, source });
+    const effectiveSuggestion = source === 'suggestion'
+      ? (activeSuggestion ?? (suggestions && suggestions[0]))
+      : undefined;
+    actions.generate({
+      streaming: true,
+      source,
+      suggestion: source === 'suggestion' && effectiveSuggestion
+        ? { description: effectiveSuggestion.description, keyFeatures: effectiveSuggestion.keyFeatures?.slice(0, 3) || [] }
+        : undefined
+    });
   };
   
   const handleCopy = () => {
