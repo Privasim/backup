@@ -218,7 +218,7 @@ export function SpecsGeneratorProvider({ children }: SpecsGeneratorProviderProps
   };
   
   // Action to generate specs
-  const generate = async (opts?: { streaming?: boolean; connectToConversation?: boolean }) => {
+  const generate = async (opts?: { streaming?: boolean; connectToConversation?: boolean; source?: 'plan' | 'suggestion'; suggestion?: { description: string; keyFeatures: string[] } }) => {
     // Reset any previous errors
     setState(prev => ({ ...prev, error: undefined }));
     
@@ -239,16 +239,33 @@ export function SpecsGeneratorProvider({ children }: SpecsGeneratorProviderProps
       return;
     }
     
-    // Get plan text from implementation plan
-    // We'll use the formattedContent if available, otherwise textContent
+    // Determine generation source
+    const selectedSource: 'plan' | 'suggestion' = opts?.source === 'suggestion' ? 'suggestion' : 'plan';
+
+    // Gather inputs based on source
+    // For 'plan', require implementation plan text
+    // For 'suggestion', require compact suggestion payload
     const planText = plan?.formattedContent || plan?.textContent || '';
-    
-    if (!planText.trim()) {
-      setState({
-        status: 'error',
-        error: 'No implementation plan found. Please generate an implementation plan first.'
-      });
-      return;
+
+    if (selectedSource === 'plan') {
+      if (!planText.trim()) {
+        setState({
+          status: 'error',
+          error: 'No implementation plan found. Please generate an implementation plan first.'
+        });
+        return;
+      }
+    } else {
+      const sug = opts?.suggestion;
+      const hasDesc = !!sug?.description && sug.description.trim().length > 0;
+      const hasFeatures = Array.isArray(sug?.keyFeatures) && sug!.keyFeatures.length > 0;
+      if (!hasDesc || !hasFeatures) {
+        setState({
+          status: 'error',
+          error: 'No suggestion data available. Please select a business suggestion with description and key features.'
+        });
+        return;
+      }
     }
     
     // Set state to generating/streaming
@@ -270,11 +287,13 @@ export function SpecsGeneratorProvider({ children }: SpecsGeneratorProviderProps
       // Call the generation service
       const result = await generateSpecs(
         {
-          planText,
+          planText: selectedSource === 'plan' ? planText : '',
           settings,
           model: config.model,
           apiKey: config.apiKey,
-          streaming
+          streaming,
+          source: selectedSource,
+          suggestion: opts?.suggestion
         },
         onChunk
       );

@@ -111,6 +111,110 @@ Technical Specification (in Markdown format):`;
 }
 
 /**
+ * Build a prompt for generating technical specifications based on a business suggestion
+ * Uses a compact payload: description + up to top 3 key features
+ */
+export function buildSuggestionPrompt(
+  suggestion: { description: string; keyFeatures: string[] },
+  settings: SpecsSettings
+): string {
+  const description = (suggestion?.description || '').trim();
+  const features = Array.isArray(suggestion?.keyFeatures) ? suggestion.keyFeatures.slice(0, 3) : [];
+
+  // Build section inclusion instructions (reuse logic)
+  const sections: string[] = [];
+  if (settings.include.requirements) sections.push('Requirements');
+  if (settings.include.api) sections.push('API Endpoints');
+  if (settings.include.dataModel) sections.push('Data Model');
+  if (settings.include.nonFunctional) sections.push('Non-Functional Requirements');
+  if (settings.include.security) sections.push('Security Considerations');
+  if (settings.include.risks) sections.push('Risk Mitigation');
+  if (settings.include.acceptance) sections.push('Acceptance Criteria');
+  if (settings.include.glossary) sections.push('Glossary');
+
+  const sectionInstructions = sections.length > 0
+    ? `Include the following sections in your specification: ${sections.join(', ')}.`
+    : 'Include appropriate sections for a complete technical specification.';
+
+  // Outline style
+  let outlineStyleInstruction = '';
+  switch (settings.outlineStyle) {
+    case 'numbered':
+      outlineStyleInstruction = 'Use numbered headings (e.g., 1., 2., 2.1, 2.2) for the specification structure.';
+      break;
+    case 'bulleted':
+      outlineStyleInstruction = 'Use bulleted headings with markdown headings (e.g., ## Requirements) for the specification structure.';
+      break;
+    case 'headings':
+      outlineStyleInstruction = 'Use markdown headings (e.g., # Requirements) for the specification structure.';
+      break;
+  }
+
+  // Audience & tone
+  let audienceInstruction = '';
+  switch (settings.audienceLevel) {
+    case 'exec':
+      audienceInstruction = 'Target the specification for executive stakeholders with high-level technical understanding.';
+      break;
+    case 'pm':
+      audienceInstruction = 'Target the specification for project managers with moderate technical understanding.';
+      break;
+    case 'engineer':
+      audienceInstruction = 'Target the specification for software engineers with detailed technical understanding.';
+      break;
+  }
+
+  let toneInstruction = '';
+  switch (settings.tone) {
+    case 'concise':
+      toneInstruction = 'Use a concise writing style with minimal elaboration.';
+      break;
+    case 'detailed':
+      toneInstruction = 'Use a detailed writing style with comprehensive explanations.';
+      break;
+    case 'formal':
+      toneInstruction = 'Use a formal writing style appropriate for technical documentation.';
+      break;
+    case 'neutral':
+      toneInstruction = 'Use a neutral, clear writing style suitable for technical documentation.';
+      break;
+  }
+
+  const languageInstruction = settings.language && settings.language !== 'English'
+    ? `Write the specification in ${settings.language}.`
+    : '';
+
+  const tokenBudgetInstruction = settings.tokenBudget
+    ? `Limit the total response to approximately ${settings.tokenBudget} tokens.`
+    : 'Limit the specification to a concise length.';
+
+  // Build features list
+  const featuresList = features.length > 0 ? features.map(f => `- ${String(f)}`).join('\n') : '- (none provided)';
+
+  // Compose the prompt
+  return `Generate a technical specification document in Markdown format based on the following business suggestion context:
+
+<SUGGESTION_DESCRIPTION>
+${description}
+</SUGGESTION_DESCRIPTION>
+
+<KEY_FEATURES>
+${featuresList}
+</KEY_FEATURES>
+
+Instructions:
+1. Provide a comprehensive technical specification based on the suggestion context above
+2. ${sectionInstructions}
+3. ${outlineStyleInstruction}
+4. ${audienceInstruction}
+5. ${toneInstruction}
+6. ${languageInstruction}
+7. ${tokenBudgetInstruction}
+
+Technical Specification (in Markdown format):`;
+}
+
+/**
  * Generate technical specifications using an LLM API
  * @param req Generation request parameters
  * @param onChunk Optional callback for streaming chunks
@@ -130,7 +234,10 @@ export async function generateSpecs(
   }
   
   // Build the prompt
-  const prompt = buildPrompt(req.planText, req.settings);
+  const prompt =
+    req.source === 'suggestion' && req.suggestion
+      ? buildSuggestionPrompt(req.suggestion, req.settings)
+      : buildPrompt(req.planText, req.settings);
   
   // Prepare the API request
   const apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
@@ -210,7 +317,7 @@ export async function generateSpecs(
         meta: {
           createdAt: new Date().toISOString(),
           tokenBudget: req.settings.tokenBudget,
-          source: 'plan'
+          source: (req.source === 'suggestion' && req.suggestion) ? 'suggestion' : 'plan'
         }
       };
     }
@@ -224,7 +331,7 @@ export async function generateSpecs(
       meta: {
         createdAt: new Date().toISOString(),
         tokenBudget: req.settings.tokenBudget,
-        source: 'plan'
+        source: (req.source === 'suggestion' && req.suggestion) ? 'suggestion' : 'plan'
       }
     };
     

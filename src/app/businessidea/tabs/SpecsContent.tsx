@@ -13,6 +13,7 @@ export function SpecsContent() {
   const { config, createConversation, addMessageToConversation, openConversation } = useChatbox();
   const { outlinePreview, warnings, profileInfo } = useSpecsDerivations(settings);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [source, setSource] = useState<'plan' | 'suggestion'>('plan');
   
   // Check for prerequisites
   const errors: string[] = [];
@@ -34,7 +35,7 @@ export function SpecsContent() {
   
   // Handler functions for actions
   const handleGenerate = () => {
-    actions.generate({ streaming: true });
+    actions.generate({ streaming: true, source });
   };
   
   const handleCancel = () => {
@@ -42,7 +43,7 @@ export function SpecsContent() {
   };
   
   const handleRegenerate = () => {
-    actions.generate({ streaming: true });
+    actions.generate({ streaming: true, source });
   };
   
   const handleCopy = () => {
@@ -89,8 +90,37 @@ export function SpecsContent() {
         <div>
           <h1 className="text-sm font-semibold text-primary">Technical Specification Generator</h1>
           <p className="mt-1 text-sm text-secondary">
-            Generate technical specifications from your implementation plan
+            Generate technical specifications from your selected source
           </p>
+          <div className="mt-2 flex items-center gap-2">
+            <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
+              <button
+                type="button"
+                onClick={() => setSource('plan')}
+                className={[
+                  'px-3 py-1.5 text-xs font-medium rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500',
+                  source === 'plan' ? 'bg-indigo-600 text-white' : 'hover:bg-gray-50 text-gray-700'
+                ].join(' ')}
+                aria-pressed={source === 'plan'}
+                aria-label="Use Implementation Plan as source"
+              >
+                Plan
+              </button>
+              <button
+                type="button"
+                onClick={() => setSource('suggestion')}
+                className={[
+                  'px-3 py-1.5 text-xs font-medium rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500',
+                  source === 'suggestion' ? 'bg-indigo-600 text-white' : 'hover:bg-gray-50 text-gray-700'
+                ].join(' ')}
+                aria-pressed={source === 'suggestion'}
+                aria-label="Use Business Suggestion as source"
+              >
+                Suggestion
+              </button>
+            </div>
+            <span className="text-xs text-secondary">Generating from: {source === 'plan' ? 'Implementation Plan' : 'Business Suggestion'}</span>
+          </div>
         </div>
         <button
           type="button"

@@ -28,11 +28,16 @@ export interface SpecsSettings {
 }
 
 export interface SpecsGenerationRequest {
-  planText: string;           // Derived from Implementation Plan context
+  planText: string;           // Derived from Implementation Plan context (optional when source='suggestion')
   settings: SpecsSettings;    // Current settings state
   model: string;              // From Chatbox configuration
   apiKey: string;             // From Chatbox configuration
   streaming?: boolean;        // Default true
+  source?: 'plan' | 'suggestion';
+  suggestion?: {
+    description: string;
+    keyFeatures: string[];
+  };
 }
 
 export interface SpecsGenerationResult {
@@ -40,7 +45,7 @@ export interface SpecsGenerationResult {
   meta: {
     createdAt: string;        // ISO timestamp
     tokenBudget?: number;     // Profile-driven token budget
-    source: 'plan';
+    source: 'plan' | 'suggestion';
     conversationId?: string;  // Filled when posted to Chatbox via user action
   };
 }
@@ -65,7 +70,7 @@ export interface SpecsGeneratorActions {
    * Generate a technical specification based on the implementation plan
    * @param opts - Options for generation (streaming, connect to conversation)
    */
-  generate: (opts?: { streaming?: boolean; connectToConversation?: boolean }) => Promise<void>;
+  generate: (opts?: { streaming?: boolean; connectToConversation?: boolean; source?: 'plan' | 'suggestion'; suggestion?: { description: string; keyFeatures: string[] } }) => Promise<void>;
   
   /**
    * Cancel the current generation (placeholder implementation)
