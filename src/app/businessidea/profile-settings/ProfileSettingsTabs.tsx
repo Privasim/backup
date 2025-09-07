@@ -20,8 +20,8 @@ function LocalTabNav() {
   ];
 
   return (
-    <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm border-b border-gray-100">
-      <div className="flex items-center gap-1 h-10 px-1">
+    <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm border-b border-gray-100 w-full">
+      <div className="flex items-center gap-1 h-10 px-4 w-full">
         {items.map(({ id, label }) => {
           const isActive = activeTab === id;
           return (
@@ -43,7 +43,7 @@ function LocalTabNav() {
   );
 }
 
-function LocalTabContent({ initialStep }: { initialStep?: number }) {
+function LocalTabContent() {
   const { activeTab } = useTab();
 
   useEffect(() => {
@@ -52,14 +52,14 @@ function LocalTabContent({ initialStep }: { initialStep?: number }) {
     }
   }, [activeTab]);
 
-  const tabContainerClass = "max-w-[900px] mx-auto min-h-[200px]";
+  const tabContainerClass = "w-full min-h-[200px]";
   const tabContentClass = "bg-white rounded-xl shadow-sm border border-gray-100 p-3";
 
   if (activeTab === 'userprofile') {
     return (
       <div className={tabContainerClass}>
         <div className={tabContentClass}>
-          <UserProfileTab initialStep={initialStep} />
+          <UserProfileTab />
         </div>
       </div>
     );
@@ -87,14 +87,14 @@ function LocalTabContent({ initialStep }: { initialStep?: number }) {
   );
 }
 
-export default function ProfileSettingsTabs({ initialStep }: { initialStep?: number }) {
+export default function ProfileSettingsTabs() {
   const initialTab = useMemo(() => getProfileSettingsTab() || 'userprofile', []);
 
   return (
     <TabProvider initialTab={initialTab}>
       <div className="space-y-2">
         <LocalTabNav />
-        <LocalTabContent initialStep={initialStep} />
+        <LocalTabContent />
       </div>
     </TabProvider>
   );

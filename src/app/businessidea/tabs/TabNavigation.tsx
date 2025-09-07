@@ -65,9 +65,9 @@ export default function TabNavigation() {
   const [hoveredTab, setHoveredTab] = useState<TabId | null>(null);
 
   return (
-    <div className="sticky top-0 z-1 overflow-x-auto">
-      <div className="max-w-[807px] mx-auto px-1 bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md rounded-lg">
-        <div className="flex items-center h-12 px-0.5 min-w-max">
+    <div className="sticky top-0 z-1 w-full">
+      <div className="w-full bg-white/90 backdrop-blur-sm border-b border-gray-200">
+        <div className="flex items-center h-12 px-4 w-full">
           {Object.entries(TabIcons).filter(([tabId]) => tabId !== 'artifact-studio' && tabId !== 'list').map(([tabId, { outline: Icon, solid: SolidIcon, label }]) => {
             // Type assertion to ensure tabId is a valid TabId
             const typedTabId = tabId as TabId;
