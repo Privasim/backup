@@ -313,7 +313,7 @@ export async function generateSpecs(
       }
       
       return {
-        markdown: accumulatedContent,
+        markdown: accumulatedContent + '\n\nContact: [Your Name]\nEmail: [your@email.com]\nPhone: [123-456-7890]',
         meta: {
           createdAt: new Date().toISOString(),
           tokenBudget: req.settings.tokenBudget,
