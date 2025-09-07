@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import '../../../features/specs-generator/specs-font-reduction.css'; // Import comprehensive font reduction CSS
 import { useSpecsGenerator } from '../../../features/specs-generator/useSpecsGenerator';
 import { useImplementationPlan } from '../../../features/implementation-plan/useImplementationPlan';
 import { useChatbox } from '../../../components/chatbox/ChatboxProvider';
@@ -85,18 +84,18 @@ export function SpecsContent() {
   };
   
   return (
-    <div className="card-base p-4 md:p-6 max-w-4xl mx-auto specs-reduced-font">
-      <div className="mb-6 flex justify-between items-start">
+    <section className="rounded-2xl bg-white/90 p-3 shadow-sm backdrop-blur max-w-4xl mx-auto">
+      <div className="mb-3 flex justify-between items-start">
         <div>
-          <h1 className="text-title text-primary specs-heading">Technical Specification Generator</h1>
-          <p className="mt-1 text-body text-secondary specs-text">
+          <h1 className="text-sm font-semibold text-primary">Technical Specification Generator</h1>
+          <p className="mt-1 text-sm text-secondary">
             Generate technical specifications from your implementation plan
           </p>
         </div>
         <button
           type="button"
           onClick={() => setIsSettingsOpen(true)}
-          className="btn-ghost btn-sm focus-visible"
+          className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-gray-100 text-primary focus-ring transition"
           aria-label="Specification settings"
         >
           <Cog6ToothIcon className="h-5 w-5" />
@@ -122,6 +121,6 @@ export function SpecsContent() {
         onDownload={handleDownload}
         onOpenInChat={handleOpenInChat}
       />
-    </div>
+    </section>
   );
 }
