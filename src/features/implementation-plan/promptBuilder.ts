@@ -103,11 +103,20 @@ function buildSystemPrompt({
 
    • Phase 2 - Marketing (GTM)
      - Timeline MUST be 14-30 days.
-     - Description focuses on: ICP, positioning, messaging, channels, campaign plan, content strategy, experiments, and measurement.
+     - Description MUST include all of the following:
+       - A 2-3 sentence marketing strategy overview.
+       - Marketing Plan (concise bullets): ICP definition, positioning, messaging, channels.
+       - Campaign Strategy (concise bullets): content plan, experiments, measurement approach.
+     - Keep Marketing Plan and Campaign Strategy inside the Description section as bullet points.
 
    • Phase 3 - Feedback and Iteration (Sales & Feedback)
      - Timeline MUST be 30-60 days.
-     - Description focuses on: sales enablement, pipeline setup, feedback collection (surveys/interviews/analytics), and product iteration/improvements.
+     - Description MUST include all of the following:
+       - A 2-3 sentence feedback and iteration approach overview.
+       - Sales Enablement (concise bullets): pipeline setup, tools, training materials.
+       - Feedback Collection (concise bullets): survey methods, interview approach, analytics setup.
+       - Iteration Process (concise bullets): prioritization framework, release cadence, success metrics.
+     - Keep all subsections inside the Description section as bullet points.
 
 5. Data integrity (No mock data):
    • Do NOT fabricate specific data (e.g., prices, counts, names, metrics, testimonials). No mock data.
@@ -136,13 +145,35 @@ Tech Specs:
 Timeline: 14-30 days
 Tools: TBD
 Channels: TBD
-Description: Define ICP, positioning and messaging; outline channels and campaign plan; propose content strategy, experiments, and measurement (no fabricated metrics).
+Description: A concise marketing strategy overview focusing on target audience and key channels.
+Marketing Plan:
+- ICP Definition: TBD
+- Positioning: TBD
+- Messaging: TBD
+- Channels: TBD
+Campaign Strategy:
+- Content Plan: TBD
+- Experiments: TBD
+- Measurement: TBD
+- Timeline: TBD
 
 ## Phase 3 - Feedback and Iteration
 Timeline: 30-60 days
 Tools: TBD
 Channels: TBD
-Description: Set up sales enablement and pipeline; collect feedback via surveys/interviews/analytics; plan product iterations based on validated insights.
+Description: A concise overview of the feedback collection and product iteration approach.
+Sales Enablement:
+- Pipeline Setup: TBD
+- Tools: TBD
+- Training Materials: TBD
+Feedback Collection:
+- Survey Methods: TBD
+- Interview Approach: TBD
+- Analytics Setup: TBD
+Iteration Process:
+- Prioritization Framework: TBD
+- Release Cadence: TBD
+- Success Metrics: TBD
 
 - Do NOT add extra sections before, between, or after the 3 phases unless explicitly requested.
 - Keep names and keys exactly as shown (Phase N - Name, Timeline, Tools, Channels, Description).
@@ -199,9 +230,10 @@ Length Requirements (Brief):
 - Timelines are FIXED per phase and MUST remain: Phase 1 = 7-14 days, Phase 2 = 14-30 days, Phase 3 = 30-60 days.
 - Tools: max 2-3 items total; avoid fabricated specifics; use "TBD" when unknown.
 - Channels: max 1-2; use "N/A" if not applicable.
-- Description:
+- Description structure for ALL phases (maintain this structure even when brief):
   • Phase 1: Minimum 3 sentences for product description + terse PRD and Tech Specs bullets.
-  • Phase 2 & 3: 1–2 concise sentences aligned to scope.
+  • Phase 2: 1-2 sentence overview + terse Marketing Plan and Campaign Strategy bullets.
+  • Phase 3: 1-2 sentence overview + terse Sales Enablement, Feedback Collection, and Iteration Process bullets.
 - Do NOT change the number or order of phases (must remain exactly 3).`;
   }
   
@@ -212,9 +244,10 @@ Length Requirements (Standard):
 - Timelines are FIXED per phase and MUST remain: Phase 1 = 7-14 days, Phase 2 = 14-30 days, Phase 3 = 30-60 days.
 - Tools: 3-4 items; avoid fabricated specifics; use "TBD" when unknown.
 - Channels: 2-3 items; use "N/A" if not applicable.
-- Description:
+- Description structure for ALL phases (maintain this structure consistently):
   • Phase 1: 3–4 sentence product description + concise PRD and Tech Specs bullets.
-  • Phase 2 & 3: 1–3 sentences aligned to scope with concrete actions.
+  • Phase 2: 2-3 sentence marketing overview + concise Marketing Plan and Campaign Strategy bullets.
+  • Phase 3: 2-3 sentence feedback approach + concise Sales Enablement, Feedback Collection, and Iteration Process bullets.
 - Do NOT change the number or order of phases (must remain exactly 3).`;
   }
   
@@ -223,7 +256,10 @@ Length Requirements (Standard):
 Length Requirements (Compact Mode):
 - Favor brevity and clarity across all fields.
 - Tools and Channels should list only the most important items; avoid fabricated specifics.
-- Phase 1 still requires at least 3 sentences for the product description plus terse PRD and Tech Specs bullets.
+- ALL phases require structured content with bullet points:
+  • Phase 1: At least 3 sentences for product description plus terse PRD and Tech Specs bullets.
+  • Phase 2: Brief marketing overview plus terse Marketing Plan and Campaign Strategy bullets.
+  • Phase 3: Brief feedback approach plus terse Sales Enablement, Feedback Collection, and Iteration Process bullets.
 - Do NOT add or remove phases; always exactly 3 in the fixed order and names.`;
   }
   
@@ -231,7 +267,10 @@ Length Requirements (Compact Mode):
 Length Requirements (Comprehensive):
 - Provide clear but sufficiently detailed entries for each field.
 - Timelines are FIXED per phase and MUST remain: Phase 1 = 7-14 days, Phase 2 = 14-30 days, Phase 3 = 30-60 days.
-- Phase 1: 3–4 sentence product description + PRD and Tech Specs bullets (no extra keys).
-- Phase 2 & 3: Add actionable details but avoid fabricated specifics; label assumptions and use "TBD" where needed.
+- ALL phases must follow consistent structure with bullet points:
+  • Phase 1: 3–4 sentence product description + PRD and Tech Specs bullets (no extra keys).
+  • Phase 2: 3-4 sentence marketing overview + Marketing Plan and Campaign Strategy bullets.
+  • Phase 3: 3-4 sentence feedback approach + Sales Enablement, Feedback Collection, and Iteration Process bullets.
+- For all phases: Add actionable details but avoid fabricated specifics; label assumptions and use "TBD" where needed.
 - Keep structure strict; do not add sections beyond the 3 phases; always exactly 3 phases.`;
 }
