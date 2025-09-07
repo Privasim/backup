@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import styles from './markdown-notion.module.css';
 
 export interface MarkdownRendererProps {
   content: string;
@@ -12,8 +13,8 @@ export function MarkdownRenderer({ content, className, ...aria }: MarkdownRender
   return (
     <div
       className={[
-        // Use prose for readable markdown, keep width unconstrained
-        'prose dark:prose-invert max-w-none text-sm',
+        styles.root,
+        'max-w-none text-sm',
         className || '',
       ].join(' ')}
       {...aria}
