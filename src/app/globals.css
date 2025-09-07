@@ -6,27 +6,27 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #111827;
 
-  /* Design tokens: radii */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --radius-2xl: 24px;
+  /* Design tokens: radii - reduced for more modern look */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
 
-  /* Design tokens: shadows */
-  --shadow-soft: 0 1px 2px rgba(0,0,0,0.04), 0 1px 1px rgba(0,0,0,0.03);
-  --shadow-hover: 0 6px 14px rgba(0,0,0,0.10);
+  /* Design tokens: shadows - more subtle */
+  --shadow-soft: 0 1px 2px rgba(0,0,0,0.03), 0 1px 1px rgba(0,0,0,0.02);
+  --shadow-hover: 0 4px 10px rgba(0,0,0,0.08);
 
-  /* Design tokens: spacing */
+  /* Design tokens: spacing - slightly reduced */
   --space-xs: 4px;
-  --space-sm: 8px;
-  --space-md: 12px;
-  --space-lg: 16px;
+  --space-sm: 6px;
+  --space-md: 10px;
+  --space-lg: 14px;
 
   /* Design tokens: focus ring */
-  --ring-color: rgba(59, 130, 246, 0.45); /* blue-500 @ ~45% */
+  --ring-color: rgba(0, 102, 255, 0.4); /* Updated to match new primary color */
 
   /* Category color map (8 deterministic buckets) */
   --cat1-bg: #dbeafe; /* blue-100 */
@@ -75,12 +75,17 @@ body {
   background: var(--color-background);
   color: var(--color-text-primary);
   font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Utilities based on tokens */
 .focus-ring:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px var(--ring-color);
+  transition: box-shadow 0.2s ease;
 }
 
 .radius-xl { border-radius: var(--radius-xl); }
