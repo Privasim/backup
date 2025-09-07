@@ -260,10 +260,6 @@ export function SpecsContentView({
               </button>
             </div>
           </div>
-          
-          <div className="rounded-2xl bg-white/90 p-2 shadow-sm ring-1 ring-gray-200 backdrop-blur">
-            <MarkdownRenderer content={result.markdown} aria-label="Generated specification" />
-          </div>
         </div>
       );
     

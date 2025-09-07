@@ -127,7 +127,7 @@ export function SpecsContent() {
         <div>
           <h1 className="text-sm font-semibold text-primary">Technical Specification Generator</h1>
           <p className="mt-1 text-sm text-secondary">
-            Generate technical specifications from your selected source
+            Generate specs from your source. Ready for: Lovable.dev, Bolt.new, Google AI Studio, Cursor, VS Code, Windsurf, or engineering teams.
           </p>
           <div className="mt-2 flex items-center gap-2">
             <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
