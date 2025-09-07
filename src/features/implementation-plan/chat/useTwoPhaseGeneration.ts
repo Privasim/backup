@@ -6,6 +6,7 @@ import { BusinessSuggestion } from '@/components/chatbox/types';
 import { useChatHistory } from './useChatHistory';
 import { useStreamingMessage } from './useStreamingMessage';
 import { SimpleStreamingProcessor } from './SimpleStreamingProcessor';
+import { ensureThreePhases } from './phaseValidator';
 
 export const useTwoPhaseGeneration = () => {
   const { generatePlanOutline, generateFullPlan } = useChatbox();
@@ -136,10 +137,24 @@ export const useTwoPhaseGeneration = () => {
 
         // Complete streaming
         const finalContent = processor.complete(plan.formattedContent || plan.rawContent);
-        streamingMessage.completeStreaming(streamingId, finalContent);
+        // Validate/repair to ensure all three phases are present
+        const { content: repairedContent, repaired } = ensureThreePhases(finalContent);
+        streamingMessage.completeStreaming(streamingId, repairedContent);
 
-        // Store plan
-        chatHistory.setPlan(plan);
+        // Store plan with repaired content if applied
+        const finalizedPlan = {
+          ...plan,
+          formattedContent: repairedContent,
+          rawContent: plan.rawContent || repairedContent,
+        };
+        chatHistory.setPlan(finalizedPlan);
+
+        if (repaired) {
+          chatHistory.addSystemMessage(
+            'ℹ️ Phase content auto-repaired to ensure all 3 phases are present. Consider regenerating if details look incomplete.'
+          );
+        }
+
         chatHistory.setPhase('completed');
 
         // Add completion message

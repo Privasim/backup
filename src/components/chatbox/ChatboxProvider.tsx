@@ -103,7 +103,8 @@ const defaultConfig: AnalysisConfig = {
   model: '',
   apiKey: '',
   temperature: 0.7,
-  maxTokens: 800
+  // Increase to reduce truncation of the 3rd phase during plan generation
+  maxTokens: 3000
 };
 
 const defaultBusinessSuggestionState = {

@@ -85,8 +85,8 @@ function buildSystemPrompt({
    • Phase 2 - Marketing
    • Phase 3 - Feedback and Iteration
 
-3. For EACH phase, use the exact keys below in this order. Keys MUST appear once per phase on their own lines. The Description content may span multiple lines:
-   • Phase [number] - [Name]
+3. For EACH phase, use the exact structure and markdown formatting below. Keys MUST appear once per phase on their own lines. The Description content may span multiple lines:
+   • The phase title MUST be an H2 heading: "## Phase [number] - [Name]"
    • Timeline: [duration]
    • Tools: [comma-separated list]
    • Channels: [comma-separated list or N/A]
@@ -115,7 +115,7 @@ function buildSystemPrompt({
 
 Example (format template; values are placeholders to show structure only):
 
-Phase 1 - Building
+## Phase 1 - Building
 Timeline: 7-14 days
 Tools: TBD
 Channels: N/A
@@ -132,20 +132,22 @@ Tech Specs:
 - APIs: TBD
 - Infra/deployment: TBD
 
-Phase 2 - Marketing
+## Phase 2 - Marketing
 Timeline: 14-30 days
 Tools: TBD
 Channels: TBD
 Description: Define ICP, positioning and messaging; outline channels and campaign plan; propose content strategy, experiments, and measurement (no fabricated metrics).
 
-Phase 3 - Feedback and Iteration
+## Phase 3 - Feedback and Iteration
 Timeline: 30-60 days
 Tools: TBD
 Channels: TBD
 Description: Set up sales enablement and pipeline; collect feedback via surveys/interviews/analytics; plan product iterations based on validated insights.
 
 - Do NOT add extra sections before, between, or after the 3 phases unless explicitly requested.
-- Keep names and keys exactly as shown (Phase N - Name, Timeline, Tools, Channels, Description).`;
+- Keep names and keys exactly as shown (Phase N - Name, Timeline, Tools, Channels, Description).
+- Remember to use H2 headers for each phase title ("## Phase [number] - [Name]").
+`;
     
     // Add length preset constraints (must not alter phase count or fixed timelines)
     const lengthInstructions = getLengthInstructions(lengthPreset, compactMode, compactMaxPhaseCards);

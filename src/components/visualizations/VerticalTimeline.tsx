@@ -52,8 +52,11 @@ const parsePlanContent = (content: string): TimelineItem[] => {
       continue;
     }
 
-    // Phase headers (## or # followed by text)
-    if (trimmed.match(/^#{1,2}\s+(.+)/)) {
+    // Phase headers: support markdown H1/H2 and plain 'Phase N - Name' lines
+    const mdHeaderMatch = trimmed.match(/^#{1,2}\s+(.+)/);
+    const plainPhaseMatch = trimmed.match(/^Phase\s+([1-3])\s*[-:]\s+(.+)$/i);
+
+    if (mdHeaderMatch) {
       const titleText = trimmed.replace(/^#{1,2}\s+/, '');
       const lower = titleText.toLowerCase();
       if (lower.includes('phase') || lower.includes('stage') || lower.includes('step')) {
@@ -70,6 +73,21 @@ const parsePlanContent = (content: string): TimelineItem[] => {
         items.push(currentPhase);
         continue;
       }
+    } else if (plainPhaseMatch) {
+      const n = plainPhaseMatch[1];
+      const name = plainPhaseMatch[2].trim();
+      const titleText = `Phase ${n}: ${name}`;
+      // Finalize previous phase
+      commitCurrentPhase();
+      currentPhase = {
+        id: `phase-${itemId++}`,
+        title: titleText,
+        content: '',
+        type: 'phase',
+        status: itemId === 1 ? 'current' : 'upcoming',
+      };
+      items.push(currentPhase);
+      continue;
     }
 
     // Accumulate any other lines under the current phase
@@ -230,8 +248,8 @@ const TimelineItemComponent: React.FC<{
                   li: ({ node, ...props }) => <li className="text-[11px] text-slate-700 leading-5" {...props} />,
                   strong: ({ node, ...props }) => <strong className="font-semibold text-slate-900" {...props} />,
                   em: ({ node, ...props }) => <em className="italic text-slate-700" {...props} />,
-                  code: ({ node, inline, className, children, ...props }) => (
-                    <code className="rounded bg-slate-100 px-1 py-0.5 text-[10px]" {...props}>{children}</code>
+                  code: (props) => (
+                    <code className="rounded bg-slate-100 px-1 py-0.5 text-[10px]">{props.children as any}</code>
                   ),
                 }}
               >

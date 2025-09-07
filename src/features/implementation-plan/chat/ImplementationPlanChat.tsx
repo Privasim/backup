@@ -53,10 +53,17 @@ export const ImplementationPlanChat: React.FC<ImplementationPlanChatProps> = ({
   }, [twoPhaseGeneration.plan, onPlanGenerated]);
 
   // Create chat state object
+  // Note: twoPhaseGeneration spreads streaming controls which include an isStreaming(messageId) function.
+  // We need a boolean here per ChatState, so derive from the chat history state flags.
+  const isStreamingBool =
+    typeof (twoPhaseGeneration as any).isStreaming === 'boolean'
+      ? ((twoPhaseGeneration as any).isStreaming as boolean)
+      : (twoPhaseGeneration as any).isGenerating || false;
+
   const chatState = {
     messages: twoPhaseGeneration.messages,
     currentPhase: twoPhaseGeneration.currentPhase,
-    isStreaming: twoPhaseGeneration.isStreaming,
+    isStreaming: isStreamingBool,
     error: twoPhaseGeneration.error,
     outline: twoPhaseGeneration.outline,
     plan: twoPhaseGeneration.plan
