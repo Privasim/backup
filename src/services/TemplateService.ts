@@ -45,6 +45,13 @@ const DEFAULT_TEMPLATES: BusinessTemplate[] = [
     variables: ['skills', 'interests', 'budget'],
     createdAt: new Date().toISOString(),
   },
+  {
+    id: 'lean-mvp',
+    name: 'Lean MVP (7-14 days, <=$200)',
+    prompt: 'Generate exactly 3 simple, actionable business ideas that can be built and launched within 7-14 days using no-code or low-code tools. Avoid complex backend systems and heavy integrations.\n\nUse this profile context:\nSkills: {skills}\nInterests: {interests}\nBudget: {budget}\n\nFor each suggestion, return a JSON object with: id, title, description, category, viabilityScore, keyFeatures, targetMarket, estimatedStartupCost (string), totalCostUsd (number, first-month total <= 200), timelineDays (number within 7-14), and metadata.costBreakdown (array of items with {category: "app-builder|marketing-automation|customer-support|hosting|domain|other", vendor: string, costUsd: number, cadence: "monthly|one-time"}).',
+    variables: ['skills', 'interests', 'budget'],
+    createdAt: new Date().toISOString(),
+  },
 ];
 
 /**

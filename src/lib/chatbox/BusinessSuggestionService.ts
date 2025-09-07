@@ -1,6 +1,7 @@
 'use client';
 
 import { AnalysisConfig, AnalysisResult, BusinessSuggestion } from '@/components/chatbox/types';
+
 import { ProfileFormData } from '@/app/businessidea/types/profile.types';
 import { OpenRouterClient } from '@/lib/openrouter/client';
 import { chatboxDebug } from '@/app/businessidea/utils/logStore';
@@ -46,7 +47,7 @@ export class BusinessSuggestionService {
         messages: [
           {
             role: 'system',
-            content: 'You are a business consultant AI that generates personalized business suggestions based on user profile analysis. Respond with ONLY a single JSON object and nothing else. The object MUST have key "suggestions" as an array with exactly 3 items. Do NOT include prose, markdown, or code fences.'
+            content: 'You are a business consultant AI that generates simple, actionable business suggestions. Respond with ONLY a single JSON object and nothing else. The object MUST have key "suggestions" as an array with exactly 3 items. Each suggestion MUST: (1) have totalCostUsd <= 200, (2) have timelineDays between 7 and 14, and (3) include metadata.costBreakdown with items {category,vendor,costUsd,cadence}. Avoid complex backends; prefer no-code/low-code. Do NOT include prose, markdown, or code fences.'
           },
           {
             role: 'user',
@@ -143,6 +144,8 @@ export class BusinessSuggestionService {
 
         const estCost = (suggestion as any).estimatedStartupCost;
         const metadata = (suggestion as any).metadata;
+        const totalCostUsdRaw = (suggestion as any).totalCostUsd;
+        const timelineDaysRaw = (suggestion as any).timelineDays;
 
         return {
           id: rawId || `suggestion-${Date.now()}-${index}`,
@@ -153,6 +156,8 @@ export class BusinessSuggestionService {
           keyFeatures,
           targetMarket: (suggestion as any).targetMarket || 'General market',
           estimatedStartupCost: typeof estCost === 'string' ? estCost : String(estCost ?? 'Not specified'),
+          totalCostUsd: typeof totalCostUsdRaw === 'number' ? totalCostUsdRaw : undefined,
+          timelineDays: typeof timelineDaysRaw === 'number' ? Math.trunc(timelineDaysRaw) : undefined,
           metadata: typeof metadata === 'object' && metadata !== null ? metadata : {}
         };
       });
@@ -164,7 +169,72 @@ export class BusinessSuggestionService {
         throw err;
       }
 
-      return mapped;
+      // Additional constraint checks and normalization
+      const normalized: BusinessSuggestion[] = mapped.map((s: BusinessSuggestion, idx: number) => {
+        const warnings: string[] = [];
+
+        // Ensure totalCostUsd is present; try to infer from estimatedStartupCost if missing
+        let total = s.totalCostUsd;
+        if (typeof total !== 'number') {
+          const inferred = this.parseUsd(s.estimatedStartupCost);
+          if (isFinite(inferred)) {
+            total = inferred;
+            s.totalCostUsd = inferred;
+            warnings.push('totalCostUsd_inferred_from_estimatedStartupCost');
+          }
+        }
+
+        // If breakdown exists, compute first-month sum and compare
+        const breakdown = (s.metadata as any)?.costBreakdown as Array<{ costUsd?: number; cadence?: string }> | undefined;
+        if (Array.isArray(breakdown) && breakdown.length > 0) {
+          const sum = this.computeFirstMonthTotal(breakdown);
+          if (typeof total === 'number' && Math.abs(sum - total) > 1) {
+            warnings.push('totalCostUsd_mismatch_with_costBreakdown');
+          }
+          // If total absent but we have breakdown, use breakdown sum
+          if (typeof total !== 'number' && isFinite(sum)) {
+            s.totalCostUsd = sum;
+            total = sum;
+            warnings.push('totalCostUsd_inferred_from_costBreakdown');
+          }
+        } else {
+          warnings.push('costBreakdown_missing');
+        }
+
+        // Enforce budget constraint when total available
+        if (typeof total === 'number' && total > 200) {
+          const err: Error & { code?: string; meta?: unknown } = new Error('Budget exceeds $200 first-month cap');
+          err.code = 'constraint_violation';
+          err.meta = { index: idx, totalCostUsd: total };
+          throw err;
+        }
+
+        // Try to infer timelineDays from metadata.timeToMarket if missing
+        if (typeof s.timelineDays !== 'number') {
+          const inferredDays = this.parseTimelineDays(String((s.metadata as any)?.timeToMarket ?? ''));
+          if (typeof inferredDays === 'number') {
+            s.timelineDays = inferredDays;
+            warnings.push('timelineDays_inferred_from_timeToMarket');
+          } else {
+            warnings.push('timelineDays_missing');
+          }
+        }
+
+        // Enforce timeline constraint when available
+        if (typeof s.timelineDays === 'number' && (s.timelineDays < 7 || s.timelineDays > 14)) {
+          const err: Error & { code?: string; meta?: unknown } = new Error('Timeline must be between 7 and 14 days');
+          err.code = 'constraint_violation';
+          err.meta = { index: idx, timelineDays: s.timelineDays };
+          throw err;
+        }
+
+        if (warnings.length) {
+          s.metadata = { ...s.metadata, validationWarning: warnings.join('; ') };
+        }
+        return s;
+      });
+
+      return normalized;
     } catch (error) {
       const errObj = error as Error & { code?: string; meta?: unknown };
       chatboxDebug.error('business-suggestion', 'Failed to parse/validate business suggestions', { message: errObj.message, code: errObj.code, meta: errObj.meta });
@@ -222,6 +292,34 @@ export class BusinessSuggestionService {
     // Remove stray code fence ticks if they slipped in
     s = s.replace(/```/g, '');
     return s.trim();
+  }
+
+  // Parse a currency-like string and return first numeric value found, else NaN
+  private parseUsd(value: string): number {
+    if (!value) return NaN;
+    const match = String(value).replace(/,/g, '').match(/[-+]?[0-9]*\.?[0-9]+/);
+    return match ? parseFloat(match[0]) : NaN;
+  }
+
+  // Parse rough timeline from strings like "7-10 days", "10 days", "1-2 weeks", "2 weeks"
+  private parseTimelineDays(value: string): number | undefined {
+    if (!value) return undefined;
+    const v = value.toLowerCase();
+    const numMatches = v.match(/(\d+)(?:\s*-\s*(\d+))?/);
+    if (!numMatches) return undefined;
+    const a = parseInt(numMatches[1], 10);
+    const b = numMatches[2] ? parseInt(numMatches[2], 10) : undefined;
+    let days = a;
+    if (v.includes('week')) {
+      days = (b ?? a) * 7; // take upper bound if range provided
+    } else if (v.includes('day')) {
+      days = b ?? a; // take upper bound if range provided
+    }
+    return isFinite(days) ? days : undefined;
+  }
+
+  private computeFirstMonthTotal(items: Array<{ costUsd?: number; cadence?: string }>): number {
+    return items.reduce((sum, it) => sum + (typeof it.costUsd === 'number' ? it.costUsd : 0), 0);
   }
 
   validateSuggestion(suggestion: Record<string, unknown>): boolean {

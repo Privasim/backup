@@ -82,16 +82,16 @@ Analysis Metadata:
 
   private static getGenerationGuidelines(): string {
     return `GENERATION GUIDELINES:
-1. Focus on businesses that leverage the user's existing skills and experience
-2. Consider current market trends and emerging opportunities
-3. Provide realistic startup cost estimates based on business type
-4. Include actionable next steps and key success factors
-5. Ensure viability scores reflect genuine market potential
-6. Consider scalability and growth potential
-7. Account for user's risk tolerance and resource constraints
-8. Include both traditional and digital business models
-9. Focus on businesses that can be started within 6 months
-10. Prioritize businesses with clear revenue models`;
+1. Prioritize no-code/low-code solutions leveraging the user's existing skills and experience
+2. Require minimal backend integration and avoid complex system architecture
+3. Provide realistic startup costs that do not exceed $200 for the first month (include both monthly subscriptions and one-time costs)
+4. Strictly target a 7–14 day build-and-launch timeline (from start to first usable MVP)
+5. Include actionable next steps and key success factors for a lightweight MVP
+6. Ensure viability scores reflect realistic market potential (no hype)
+7. Keep scope limited to essentials; avoid custom infrastructure and heavy integrations
+8. Prefer digital-first models (no inventory/logistics) for speed of delivery
+9. Use familiar categories for tooling: app-builder, marketing-automation, customer-support, hosting, domain, other (examples acceptable)
+10. Return a clear cost breakdown aligned to the above categories`;
   }
 
   private static getOutputFormat(): string {
@@ -112,14 +112,15 @@ Generate exactly 3 unique business suggestions in the following JSON format:
         "Key advantage or feature 3"
       ],
       "targetMarket": "Specific target customer description",
-      "estimatedStartupCost": "$X,XXX - $XX,XXX",
+      "estimatedStartupCost": "$100",
+      "totalCostUsd": 100,
+      "timelineDays": 10,
       "metadata": {
-        "timeToMarket": "X-X months",
-        "skillsRequired": ["Primary skill", "Secondary skill"],
-        "marketSize": "Small/Medium/Large/Very Large",
-        "competitionLevel": "Low/Medium/High",
-        "scalabilityPotential": "Low/Medium/High",
-        "riskLevel": "Low/Medium/High"
+        "costBreakdown": [
+          { "category": "app-builder", "vendor": "example", "costUsd": 20, "cadence": "monthly" },
+          { "category": "marketing-automation", "vendor": "example", "costUsd": 10, "cadence": "monthly" },
+          { "category": "customer-support", "vendor": "example", "costUsd": 20, "cadence": "monthly" }
+        ]
       }
     }
   ]
@@ -128,12 +129,12 @@ Generate exactly 3 unique business suggestions in the following JSON format:
 REQUIREMENTS:
 - Each suggestion must be unique and tailored to the user's profile
 - Viability scores should range from 65-95 (realistic assessment)
-- Startup costs should be market-accurate estimates
-- Include 3-4 key features per suggestion
+- Total first-month cost (totalCostUsd) must be ≤ 200
+- Timeline (timelineDays) must be within 7–14
+- Include at least 2 costBreakdown items; 3 core categories preferred when applicable (app-builder, marketing-automation, customer-support)
 - Target markets should be specific, not generic
-- All metadata fields are required
-- Focus on actionable, achievable business ideas
-- Consider both B2B and B2C opportunities where appropriate`;
+- Focus on actionable, achievable MVPs using no-code/low-code tools
+- Avoid complex backend systems or heavy integrations`;
   }
 
   static getIndustrySpecificPrompt(industry: string): string {

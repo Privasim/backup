@@ -42,6 +42,19 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
     return 'Moderate Viability';
   };
 
+  const formatCategory = (cat: string | undefined) => {
+    const map: Record<string, string> = {
+      'app-builder': 'App builder',
+      'marketing-automation': 'Marketing',
+      'customer-support': 'Customer support',
+      'hosting': 'Hosting',
+      'domain': 'Domain',
+      'other': 'Other',
+    };
+    const key = (cat || '').toLowerCase();
+    return map[key] ?? (cat || 'Other');
+  };
+
   return (
     <div className={`rounded-2xl bg-white/90 p-3 shadow-sm backdrop-blur border border-gray-200 hover:shadow-md transition-shadow flex flex-col w-full ${className}`}>
       {/* Header */}
@@ -77,6 +90,38 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
               <span>{feature}</span>
             </div>
           ))}
+        </div>
+
+        {/* Cost Summary and Breakdown */}
+        <div className="mt-3 rounded-lg border border-gray-200 bg-white/60 p-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-900">Total cost</span>
+            <span className="text-sm text-gray-700">
+              {typeof suggestion.totalCostUsd === 'number'
+                ? `$${suggestion.totalCostUsd.toFixed(0)}`
+                : suggestion.estimatedStartupCost}
+            </span>
+          </div>
+          {Array.isArray(suggestion.metadata?.costBreakdown) && suggestion.metadata.costBreakdown.length > 0 ? (
+            <div className="mt-2">
+              <div className="text-xs text-gray-500 mb-1">Breakdown</div>
+              <ul className="space-y-1">
+                {suggestion.metadata.costBreakdown.slice(0, 3).map((item, i) => (
+                  <li key={i} className="flex items-center justify-between text-xs text-gray-600">
+                    <span className="truncate">
+                      {formatCategory((item as any).category)}: ${Number((item as any).costUsd).toFixed(0)} ({(item as any).vendor})
+                    </span>
+                    <span className="ml-2 text-[11px] text-gray-400">{(item as any).cadence}</span>
+                  </li>
+                ))}
+                {suggestion.metadata.costBreakdown.length > 3 && (
+                  <li className="text-xs text-gray-400">+{suggestion.metadata.costBreakdown.length - 3} more</li>
+                )}
+              </ul>
+            </div>
+          ) : (
+            <div className="mt-2 text-xs text-gray-400">Breakdown unavailable</div>
+          )}
         </div>
       </div>
 

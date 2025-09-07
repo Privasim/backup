@@ -6,6 +6,28 @@ export type ChatboxStatus = 'idle' | 'configuring' | 'analyzing' | 'completed' |
 export type AnalysisType = 'profile' | 'resume' | 'interview' | 'career-planning' | 'business-suggestion';
 
 // Business suggestion types
+export type CostBreakdownCategory =
+  | 'app-builder'
+  | 'marketing-automation'
+  | 'customer-support'
+  | 'hosting'
+  | 'domain'
+  | 'other';
+
+export interface CostBreakdownItem {
+  category: CostBreakdownCategory;
+  vendor: string;
+  costUsd: number;
+  cadence: 'monthly' | 'one-time';
+}
+
+export interface BusinessSuggestionMetadata extends Record<string, any> {
+  timeToMarket?: string; // kept for backward-compat (legacy)
+  marketSize?: string;   // kept for backward-compat (legacy)
+  costBreakdown?: CostBreakdownItem[];
+  validationWarning?: string;
+}
+
 export interface BusinessSuggestion {
   id: string;
   title: string;
@@ -15,7 +37,9 @@ export interface BusinessSuggestion {
   keyFeatures: string[];
   targetMarket: string;
   estimatedStartupCost: string;
-  metadata: Record<string, any>;
+  totalCostUsd?: number;
+  timelineDays?: number;
+  metadata: BusinessSuggestionMetadata;
 }
 
 export interface BusinessSuggestionState {
