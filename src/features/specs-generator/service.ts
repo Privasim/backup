@@ -191,8 +191,8 @@ export function buildSuggestionPrompt(
   // Build features list
   const featuresList = features.length > 0 ? features.map(f => `- ${String(f)}`).join('\n') : '- (none provided)';
 
-  // Compose the prompt enforcing a sample-like structure
-  return `Generate a technical specification document in Markdown format based on the following business suggestion context.
+  // Compose the prompt enforcing exact sample structure
+  return `Generate a technical specification document in Markdown format based on the following business suggestion context. Follow the exact structure and formatting of our internal sample specification.
 
 <SUGGESTION_DESCRIPTION>
 ${description}
@@ -203,36 +203,48 @@ ${featuresList}
 </KEY_FEATURES>
 
 Global rules:
-- Use numbered headings (1., 1.1, 1.2, etc.).
-- Write for software engineers; avoid marketing language.
-- Be specific, implementation-oriented, and consistent with modern web architectures.
-- Use clean Markdown only (no HTML), with proper heading hierarchy and bullet lists.
+- Use numbered headings (1., 1.1, 1.2, etc.)
+- Write for software engineers; avoid marketing language
+- Be specific and implementation-oriented
+- Use clean Markdown with proper hierarchy
+- Never include placeholders or contact information
 
-Required sections (match order and structure similar to our internal sample):
-1. Introduction
-   1.1 Project Overview
-   1.2 Goals and Objectives
-   1.3 Scope
-       - In-Scope
-       - Out-of-Scope
-2. System Architecture
-   2.1 High-Level Architecture
-   2.2 Technology Stack
-3. Product Features & Requirements
-   3.1 User Stories
-   3.2 Functional Requirements (assign IDs, e.g., REQ-XXX-001)
-   3.3 Non-Functional Requirements
-4. Database Schema (collections/entities with fields; brief)
-5. API Endpoints (REST table with Method | Endpoint | Description)
-6. Milestones (phases and high-level tasks)
+Required structure (EXACT format):
 
-Additional constraints:
+# **Technical Specification**
+
+## **1. Introduction**
+### **1.1. Project Overview**
+### **1.2. Goals and Objectives**
+### **1.3. Scope**
+   - **In-Scope**
+   - **Out-of-Scope**
+
+## **2. System Architecture**
+### **2.1. High-Level Architecture**
+### **2.2. Technology Stack**
+
+## **3. Product Features & Requirements**
+### **3.1. User Stories**
+### **3.2. Functional Requirements**
+   - Assign stable IDs with domain prefixes (e.g., REQ-AUTH-001, REQ-API-002)
+### **3.3. Non-Functional Requirements**
+
+## **4. Database Schema**
+## **5. API Endpoints**
+   - Use Markdown table format:
+     | Method | Endpoint | Description |
+## **6. Milestones**
+
+Additional rules:
 - ${sectionInstructions}
 - ${outlineStyleInstruction}
 - ${audienceInstruction}
 - ${toneInstruction}
 - ${languageInstruction}
 - ${tokenBudgetInstruction}
+- Use **bold** for scope items (In-Scope/Out-of-Scope)
+- Omit any placeholder text
 
 Technical Specification (Markdown):`;
 }
