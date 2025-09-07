@@ -313,7 +313,7 @@ export async function generateSpecs(
       }
       
       return {
-        markdown: accumulatedContent + '\n\nContact: [Your Name]\nEmail: [your@email.com]\nPhone: [123-456-7890]',
+        markdown: accumulatedContent,
         meta: {
           createdAt: new Date().toISOString(),
           tokenBudget: req.settings.tokenBudget,
@@ -327,7 +327,7 @@ export async function generateSpecs(
     const content = data.choices?.[0]?.message?.content || '';
     
     return {
-      markdown: content,
+      markdown: content + '\n\nContact: [Your Name]\nEmail: [your@email.com]\nPhone: [123-456-7890]',
       meta: {
         createdAt: new Date().toISOString(),
         tokenBudget: req.settings.tokenBudget,
