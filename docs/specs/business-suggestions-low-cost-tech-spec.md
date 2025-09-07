@@ -71,16 +71,15 @@ Status: Draft for review
 
 - Detailed Changes
   - 3.1 Prompting (`BusinessSuggestionPrompts.ts`)
-    - Update `getGenerationGuidelines()` to explicitly require:
-      - Timeline 7–14 days.
-      - Total first-month cost ≤ $200.
-      - A structured cost breakdown with at least these buckets when applicable: app-builder, marketing-automation, customer-support. Hosting/domain are optional.
-    - Update `getOutputFormat()` to include:
-      - `totalCostUsd: number` (first-month total)
-      - `timelineDays: number` (7–14)
-      - `estimatedStartupCost: string` (backward compatibility display)
-      - `metadata.costBreakdown: Array<{ category: string; vendor: string; costUsd: number; cadence: 'monthly'|'one-time' }>`
-      - Note: Add guidance to choose vendors from a provided candidate list, but vendor resolution ultimately occurs via registry on the client.
+    - Replace `getGenerationGuidelines()` with simplified, time-boxed rules:
+      - Timeline must be 7–14 days (not 6 months).
+      - Budget must not exceed $200 for first month.
+      - Prioritize no-code/low-code solutions and minimal backend integration.
+      - Require cost breakdown with at least 2 categories.
+    - Replace `getOutputFormat()` JSON schema to:
+      - Remove legacy metadata (timeToMarket, skillsRequired, marketSize, competitionLevel, scalabilityPotential, riskLevel).
+      - Add required fields: totalCostUsd (number ≤ 200), timelineDays (7–14), costBreakdown array.
+    - Add explicit instruction: “Focus on ideas that can be built and launched in 7–14 days using no-code or low-code tools without complex backend development.”
 
   - 3.2 Types (`types.ts`)
     - Extend `BusinessSuggestion` with:
@@ -93,16 +92,12 @@ Status: Draft for review
     - System message: reinforce JSON-only responses and that suggestions must comply with timeline and budget constraints.
     - Validation with zod:
       - Schema for a single suggestion covering all required fields and constraints:
-        - `viabilityScore` clamped to [60,95].
-        - `totalCostUsd` ≤ 200.
-        - `timelineDays` ∈ [7,14].
-        - `metadata.costBreakdown` optional; if present, 2–5 items. Sum of first-month costs must match `totalCostUsd` within ±$1.
-      - If `costBreakdown` missing but `totalCostUsd` exists, accept with `validation_warning` (attach warning metadata to suggestion or global result).
-      - If `totalCostUsd` missing but `estimatedStartupCost` contains a parseable number, use that as a provisional `totalCostUsd` and mark `validation_warning`.
-    - Constraint enforcement:
-      - If `totalCostUsd > 200` or `timelineDays` outside [7,14], throw with code `constraint_violation` and include index and offending values in `meta`.
-    - Registry integration (read-only, headless):
-      - Defer selection of default vendors to `RegistryAdapter` to avoid bloating the service. The service only validates.
+        - viabilityScore clamped to [60,95].
+        - totalCostUsd number ≤ 200.
+        - timelineDays number ∈ [7,14].
+        - costBreakdown optional; if present, 2–5 items. Sum of first-month costs must match totalCostUsd within ±$1.
+      - If costBreakdown missing but totalCostUsd exists or parseable from estimatedStartupCost → accept with validation_warning.
+      - If totalCostUsd > 200 or timelineDays outside [7,14], throw constraint_violation.
 
   - 3.4 Registry Adapter (new file)
     - `getVendorsForCategory(category: 'app-builder'|'marketing-automation'|'customer-support'|'hosting'|'domain'|'other'): { primary: string; alternatives: string[] }`
@@ -126,11 +121,10 @@ Status: Draft for review
       - Styles consistent with existing neutrals in this card; no global tokens altered.
 
   - 3.6 Templates (`TemplateService.ts`)
-    - Add new default template `lean-mvp` (normalized id) that encodes constraints and instructs the model to:
-      - Target no/low-code implementation.
-      - Include cost breakdown and numeric totals.
-      - Maintain 3 suggestions output.
-    - Keep existing normalization and schema validation.
+    - Add new default template id: 'lean-mvp' (normalized id) that explicitly encodes the simplified constraints:
+      - Prompt must instruct the model to generate ideas buildable in 7–14 days with ≤ $200 budget.
+      - Require no-code/low-code implementation using registry-sourced tools.
+      - Enforce the new JSON schema (totalCostUsd, timelineDays, costBreakdown).
 
   - 3.7 Error Handling & Warnings
     - Extend error taxonomy usage:
