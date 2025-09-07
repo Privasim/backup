@@ -48,8 +48,8 @@ export default function IconDrawer({
   initialViewId,
   storageKey = "icon-drawer",
   defaultCollapsed = false,
-  widthPx = 264,
-  activityBarWidthPx = 52,
+  widthPx = 343, // 264 * 1.3
+  activityBarWidthPx = 68, // 52 * 1.3
   className,
 }: IconDrawerProps) {
   const firstId = views[0]?.id;
@@ -81,10 +81,14 @@ export default function IconDrawer({
   }
 
   return (
-    <div className={[
-      "flex h-full",
-      className || "",
-    ].join(" ")}
+    <div
+      style={{
+        width: collapsed ? activityBarWidthPx : activityBarWidthPx + widthPx,
+      }}
+      className={[
+        "fixed left-0 top-0 flex h-screen z-50 bg-surface transition-[width] duration-200 ease-in-out overflow-hidden",
+        className || "",
+      ].join(" ")}
       aria-label="IDE-style drawer"
     >
       {/* Activity Bar */}
@@ -132,8 +136,8 @@ export default function IconDrawer({
 
       {/* Sidebar Content */}
       <aside
-        className="relative overflow-hidden border-r border-default bg-surface transition-[width,opacity] duration-200 ease-in-out"
-        style={{ width: collapsed ? 0 : widthPx, opacity: collapsed ? 0 : 1 }}
+        className="relative overflow-hidden bg-surface"
+        style={{ width: widthPx }}
         aria-label="Sidebar content"
       >
         {/* Sticky header */}
