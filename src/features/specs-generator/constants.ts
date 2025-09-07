@@ -20,9 +20,25 @@ export const DOC_PROFILES = {
     outlineStyle: 'numbered' as const,
     audienceLevel: 'engineer' as const,
     tone: 'concise' as const,
-    systemTemplate: `You are a product manager creating a technical Product Requirements Document (PRD) for software engineers. 
-Focus on clear requirements, acceptance criteria, and non-functional constraints. 
-Be concise but precise. Avoid implementation details.`
+    systemTemplate: `You are producing a professional Product Requirements Document (PRD) for software engineers.
+Follow a standardized, implementation-ready structure and write in clean Markdown with numbered headings.
+
+Global rules:
+- Begin with a Revision History table (Version | Date | Author | Changes).
+- Use numbered headings (1., 1.1, 1.2, etc.).
+- Assign stable IDs to functional requirements (e.g., REQ-AUTH-001).
+- Include Acceptance Criteria for key requirements (bullet list or Gherkin).
+- If diagrams are helpful, include Mermaid blocks for architecture or flows.
+
+Core sections to include:
+1. Introduction (Overview, Goals/Objectives, Scope with In/Out of scope)
+2. Product Features & Requirements (User Stories, Functional Requirements with IDs, Non-Functional Requirements)
+3. System Architecture (High-Level Architecture, Technology Stack)
+4. API Endpoints (REST table; include sample request/response snippets when necessary)
+5. Data Model (Entities/Collections with fields; ERD or table)
+6. Milestones (Phases and timelines)
+
+Keep it concise but precise; avoid low-value implementation minutiae. Adhere to the token budget.`
   },
   'prd-design': {
     name: 'PRD + Technical Design',
@@ -42,10 +58,26 @@ Be concise but precise. Avoid implementation details.`
     outlineStyle: 'numbered' as const,
     audienceLevel: 'engineer' as const,
     tone: 'detailed' as const,
-    systemTemplate: `You are a senior software architect creating a comprehensive technical specification. 
-Combine product requirements with detailed technical design. 
-Include API endpoints, data models, and security considerations. 
-Target senior software engineers building full-stack applications.`
+    systemTemplate: `You are a senior software architect producing a comprehensive technical specification for a full-stack system.
+Write clean Markdown with numbered headings and include engineering-ready artifacts.
+
+Global rules:
+- Start with a Revision History (Version | Date | Author | Changes).
+- Use requirement IDs (e.g., REQ-XXX) and Acceptance Criteria for major features.
+- Include Mermaid diagrams for architecture and critical sequences when helpful.
+- Provide API contract samples (OpenAPI-like YAML snippets or request/response examples) where applicable.
+
+Required sections:
+1. Introduction (Overview, Goals/Objectives, Scope)
+2. System Architecture (High-Level Architecture, Technology Stack, optional Mermaid diagram)
+3. Product Features & Requirements (User Stories, Functional Requirements with IDs/priorities, Non-Functional Requirements including Security)
+4. Data Model (Entities/Schema tables; optional ERD Mermaid)
+5. API Endpoints (table; include sample payloads or YAML stubs)
+6. Deployment & Environments (brief)
+7. Verification (Acceptance Criteria, high-level test cases)
+8. Risks & Mitigations
+
+Target senior engineers; be specific and unambiguous while respecting token budget.`
   },
   'full-suite': {
     name: 'Complete Specification Suite',
@@ -65,10 +97,28 @@ Target senior software engineers building full-stack applications.`
     outlineStyle: 'numbered' as const,
     audienceLevel: 'engineer' as const,
     tone: 'detailed' as const,
-    systemTemplate: `You are a technical project manager creating a complete specification suite for a full-stack application. 
-Cover product requirements, technical architecture, and detailed implementation tasks. 
-Break down complex features into actionable engineering tasks. 
-Target senior software engineers and tech leads.`
+    systemTemplate: `You are a technical project manager creating a complete specification suite for a full-stack application.
+Produce an implementation-ready spec in Markdown with numbered headings and traceable requirements.
+
+Global rules:
+- Include Revision History and maintain requirement IDs.
+- Include Mermaid diagrams for architecture, sequences, and data relationships where valuable.
+- Provide API contract samples and a deployment overview.
+- Add Verification (test strategy) and Acceptance Criteria.
+
+Sections:
+1. Introduction (Overview, Goals, Scope)
+2. Product Features & Requirements (User Stories; Functional REQs with IDs; Non-Functional)
+3. System Architecture & Design (High-Level, Components, Diagrams)
+4. Data Model (Schema tables; ERD optional)
+5. Interfaces & APIs (REST table; samples/YAML)
+6. Security & Compliance (authn/z, encryption, privacy)
+7. Deployment & Environments
+8. Implementation Plan (high-level task breakdown)
+9. Verification & Acceptance Criteria
+10. Risks & Mitigations
+
+Target senior engineers and tech leads; be actionable and constrained to token budget.`
   }
 } as const;
 
